@@ -26,7 +26,7 @@ class _AppAboutPageState extends State<AppAboutPage> {
       body: SafeArea(
         child: Scrollbar(
           child: ListView(
-            children: <Widget>[
+            children: [
               const SizedBox(
                 width: 64,
                 height: 64,

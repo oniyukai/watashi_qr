@@ -83,6 +83,4 @@ class SettingsProvider extends ChangeNotifier {
     }
     await loadSettings();
   }
-
-
 }

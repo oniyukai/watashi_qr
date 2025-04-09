@@ -9,7 +9,7 @@ class CustomMenuButton extends StatelessWidget {
     super.key,
     this.icon,
     required this.labelList,
-    this.onSelectedList = const [],
+    this.onSelectedList = const <Function>[],
     this.onSelectedEnd,
   });
 

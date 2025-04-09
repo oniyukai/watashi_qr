@@ -90,12 +90,12 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
   }
 
   Future<void> _createQrFromClipboard(Language localeStr) async {
-    ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String qrCodeErrorLevel = context.read<SettingsProvider>().qrCodeErrorLevel;
     final bool isBarCodeGenerationHistoryEnabled = context.read<SettingsProvider>().isBarCodeGenerationHistoryEnabled;
 
     if (clipboardData != null) {
-      String? text = clipboardData.text;
+      final String? text = clipboardData.text;
       if (text != null) {
         final HistoryItem item = HistoryItem(
           unixTime: Utils.getNowUnixTime(),
@@ -117,7 +117,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
     }
   }
 
-  final List<String> _qrcodeTypes = const [
+  final List<String> _qrcodeTypes = const <String>[
     'TEXT',
     'WEBSITE',
     'CONTACT',
@@ -129,7 +129,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
     'WIFI',
   ];
 
-  final List<String> _barcodeTypes = const [
+  final List<String> _barcodeTypes = const <String>[
     'DATA_MATRIX',
     'AZTEC',
     'PDF_417',

@@ -110,7 +110,7 @@ class BarcodeTextField extends StatelessWidget {
         if (value.length != 13) {
           return '${localeStr.errorBarcodeWrongLengthMessage}13';
         }
-        String checkDigit = _trytoFindCheck(value, Barcode.ean13);
+        final String checkDigit = _trytoFindCheck(value, Barcode.ean13);
         if (value[value.length - 1] != checkDigit) {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
@@ -119,7 +119,7 @@ class BarcodeTextField extends StatelessWidget {
         if (value.length != 8) {
           return '${localeStr.errorBarcodeWrongLengthMessage}8';
         }
-        String checkDigit = _trytoFindCheck(value, Barcode.ean8);
+        final String checkDigit = _trytoFindCheck(value, Barcode.ean8);
         if (value[value.length - 1] != checkDigit) {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
@@ -128,7 +128,7 @@ class BarcodeTextField extends StatelessWidget {
         if (value.length != 12) {
           return '${localeStr.errorBarcodeWrongLengthMessage}12';
         }
-        String checkDigit = _trytoFindCheck(value, Barcode.upcA);
+        final String checkDigit = _trytoFindCheck(value, Barcode.upcA);
         if (value[value.length - 1] != checkDigit) {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
@@ -140,7 +140,7 @@ class BarcodeTextField extends StatelessWidget {
         if (value.length != 8) {
           return '${localeStr.errorBarcodeWrongLengthMessage}8';
         }
-        String checkDigit = _trytoFindCheck(value, Barcode.upcE);
+        final String checkDigit = _trytoFindCheck(value, Barcode.upcE);
         if (value[value.length - 1] != checkDigit) {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
@@ -193,7 +193,7 @@ class BarcodeTextField extends StatelessWidget {
   String _trytoFindCheck(String value, Function codeType) {
     final valueNoCheck = value.substring(0, value.length - 1);
     for (int i=0; i < 10; i++) {
-      bool isValid = codeType().isValid('$valueNoCheck$i');
+      final bool isValid = codeType().isValid('$valueNoCheck$i');
       if (isValid) return i.toString();
     }
     return value[value.length - 1];

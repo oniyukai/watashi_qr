@@ -14,7 +14,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
   bool isSupported(Locale locale) {
     final selectedLanguage = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
     if (selectedLanguage == 'sys') return true;
-    return ['en', 'ja', 'zh'].contains(locale.languageCode);
+    return const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
   }
 
   @override
@@ -38,10 +38,10 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
 }
 
 class AppLocale {
-  AppLocale._();
+  const AppLocale._();
 
   static Map<String, String> optionsMap(Language localeStr) {
-    return {
+    return <String, String>{
       'sys': localeStr.preferencesDefault,
       'en': Language.localeLanguageEn,
       'ja': Language.localeLanguageJa,
@@ -67,14 +67,14 @@ class AppLocale {
     }
   }
 
-  static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = [
+  static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate>[
     AppLocalizationsDelegate(),
     GlobalMaterialLocalizations.delegate,
     GlobalWidgetsLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
   ];
 
-  static const List<Locale> supportedLocales = [
+  static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('ja'),
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),

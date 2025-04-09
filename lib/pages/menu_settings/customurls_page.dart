@@ -17,7 +17,7 @@ class CustomurlsPage extends StatefulWidget {
 
 class _CustomurlsPageState extends State<CustomurlsPage> {
   bool _isSelectionMode = false;
-  final List<String> _selectedTitles = [];
+  final List<String> _selectedTitles = <String>[];
 
   void _enterSelectionMode(String title) {
     if (_isSelectionMode == true) {
@@ -85,7 +85,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                     onPressed: () {
                       Navigator.of(context).pop();
                       if (_isSelectionMode) {
-                        List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
+                        final List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
                         customSearchUrls.removeWhere((searchUrl) {
                           for (final title in _selectedTitles) {
                             if (searchUrl.startsWith('$title<Separation.Object>')) {
@@ -144,7 +144,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                           },
                           onLongPress: () => _enterSelectionMode(title),
                         ),
-                        SizedBox(height: 4)
+                        const SizedBox(height: 4)
                       ],
                     );
                   }),

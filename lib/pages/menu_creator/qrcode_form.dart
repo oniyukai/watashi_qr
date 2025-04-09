@@ -28,8 +28,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _agendAllday = false; // only for the AGEND form
   String _wifiSecurityType = 'SAE'; // only for the WIFI form
-  List<String> _contactMailType = ['home', 'home', 'home']; // only for the _CONTACT form
-  List<String> _contactPhoneType = ['cell', 'cell', 'cell']; // only for the _CONTACT form
+  final List<String> _contactMailType = <String>['home', 'home', 'home']; // only for the _CONTACT form
+  final List<String> _contactPhoneType = <String>['cell', 'cell', 'cell']; // only for the _CONTACT form
 
   void _sendForm(String contents, String qrcodeType) {
     if (contents.length > 4296) {
@@ -105,9 +105,9 @@ class _QrcodeFormState extends State<QrcodeForm> {
     );
   }
 
-  Future<void> importContactFromVcard(Language localeStr)  async {
+  Future<void> importContactFromVcard(Language localeStr) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['vcf'],
       );
@@ -351,7 +351,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   keyboardType: TextInputType.url,
                 ),
                 const SizedBox(height: 8),
-                ...{
+                ...<int, String>{
                   0: localeStr.qrCodeTextInputEditTextHintMail1,
                   1: localeStr.qrCodeTextInputEditTextHintMail2,
                   2: localeStr.qrCodeTextInputEditTextHintMail3,
@@ -402,7 +402,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                     const SizedBox(height: 8),
                   ],
                 )),
-                ...{
+                ...<int, String>{
                   0: localeStr.qrCodeTextInputEditTextHintPhone1,
                   1: localeStr.qrCodeTextInputEditTextHintPhone2,
                   2: localeStr.qrCodeTextInputEditTextHintPhone3,

@@ -141,19 +141,19 @@ class _BarcodeViewState extends State<BarcodeView> {
     required Language localeStr
   }) async {
     try {
-      var status = await Permission.storage.status;
+      final status = await Permission.storage.status;
       if (!status.isGranted) {
         await Permission.storage.request();
       }
-      Directory? directory = await getExternalStorageDirectory();
+      final Directory? directory = await getExternalStorageDirectory();
       late String initialDirectory;
       if (directory != null) initialDirectory = directory.path;
-      String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDirectory);
+      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDirectory);
       if (directoryPath == null) {
         Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
         return;
       }
-      String filePath = '$directoryPath/barcode.$option';
+      final String filePath = '$directoryPath/barcode.$option';
       final file = File(filePath);
 
       if (option == 'svg') {
@@ -204,8 +204,8 @@ class _BarcodeViewState extends State<BarcodeView> {
     required String errorCorrectionLevel,
     double length = 1024,
   }) {
-    Barcode barcode = _getBarcode(formatName, errorCorrectionLevel);
-    double height = _getHeight(formatName, length);
+    final Barcode barcode = _getBarcode(formatName, errorCorrectionLevel);
+    final double height = _getHeight(formatName, length);
     return barcode.toSvg(contents, width: length, height: height);
   }
 

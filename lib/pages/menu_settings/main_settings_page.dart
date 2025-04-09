@@ -155,7 +155,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                 ListTilePicker(
                   str: localeStr.preferencesSearchEngine,
                   selectedOption: settings.selectedSearchEngine,
-                  optionsMap: {
+                  optionsMap: <String, String>{
                     'google': Language.googleLabel,
                     'bing': Language.bingLabel,
                     'wikipedia': Language.wikipediaLabel,
@@ -170,7 +170,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
 
                 ListTileText(str: localeStr.preferencesAboutTitle, isSection: true),
                 ListTileText(
-                  str:Language.appName,
+                  str: Language.appName,
                   trailing: trailingIcon,
                   onTap:() => context.routeTo(AppAboutPage)
                 ),
@@ -181,6 +181,4 @@ class _MainSettingsPage extends State<MainSettingsPage> {
       ),
     );
   }
-
 }
-

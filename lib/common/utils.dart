@@ -13,7 +13,7 @@ import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class Utils {
-  Utils._();
+  const Utils._();
 
   // true:為直屏狀態 false:為橫屏狀態
   static bool isPortrait(BuildContext context) {
@@ -53,14 +53,13 @@ class Utils {
   // <About barcode>
   // 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
   static String formatUnixTimes(int unixTime) {
-    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime).toLocal();
-    DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
-    String formattedDateTime = formatter.format(dateTime);
-    return formattedDateTime;
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime).toLocal();
+    final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
+    return formatter.format(dateTime);
   }
 
   static String formatTypeStr(String type, Language localeStr) {
-    final Map<String, String>  typeMap = {
+    final Map<String, String> typeMap = <String, String>{
       'TEXT': localeStr.qrCodeTypeNameText,
       'WEBSITE': localeStr.qrCodeTypeNameWebSite,
       'CONTACT': localeStr.qrCodeTypeNameContact,
@@ -77,7 +76,7 @@ class Utils {
   }
 
   static IconData formatTypeIcon(String type) {
-    final Map<String, IconData> typeMap = const {
+    final Map<String, IconData> typeMap = const <String, IconData>{
       'TEXT': Icons.format_size,
       'WEBSITE': Icons.web,
       'CONTACT': Icons.contacts_outlined,
@@ -93,8 +92,8 @@ class Utils {
     return typeMap[type] ?? Icons.help_center;
   }
 
-  static String formatNameStr(String formatName, Language localeStr) {
-    final Map<String, String>  formatNameMap = {
+  static String formatNameStr(String formatName,Language localeStr) {
+    final Map<String, String>  formatNameMap = <String, String>{
       'QR_CODE': localeStr.barcodeQrCodeLabel,
       'AZTEC': localeStr.barcodeAztecLabel,
       'DATA_MATRIX': localeStr.barcodeDataMatrixLabel,
@@ -114,7 +113,7 @@ class Utils {
   }
 
   static IconData formatNameIcon(String formatName) {
-    final Map<String, IconData> formatNameMap = const {
+    final Map<String, IconData> formatNameMap = const <String, IconData>{
       'QR_CODE': Icons.qr_code,
       'AZTEC': MaterialCommunityIcons.data_matrix, // TODO: No corresponding icon has been found yet
       'DATA_MATRIX': MaterialCommunityIcons.data_matrix,
@@ -134,7 +133,7 @@ class Utils {
   }
 
   static String? formatNameDescription(String formatName, Language localeStr) {
-    final Map<String, String> formatNameMap = {
+    final Map<String, String> formatNameMap = <String, String>{
       'EAN_13': localeStr.barcodeEan13DescriptionLabel,
       'EAN_8': localeStr.barcodeEan8DescriptionLabel,
       'UPC_A': localeStr.barcodeUpcADescriptionLabel,
@@ -149,7 +148,7 @@ class Utils {
   }
 
   static String formatNameComposition(String formatName, Language localeStr) {
-    final Map<String, String> formatNameMap = {
+    final Map<String, String> formatNameMap = <String, String>{
       'QR_CODE': localeStr.barcodeTextCompositionLabel,
       'AZTEC': localeStr.barcodeTextNoSpecialCompositionLabel,
       'DATA_MATRIX': localeStr.barcodeTextNoSpecialCompositionLabel,
@@ -169,7 +168,7 @@ class Utils {
 
   static String determineType(String formatName, String contents) {
     final String upperContents = contents.toUpperCase();
-    switch(formatName) {
+    switch (formatName) {
       case 'QR_CODE':
       case 'DATA_MATRIX':
       case 'AZTEC':
@@ -208,7 +207,7 @@ class Utils {
     return 'TEXT';
   }
 
-  static Map<String, String> qrCodeECLOptionsMap(Language localeStr) => {
+  static Map<String, String> qrCodeECLOptionsMap(Language localeStr) => <String, String>{
     'L': localeStr.qrCodeErrorCorrectionLevelNameLow,
     'M': localeStr.qrCodeErrorCorrectionLevelNameMedium,
     'Q': localeStr.qrCodeErrorCorrectionLevelNameQuartile,
@@ -216,20 +215,22 @@ class Utils {
   };
 
   static String formatMobileScannerType(BarcodeFormat barcodeFormat) {
-    if (barcodeFormat == BarcodeFormat.qrCode) { return 'QR_CODE'; }
-    else if  (barcodeFormat == BarcodeFormat.aztec) { return 'AZTEC'; }
-    else if  (barcodeFormat == BarcodeFormat.dataMatrix) { return 'DATA_MATRIX'; }
-    else if  (barcodeFormat == BarcodeFormat.pdf417) { return 'PDF_417'; }
-    else if  (barcodeFormat == BarcodeFormat.ean13) { return 'EAN_13'; }
-    else if  (barcodeFormat == BarcodeFormat.ean8) { return 'EAN_8'; }
-    else if  (barcodeFormat == BarcodeFormat.upcA) { return 'UPC_A'; }
-    else if  (barcodeFormat == BarcodeFormat.upcE) { return 'UPC_E'; }
-    else if  (barcodeFormat == BarcodeFormat.code128) { return 'Code_128'; }
-    else if  (barcodeFormat == BarcodeFormat.code93) { return 'Code_93'; }
-    else if  (barcodeFormat == BarcodeFormat.code39) { return 'Code_39'; }
-    else if  (barcodeFormat == BarcodeFormat.codebar) { return 'CODABAR'; }
-    else if  (barcodeFormat == BarcodeFormat.itf) { return 'IFT'; }
-    return barcodeFormat.name;
+    final Map<BarcodeFormat, String> typeStringMap = const <BarcodeFormat, String>{
+      BarcodeFormat.qrCode: 'QR_CODE',
+      BarcodeFormat.aztec: 'AZTEC',
+      BarcodeFormat.dataMatrix: 'DATA_MATRIX',
+      BarcodeFormat.pdf417: 'PDF_417',
+      BarcodeFormat.ean13: 'EAN_13',
+      BarcodeFormat.ean8: 'EAN_8',
+      BarcodeFormat.upcA: 'UPC_A',
+      BarcodeFormat.upcE: 'UPC_E',
+      BarcodeFormat.code128: 'Code_128',
+      BarcodeFormat.code93: 'Code_93',
+      BarcodeFormat.code39: 'Code_39',
+      BarcodeFormat.codebar: 'CODABAR',
+      BarcodeFormat.itf: 'IFT',
+    };
+    return typeStringMap[barcodeFormat] ?? barcodeFormat.name;
   }
   // </About barcode>
 
@@ -238,12 +239,12 @@ class Utils {
     final bool isScreenRotationEnabled = context.read<SettingsProvider>().isScreenRotationEnabled;
     if (isScreenRotationEnabled) {
       if (isPortrait(context)) {
-        await SystemChrome.setPreferredOrientations([
+        await SystemChrome.setPreferredOrientations( const <DeviceOrientation>[
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
         ]);
       } else {
-        await SystemChrome.setPreferredOrientations([
+        await SystemChrome.setPreferredOrientations( const <DeviceOrientation>[
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
         ]);
@@ -255,7 +256,7 @@ class Utils {
 
   // 恢復允許螢幕所有旋轉方向
   static void unlockCurrentOrientation() {
-    SystemChrome.setPreferredOrientations([
+    SystemChrome.setPreferredOrientations( const <DeviceOrientation>[
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown, // 考量平板向下也可以
       DeviceOrientation.landscapeLeft,
@@ -278,7 +279,5 @@ class Utils {
       showToast(e.toString());
     }
   }
-
-
 
 }

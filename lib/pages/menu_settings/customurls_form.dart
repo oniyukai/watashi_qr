@@ -26,10 +26,10 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
     final localeStr = Language.of(context)!;
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
-    List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
+    final List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
     if (argument == null) return AppAboutPage();
     if (argument != '') {
-      List<String> parts = argument.split('<Separation.Object>');
+      final List<String> parts = argument.split('<Separation.Object>');
       _title = parts[0];
       _url = parts[1];
       _isAddorModify = false;

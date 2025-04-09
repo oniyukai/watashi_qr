@@ -416,39 +416,39 @@ class Language {
 
 
   // No translatable    Don't translate!
-  static String get appName => 'Watashi QR';
-  static String get appVersion => '1.0.0';
-  static String get appVersionCode => '1.0.pre_25.04.08';
-  static String get pngLabel => 'PNG';
-  static String get jpgLabel => 'JPG';
-  static String get svgLabel => 'SVG';
+  static const String appName = 'Watashi QR';
+  static const String appVersion = '1.0.0';
+  static const String appVersionCode = '1.0.pre_25.04.08';
+  static const String pngLabel = 'PNG';
+  static const String jpgLabel = 'JPG';
+  static const String svgLabel = 'SVG';
   // Animations
   // Default font
   // External Services Label
-  static String get googleLabel => 'Google';
-  static String get bingLabel => 'Bing';
-  static String get wikipediaLabel => 'Wikipedia';
+  static const String googleLabel = 'Google';
+  static const String bingLabel = 'Bing';
+  static const String wikipediaLabel = 'Wikipedia';
   // Preferences Settings Keys
-  static String get preferencesColorKey => 'preferences_color_key';
-  static String get preferencesThemeKey => 'preferences_theme_key';
-  static String get preferencesLanguagesKey => 'preferences_languages_key';
-  static String get preferencesSwitchScanAutoOpenWebsiteKey => 'preferences_switch_scan_auto_open_website_key';
-  static String get preferencesWwitchScanContinuousScanKey => 'preferences_switch_scan_continuous_scan_key';
-  static String get preferencesSwitchScanVibrateKey => 'preferences_switch_scan_vibrate_key';
-  static String get preferencesSwitchScanBipKey => 'preferences_switch_scan_bip_key';
-  static String get preferencesSwitchScanScreenRotationKey => 'preferences_switch_scan_screen_rotation_key';
-  static String get preferencesSwitchScanBarcodeCopiedKey => 'preferences_switch_scan_barcode_copied_key';
-  static String get preferencesSwitchScanUseFrontcameraKey => 'preferences_switch_scan_use_frontcamera_key';
-  static String get preferencesBarcodeGenerationErrorCorrectionLevelKey => 'preferences_barcode_generation_error_correction_level_key';
-  static String get preferencesSwitchScanAddBarcodeToTheHistoryKey => 'preferences_switch_scan_add_barcode_to_the_history_key';
-  static String get preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryKey => 'preferences_switch_barcode_generation_add_barcode_to_the_history_key';
-  static String get preferencesSwitchHistorySaveDuplicatesKey => 'preferences_switch_history_save_duplicates_key';
-  static String get preferencesSearchEngineKey => 'preferences_search_engine_key';
-  static String get preferencesCustomSearchUrlsKey => 'preferences_custom_search_urls_key';
+  static const String preferencesColorKey = 'preferences_color_key';
+  static const String preferencesThemeKey = 'preferences_theme_key';
+  static const String preferencesLanguagesKey = 'preferences_languages_key';
+  static const String preferencesSwitchScanAutoOpenWebsiteKey = 'preferences_switch_scan_auto_open_website_key';
+  static const String preferencesWwitchScanContinuousScanKey = 'preferences_switch_scan_continuous_scan_key';
+  static const String preferencesSwitchScanVibrateKey = 'preferences_switch_scan_vibrate_key';
+  static const String preferencesSwitchScanBipKey = 'preferences_switch_scan_bip_key';
+  static const String preferencesSwitchScanScreenRotationKey = 'preferences_switch_scan_screen_rotation_key';
+  static const String preferencesSwitchScanBarcodeCopiedKey = 'preferences_switch_scan_barcode_copied_key';
+  static const String preferencesSwitchScanUseFrontcameraKey = 'preferences_switch_scan_use_frontcamera_key';
+  static const String preferencesBarcodeGenerationErrorCorrectionLevelKey = 'preferences_barcode_generation_error_correction_level_key';
+  static const String preferencesSwitchScanAddBarcodeToTheHistoryKey = 'preferences_switch_scan_add_barcode_to_the_history_key';
+  static const String preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryKey = 'preferences_switch_barcode_generation_add_barcode_to_the_history_key';
+  static const String preferencesSwitchHistorySaveDuplicatesKey = 'preferences_switch_history_save_duplicates_key';
+  static const String preferencesSearchEngineKey = 'preferences_search_engine_key';
+  static const String preferencesCustomSearchUrlsKey = 'preferences_custom_search_urls_key';
   // Preferences Entry Values
   // About Library Third
-  static String get gnuGeneralPublicLicenseV3 => 'GNU General Public License v3.0';
-  static String get gnuGeneralPublicLicenseV3Url => 'https://www.gnu.org/licenses/gpl-3.0.html';
+  static const String gnuGeneralPublicLicenseV3 = 'GNU General Public License v3.0';
+  static const String gnuGeneralPublicLicenseV3Url = 'https://www.gnu.org/licenses/gpl-3.0.html';
   // Activity KTX
   // Preference KTX
   // Lifecycle Livedata KTX
@@ -467,10 +467,10 @@ class Language {
   // ez-vcard
   // Color Picker
   // Link
-  static String get sourceCodeLink => 'https://github.com/oniyukai/watashi_qr';
+  static const String sourceCodeLink = 'https://github.com/oniyukai/watashi_qr';
   // Local Language text
-  static String get localeLanguageEn => 'English';
-  static String get localeLanguageJa => '日本語';
-  static String get localeLanguageZh => '简体中文';
-  static String get localeLanguageZhTw => '繁體中文';
+  static const String localeLanguageEn = 'English';
+  static const String localeLanguageJa = '日本語';
+  static const String localeLanguageZh = '简体中文';
+  static const String localeLanguageZhTw = '繁體中文';
 }

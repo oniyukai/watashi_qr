@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class HiveStorage {
-  HiveStorage._();
+  const HiveStorage._();
 
   static late Box<HistoryItem> histories;
 
@@ -50,7 +50,7 @@ class HiveStorage {
         return 0;
       }
     });
-    int latestDuplicateIndex = historiesList.indexWhere((e) =>
+    final int latestDuplicateIndex = historiesList.indexWhere((e) =>
       (e.formatName==item.formatName) && (e.contents==item.contents)
     );
     if (latestDuplicateIndex==-1) {
@@ -93,7 +93,7 @@ class HiveStorage {
   }
 
   static Future<void> sortHistories() async {
-    List<HistoryItem> historyItemList = histories.values.toList();
+    final List<HistoryItem> historyItemList = histories.values.toList();
     historyItemList.sort((a, b) => a.unixTime.compareTo(b.unixTime));
     await clearHistories();
     await histories.addAll(historyItemList);
@@ -107,24 +107,24 @@ class HiveStorage {
         Utils.showToast(localeStr.labelHistoryEmpty);
         return;
       }
-      DateTime now = DateTime.now();
-      String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
+      final DateTime now = DateTime.now();
+      final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
       var status = await Permission.storage.status;
       if (!status.isGranted) {
         await Permission.storage.request();
       }
-      Directory? directory = await getExternalStorageDirectory();
+      final Directory? directory = await getExternalStorageDirectory();
       late String initialDirectory;
       if (directory != null) initialDirectory = directory.path;
-      String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDirectory);
+      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDirectory);
       if (directoryPath == null) {
         Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
         return;
       }
-      String filePath = '$directoryPath/WTSqr_$formattedDateTime.json';
-      List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
-      String jsonString = jsonEncode(jsonList);
-      File file = File(filePath);
+      final String filePath = '$directoryPath/WTSqr_$formattedDateTime.json';
+      final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
+      final String jsonString = jsonEncode(jsonList);
+      final File file = File(filePath);
       await file.writeAsString(jsonString);
       Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n$filePath', 8);
     } catch (e) {
@@ -134,7 +134,7 @@ class HiveStorage {
 
   static Future<void> importHistoriesFromJson(Language localeStr) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
@@ -145,21 +145,21 @@ class HiveStorage {
 
       final File file = File(result.files.single.path!);
       final String jsonString = await file.readAsString();
-      List<dynamic> jsonData = jsonDecode(jsonString);
+      final List<dynamic> jsonData = jsonDecode(jsonString);
       int added = 0;
       int replaced = 0;
 
-      Map<int, dynamic> timeKeyMap = histories.toMap().map((key, value) {
+      final Map<int, dynamic> timeKeyMap = histories.toMap().map((key, value) {
         return MapEntry(value.unixTime, key);
       }); // timeKeyMap的key, value要是相反的，使用要注意
 
-      for (var item in jsonData) {
+      for (final item in jsonData) {
         final HistoryItem historyItem = HistoryItem.fromJson(item);
         if (timeKeyMap.keys.contains(historyItem.unixTime)) {
           await updateItem(timeKeyMap[historyItem.unixTime], historyItem);
           replaced++;
         } else {
-          int historyItemKey = await addItem(historyItem);
+          final int historyItemKey = await addItem(historyItem);
           added++;
           timeKeyMap[historyItem.unixTime] = historyItemKey;
         }

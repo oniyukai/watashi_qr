@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/locale/language.dart';
 
 class AppTheme {
-  AppTheme._();
+  const AppTheme._();
 
   static Map<String, String> themeOptionsMap(Language localeStr) {
-    return {
+    return <String, String>{
       'sys': localeStr.preferencesSwitchSystemThemeLabel,
       'light': localeStr.preferencesSwitchLightThemeLabel,
       'dark': localeStr.preferencesSwitchDarkThemeLabel,
@@ -13,7 +13,7 @@ class AppTheme {
   }
 
   static Map<String, String> colorOptionsMap(Language localeStr) {
-    return {
+    return <String, String>{
       'sys': localeStr.preferencesColorMaterialYou,
       'blue': localeStr.preferencesColorBlue,
       'orange': localeStr.preferencesColorOrange,

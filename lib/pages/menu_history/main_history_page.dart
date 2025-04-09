@@ -21,7 +21,7 @@ class MainHistoryPage extends StatefulWidget {
 class _MainHistoryPageState extends State<MainHistoryPage> {
   final ScrollController _scrollController = ScrollController();
   bool _isSelectionMode = false;
-  final List<dynamic> _selectedKeys = [];
+  final List<dynamic> _selectedKeys = <dynamic>[];
 
   void _enterSelectionMode(dynamic key) {
     if (_isSelectionMode == true) {
@@ -132,8 +132,8 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
             CustomMenuButton(
               labelList: [localeStr.menuItemHistoryAddFavorite, localeStr.menuItemHistoryRemoveFavorite],
               onSelectedEnd: (int option) {
-                for (dynamic key in _selectedKeys){
-                  HistoryItem? item = HiveStorage.getItem(key);
+                for (final dynamic key in _selectedKeys){
+                  final HistoryItem? item = HiveStorage.getItem(key);
                   if (item == null) continue;
                   item.isFavorite = (option == 0);
                   HiveStorage.updateItem(key, item);
