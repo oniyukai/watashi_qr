@@ -121,7 +121,7 @@ class HiveStorage {
         Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
         return;
       }
-      final String filePath = '$directoryPath/WTSqr_$formattedDateTime.json';
+      final String filePath = '$directoryPath/qr_$formattedDateTime.json';
       final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
       final String jsonString = jsonEncode(jsonList);
       final File file = File(filePath);

@@ -39,20 +39,20 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   str: localeStr.preferencesColor,
                   selectedOption: settings.selectedColor,
                   optionsMap: AppTheme.colorOptionsMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(Language.preferencesColorKey, value),
+                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedColor.name, value),
                 ),
                 ListTilePicker(
                   str: localeStr.preferencesThemeLabel,
                   selectedOption: settings.selectedTheme,
                   optionsMap: AppTheme.themeOptionsMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(Language.preferencesThemeKey, value),
+                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedTheme.name, value),
                 ),
                 ListTilePicker(
                   str: localeStr.preferencesLanguagesTitle,
                   dialogTitleStr: localeStr.preferencesLanguagesChange,
                   selectedOption: settings.selectedLanguage,
                   optionsMap: AppLocale.optionsMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(Language.preferencesLanguagesKey, value),
+                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedLanguage.name, value),
                 ),
 
                 ListTileText(str: localeStr.preferencesScanTitle, isSection: true),
@@ -62,7 +62,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   initialValue: settings.isAutoOpenWebsiteEnabled,
                   enabled: !settings.isContinuousScanEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanAutoOpenWebsiteKey, value);
+                    settings.updateSetting(PreferenceKeys.isAutoOpenWebsite.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -70,7 +70,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.fast_forward,
                   initialValue: settings.isContinuousScanEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesWwitchScanContinuousScanKey, value);
+                    settings.updateSetting(PreferenceKeys.isContinuousScan.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -78,7 +78,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.vibration,
                   initialValue: settings.isVibrateOnScan,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanVibrateKey, value);
+                    settings.updateSetting(PreferenceKeys.isVibrateOnScan.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -86,7 +86,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.volume_up,
                   initialValue: settings.isBipOnScan,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanBipKey, value);
+                    settings.updateSetting(PreferenceKeys.isBipOnScan.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -94,7 +94,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.screen_rotation,
                   initialValue: settings.isScreenRotationEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanScreenRotationKey, value);
+                    settings.updateSetting(PreferenceKeys.isScreenRotation.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -102,7 +102,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.content_copy,
                   initialValue: settings.isBarcodeCopiedEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanBarcodeCopiedKey, value);
+                    settings.updateSetting(PreferenceKeys.isBarcodeCopied.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -110,7 +110,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.flip_camera_android,
                   initialValue: settings.isUseFrontcameraEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanUseFrontcameraKey, value);
+                    settings.updateSetting(PreferenceKeys.isUseFrontcamera.name, value);
                   },
                 ),
 
@@ -119,9 +119,9 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   str: localeStr.qrCodeErrorCorrectionLevelLabel,
                   dialogTitleStr: localeStr.qrCodeErrorCorrectionLevelSettingsLabel,
                   selectedOption: settings.qrCodeErrorLevel,
-                  optionsMap: Utils.qrCodeECLOptionsMap(localeStr),
+                  optionsMap: Utils.qrECLOptionsMap(localeStr),
                   onChanged: (value) => settings.updateSetting(
-                      Language.preferencesBarcodeGenerationErrorCorrectionLevelKey, value
+                    PreferenceKeys.selectedQRErrorLevel.name, value
                   ),
                 ),
 
@@ -131,7 +131,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.qr_code_scanner,
                   initialValue: settings.isHistoryEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchScanAddBarcodeToTheHistoryKey, value);
+                    settings.updateSetting(PreferenceKeys.isScanAddHistory.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -139,7 +139,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.edit,
                   initialValue: settings.isBarCodeGenerationHistoryEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryKey, value);
+                    settings.updateSetting(PreferenceKeys.isCreateAddHistory.name, value);
                   },
                 ),
                 ListTileSwitch(
@@ -147,7 +147,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.filter_2,
                   initialValue: settings.isHistoryDuplicatedEnabled,
                   onToggle: (bool value) {
-                    settings.updateSetting(Language.preferencesSwitchHistorySaveDuplicatesKey, value);
+                    settings.updateSetting(PreferenceKeys.isSaveDuplicates.name, value);
                   },
                 ),
 
@@ -156,11 +156,11 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   str: localeStr.preferencesSearchEngine,
                   selectedOption: settings.selectedSearchEngine,
                   optionsMap: <String, String>{
-                    'google': Language.googleLabel,
-                    'bing': Language.bingLabel,
-                    'wikipedia': Language.wikipediaLabel,
+                    SearchEngineKeys.google.name: Language.googleLabel,
+                    SearchEngineKeys.bing.name: Language.bingLabel,
+                    SearchEngineKeys.wikipedia.name: Language.wikipediaLabel,
                   },
-                  onChanged: (value) => settings.updateSetting(Language.preferencesSearchEngineKey, value),
+                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedSearchEngine.name, value),
                 ),
                 ListTileText(
                   str: localeStr.customSearchUrls,

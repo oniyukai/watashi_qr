@@ -123,8 +123,8 @@ class _BarcodeViewState extends State<BarcodeView> {
           const SizedBox(height: 8),
           if (historyItem.formatName=='QR_CODE')
             Center(child: Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                Utils.qrCodeECLOptionsMap(localeStr)[historyItem.errorCorrectionLevel]
-                  ?? Utils.qrCodeECLOptionsMap(localeStr)[context.read<SettingsProvider>().qrCodeErrorLevel]
+                Utils.qrECLOptionsMap(localeStr)[historyItem.errorCorrectionLevel]
+                  ?? Utils.qrECLOptionsMap(localeStr)[context.read<SettingsProvider>().qrCodeErrorLevel]
             }'),),
           if (itemDescription!=null) Text(itemDescription),
           const SizedBox(height: 16),
@@ -232,26 +232,13 @@ class _BarcodeViewState extends State<BarcodeView> {
   }
 
   Barcode _getBarcode(String formatName, String errorCorrectionLevel){
-    BarcodeQRCorrectionLevel level;
-    if (errorCorrectionLevel == 'NONE') {
-      errorCorrectionLevel = context.read<SettingsProvider>().qrCodeErrorLevel;
-    }
-    switch (errorCorrectionLevel) {
-      case 'L':
-        level = BarcodeQRCorrectionLevel.low;
-        break;
-      case 'M':
-        level = BarcodeQRCorrectionLevel.medium;
-        break;
-      case 'Q':
-        level = BarcodeQRCorrectionLevel.quartile;
-        break;
-      case 'H':
-        level = BarcodeQRCorrectionLevel.high;
-        break;
-      default:
-        level = BarcodeQRCorrectionLevel.low;
-    }
+    final BarcodeQRCorrectionLevel level = const <ErrorLevels, BarcodeQRCorrectionLevel>{
+      ErrorLevels.L: BarcodeQRCorrectionLevel.low,
+      ErrorLevels.M: BarcodeQRCorrectionLevel.medium,
+      ErrorLevels.Q: BarcodeQRCorrectionLevel.quartile,
+      ErrorLevels.H: BarcodeQRCorrectionLevel.high,
+    }[ErrorLevels.byName(errorCorrectionLevel)] ?? BarcodeQRCorrectionLevel.low;
+
     switch (formatName) {
       case 'QR_CODE': return Barcode.qrCode(errorCorrectLevel: level);
       case 'AZTEC': return Barcode.aztec();

@@ -12,8 +12,6 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
 
   @override
   bool isSupported(Locale locale) {
-    final selectedLanguage = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-    if (selectedLanguage == 'sys') return true;
     return const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
   }
 
@@ -37,35 +35,29 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
   }
 }
 
+enum LocaleOptions {
+  sys, en, ja, zh, zhTw;
+  factory LocaleOptions.byName(String n) => LocaleOptions.values.byName(n);
+}
+
 class AppLocale {
   const AppLocale._();
 
-  static Map<String, String> optionsMap(Language localeStr) {
-    return <String, String>{
-      'sys': localeStr.preferencesDefault,
-      'en': Language.localeLanguageEn,
-      'ja': Language.localeLanguageJa,
-      'zh': Language.localeLanguageZh,
-      'zh-tw': Language.localeLanguageZhTw,
-    };
-  }
+  static Map<String, String> optionsMap(Language localeStr) => <String, String>{
+    LocaleOptions.sys.name: localeStr.preferencesDefault,
+    LocaleOptions.en.name: Language.localeLanguageEn,
+    LocaleOptions.ja.name: Language.localeLanguageJa,
+    LocaleOptions.zh.name: Language.localeLanguageZh,
+    LocaleOptions.zhTw.name: Language.localeLanguageZhTw,
+  };
 
-  static Locale currentLocale (String selectedLanguage){
-    switch (selectedLanguage) {
-      case 'sys':
-        return WidgetsBinding.instance.platformDispatcher.locale;
-      case 'en':
-        return const Locale('en');
-      case 'ja':
-        return const Locale('ja');
-      case 'zh':
-        return const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN');
-      case 'zh-tw':
-        return const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW');
-      default:
-        return const Locale('en'); // <--不該會去用到
-    }
-  }
+  static Locale currentLocale (String selectedLanguage) => <LocaleOptions, Locale>{
+    LocaleOptions.sys: WidgetsBinding.instance.platformDispatcher.locale,
+    LocaleOptions.en: const Locale('en'),
+    LocaleOptions.ja: const Locale('ja'),
+    LocaleOptions.zh: const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
+    LocaleOptions.zhTw: const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
+  }[LocaleOptions.byName(selectedLanguage)] ?? Locale('en'); // ??... 不該會去用到
 
   static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate>[
     AppLocalizationsDelegate(),

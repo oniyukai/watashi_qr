@@ -45,7 +45,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
       formatName: 'QR_CODE',
       type: qrcodeType,
       errorCorrectionLevel: qrCodeErrorLevel,
-      origin: 'C',
+      origin: OriginEnum.C.name,
       isFavorite: false,
       notes: '',
     );

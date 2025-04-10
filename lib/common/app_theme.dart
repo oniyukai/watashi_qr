@@ -1,27 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/locale/language.dart';
 
+enum ThemeOptions {
+  sys, light, dark;
+  factory ThemeOptions.byName(String n) => ThemeOptions.values.byName(n);
+}
+
+enum ColorOptions {
+  sys, blue, orange, green, red, purple;
+  factory ColorOptions.byName(String n) => ColorOptions.values.byName(n);
+}
+
 class AppTheme {
   const AppTheme._();
 
-  static Map<String, String> themeOptionsMap(Language localeStr) {
-    return <String, String>{
-      'sys': localeStr.preferencesSwitchSystemThemeLabel,
-      'light': localeStr.preferencesSwitchLightThemeLabel,
-      'dark': localeStr.preferencesSwitchDarkThemeLabel,
-    };
-  }
+  static Map<String, String> themeOptionsMap(Language localeStr) => <String, String>{
+    ThemeOptions.sys.name: localeStr.preferencesSwitchSystemThemeLabel,
+    ThemeOptions.light.name: localeStr.preferencesSwitchLightThemeLabel,
+    ThemeOptions.dark.name: localeStr.preferencesSwitchDarkThemeLabel,
+  };
 
-  static Map<String, String> colorOptionsMap(Language localeStr) {
-    return <String, String>{
-      'sys': localeStr.preferencesColorMaterialYou,
-      'blue': localeStr.preferencesColorBlue,
-      'orange': localeStr.preferencesColorOrange,
-      'green': localeStr.preferencesColorGreen,
-      'red': localeStr.preferencesColorRed,
-      'purple': localeStr.preferencesColorPurple,
-    };
-  }
+  static Map<String, String> colorOptionsMap(Language localeStr) => <String, String>{
+    ColorOptions.sys.name: localeStr.preferencesColorMaterialYou,
+    ColorOptions.blue.name: localeStr.preferencesColorBlue,
+    ColorOptions.orange.name: localeStr.preferencesColorOrange,
+    ColorOptions.green.name: localeStr.preferencesColorGreen,
+    ColorOptions.red.name: localeStr.preferencesColorRed,
+    ColorOptions.purple.name: localeStr.preferencesColorPurple,
+  };
 
   static ThemeData theme(
     BuildContext context,
@@ -34,43 +40,23 @@ class AppTheme {
     late final MaterialColor seedColor;
     late final ColorScheme colorScheme;
 
-    switch(selectedTheme){
-      case 'sys':
-        brightness = View.of(context).platformDispatcher.platformBrightness;
-        break;
-      case 'light':
-        brightness = Brightness.light;
-        break;
-      case 'dark':
-        brightness = Brightness.dark;
-        break;
-      default: // <--不該會去用到
-        brightness = Brightness.light;
-    }
+    brightness = <ThemeOptions, Brightness>{
+      ThemeOptions.sys: View.of(context).platformDispatcher.platformBrightness,
+      ThemeOptions.light: Brightness.light,
+      ThemeOptions.dark: Brightness.dark,
+    }[ThemeOptions.byName(selectedTheme)] ?? Brightness.light; // ??... 不該會去用到
 
-    switch(selectedColor){
-      case 'blue':
-        seedColor = Colors.blue;
-        break;
-      case 'orange':
-        seedColor = Colors.orange;
-        break;
-      case 'green':
-        seedColor = Colors.green;
-        break;
-      case 'red':
-        seedColor = Colors.red;
-        break;
-      case 'purple':
-        seedColor = Colors.purple;
-        break;
-      default: // <--sys顏色不支援時會用到
-        seedColor = Colors.blue;
-    }
+    seedColor = const <ColorOptions, MaterialColor>{
+      ColorOptions.blue: Colors.blue,
+      ColorOptions.orange: Colors.orange,
+      ColorOptions.green: Colors.green,
+      ColorOptions.red: Colors.red,
+      ColorOptions.purple: Colors.purple,
+    }[ColorOptions.byName(selectedColor)] ?? Colors.blue; // <--sys顏色不支援時會用到
 
-    if (selectedColor=='sys' && lightDynamic!=null && brightness==Brightness.light){
+    if (selectedColor==ColorOptions.sys.name && lightDynamic!=null && brightness==Brightness.light){
       colorScheme = lightDynamic;
-    } else if (selectedColor=='sys' && darkDynamic!=null && brightness==Brightness.dark){
+    } else if (selectedColor==ColorOptions.sys.name && darkDynamic!=null && brightness==Brightness.dark){
       colorScheme = darkDynamic;
     } else {
       colorScheme = ColorScheme.fromSeed(

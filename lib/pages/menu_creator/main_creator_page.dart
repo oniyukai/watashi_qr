@@ -103,7 +103,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
           formatName: 'QR_CODE',
           type: Utils.determineType('QR_CODE', text),
           errorCorrectionLevel: qrCodeErrorLevel,
-          origin: 'C',
+          origin: OriginEnum.C.name,
           isFavorite: false,
           notes: '',
         );

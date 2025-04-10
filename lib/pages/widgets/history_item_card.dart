@@ -100,7 +100,7 @@ class HistoryItemCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                    (historyItem.origin == 'S')
+                    (historyItem.origin == OriginEnum.S.name)
                         ? Icons.fullscreen
                         : Icons.edit_outlined,
                     size: 16.0, color: theme.hintColor),

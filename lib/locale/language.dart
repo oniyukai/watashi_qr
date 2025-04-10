@@ -429,22 +429,6 @@ class Language {
   static const String bingLabel = 'Bing';
   static const String wikipediaLabel = 'Wikipedia';
   // Preferences Settings Keys
-  static const String preferencesColorKey = 'preferences_color_key';
-  static const String preferencesThemeKey = 'preferences_theme_key';
-  static const String preferencesLanguagesKey = 'preferences_languages_key';
-  static const String preferencesSwitchScanAutoOpenWebsiteKey = 'preferences_switch_scan_auto_open_website_key';
-  static const String preferencesWwitchScanContinuousScanKey = 'preferences_switch_scan_continuous_scan_key';
-  static const String preferencesSwitchScanVibrateKey = 'preferences_switch_scan_vibrate_key';
-  static const String preferencesSwitchScanBipKey = 'preferences_switch_scan_bip_key';
-  static const String preferencesSwitchScanScreenRotationKey = 'preferences_switch_scan_screen_rotation_key';
-  static const String preferencesSwitchScanBarcodeCopiedKey = 'preferences_switch_scan_barcode_copied_key';
-  static const String preferencesSwitchScanUseFrontcameraKey = 'preferences_switch_scan_use_frontcamera_key';
-  static const String preferencesBarcodeGenerationErrorCorrectionLevelKey = 'preferences_barcode_generation_error_correction_level_key';
-  static const String preferencesSwitchScanAddBarcodeToTheHistoryKey = 'preferences_switch_scan_add_barcode_to_the_history_key';
-  static const String preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryKey = 'preferences_switch_barcode_generation_add_barcode_to_the_history_key';
-  static const String preferencesSwitchHistorySaveDuplicatesKey = 'preferences_switch_history_save_duplicates_key';
-  static const String preferencesSearchEngineKey = 'preferences_search_engine_key';
-  static const String preferencesCustomSearchUrlsKey = 'preferences_custom_search_urls_key';
   // Preferences Entry Values
   // About Library Third
   static const String gnuGeneralPublicLicenseV3 = 'GNU General Public License v3.0';

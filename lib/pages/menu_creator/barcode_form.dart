@@ -44,8 +44,8 @@ class _BarcodeFormState extends State<BarcodeForm> {
                   contents: value,
                   formatName: barcodeType,
                   type: Utils.determineType(barcodeType, value),
-                  errorCorrectionLevel: 'NONE',
-                  origin: 'C',
+                  errorCorrectionLevel: ErrorLevels.none.name,
+                  origin: OriginEnum.C.name,
                   isFavorite: false,
                   notes: '',
                 );

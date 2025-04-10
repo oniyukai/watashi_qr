@@ -57,11 +57,20 @@ class HistoryItem extends HiveObject {
       contents: json['contents'] ?? 'Error: No data',
       formatName: json['formatName'] ?? 'NONE',
       type: json['type'] ?? 'NONE',
-      errorCorrectionLevel: json['errorCorrectionLevel'] ?? 'NONE',
-      origin: json['origin'] ?? 'C',
+      errorCorrectionLevel: json['errorCorrectionLevel'] ?? ErrorLevels.none.name,
+      origin: json['origin'] ?? OriginEnum.C.name,
       isFavorite: json['isFavorite'] ?? false,
       notes: json['notes'] ?? '',
     );
   }
 
+}
+
+enum ErrorLevels { // !! 改變此會影響之後HistoryItem儲存的值
+  L, M, Q, H, none;   // mean: low  medium  quartile  high
+  factory ErrorLevels.byName(String n) => ErrorLevels.values.byName(n);
+}
+
+enum OriginEnum { // !! 改變此會影響之後HistoryItem儲存的值
+  S, C; // from scanner, creator
 }

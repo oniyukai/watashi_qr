@@ -94,14 +94,10 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                           }
                           return false;
                         });
-                        Provider.of<SettingsProvider>(context,
-                            listen: false)
-                            .updateSetting(Language.preferencesCustomSearchUrlsKey, customSearchUrls);
+                        context.settingsProvider.updateSetting(PreferenceKeys.customSearchUrls.name, <String>[]);
                         _exitSelectionMode();
                       } else {
-                        Provider.of<SettingsProvider>(context,
-                          listen: false)
-                          .updateSetting(Language.preferencesCustomSearchUrlsKey, <String>[]);
+                        context.settingsProvider.updateSetting(PreferenceKeys.customSearchUrls.name, <String>[]);
                       }
                       Utils.showToast(localeStr.customUrlDeleted);
                     },

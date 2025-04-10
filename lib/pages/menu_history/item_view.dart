@@ -116,11 +116,11 @@ class _ItemViewState extends State<ItemView> {
                               ],
                             ),
                             Text('${localeStr.aboutBarcodeOriginLabel}${
-                                _historyItem.origin == 'S' ? localeStr.titleScan : localeStr.titleGenerate
+                                _historyItem.origin == OriginEnum.S.name ? localeStr.titleScan : localeStr.titleGenerate
                             }'),
                             if (_historyItem.formatName=='QR_CODE')
                               Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                                  Utils.qrCodeECLOptionsMap(localeStr)[_historyItem.errorCorrectionLevel]
+                                  Utils.qrECLOptionsMap(localeStr)[_historyItem.errorCorrectionLevel]
                                       ?? _historyItem.errorCorrectionLevel
                               }'),
                             if (_historyItem.notes.isNotEmpty) Row(
@@ -374,21 +374,12 @@ class _ItemViewState extends State<ItemView> {
 
   void _actionWebSearch(){
     final String selectedSearchEngine = context.read<SettingsProvider>().selectedSearchEngine;
-    String searchEngine;
-    switch (selectedSearchEngine) {
-      case 'google':
-        searchEngine = 'https://www.google.com/search?q={code}';
-        break;
-      case 'bing':
-        searchEngine = 'https://www.bing.com/search?q={code}';
-        break;
-      case 'wikipedia':
-        searchEngine = 'https://wikipedia.org/w/index.php?search={code}';
-        break;
-      default:
-        searchEngine = 'https://www.google.com/search?q={code}';
-    }
-    Utils.openUrlInBrowser(searchEngine.replaceAll('{code}', _historyItem.contents));
+    final String searchEngine = <String, String>{
+      SearchEngineKeys.google.name: 'https://www.google.com/search?q={code}',
+      SearchEngineKeys.bing.name: 'https://www.bing.com/search?q={code}',
+      SearchEngineKeys.wikipedia.name: 'https://wikipedia.org/w/index.php?search={code}',
+    }[selectedSearchEngine] ?? 'https://www.google.com/search?q={code}';
+    Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
   void _showCustomSearchDialog(Language localeStr) {
@@ -405,8 +396,7 @@ class _ItemViewState extends State<ItemView> {
               title: searchUrl.split('<Separation.Object>')[0],
               description: searchUrl.split('<Separation.Object>')[1],
               onTap: () {
-                Utils.openUrlInBrowser(searchUrl.split('<Separation.Object>')[1]
-                    .replaceAll('{code}', _historyItem.contents));
+                Utils.searchInBrowser(searchUrl.split('<Separation.Object>')[1], _historyItem.contents);
                 Navigator.pop(context);
               }
             )).toList(),

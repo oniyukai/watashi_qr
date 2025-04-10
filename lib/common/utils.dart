@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,6 +12,7 @@ import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'dart:core';
 
 class Utils {
   const Utils._();
@@ -27,6 +29,9 @@ class Utils {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $urlstr');
     }
+  }
+  static Future<void> searchInBrowser(String searchUrl, String keyWord) async {
+    openUrlInBrowser(searchUrl.replaceAll('{code}', Uri.encodeComponent(keyWord)));
   }
 
   // 把'類'名轉成String
@@ -207,11 +212,11 @@ class Utils {
     return 'TEXT';
   }
 
-  static Map<String, String> qrCodeECLOptionsMap(Language localeStr) => <String, String>{
-    'L': localeStr.qrCodeErrorCorrectionLevelNameLow,
-    'M': localeStr.qrCodeErrorCorrectionLevelNameMedium,
-    'Q': localeStr.qrCodeErrorCorrectionLevelNameQuartile,
-    'H': localeStr.qrCodeErrorCorrectionLevelNameHigh,
+  static Map<String, String> qrECLOptionsMap(Language localeStr) => <String, String>{
+    ErrorLevels.L.name: localeStr.qrCodeErrorCorrectionLevelNameLow,
+    ErrorLevels.M.name: localeStr.qrCodeErrorCorrectionLevelNameMedium,
+    ErrorLevels.Q.name: localeStr.qrCodeErrorCorrectionLevelNameQuartile,
+    ErrorLevels.H.name: localeStr.qrCodeErrorCorrectionLevelNameHigh,
   };
 
   static String formatMobileScannerType(BarcodeFormat barcodeFormat) {

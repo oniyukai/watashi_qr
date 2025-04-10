@@ -31,7 +31,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
   static const String _prefScanWindowHeightPortraitKey = 'scan_window_height_portrait';
   static const String _prefScanWindowWidthLandscapeKey = 'scan_window_width_landscape';
   static const String _prefScanWindowHeightLandscapeKey = 'scan_window_height_landscape';
-  static const String _prefZoomLevelKey = 'zoom_level';
+  static const String _prefScanZoomLevelKey = 'scan_zoom_level';
   bool _isFlashOn = false;
   bool _hasCameraPermission = false;
   bool _isOnDetecting = false;
@@ -109,13 +109,13 @@ class _MainScannerPageState extends State<MainScannerPage> {
   Future<void> _loadZoomLevel() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _zoomLevel = prefs.getDouble(_prefZoomLevelKey) ?? 0.0; // 0.0為預設值
+      _zoomLevel = prefs.getDouble(_prefScanZoomLevelKey) ?? 0.0; // 0.0為預設值
     });
   }
 
   Future<void> _saveZoomLevel(double zoomLevel) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble(_prefZoomLevelKey, zoomLevel);
+    await prefs.setDouble(_prefScanZoomLevelKey, zoomLevel);
   }
 
   Future<void> _loadScanWindow() async {
@@ -202,8 +202,8 @@ class _MainScannerPageState extends State<MainScannerPage> {
       contents: contents,
       formatName: formatName,
       type: Utils.determineType(formatName, contents),
-      errorCorrectionLevel: 'NONE',
-      origin: 'S',
+      errorCorrectionLevel: ErrorLevels.none.name,
+      origin: OriginEnum.S.name,
       isFavorite: false,
       notes: '',
     );

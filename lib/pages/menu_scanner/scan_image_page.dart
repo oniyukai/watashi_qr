@@ -123,8 +123,8 @@ class _ScanImagePageState extends State<ScanImagePage> {
       contents: contents,
       formatName: formatName,
       type: Utils.determineType(formatName, contents),
-      errorCorrectionLevel: 'NONE',
-      origin: 'S',
+      errorCorrectionLevel: ErrorLevels.none.name,
+      origin: OriginEnum.S.name,
       isFavorite: false,
       notes: '',
     );
