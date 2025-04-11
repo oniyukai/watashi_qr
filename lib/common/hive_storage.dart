@@ -9,7 +9,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class HiveStorage {
@@ -35,8 +34,7 @@ class HiveStorage {
       }
   ) async {
     bool isHistoryDuplicatedEnabled = (context==null)
-      ? true
-      : context.read<SettingsProvider>().isHistoryDuplicatedEnabled;
+      ? true : context.settingsProvider.isSaveDuplicates;
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
     if (isHistoryDuplicatedEnabled == true) return await histories.add(item);
 
@@ -51,7 +49,7 @@ class HiveStorage {
       }
     });
     final int latestDuplicateIndex = historiesList.indexWhere((e) =>
-      (e.formatName==item.formatName) && (e.contents==item.contents)
+      (e.format==item.format) && (e.contents==item.contents)
     );
     if (latestDuplicateIndex==-1) {
       return await histories.add(item);

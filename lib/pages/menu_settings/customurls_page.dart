@@ -85,7 +85,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                     onPressed: () {
                       Navigator.of(context).pop();
                       if (_isSelectionMode) {
-                        final List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
+                        final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
                         customSearchUrls.removeWhere((searchUrl) {
                           for (final title in _selectedTitles) {
                             if (searchUrl.startsWith('$title<Separation.Object>')) {
@@ -94,10 +94,10 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                           }
                           return false;
                         });
-                        context.settingsProvider.updateSetting(PreferenceKeys.customSearchUrls.name, <String>[]);
+                        context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
                         _exitSelectionMode();
                       } else {
-                        context.settingsProvider.updateSetting(PreferenceKeys.customSearchUrls.name, <String>[]);
+                        context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
                       }
                       Utils.showToast(localeStr.customUrlDeleted);
                     },

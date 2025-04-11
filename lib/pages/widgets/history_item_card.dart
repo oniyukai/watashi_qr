@@ -68,12 +68,12 @@ class HistoryItemCard extends StatelessWidget {
                 ) : const SizedBox.shrink(),
                 const SizedBox(width: 2.0),
                 Text(
-                  Utils.formatNameStr(historyItem.formatName, localeStr),
+                  Utils.formatNameStr(historyItem.format, localeStr),
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(width: 2.0),
                 Icon(
-                    Utils.formatNameIcon(historyItem.formatName),
+                    Utils.formatNameIcon(historyItem.format),
                     size: 16.0,
                     color: theme.hintColor
                 ),
@@ -100,7 +100,7 @@ class HistoryItemCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                    (historyItem.origin == OriginEnum.S.name)
+                    (historyItem.origin == HistoryOrigin.S.name)
                         ? Icons.fullscreen
                         : Icons.edit_outlined,
                     size: 16.0, color: theme.hintColor),

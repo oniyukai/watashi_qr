@@ -4,7 +4,6 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:provider/provider.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
@@ -26,7 +25,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
     final localeStr = Language.of(context)!;
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
-    final List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
+    final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
     if (argument == null) return AppAboutPage();
     if (argument != '') {
       final List<String> parts = argument.split('<Separation.Object>');
@@ -65,7 +64,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                   }
                   Utils.showToast(localeStr.customUrlUpdated);
                 }
-                context.settingsProvider.updateSetting(PreferenceKeys.customSearchUrls.name, <String>[]);
+                context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
                 Navigator.pop(context);
               }
             },

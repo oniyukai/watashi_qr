@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
-import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -31,10 +30,10 @@ class _BarcodeViewState extends State<BarcodeView> {
     final localeStr = Language.of(context)!;
     final historyItem = widget.argumentOf(context);
     if (historyItem == null) return AppAboutPage();
-    final itemDescription = Utils.formatNameDescription(historyItem.formatName, localeStr);
+    final itemDescription = Utils.formatNameDescription(historyItem.format, localeStr);
     return Scaffold(
       appBar: AppBar(
-        title: Text(Utils.formatNameStr(historyItem.formatName, localeStr)),
+        title: Text(Utils.formatNameStr(historyItem.format, localeStr)),
         actions: [
           CustomMenuButton(
             icon: const Icon(Icons.save),
@@ -42,8 +41,8 @@ class _BarcodeViewState extends State<BarcodeView> {
             onSelectedEnd: (int option) => _exportImage(
               option: const <String>['png', 'jpg', 'svg'][option],
               contents: historyItem.contents,
-              formatName: historyItem.formatName,
-              errorCorrectionLevel: historyItem.errorCorrectionLevel,
+              formatName: historyItem.format,
+              errorCorrectionLevel: historyItem.errorLevel,
               localeStr: localeStr,
             ),
           ),
@@ -51,8 +50,8 @@ class _BarcodeViewState extends State<BarcodeView> {
             icon: const Icon(Icons.share),
             onPressed: () => _shareImage(
               contents: historyItem.contents,
-              formatName: historyItem.formatName,
-              errorCorrectionLevel: historyItem.errorCorrectionLevel,
+              formatName: historyItem.format,
+              errorCorrectionLevel: historyItem.errorLevel,
             ), // 匯出PNG
           ),
         ],
@@ -98,8 +97,8 @@ class _BarcodeViewState extends State<BarcodeView> {
               child: SvgPicture.string(
                 _getBarcodeSvg(
                   contents: historyItem.contents,
-                  formatName: historyItem.formatName,
-                  errorCorrectionLevel: historyItem.errorCorrectionLevel,
+                  formatName: historyItem.format,
+                  errorCorrectionLevel: historyItem.errorLevel,
                   length: length,
                 ),
               ),
@@ -121,10 +120,10 @@ class _BarcodeViewState extends State<BarcodeView> {
             expandedChild: SelectableText(historyItem.contents),
           ),
           const SizedBox(height: 8),
-          if (historyItem.formatName=='QR_CODE')
+          if (historyItem.format=='QR_CODE')
             Center(child: Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                Utils.qrECLOptionsMap(localeStr)[historyItem.errorCorrectionLevel]
-                  ?? Utils.qrECLOptionsMap(localeStr)[context.read<SettingsProvider>().qrCodeErrorLevel]
+                HistoryErrorLevel.localeStrFromName(historyItem.errorLevel, localeStr)
+                ?? HistoryErrorLevel.localeStrFromName(context.settingsProvider.selectedQRErrorLevel, localeStr)
             }'),),
           if (itemDescription!=null) Text(itemDescription),
           const SizedBox(height: 16),
@@ -232,12 +231,8 @@ class _BarcodeViewState extends State<BarcodeView> {
   }
 
   Barcode _getBarcode(String formatName, String errorCorrectionLevel){
-    final BarcodeQRCorrectionLevel level = const <ErrorLevels, BarcodeQRCorrectionLevel>{
-      ErrorLevels.L: BarcodeQRCorrectionLevel.low,
-      ErrorLevels.M: BarcodeQRCorrectionLevel.medium,
-      ErrorLevels.Q: BarcodeQRCorrectionLevel.quartile,
-      ErrorLevels.H: BarcodeQRCorrectionLevel.high,
-    }[ErrorLevels.byName(errorCorrectionLevel)] ?? BarcodeQRCorrectionLevel.low;
+    final BarcodeQRCorrectionLevel level = HistoryErrorLevel.values.byName(errorCorrectionLevel)
+        .barcodeQRCorrectionLevel ?? HistoryErrorLevel.L.barcodeQRCorrectionLevel!;
 
     switch (formatName) {
       case 'QR_CODE': return Barcode.qrCode(errorCorrectLevel: level);

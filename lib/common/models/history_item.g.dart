@@ -19,9 +19,9 @@ class HistoryItemAdapter extends TypeAdapter<HistoryItem> {
     return HistoryItem(
       unixTime: fields[0] as int,
       contents: fields[1] as String,
-      formatName: fields[2] as String,
+      format: fields[2] as String,
       type: fields[3] as String,
-      errorCorrectionLevel: fields[4] as String,
+      errorLevel: fields[4] as String,
       origin: fields[5] as String,
       isFavorite: fields[6] as bool,
       notes: fields[7] as String,
@@ -37,11 +37,11 @@ class HistoryItemAdapter extends TypeAdapter<HistoryItem> {
       ..writeByte(1)
       ..write(obj.contents)
       ..writeByte(2)
-      ..write(obj.formatName)
+      ..write(obj.format)
       ..writeByte(3)
       ..write(obj.type)
       ..writeByte(4)
-      ..write(obj.errorCorrectionLevel)
+      ..write(obj.errorLevel)
       ..writeByte(5)
       ..write(obj.origin)
       ..writeByte(6)

@@ -11,7 +11,6 @@ import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/pages/widgets/item_view_widgets.dart';
@@ -38,7 +37,7 @@ class _ItemViewState extends State<ItemView> {
     if (argument == null) return;
     _historyItem = argument;
     _isExistInhistories = HiveStorage.containsTime(_historyItem.unixTime);
-    _isHistoryDuplicatedEnabled = context.read<SettingsProvider>().isHistoryDuplicatedEnabled;
+    _isHistoryDuplicatedEnabled = context.settingsProvider.isSaveDuplicates;
   }
 
   @override
@@ -69,7 +68,7 @@ class _ItemViewState extends State<ItemView> {
   Widget build(BuildContext context) {
     final localeStr = Language.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
-    final formatNameStr = Utils.formatNameStr(_historyItem.formatName, localeStr);
+    final formatNameStr = Utils.formatNameStr(_historyItem.format, localeStr);
     final isFormatNameSupported = !(formatNameStr.startsWith('"') && formatNameStr.endsWith('"'));
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +86,7 @@ class _ItemViewState extends State<ItemView> {
                   initialExpanded: true,
                   expandedChild: AnalyzedContentItem(
                     contents: _historyItem.contents,
-                    formatName: _historyItem.formatName,
+                    formatName: _historyItem.format,
                     type: _historyItem.type,
                   ),
                 ),
@@ -99,7 +98,7 @@ class _ItemViewState extends State<ItemView> {
                       ListTile(
                         minTileHeight: 0,
                         contentPadding: const EdgeInsets.only(left: 16, top: 8),
-                        leading: Icon(Utils.formatNameIcon(_historyItem.formatName)),
+                        leading: Icon(Utils.formatNameIcon(_historyItem.format)),
                         title: Text(localeStr.aboutBarcodeInformationLabel),
                       ),
                       ListTile(
@@ -116,12 +115,11 @@ class _ItemViewState extends State<ItemView> {
                               ],
                             ),
                             Text('${localeStr.aboutBarcodeOriginLabel}${
-                                _historyItem.origin == OriginEnum.S.name ? localeStr.titleScan : localeStr.titleGenerate
+                                _historyItem.origin == HistoryOrigin.S.name ? localeStr.titleScan : localeStr.titleGenerate
                             }'),
-                            if (_historyItem.formatName=='QR_CODE')
+                            if (_historyItem.errorLevel != HistoryErrorLevel.none.name)
                               Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                                  Utils.qrECLOptionsMap(localeStr)[_historyItem.errorCorrectionLevel]
-                                      ?? _historyItem.errorCorrectionLevel
+                                  HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel, localeStr)
                               }'),
                             if (_historyItem.notes.isNotEmpty) Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +235,7 @@ class _ItemViewState extends State<ItemView> {
         'description': localeStr.actionOpenLink,
         'onTap': () => Utils.openUrlInBrowser(_historyItem.contents),
       },
-      if (context.read<SettingsProvider>().customSearchUrls.isNotEmpty) {
+      if (context.settingsProvider.customSearchUrls.isNotEmpty) {
         'icon': Icons.search,
         'description': localeStr.customSearchUrls,
         'onTap': () => _showCustomSearchDialog(localeStr),
@@ -329,14 +327,14 @@ class _ItemViewState extends State<ItemView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(localeStr.actionModifyBarcode),
-                    Text(Utils.formatNameStr(_historyItem.formatName, localeStr)),
+                    Text(Utils.formatNameStr(_historyItem.format, localeStr)),
                   ],
                 ),
                 const SizedBox(height: 16),
                 FormBuilder(
                   key:_formKey,
                   child: BarcodeTextField(
-                    barcodeType: _historyItem.formatName,
+                    barcodeType: _historyItem.format,
                     name: 'modifyContents',
                     formKey: _formKey,
                     initialValue: _historyItem.contents,
@@ -356,7 +354,7 @@ class _ItemViewState extends State<ItemView> {
                         if (_formKey.currentState?.saveAndValidate() ?? false) {
                           final value = _formKey.currentState?.value['modifyContents'];
                           _historyItem.contents = value;
-                          _historyItem.type = Utils.determineType(_historyItem.formatName, value);
+                          _historyItem.type = Utils.determineType(_historyItem.format, value);
                           Navigator.pop(context);
                         }
                       },
@@ -373,17 +371,13 @@ class _ItemViewState extends State<ItemView> {
   }
 
   void _actionWebSearch(){
-    final String selectedSearchEngine = context.read<SettingsProvider>().selectedSearchEngine;
-    final String searchEngine = <String, String>{
-      SearchEngineKeys.google.name: 'https://www.google.com/search?q={code}',
-      SearchEngineKeys.bing.name: 'https://www.bing.com/search?q={code}',
-      SearchEngineKeys.wikipedia.name: 'https://wikipedia.org/w/index.php?search={code}',
-    }[selectedSearchEngine] ?? 'https://www.google.com/search?q={code}';
+    final String selectedSearchEngine = context.settingsProvider.selectedSearchEngine;
+    final String searchEngine = SearchEngine.values.byName(selectedSearchEngine).url;
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
   void _showCustomSearchDialog(Language localeStr) {
-    final List<String> customSearchUrls = context.read<SettingsProvider>().customSearchUrls;
+    final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
     genericAlertDialog(
       context: context,
       titleStr: localeStr.customSearchUrls,

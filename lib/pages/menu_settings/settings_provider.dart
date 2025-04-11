@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
+import 'package:watashi_qr/locale/language.dart';
 
-enum PreferenceKeys {
+enum PreferenceKey {
   selectedColor,
   selectedTheme,
   selectedLanguage,
@@ -25,46 +27,58 @@ enum PreferenceKeys {
   customSearchUrls,
 }
 
-enum SearchEngineKeys { google, bing, wikipedia, }
+enum SearchEngine {
+  google('https://www.google.com/search?q={code}'),
+  bing('https://www.bing.com/search?q={code}'),
+  wikipedia('https://wikipedia.org/w/index.php?search={code}');
+
+  final String url;
+  const SearchEngine(this.url);
+
+  static Map<String, String> optionMap(Language localeStr) => <String, String>{
+    google.name: Language.googleLabel,
+    bing.name: Language.bingLabel,
+    wikipedia.name: Language.wikipediaLabel,
+  };
+}
 
 class SettingsProvider extends ChangeNotifier {
-
-  late SharedPreferences _prefs;
+  final SharedPreferences _prefs = Utils.prefs;
 
   String? _selectedColor;
-  String get selectedColor => _selectedColor ?? ColorOptions.sys.name;
+  String get selectedColor => _selectedColor ?? ColorOption.sys.name;
   String? _selectedTheme;
-  String get selectedTheme => _selectedTheme ?? ThemeOptions.sys.name;
+  String get selectedTheme => _selectedTheme ?? ThemeOption.sys.name;
   String? _selectedLanguage;
-  String get selectedLanguage => _selectedLanguage ?? LocaleOptions.sys.name;
+  String get selectedLanguage => _selectedLanguage ?? LocaleOption.sys.name;
 
   bool? _isAutoOpenWebsite;
-  bool get isAutoOpenWebsiteEnabled => _isAutoOpenWebsite ?? false;
+  bool get isAutoOpenWebsite => _isAutoOpenWebsite ?? false;
   bool? _isContinuousScan;
-  bool get isContinuousScanEnabled => _isContinuousScan ?? false;
+  bool get isContinuousScan => _isContinuousScan ?? false;
   bool? _isVibrateOnScan;
   bool get isVibrateOnScan => _isVibrateOnScan ?? true;
   bool? _isBipOnScan;
   bool get isBipOnScan => _isBipOnScan ?? false;
   bool? _isScreenRotation;
-  bool get isScreenRotationEnabled => _isScreenRotation ?? false;
+  bool get isScreenRotation => _isScreenRotation ?? false;
   bool? _isBarcodeCopied;
-  bool get isBarcodeCopiedEnabled => _isBarcodeCopied ?? false;
+  bool get isBarcodeCopied => _isBarcodeCopied ?? false;
   bool? _isUseFrontcamera;
-  bool get isUseFrontcameraEnabled => _isUseFrontcamera ?? false;
+  bool get isUseFrontcamera => _isUseFrontcamera ?? false;
 
   String? _selectedQRErrorLevel;
-  String get qrCodeErrorLevel => _selectedQRErrorLevel ?? ErrorLevels.L.name;
+  String get selectedQRErrorLevel => _selectedQRErrorLevel ?? HistoryErrorLevel.L.name;
 
   bool? _isScanAddHistory;
-  bool get isHistoryEnabled => _isScanAddHistory ?? true;
+  bool get isScanAddHistory => _isScanAddHistory ?? true;
   bool? _isCreateAddHistory;
-  bool get isBarCodeGenerationHistoryEnabled => _isCreateAddHistory ?? true;
+  bool get isCreateAddHistory => _isCreateAddHistory ?? true;
   bool? _isSaveDuplicates;
-  bool get isHistoryDuplicatedEnabled => _isSaveDuplicates ?? true;
+  bool get isSaveDuplicates => _isSaveDuplicates ?? true;
 
   String? _selectedSearchEngine;
-  String get selectedSearchEngine => _selectedSearchEngine ?? SearchEngineKeys.google.name;
+  String get selectedSearchEngine => _selectedSearchEngine ?? SearchEngine.google.name;
   List<String>? _customSearchUrls;
   List<String> get customSearchUrls => _customSearchUrls ?? <String>[];
 
@@ -73,42 +87,40 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> loadSettings() async {
-    _prefs = await SharedPreferences.getInstance();
-
-    _selectedColor = _prefs.getString(PreferenceKeys.selectedColor.name);
-    _selectedTheme = _prefs.getString(PreferenceKeys.selectedTheme.name);
-    _selectedLanguage = _prefs.getString(PreferenceKeys.selectedLanguage.name);
-    _isAutoOpenWebsite = _prefs.getBool(PreferenceKeys.isAutoOpenWebsite.name);
-    _isContinuousScan = _prefs.getBool(PreferenceKeys.isContinuousScan.name);
-    _isVibrateOnScan = _prefs.getBool(PreferenceKeys.isVibrateOnScan.name);
-    _isBipOnScan = _prefs.getBool(PreferenceKeys.isBipOnScan.name);
-    _isScreenRotation = _prefs.getBool(PreferenceKeys.isScreenRotation.name);
-    _isBarcodeCopied = _prefs.getBool(PreferenceKeys.isBarcodeCopied.name);
-    _isUseFrontcamera = _prefs.getBool(PreferenceKeys.isUseFrontcamera.name);
-    _selectedQRErrorLevel = _prefs.getString(PreferenceKeys.selectedQRErrorLevel.name);
-    _isScanAddHistory = _prefs.getBool(PreferenceKeys.isScanAddHistory.name);
-    _isCreateAddHistory = _prefs.getBool(PreferenceKeys.isCreateAddHistory.name);
-    _isSaveDuplicates = _prefs.getBool(PreferenceKeys.isSaveDuplicates.name);
-    _selectedSearchEngine = _prefs.getString(PreferenceKeys.selectedSearchEngine.name);
-    _customSearchUrls = _prefs.getStringList(PreferenceKeys.customSearchUrls.name);
+    _selectedColor = _prefs.getString(PreferenceKey.selectedColor.name);
+    _selectedTheme = _prefs.getString(PreferenceKey.selectedTheme.name);
+    _selectedLanguage = _prefs.getString(PreferenceKey.selectedLanguage.name);
+    _isAutoOpenWebsite = _prefs.getBool(PreferenceKey.isAutoOpenWebsite.name);
+    _isContinuousScan = _prefs.getBool(PreferenceKey.isContinuousScan.name);
+    _isVibrateOnScan = _prefs.getBool(PreferenceKey.isVibrateOnScan.name);
+    _isBipOnScan = _prefs.getBool(PreferenceKey.isBipOnScan.name);
+    _isScreenRotation = _prefs.getBool(PreferenceKey.isScreenRotation.name);
+    _isBarcodeCopied = _prefs.getBool(PreferenceKey.isBarcodeCopied.name);
+    _isUseFrontcamera = _prefs.getBool(PreferenceKey.isUseFrontcamera.name);
+    _selectedQRErrorLevel = _prefs.getString(PreferenceKey.selectedQRErrorLevel.name);
+    _isScanAddHistory = _prefs.getBool(PreferenceKey.isScanAddHistory.name);
+    _isCreateAddHistory = _prefs.getBool(PreferenceKey.isCreateAddHistory.name);
+    _isSaveDuplicates = _prefs.getBool(PreferenceKey.isSaveDuplicates.name);
+    _selectedSearchEngine = _prefs.getString(PreferenceKey.selectedSearchEngine.name);
+    _customSearchUrls = _prefs.getStringList(PreferenceKey.customSearchUrls.name);
 
     notifyListeners();
   }
 
-  Future<void> updateSetting(String key, dynamic value) async {
+  Future<void> updateSetting(PreferenceKey key, dynamic value) async {
     if (value is String) {
-      await _prefs.setString(key, value);
+      await _prefs.setString(key.name, value);
     } else if (value is bool) {
-      await _prefs.setBool(key, value);
+      await _prefs.setBool(key.name, value);
     } else if (value is int) {
-      await _prefs.setInt(key, value);
+      await _prefs.setInt(key.name, value);
     } else if (value is List<String>) {
-      await _prefs.setStringList(key, value);
+      await _prefs.setStringList(key.name, value);
     }
     await loadSettings();
   }
 }
 
 extension Context on BuildContext {
-  SettingsProvider get settingsProvider => Provider.of<SettingsProvider>(this, listen: false);
+  SettingsProvider get settingsProvider => Provider.of<SettingsProvider>(this, listen: false); //same mean: read<SettingsProvider>();
 }

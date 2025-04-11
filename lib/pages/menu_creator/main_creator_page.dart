@@ -12,7 +12,6 @@ import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:flutter/services.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:provider/provider.dart';
 
 class MainCreatorPage extends StatefulWidget {
   const MainCreatorPage({super.key});
@@ -91,19 +90,19 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
 
   Future<void> _createQrFromClipboard(Language localeStr) async {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-    final String qrCodeErrorLevel = context.read<SettingsProvider>().qrCodeErrorLevel;
-    final bool isBarCodeGenerationHistoryEnabled = context.read<SettingsProvider>().isBarCodeGenerationHistoryEnabled;
+    final String qrCodeErrorLevel = context.settingsProvider.selectedQRErrorLevel;
+    final bool isBarCodeGenerationHistoryEnabled = context.settingsProvider.isCreateAddHistory;
 
     if (clipboardData != null) {
       final String? text = clipboardData.text;
       if (text != null) {
         final HistoryItem item = HistoryItem(
-          unixTime: Utils.getNowUnixTime(),
+          unixTime: Utils.nowUnixTime,
           contents: text,
-          formatName: 'QR_CODE',
+          format: 'QR_CODE',
           type: Utils.determineType('QR_CODE', text),
-          errorCorrectionLevel: qrCodeErrorLevel,
-          origin: OriginEnum.C.name,
+          errorLevel: qrCodeErrorLevel,
+          origin: HistoryOrigin.C.name,
           isFavorite: false,
           notes: '',
         );

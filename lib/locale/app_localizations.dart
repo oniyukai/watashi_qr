@@ -11,9 +11,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
   const AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) {
-    return const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
-  }
+  bool isSupported(Locale locale) => const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
 
   @override
   Future<Language> load(Locale locale) => _load(locale);
@@ -35,29 +33,25 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
   }
 }
 
-enum LocaleOptions {
-  sys, en, ja, zh, zhTw;
-  factory LocaleOptions.byName(String n) => LocaleOptions.values.byName(n);
-}
+enum LocaleOption {
+  sys,
+  en(Locale('en')),
+  ja(Locale('ja')),
+  zh(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN')),
+  zhTw(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'));
 
-class AppLocale {
-  const AppLocale._();
+  final Locale? locale;
+  const LocaleOption([this.locale]);
 
-  static Map<String, String> optionsMap(Language localeStr) => <String, String>{
-    LocaleOptions.sys.name: localeStr.preferencesDefault,
-    LocaleOptions.en.name: Language.localeLanguageEn,
-    LocaleOptions.ja.name: Language.localeLanguageJa,
-    LocaleOptions.zh.name: Language.localeLanguageZh,
-    LocaleOptions.zhTw.name: Language.localeLanguageZhTw,
+  static Locale localeFromName(String n) => values.byName(n).locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+
+  static Map<String, String> optionMap(Language localeStr) => <String, String>{
+    sys.name: localeStr.preferencesDefault,
+    en.name: Language.localeLanguageEn,
+    ja.name: Language.localeLanguageJa,
+    zh.name: Language.localeLanguageZh,
+    zhTw.name: Language.localeLanguageZhTw,
   };
-
-  static Locale currentLocale (String selectedLanguage) => <LocaleOptions, Locale>{
-    LocaleOptions.sys: WidgetsBinding.instance.platformDispatcher.locale,
-    LocaleOptions.en: const Locale('en'),
-    LocaleOptions.ja: const Locale('ja'),
-    LocaleOptions.zh: const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
-    LocaleOptions.zhTw: const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
-  }[LocaleOptions.byName(selectedLanguage)] ?? Locale('en'); // ??... 不該會去用到
 
   static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate>[
     AppLocalizationsDelegate(),
@@ -72,7 +66,6 @@ class AppLocale {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
   ];
-
 }
 
 // 如果要修改語言設定的代碼大致只需要本頁即可

@@ -7,7 +7,6 @@ import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:provider/provider.dart';
 import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -37,15 +36,14 @@ class _BarcodeFormState extends State<BarcodeForm> {
             onPressed: () {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 final value = _formKey.currentState?.value['name'];
-                final bool isBarCodeGenerationHistoryEnabled = context.read<SettingsProvider>()
-                  .isBarCodeGenerationHistoryEnabled;
+                final bool isBarCodeGenerationHistoryEnabled = context.settingsProvider.isCreateAddHistory;
                 final HistoryItem item = HistoryItem(
-                  unixTime: Utils.getNowUnixTime(),
+                  unixTime: Utils.nowUnixTime,
                   contents: value,
-                  formatName: barcodeType,
+                  format: barcodeType,
                   type: Utils.determineType(barcodeType, value),
-                  errorCorrectionLevel: ErrorLevels.none.name,
-                  origin: OriginEnum.C.name,
+                  errorLevel: HistoryErrorLevel.none.name,
+                  origin: HistoryOrigin.C.name,
                   isFavorite: false,
                   notes: '',
                 );

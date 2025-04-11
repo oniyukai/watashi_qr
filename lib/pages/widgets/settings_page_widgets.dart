@@ -79,7 +79,7 @@ class ListTilePicker extends StatelessWidget {
   final IconData? icon;
   final String? dialogTitleStr;
   final String selectedOption;
-  final Map<String, String> optionsMap;
+  final Map<String, String> optionMap;  // 只能是String key是因為SharedPreferences並不支援所有類與enum
   final Function onChanged;
 
   const ListTilePicker({
@@ -88,7 +88,7 @@ class ListTilePicker extends StatelessWidget {
     this.icon,
     this.dialogTitleStr,
     required this.selectedOption,
-    required this.optionsMap,
+    required this.optionMap,
     required this.onChanged,
   });
 
@@ -97,7 +97,7 @@ class ListTilePicker extends StatelessWidget {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(icon)),
       title: Text(str),
-      subtitle: Text(optionsMap[selectedOption] ?? selectedOption),
+      subtitle: Text(optionMap[selectedOption] ?? selectedOption),
       onTap: () => genericAlertDialog(
         context: context,
         titleStr: dialogTitleStr ?? str,
@@ -105,7 +105,7 @@ class ListTilePicker extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: optionsMap.entries
+              children: optionMap.entries
                   .map((entry) => RadioListTile(
                 title: Text(entry.value),
                 value: entry.key,

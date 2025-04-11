@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/common/app_theme.dart';
@@ -38,39 +38,39 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                 ListTilePicker(
                   str: localeStr.preferencesColor,
                   selectedOption: settings.selectedColor,
-                  optionsMap: AppTheme.colorOptionsMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedColor.name, value),
+                  optionMap: ColorOption.optionMap(localeStr),
+                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedColor, value),
                 ),
                 ListTilePicker(
                   str: localeStr.preferencesThemeLabel,
                   selectedOption: settings.selectedTheme,
-                  optionsMap: AppTheme.themeOptionsMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedTheme.name, value),
+                  optionMap: ThemeOption.optionMap(localeStr),
+                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedTheme, value),
                 ),
                 ListTilePicker(
                   str: localeStr.preferencesLanguagesTitle,
                   dialogTitleStr: localeStr.preferencesLanguagesChange,
                   selectedOption: settings.selectedLanguage,
-                  optionsMap: AppLocale.optionsMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedLanguage.name, value),
+                  optionMap: LocaleOption.optionMap(localeStr),
+                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedLanguage, value),
                 ),
 
                 ListTileText(str: localeStr.preferencesScanTitle, isSection: true),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanAutoOpenWebsiteLabel,
                   icon: Icons.open_in_browser,
-                  initialValue: settings.isAutoOpenWebsiteEnabled,
-                  enabled: !settings.isContinuousScanEnabled,
+                  initialValue: settings.isAutoOpenWebsite,
+                  enabled: !settings.isContinuousScan,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isAutoOpenWebsite.name, value);
+                    settings.updateSetting(PreferenceKey.isAutoOpenWebsite, value);
                   },
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanContinuousScanLabel,
                   icon: Icons.fast_forward,
-                  initialValue: settings.isContinuousScanEnabled,
+                  initialValue: settings.isContinuousScan,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isContinuousScan.name, value);
+                    settings.updateSetting(PreferenceKey.isContinuousScan, value);
                   },
                 ),
                 ListTileSwitch(
@@ -78,7 +78,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.vibration,
                   initialValue: settings.isVibrateOnScan,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isVibrateOnScan.name, value);
+                    settings.updateSetting(PreferenceKey.isVibrateOnScan, value);
                   },
                 ),
                 ListTileSwitch(
@@ -86,31 +86,31 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                   icon: Icons.volume_up,
                   initialValue: settings.isBipOnScan,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isBipOnScan.name, value);
+                    settings.updateSetting(PreferenceKey.isBipOnScan, value);
                   },
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanScreenRotationLabel,
                   icon: Icons.screen_rotation,
-                  initialValue: settings.isScreenRotationEnabled,
+                  initialValue: settings.isScreenRotation,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isScreenRotation.name, value);
+                    settings.updateSetting(PreferenceKey.isScreenRotation, value);
                   },
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanBarcodeCopiedLabel,
                   icon: Icons.content_copy,
-                  initialValue: settings.isBarcodeCopiedEnabled,
+                  initialValue: settings.isBarcodeCopied,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isBarcodeCopied.name, value);
+                    settings.updateSetting(PreferenceKey.isBarcodeCopied, value);
                   },
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanUseFrontcameraLabel,
                   icon: Icons.flip_camera_android,
-                  initialValue: settings.isUseFrontcameraEnabled,
+                  initialValue: settings.isUseFrontcamera,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isUseFrontcamera.name, value);
+                    settings.updateSetting(PreferenceKey.isUseFrontcamera, value);
                   },
                 ),
 
@@ -118,10 +118,10 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                 ListTilePicker(
                   str: localeStr.qrCodeErrorCorrectionLevelLabel,
                   dialogTitleStr: localeStr.qrCodeErrorCorrectionLevelSettingsLabel,
-                  selectedOption: settings.qrCodeErrorLevel,
-                  optionsMap: Utils.qrECLOptionsMap(localeStr),
+                  selectedOption: settings.selectedQRErrorLevel,
+                  optionMap: HistoryErrorLevel.optionMap(localeStr),
                   onChanged: (value) => settings.updateSetting(
-                    PreferenceKeys.selectedQRErrorLevel.name, value
+                    PreferenceKey.selectedQRErrorLevel, value
                   ),
                 ),
 
@@ -129,25 +129,25 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanAddBarcodeToTheHistoryLabel,
                   icon: Icons.qr_code_scanner,
-                  initialValue: settings.isHistoryEnabled,
+                  initialValue: settings.isScanAddHistory,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isScanAddHistory.name, value);
+                    settings.updateSetting(PreferenceKey.isScanAddHistory, value);
                   },
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel,
                   icon: Icons.edit,
-                  initialValue: settings.isBarCodeGenerationHistoryEnabled,
+                  initialValue: settings.isCreateAddHistory,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isCreateAddHistory.name, value);
+                    settings.updateSetting(PreferenceKey.isCreateAddHistory, value);
                   },
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchHistorySaveDuplicatesLabel,
                   icon: Icons.filter_2,
-                  initialValue: settings.isHistoryDuplicatedEnabled,
+                  initialValue: settings.isSaveDuplicates,
                   onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKeys.isSaveDuplicates.name, value);
+                    settings.updateSetting(PreferenceKey.isSaveDuplicates, value);
                   },
                 ),
 
@@ -155,12 +155,8 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                 ListTilePicker(
                   str: localeStr.preferencesSearchEngine,
                   selectedOption: settings.selectedSearchEngine,
-                  optionsMap: <String, String>{
-                    SearchEngineKeys.google.name: Language.googleLabel,
-                    SearchEngineKeys.bing.name: Language.bingLabel,
-                    SearchEngineKeys.wikipedia.name: Language.wikipediaLabel,
-                  },
-                  onChanged: (value) => settings.updateSetting(PreferenceKeys.selectedSearchEngine.name, value),
+                  optionMap: SearchEngine.optionMap(localeStr),
+                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedSearchEngine, value),
                 ),
                 ListTileText(
                   str: localeStr.customSearchUrls,

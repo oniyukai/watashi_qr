@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/app_theme.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/locale/language.dart';
@@ -11,6 +12,7 @@ import 'package:watashi_qr/common/hive_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveStorage.hiveInit();
+  await Utils.prefsInit();
   runApp(
     MultiProvider(
       providers: [
@@ -59,12 +61,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               return MaterialApp(
 
                 title: Language.appName,
-                theme: AppTheme.theme(context, settings.selectedTheme, settings.selectedColor, lightDynamic, darkDynamic),
+                theme: appTheme(context, settings.selectedTheme, settings.selectedColor, lightDynamic, darkDynamic),
                 debugShowCheckedModeBanner: false,
 
-                locale: AppLocale.currentLocale(settings.selectedLanguage),
-                localizationsDelegates: AppLocale.localizationsDelegates,
-                supportedLocales: AppLocale.supportedLocales,
+                locale: LocaleOption.localeFromName(settings.selectedLanguage),
+                localizationsDelegates: LocaleOption.localizationsDelegates,
+                supportedLocales: LocaleOption.supportedLocales,
 
                 routes: MyRouter.ROUTES,
                 navigatorKey: MyRouter.navigatorKey,

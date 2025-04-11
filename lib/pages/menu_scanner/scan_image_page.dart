@@ -4,7 +4,6 @@ import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/hive_storage.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -117,14 +116,14 @@ class _ScanImagePageState extends State<ScanImagePage> {
     final String? contents = _barcodeCapture?.barcodes.first.rawValue;
     if (barcodeFormat==null || contents==null || contents.isEmpty) return;
     final formatName = Utils.formatMobileScannerType(barcodeFormat);
-    final bool isHistoryEnabled = context.read<SettingsProvider>().isHistoryEnabled;
+    final bool isHistoryEnabled = context.settingsProvider.isScanAddHistory;
     final HistoryItem item = HistoryItem(
-      unixTime: Utils.getNowUnixTime(),
+      unixTime: Utils.nowUnixTime,
       contents: contents,
-      formatName: formatName,
+      format: formatName,
       type: Utils.determineType(formatName, contents),
-      errorCorrectionLevel: ErrorLevels.none.name,
-      origin: OriginEnum.S.name,
+      errorLevel: HistoryErrorLevel.none.name,
+      origin: HistoryOrigin.S.name,
       isFavorite: false,
       notes: '',
     );

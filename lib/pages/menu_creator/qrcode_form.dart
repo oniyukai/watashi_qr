@@ -10,7 +10,6 @@ import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -36,16 +35,15 @@ class _QrcodeFormState extends State<QrcodeForm> {
       Utils.showToast('Error: contents.length > 4296');
       return;
     }
-    final bool isBarCodeGenerationHistoryEnabled = context.read<SettingsProvider>()
-        .isBarCodeGenerationHistoryEnabled;
-    final String qrCodeErrorLevel = context.read<SettingsProvider>().qrCodeErrorLevel;
+    final bool isBarCodeGenerationHistoryEnabled = context.settingsProvider.isCreateAddHistory;
+    final String qrCodeErrorLevel = context.settingsProvider.selectedQRErrorLevel;
     final HistoryItem item = HistoryItem(
-      unixTime: Utils.getNowUnixTime(),
+      unixTime: Utils.nowUnixTime,
       contents: contents,
-      formatName: 'QR_CODE',
+      format: 'QR_CODE',
       type: qrcodeType,
-      errorCorrectionLevel: qrCodeErrorLevel,
-      origin: OriginEnum.C.name,
+      errorLevel: qrCodeErrorLevel,
+      origin: HistoryOrigin.C.name,
       isFavorite: false,
       notes: '',
     );
