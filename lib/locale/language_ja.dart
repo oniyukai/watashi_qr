@@ -387,7 +387,7 @@ class LanguageJa extends Language {
     // Shortcuts
     // About Settings
     'preferencesAboutTitle': '情報',
-    'preferencesAboutThirdPartyLibrariesLabel': 'サードパーティライブラリ',
+    'preferencesAboutOpenSourceLibrariesLabel': 'オープンソースライセンス',
     'preferencesApplicationVersionLabel': 'アプリのバージョン',
     'preferencesSourceCodeLabel': 'ソースコード',
     // About Permissions

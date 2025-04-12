@@ -387,7 +387,7 @@ class LanguageZhTw extends Language {
     // Shortcuts
     // About Settings
     'preferencesAboutTitle': '關於',
-    'preferencesAboutThirdPartyLibrariesLabel': '第三方函式庫',
+    'preferencesAboutOpenSourceLibrariesLabel': '開源許可證',
     'preferencesApplicationVersionLabel': '應用版本',
     'preferencesSourceCodeLabel': '原始碼',
     // About Permissions

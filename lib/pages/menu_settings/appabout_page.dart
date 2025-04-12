@@ -54,11 +54,11 @@ class _AppAboutPageState extends State<AppAboutPage> {
                 subtitle: Text(Language.appVersionCode),
               ),
               ListTile(
-                title: Text(localeStr.preferencesAboutThirdPartyLibrariesLabel),
+                title: Text(localeStr.preferencesAboutOpenSourceLibrariesLabel),
                 trailing: trailingIcon,
                 onTap: () => Navigator.push(context, MaterialPageRoute(
                     builder: (BuildContext context) => LicensePage(
-                      applicationName: localeStr.preferencesAboutThirdPartyLibrariesLabel,
+                      applicationName: localeStr.preferencesAboutOpenSourceLibrariesLabel,
                     )
                   )
                 ),

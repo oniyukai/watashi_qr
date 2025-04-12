@@ -406,7 +406,7 @@ class Language {
   // Shortcuts
   // About Settings
   String get preferencesAboutTitle => _translate('preferencesAboutTitle');
-  String get preferencesAboutThirdPartyLibrariesLabel => _translate('preferencesAboutThirdPartyLibrariesLabel');
+  String get preferencesAboutOpenSourceLibrariesLabel => _translate('preferencesAboutOpenSourceLibrariesLabel');
   String get preferencesApplicationVersionLabel => _translate('preferencesApplicationVersionLabel');
   String get preferencesSourceCodeLabel => _translate('preferencesSourceCodeLabel');
   // About Permissions

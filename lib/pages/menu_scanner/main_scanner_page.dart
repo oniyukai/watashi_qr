@@ -36,7 +36,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
   bool _hasCameraPermission = false;
   bool _isOnDetecting = false;
   late MobileScannerController _mobileScannerController;
-  late bool _isFrontCamera;
+  late bool _isUseFrontcamera;
   late double _zoomLevel;
   late double _minScanWindowSize;
   late double _maxScanWindowSize;
@@ -64,7 +64,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
     _minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.2;
     _maxScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.75;
     _defaultScanWindowSize = _maxScanWindowSize * 0.5;
-    _isFrontCamera = context.settingsProvider.isUseFrontcamera;
+    _isUseFrontcamera = context.settingsProvider.isUseFrontcamera;
     _loadPrefsValues();
   }
 
@@ -108,7 +108,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
     try {
       _mobileScannerController = MobileScannerController(
         detectionSpeed: DetectionSpeed.unrestricted,
-        facing: _isFrontCamera ? CameraFacing.front : CameraFacing.back,
+        facing: _isUseFrontcamera ? CameraFacing.front : CameraFacing.back,
         torchEnabled: _isFlashOn,
       );
       _mobileScannerController.setZoomScale(_zoomLevel); // todo debug: 進入時並沒有載入
@@ -171,9 +171,9 @@ class _MainScannerPageState extends State<MainScannerPage> {
     if (contents==null || contents.isEmpty) return;
 
     // 自動打開網站
-    final bool isAutoOpenWebsiteEnabled = context.settingsProvider.isAutoOpenWebsite;
+    final bool isAutoOpenWebsite = context.settingsProvider.isAutoOpenWebsite;
     // 連續掃描
-    final bool isContinuousScanEnabled = context.settingsProvider.isContinuousScan;
+    final bool isContinuousScan = context.settingsProvider.isContinuousScan;
     // 掃描震動
     final bool isVibrateOnScan = context.settingsProvider.isVibrateOnScan;
     if (isVibrateOnScan) Utils.deviceVibrate();
@@ -181,26 +181,26 @@ class _MainScannerPageState extends State<MainScannerPage> {
     final bool isBipOnScan = context.settingsProvider.isBipOnScan;
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
     // 複製到剪貼簿
-    final bool isBarcodeCopiedEnabled = context.settingsProvider.isBarcodeCopied;
-    if (isBarcodeCopiedEnabled) Clipboard.setData(ClipboardData(text: contents));
+    final bool isBarcodeCopied = context.settingsProvider.isBarcodeCopied;
+    if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: contents));
 
-    final bool isHistoryEnabled = context.settingsProvider.isScanAddHistory;
-    final formatName = Utils.formatMobileScannerType(barcodeFormat);
+    final bool isScanAddHistory = context.settingsProvider.isScanAddHistory;
+    final format = HistoryFormat.fromScannerFormat(barcodeFormat);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
-      format: formatName,
-      type: Utils.determineType(formatName, contents),
+      format: format?.name ?? barcodeFormat.name,
+      type: HistoryType.fromDistinguish(format, contents).name,
       errorLevel: HistoryErrorLevel.none.name,
       origin: HistoryOrigin.S.name,
       isFavorite: false,
       notes: '',
     );
-    if (isHistoryEnabled) HiveStorage.addItem(item, context:context);
+    if (isScanAddHistory) HiveStorage.addItem(item, context:context);
 
-    if (isContinuousScanEnabled) {
+    if (isContinuousScan) {
       Utils.showToast(item.contents);
-    } else if (isAutoOpenWebsiteEnabled && item.type == 'WEBSITE') {
+    } else if (isAutoOpenWebsite && item.type == HistoryType.website.name) {
       Utils.unlockCurrentOrientation();
       await Utils.openUrlInBrowser(item.contents);
       Utils.lockCurrentOrientation(context);

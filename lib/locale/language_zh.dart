@@ -387,7 +387,7 @@ class LanguageZh extends Language {
     // Shortcuts
     // About Settings
     'preferencesAboutTitle': '关于',
-    'preferencesAboutThirdPartyLibrariesLabel': '第三方函数库',
+    'preferencesAboutOpenSourceLibrariesLabel': '开源许可证',
     'preferencesApplicationVersionLabel': '应用版本',
     'preferencesSourceCodeLabel': '源代码',
     // About Permissions

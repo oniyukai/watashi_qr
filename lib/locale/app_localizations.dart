@@ -60,12 +60,9 @@ enum LocaleOption {
     GlobalCupertinoLocalizations.delegate,
   ];
 
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('en'),
-    Locale('ja'),
-    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'),
-    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
-  ];
+  static List<Locale> supportedLocales = LocaleOption.values
+      .where((option) => option.locale != null)
+      .map((option) => option.locale!).toList();
 }
 
 // 如果要修改語言設定的代碼大致只需要本頁即可

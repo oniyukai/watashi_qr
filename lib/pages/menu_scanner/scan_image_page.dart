@@ -115,19 +115,19 @@ class _ScanImagePageState extends State<ScanImagePage> {
     final barcodeFormat = _barcodeCapture?.barcodes.first.format;
     final String? contents = _barcodeCapture?.barcodes.first.rawValue;
     if (barcodeFormat==null || contents==null || contents.isEmpty) return;
-    final formatName = Utils.formatMobileScannerType(barcodeFormat);
-    final bool isHistoryEnabled = context.settingsProvider.isScanAddHistory;
+    final format = HistoryFormat.fromScannerFormat(barcodeFormat);
+    final bool isScanAddHistory = context.settingsProvider.isScanAddHistory;
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
-      format: formatName,
-      type: Utils.determineType(formatName, contents),
+      format: format?.name ?? barcodeFormat.name,
+      type: HistoryType.fromDistinguish(format, contents).name,
       errorLevel: HistoryErrorLevel.none.name,
       origin: HistoryOrigin.S.name,
       isFavorite: false,
       notes: '',
     );
-    if (isHistoryEnabled) HiveStorage.addItem(item, context:context);
+    if (isScanAddHistory) HiveStorage.addItem(item, context:context);
     await context.routeOf<ItemView>().arguments(item).to();
     Navigator.pop(context);
   }

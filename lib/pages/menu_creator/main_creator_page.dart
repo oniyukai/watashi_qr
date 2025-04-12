@@ -22,6 +22,55 @@ class MainCreatorPage extends StatefulWidget {
 
 class _MainCreatorPageState extends State<MainCreatorPage> {
   final ScrollController _scrollController = ScrollController();
+  final List<HistoryType> _historyTypes = const <HistoryType>[
+    HistoryType.text,
+    HistoryType.website,
+    HistoryType.contact,
+    HistoryType.mail,
+    HistoryType.sms,
+    HistoryType.phone,
+    HistoryType.location,
+    HistoryType.agend,
+    HistoryType.wifi,
+  ];
+
+  final List<HistoryFormat> _historyFormats = const <HistoryFormat>[
+    HistoryFormat.dataMatrix,
+    HistoryFormat.aztec,
+    HistoryFormat.pdf417,
+    HistoryFormat.ean13,
+    HistoryFormat.ean8,
+    HistoryFormat.upcA,
+    HistoryFormat.upcE,
+    HistoryFormat.code128,
+    HistoryFormat.code93,
+    HistoryFormat.code39,
+    HistoryFormat.codebar,
+    HistoryFormat.itf,
+  ];
+
+  Future<void> _createQrFromClipboard(Language localeStr) async {
+    final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    final String selectedQRErrorLevel = context.settingsProvider.selectedQRErrorLevel;
+    final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
+    if (clipboardData != null && clipboardData.text != null) {
+      final String contents = clipboardData.text!;
+      final HistoryItem item = HistoryItem(
+        unixTime: Utils.nowUnixTime,
+        contents: contents,
+        format: HistoryFormat.qrCode.name,
+        type: HistoryType.fromDistinguish(HistoryFormat.qrCode, contents).name,
+        errorLevel: selectedQRErrorLevel,
+        origin: HistoryOrigin.C.name,
+        isFavorite: false,
+        notes: '',
+      );
+      if (isCreateAddHistory) HiveStorage.addItem(item, context:context);
+      context.routeOf<BarcodeView>().arguments(item).to();
+    } else {
+      Utils.showToast('${localeStr.clipboardEmpty}\n${localeStr.qrCodeTextGeneratorHintTextInputEditText}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +95,9 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                         icon: Icons.content_copy,
                         onTap: () => _createQrFromClipboard(localeStr),
                       ),
-                      ..._qrcodeTypes.map((type) => ListTileItem(
-                        title:Utils.formatTypeStr(type, localeStr),
-                        icon:Utils.formatTypeIcon(type),
+                      ..._historyTypes.map((type) => ListTileItem(
+                        title: HistoryType.localeStrFromName(type.name, localeStr),
+                        icon: type.iconData,
                         onTap: () => context.routeOf<QrcodeForm>()
                             .arguments(type)
                             .to(),
@@ -62,12 +111,12 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                   title: localeStr.titleBarCodeCreator,
                   icon: MaterialCommunityIcons.barcode,
                   expandedChild: Column(
-                    children: _barcodeTypes.map((type) => ListTileItem(
-                      title:Utils.formatNameStr(type, localeStr),
-                      icon:Utils.formatNameIcon(type),
-                      description:Utils.formatNameComposition(type, localeStr),
+                    children: _historyFormats.map((format) => ListTileItem(
+                      title: HistoryFormat.localeStrFromName(format.name, localeStr),
+                      icon: format.iconData,
+                      description: HistoryFormat.description(format, localeStr),
                       onTap: () => context.routeOf<BarcodeForm>()
-                          .arguments(type)
+                          .arguments(format)
                           .to(),
                     )).toList(),
                   ),
@@ -87,60 +136,4 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
       ),
     );
   }
-
-  Future<void> _createQrFromClipboard(Language localeStr) async {
-    final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-    final String qrCodeErrorLevel = context.settingsProvider.selectedQRErrorLevel;
-    final bool isBarCodeGenerationHistoryEnabled = context.settingsProvider.isCreateAddHistory;
-
-    if (clipboardData != null) {
-      final String? text = clipboardData.text;
-      if (text != null) {
-        final HistoryItem item = HistoryItem(
-          unixTime: Utils.nowUnixTime,
-          contents: text,
-          format: 'QR_CODE',
-          type: Utils.determineType('QR_CODE', text),
-          errorLevel: qrCodeErrorLevel,
-          origin: HistoryOrigin.C.name,
-          isFavorite: false,
-          notes: '',
-        );
-        if (isBarCodeGenerationHistoryEnabled) HiveStorage.addItem(item, context:context);
-        context.routeOf<BarcodeView>().arguments(item).to();
-      } else {
-        Utils.showToast('${localeStr.clipboardEmpty}\n${localeStr.qrCodeTextGeneratorHintTextInputEditText}');
-      }
-    } else {
-      Utils.showToast(localeStr.error);
-    }
-  }
-
-  final List<String> _qrcodeTypes = const <String>[
-    'TEXT',
-    'WEBSITE',
-    'CONTACT',
-    'MAIL',
-    'SMS',
-    'PHONE',
-    'LOCATION',
-    'AGEND',
-    'WIFI',
-  ];
-
-  final List<String> _barcodeTypes = const <String>[
-    'DATA_MATRIX',
-    'AZTEC',
-    'PDF_417',
-    'EAN_13',
-    'EAN_8',
-    'UPC_A',
-    'UPC_E',
-    'Code_128',
-    'Code_93',
-    'Code_39',
-    'CODABAR',
-    'IFT',
-  ];
-
 }

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:barcode/barcode.dart';
 
 class BarcodeTextField extends StatelessWidget {
-  final String barcodeType;
+  final HistoryFormat? format;
   final String name;
   final GlobalKey<FormBuilderState> formKey;
   final String? initialValue;
 
   const BarcodeTextField({
     super.key,
-    required this.barcodeType,
+    required this.format,
     required this.name,
     required this.formKey,
     this.initialValue,
@@ -24,17 +24,17 @@ class BarcodeTextField extends StatelessWidget {
     final localeStr = Language.of(context)!;
     return FormBuilderTextField(
       name: name,
-      maxLines: _allowLineBreaks(),
+      maxLines: _allowLineBreaks,
       initialValue: initialValue,
       decoration: InputDecoration(
-        prefixIcon: Icon(_isRequestNumbers() ? Icons.pin_outlined : Icons.format_size),
-        labelText: Utils.formatNameComposition(barcodeType, localeStr),
+        prefixIcon: Icon(_isRequestNumbers ? Icons.pin_outlined : Icons.format_size),
+        labelText: HistoryFormat.composition(format, localeStr),
         errorMaxLines: 8,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
-      keyboardType: _isRequestNumbers() ? TextInputType.number : null,
+      keyboardType: _isRequestNumbers ? TextInputType.number : null,
       validator: (value) => _barcodeValidators(value, localeStr),
       onEditingComplete: () {
         formKey.currentState?.fields[name]?.validate();
@@ -42,44 +42,38 @@ class BarcodeTextField extends StatelessWidget {
     );
   }
 
-  int? _allowLineBreaks() {
-    final allowList = const <String>[
-      'QR_CODE',
-      'DATA_MATRIX',
-      'AZTEC',
-      'PDF_417',
-      'Code_128'
-    ];
-    return (allowList.contains(barcodeType)) ? null : 1;
-  }
+  int? get _allowLineBreaks => const <HistoryFormat>[
+    HistoryFormat.qrCode,
+    HistoryFormat.dataMatrix,
+    HistoryFormat.aztec,
+    HistoryFormat.pdf417,
+    HistoryFormat.code128
+  ].contains(format) ? null : 1;
 
-  bool _isRequestNumbers() {
-    final isNumbersList = const <String>[
-      'EAN_13',
-      'EAN_8',
-      'UPC_A',
-      'UPC_E',
-      'CODABAR',
-      'IFT',
-    ];
-    return isNumbersList.contains(barcodeType);
-  }
+  bool get _isRequestNumbers => const <HistoryFormat>[
+    HistoryFormat.ean13,
+    HistoryFormat.ean8,
+    HistoryFormat.upcA,
+    HistoryFormat.upcE,
+    HistoryFormat.codebar,
+    HistoryFormat.itf
+  ].contains(format);
 
   String? _barcodeValidators(String? value, Language localeStr){
     if (value==null || value.replaceAll('\n', '').replaceAll(' ', '').isEmpty ) {
       return localeStr.errorBarcodeNoneCharacterMessage;
-    } else if (_isRequestNumbers() && !value.isNumeric) {
+    } else if (_isRequestNumbers && !value.isNumeric) {
       return localeStr.errorBarcodeNotANumberMessage;
     }
-    switch (barcodeType) {
-      case 'QR_CODE':
+    switch (format) {
+      case HistoryFormat.qrCode:
         if (value.length > 4296) {
           return localeStr.error;
         }
         break;
-      case 'PDF_417':
+      case HistoryFormat.pdf417:
         break;
-      case 'AZTEC':
+      case HistoryFormat.aztec:
         if (value.length > 3832) {
           return localeStr.error;
         }
@@ -88,7 +82,7 @@ class BarcodeTextField extends StatelessWidget {
           return localeStr.errorBarcodeEncodingIso88591ErrorMessage;
         }
         break;
-      case 'DATA_MATRIX':
+      case HistoryFormat.dataMatrix:
         if (value.length > 2335) {
           return localeStr.error;
         }
@@ -106,7 +100,7 @@ class BarcodeTextField extends StatelessWidget {
           return localeStr.errorBarcodeEncodingIso88591ErrorMessage;
         }
         break;
-      case 'EAN_13':
+      case HistoryFormat.ean13:
         if (value.length != 13) {
           return '${localeStr.errorBarcodeWrongLengthMessage}13';
         }
@@ -115,7 +109,7 @@ class BarcodeTextField extends StatelessWidget {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
         break;
-      case 'EAN_8':
+      case HistoryFormat.ean8:
         if (value.length != 8) {
           return '${localeStr.errorBarcodeWrongLengthMessage}8';
         }
@@ -124,7 +118,7 @@ class BarcodeTextField extends StatelessWidget {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
         break;
-      case 'UPC_A':
+      case HistoryFormat.upcA:
         if (value.length != 12) {
           return '${localeStr.errorBarcodeWrongLengthMessage}12';
         }
@@ -133,7 +127,7 @@ class BarcodeTextField extends StatelessWidget {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
         break;
-      case 'UPC_E':
+      case HistoryFormat.upcE:
         if (value[0] != '0') {
           return localeStr.errorBarcodeUpcENotStartWith0ErrorMessage;
         }
@@ -145,7 +139,7 @@ class BarcodeTextField extends StatelessWidget {
           return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
         }
         break;
-      case 'Code_128':
+      case HistoryFormat.code128:
         if (value.length > 2046) {
           return localeStr.error;
         }
@@ -154,7 +148,7 @@ class BarcodeTextField extends StatelessWidget {
           return localeStr.errorBarcodeEncodingUsAsciiErrorMessage;
         }
         break;
-      case 'Code_93':
+      case HistoryFormat.code93:
         if (value.length > 47) {
           return localeStr.error;
         }
@@ -164,7 +158,7 @@ class BarcodeTextField extends StatelessWidget {
           return localeStr.errorBarcode93RegexErrorMessage;
         }
         break;
-      case 'Code_39':
+      case HistoryFormat.code39:
         if (value.length > 43) {
           return localeStr.error;
         }
@@ -173,12 +167,12 @@ class BarcodeTextField extends StatelessWidget {
           return localeStr.errorBarcode39RegexErrorMessage;
         }
         break;
-      case 'CODABAR':
+      case HistoryFormat.codebar:
         if (value.length > 20) {
           return localeStr.error;
         }
         break;
-      case 'IFT':
+      case HistoryFormat.itf:
         if (value.length > 20) {
           return localeStr.error;
         }
@@ -186,6 +180,7 @@ class BarcodeTextField extends StatelessWidget {
           return localeStr.errorBarcodeItfErrorMessage;
         }
         break;
+      default:
     }
     return null;
   }

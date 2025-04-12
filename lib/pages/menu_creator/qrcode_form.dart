@@ -16,7 +16,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 
-class QrcodeForm extends StatefulWidget with RouterBridge<String> {
+class QrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
   const QrcodeForm({super.key});
 
   @override
@@ -30,34 +30,34 @@ class _QrcodeFormState extends State<QrcodeForm> {
   final List<String> _contactMailType = <String>['home', 'home', 'home']; // only for the _CONTACT form
   final List<String> _contactPhoneType = <String>['cell', 'cell', 'cell']; // only for the _CONTACT form
 
-  void _sendForm(String contents, String qrcodeType) {
+  void _sendForm(String contents, HistoryType historyType) {
     if (contents.length > 4296) {
       Utils.showToast('Error: contents.length > 4296');
       return;
     }
-    final bool isBarCodeGenerationHistoryEnabled = context.settingsProvider.isCreateAddHistory;
-    final String qrCodeErrorLevel = context.settingsProvider.selectedQRErrorLevel;
+    final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
+    final String selectedQRErrorLevel = context.settingsProvider.selectedQRErrorLevel;
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
-      format: 'QR_CODE',
-      type: qrcodeType,
-      errorLevel: qrCodeErrorLevel,
+      format: HistoryFormat.qrCode.name,
+      type: historyType.name,
+      errorLevel: selectedQRErrorLevel,
       origin: HistoryOrigin.C.name,
       isFavorite: false,
       notes: '',
     );
-    if (isBarCodeGenerationHistoryEnabled) HiveStorage.addItem(item, context:context);
+    if (isCreateAddHistory) HiveStorage.addItem(item, context:context);
     context.routeOf<BarcodeView>().arguments(item).to();
   }
 
   @override
   Widget build(BuildContext context) {
-    final qrcodeType = widget.argumentOf(context);
+    final historyType = widget.argumentOf(context);
     final localeStr = Language.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    if (qrcodeType == null) return AppAboutPage();
+    if (historyType == null) return AppAboutPage();
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleBarCodeCreator),
@@ -68,8 +68,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 final valueMap = _formKey.currentState?.value;
                 if (valueMap == null) return;
-                final String contents = _getFormValuetoContents(qrcodeType, valueMap);
-                _sendForm(contents, qrcodeType);
+                final String contents = _contentsFromForm(historyType, valueMap);
+                _sendForm(contents, historyType);
               }
             },
           )
@@ -82,14 +82,14 @@ class _QrcodeFormState extends State<QrcodeForm> {
             child: ListView(
               children: [
                 ListTileItem(
-                  title:Utils.formatTypeStr(qrcodeType, localeStr),
-                  icon:Utils.formatTypeIcon(qrcodeType),
+                  title: HistoryType.localeStrFromName(historyType.name, localeStr),
+                  icon: historyType.iconData,
                 ),
                 const SizedBox(height: 16),
                 FormBuilder(
                   key:_formKey,
-                  child: _typeFormSwitch(
-                    qrcodeType: qrcodeType,
+                  child: _formFromType(
+                    historyType: historyType,
                     localeStr: localeStr,
                     colorScheme: colorScheme,
                     theme: theme,
@@ -116,19 +116,19 @@ class _QrcodeFormState extends State<QrcodeForm> {
 
       final File file = File(result.files.single.path!);
       final String vCardString = await file.readAsString();
-      _sendForm(vCardString, 'CONTACT');
+      _sendForm(vCardString, HistoryType.contact);
     } catch (e) {
       Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', 16);
     }
   }
 
-  String _getFormValuetoContents(String qrcodeType, Map<String, dynamic> valueMap) {
-    switch(qrcodeType) {
-      case 'TEXT':
+  String _contentsFromForm(HistoryType historyType, Map<String, dynamic> valueMap) {
+    switch(historyType) {
+      case HistoryType.text:
         return valueMap['text'];
-      case 'WEBSITE':
+      case HistoryType.website:
         return valueMap['website'];
-      case 'CONTACT':
+      case HistoryType.contact:
         final String name = valueMap['name'] ?? '';
         final String firstname = valueMap['firstname'] ?? '';
         final String organisation = valueMap['organisation'] ?? '';
@@ -165,7 +165,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
         }
         if (notes.isNotEmpty) vCardString += 'NOTE:$notes\n';
         return '${vCardString}END:VCARD';
-      case 'MAIL':
+      case HistoryType.mail:
         final String subject = valueMap['subject'] ?? '';
         final String message = valueMap['message'] ?? '';
         if ( subject.isNotEmpty || message.isNotEmpty){
@@ -173,17 +173,17 @@ class _QrcodeFormState extends State<QrcodeForm> {
         } else {
           return 'MAILTO:${valueMap['email']}';
         }
-      case 'SMS':
+      case HistoryType.sms:
         return 'SMSTO:${valueMap['phone']}:${valueMap['message']}';
-      case 'PHONE':
+      case HistoryType.phone:
         return 'tel:${valueMap['phone']}';
-      case 'LOCATION':
+      case HistoryType.location:
         String height = valueMap['height'] ?? '';
         String request = valueMap['height'] ?? '';
         height = height.isNotEmpty ? ',$height' : '';
         request = request.isNotEmpty ? '?q=$request' : '';
         return 'geo:${valueMap['latitude']},${valueMap['longitude']}$height$request';
-      case 'AGEND':
+      case HistoryType.agend:
         final String summary = valueMap['summary'] ?? '';
         String location = valueMap['location'] ?? '';
         String description = valueMap['description'] ?? '';
@@ -235,23 +235,24 @@ class _QrcodeFormState extends State<QrcodeForm> {
         final dtend = 'DTEND${endFormatter.format(endDateTime)}\n';
 
         return 'BEGIN:VEVENT\nSUMMARY:$summary\n$dtstart$dtend$location${description}END:VEVENT';
-      case 'WIFI':
+      case HistoryType.wifi:
         final String ssid = valueMap['ssid'] ?? '';
         final String password = (_wifiSecurityType!='nopass') ? (valueMap['password'] ?? '') : '';
         final bool hide = valueMap['hide'] ?? false;
         return 'WIFI:S:$ssid;T:$_wifiSecurityType;P:$password;H:$hide;';
+      default:
     }
     return 'null';
   }
 
-  Widget _typeFormSwitch({
-    required String qrcodeType,
+  Widget _formFromType({
+    required HistoryType historyType,
     required Language localeStr,
     required ColorScheme colorScheme,
     required ThemeData theme,
   }) {
-    switch(qrcodeType) {
-      case 'WEBSITE':
+    switch(historyType) {
+      case HistoryType.website:
         return FormBuilderTextField(
           name: 'website',
           maxLines: null,
@@ -271,7 +272,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             _formKey.currentState?.fields['website']?.validate();
           },
         );
-      case 'CONTACT':
+      case HistoryType.contact:
         return LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             final textFieldWidth = constraints.maxWidth * 0.65;
@@ -529,57 +530,57 @@ class _QrcodeFormState extends State<QrcodeForm> {
             );
           },
         );
-      case 'MAIL':
+      case HistoryType.mail:
         return Column(
-        children: [
-          FormBuilderTextField(
-            name: 'email',
-            maxLines: 1,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.mail_outline),
-              labelText: localeStr.qrCodeTextInputEditTextHintEmail,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
+          children: [
+            FormBuilderTextField(
+              name: 'email',
+              maxLines: 1,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.mail_outline),
+                labelText: localeStr.qrCodeTextInputEditTextHintEmail,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
+              keyboardType: TextInputType.emailAddress,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                FormBuilderValidators.email(errorText: localeStr.errorBarcodeNoneCharacterMessage),
+              ]),
+              onEditingComplete: () {
+                _formKey.currentState?.fields['email']?.validate();
+              },
             ),
-            keyboardType: TextInputType.emailAddress,
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-              FormBuilderValidators.email(errorText: localeStr.errorBarcodeNoneCharacterMessage),
-            ]),
-            onEditingComplete: () {
-              _formKey.currentState?.fields['email']?.validate();
-            },
-          ),
-          const SizedBox(height: 16),
-          FormBuilderTextField(
-            name: 'subject',
-            maxLines: 1,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.format_size),
-              labelText: localeStr.qrCodeTextInputEditTextHintEmailSubject,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
+            const SizedBox(height: 16),
+            FormBuilderTextField(
+              name: 'subject',
+              maxLines: 1,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.format_size),
+                labelText: localeStr.qrCodeTextInputEditTextHintEmailSubject,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
+              keyboardType: TextInputType.text,
             ),
-            keyboardType: TextInputType.text,
-          ),
-          const SizedBox(height: 16),
-          FormBuilderTextField(
-            name: 'message',
-            maxLines: null,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.format_size),
-              labelText: localeStr.qrCodeTextInputEditTextHintMessage,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
+            const SizedBox(height: 16),
+            FormBuilderTextField(
+              name: 'message',
+              maxLines: null,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.format_size),
+                labelText: localeStr.qrCodeTextInputEditTextHintMessage,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
+              keyboardType: TextInputType.multiline,
             ),
-            keyboardType: TextInputType.multiline,
-          ),
-        ],
-      );
-      case 'SMS':
+          ],
+        );
+      case HistoryType.sms:
         return Column(
           children: [
             FormBuilderTextField(
@@ -622,7 +623,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             )
           ],
         );
-      case 'PHONE':
+      case HistoryType.phone:
         return FormBuilderTextField(
           name: 'phone',
           maxLines: 1,
@@ -642,7 +643,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             _formKey.currentState?.fields['phone']?.validate();
           },
         );
-      case 'LOCATION':
+      case HistoryType.location:
         return Column(
           children: [
             FormBuilderTextField(
@@ -720,7 +721,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             ),
           ],
         );
-      case 'AGEND':
+      case HistoryType.agend:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -840,7 +841,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             ),
           ],
         );
-      case 'WIFI':
+      case HistoryType.wifi:
         return Column(
           children: [
             FormBuilderTextField(
@@ -908,13 +909,14 @@ class _QrcodeFormState extends State<QrcodeForm> {
             ),
           ],
         );
-      case 'TEXT':
+      case HistoryType.text:
         return BarcodeTextField(
-            barcodeType: 'QR_CODE',
+            format: HistoryFormat.qrCode,
             name: 'text',
             formKey: _formKey
         );
+      default:
+        return const SizedBox.shrink();
     }
-    return const SizedBox.shrink();
   }
 }

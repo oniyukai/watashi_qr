@@ -27,7 +27,7 @@ class _ItemViewState extends State<ItemView> {
   final _formKey = GlobalKey<FormBuilderState>();
   late HistoryItem _historyItem;
   late bool _isExistInhistories;
-  late bool _isHistoryDuplicatedEnabled;
+  late bool _isSaveDuplicates;
   bool? _isWillExist;
 
   @override
@@ -37,7 +37,7 @@ class _ItemViewState extends State<ItemView> {
     if (argument == null) return;
     _historyItem = argument;
     _isExistInhistories = HiveStorage.containsTime(_historyItem.unixTime);
-    _isHistoryDuplicatedEnabled = context.settingsProvider.isSaveDuplicates;
+    _isSaveDuplicates = context.settingsProvider.isSaveDuplicates;
   }
 
   @override
@@ -55,7 +55,7 @@ class _ItemViewState extends State<ItemView> {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
-        HiveStorage.addItem(_historyItem, isDuplicatedEnabled: _isHistoryDuplicatedEnabled);
+        HiveStorage.addItem(_historyItem, isDuplicatedEnabled: _isSaveDuplicates);
       } else {
         HiveStorage.deleteItem(_historyItem.key);
       }
@@ -68,11 +68,11 @@ class _ItemViewState extends State<ItemView> {
   Widget build(BuildContext context) {
     final localeStr = Language.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
-    final formatNameStr = Utils.formatNameStr(_historyItem.format, localeStr);
+    final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format, localeStr);
     final isFormatNameSupported = !(formatNameStr.startsWith('"') && formatNameStr.endsWith('"'));
     return Scaffold(
       appBar: AppBar(
-        title: Text(Utils.formatTypeStr(_historyItem.type, localeStr)),
+        title: Text(HistoryType.localeStrFromName(_historyItem.type, localeStr)),
       ),
       body: SafeArea(
         child: Scrollbar(
@@ -82,12 +82,12 @@ class _ItemViewState extends State<ItemView> {
               children: [
                 ExpandableCard(
                   title: localeStr.barCodeContentLabel,
-                  icon: Utils.formatTypeIcon(_historyItem.type),
+                  icon: _historyItem.getTypeIconData,
                   initialExpanded: true,
                   expandedChild: AnalyzedContentItem(
                     contents: _historyItem.contents,
-                    formatName: _historyItem.format,
-                    type: _historyItem.type,
+                    format: _historyItem.getFormat,
+                    type: _historyItem.getType,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -98,7 +98,7 @@ class _ItemViewState extends State<ItemView> {
                       ListTile(
                         minTileHeight: 0,
                         contentPadding: const EdgeInsets.only(left: 16, top: 8),
-                        leading: Icon(Utils.formatNameIcon(_historyItem.format)),
+                        leading: Icon(_historyItem.getFormatIconData),
                         title: Text(localeStr.aboutBarcodeInformationLabel),
                       ),
                       ListTile(
@@ -198,18 +198,11 @@ class _ItemViewState extends State<ItemView> {
                     // 根据屏幕宽度和间距计算按钮的宽度 換算格子所需的長寬
                     final buttonWidth = (availableWidth - (columnCount - 1) * spacing) / columnCount;
                     final buttonHeight = 100.0;
-                    final actionGridList = _getActionGridList(localeStr);
                     return Wrap(
                       alignment: WrapAlignment.start,
                       spacing: spacing,
                       runSpacing: spacing,
-                      children: actionGridList.map((child) => PressButtonGrid(
-                        width: buttonWidth,
-                        height: buttonHeight,
-                        icon: child['icon'],
-                        description: child['description'],
-                        onTap: child['onTap'],
-                      )).toList(),
+                      children: _getActionGridList(localeStr, buttonWidth, buttonHeight),
                     );
                   },
                 ),
@@ -222,32 +215,33 @@ class _ItemViewState extends State<ItemView> {
     );
   }
 
-  List<Map<String, dynamic>> _getActionGridList(Language localeStr) {
+  List<PressButtonGrid> _getActionGridList(Language localeStr, double width, double height,) {
     final String type = _historyItem.type;
     final bool willExist = _isWillExist ?? _isExistInhistories;
-    return [
-      type != 'WEBSITE' ? {
-        'icon': Icons.search,
-        'description': localeStr.actionWebSearchLabel,
-        'onTap': () => _actionWebSearch(),
-      } : {
-        'icon': Icons.open_in_browser,
-        'description': localeStr.actionOpenLink,
-        'onTap': () => Utils.openUrlInBrowser(_historyItem.contents),
-      },
-      if (context.settingsProvider.customSearchUrls.isNotEmpty) {
-        'icon': Icons.search,
-        'description': localeStr.customSearchUrls,
-        'onTap': () => _showCustomSearchDialog(localeStr),
-      },
-      {
-        'icon': Icons.edit_note,
-        'description': localeStr.actionModifyNotes,
-        'onTap': () {
+    return <PressButtonGrid>[
+      type != HistoryType.website.name ?
+      PressButtonGrid(width: width, height: height,
+          icon: Icons.search,
+          description: localeStr.actionWebSearchLabel,
+          onTap: () => _actionWebSearch()
+      ) : PressButtonGrid(width: width, height: height,
+        icon: Icons.open_in_browser,
+        description: localeStr.actionOpenLink,
+        onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
+    ),
+      if (context.settingsProvider.customSearchUrls.isNotEmpty) PressButtonGrid(width: width, height: height,
+        icon: Icons.search,
+        description: localeStr.customSearchUrls,
+        onTap: () => _showCustomSearchDialog(localeStr),
+      ),
+      PressButtonGrid(width: width, height: height,
+        icon: Icons.edit_note,
+        description: localeStr.actionModifyNotes,
+        onTap: () {
           _showModifyNotesSheet(localeStr);
           setState(() {});
         },
-      },
+      ),
       // if (type == 'CONTACT' || type == 'MAIL' || type == 'PHONE' || type == 'SMS') {
       //   'icon': Icons.contacts_outlined,
       //   'description': localeStr.actionAddToContacts,
@@ -283,12 +277,12 @@ class _ItemViewState extends State<ItemView> {
       //   'description': localeStr.qrCodeTypeNameWifi,
       //   'onTap': () {}, // TODO WIFI按鈕功能
       // },
-      {
-        'icon': willExist ? Icons.delete_forever : Icons.add,
-        'description': willExist
+      PressButtonGrid(width: width, height: height,
+        icon: willExist ? Icons.delete_forever : Icons.add,
+        description: willExist
             ? localeStr.menuItemHistoryDeleteFromHistory
             : localeStr.menuItemHistoryAddInHistory,
-        'onTap': () {
+        onTap: () {
           Utils.showToast(willExist
               ? localeStr.menuItemHistoryRemovedFromHistory
               : localeStr.menuItemHistoryAddedInHistory);
@@ -296,7 +290,7 @@ class _ItemViewState extends State<ItemView> {
             _isWillExist = !willExist;
           });
         },
-      },
+      ),
     ];
   }
 
@@ -327,14 +321,14 @@ class _ItemViewState extends State<ItemView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(localeStr.actionModifyBarcode),
-                    Text(Utils.formatNameStr(_historyItem.format, localeStr)),
+                    Text(HistoryFormat.localeStrFromName(_historyItem.format, localeStr)),
                   ],
                 ),
                 const SizedBox(height: 16),
                 FormBuilder(
                   key:_formKey,
                   child: BarcodeTextField(
-                    barcodeType: _historyItem.format,
+                    format: _historyItem.getFormat,
                     name: 'modifyContents',
                     formKey: _formKey,
                     initialValue: _historyItem.contents,
@@ -354,7 +348,7 @@ class _ItemViewState extends State<ItemView> {
                         if (_formKey.currentState?.saveAndValidate() ?? false) {
                           final value = _formKey.currentState?.value['modifyContents'];
                           _historyItem.contents = value;
-                          _historyItem.type = Utils.determineType(_historyItem.format, value);
+                          _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, value).name;
                           Navigator.pop(context);
                         }
                       },

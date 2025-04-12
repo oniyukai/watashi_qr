@@ -387,7 +387,7 @@ class LanguageEn extends Language {
     // Shortcuts
     // About Settings
     'preferencesAboutTitle': 'About',
-    'preferencesAboutThirdPartyLibrariesLabel': 'Third-party libraries',
+    'preferencesAboutOpenSourceLibrariesLabel': 'Open Source Licenses',
     'preferencesApplicationVersionLabel': 'App Version',
     'preferencesSourceCodeLabel': 'Source code',
     // About Permissions

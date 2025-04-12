@@ -64,7 +64,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                   }
                   Utils.showToast(localeStr.customUrlUpdated);
                 }
-                context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
+                context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
                 Navigator.pop(context);
               }
             },

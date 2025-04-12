@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/locale/language.dart';
 
 class AnalyzedContentItem extends StatelessWidget {
   final String contents;
-  final String type;
-  final String formatName;
+  final HistoryType? type;
+  final HistoryFormat? format;
 
   const AnalyzedContentItem({
     super.key,
     required this.contents,
     required this.type,
-    required this.formatName,
+    required this.format,
   });
 
   @override
@@ -20,25 +21,26 @@ class AnalyzedContentItem extends StatelessWidget {
     final theme = Theme.of(context);
 
     switch (type) {
-      case 'CONTACT': // TODO CONTACT內容分析
+      case HistoryType.contact: // TODO CONTACT內容分析
         break;
-      case 'MAIL': // TODO MAIL內容分析
+      case HistoryType.mail: // TODO MAIL內容分析
         break;
-      case 'SMS': // TODO SMS內容分析
+      case HistoryType.sms: // TODO SMS內容分析
         break;
-      case 'PHONE':// TODO PHONE內容分析
+      case HistoryType.phone:// TODO PHONE內容分析
         break;
-      case 'LOCATION':// TODO LOCATION內容分析
+      case HistoryType.location:// TODO LOCATION內容分析
         break;
-      case 'AGEND':// TODO AGEND內容分析
+      case HistoryType.agend:// TODO AGEND內容分析
         break;
-      case 'WIFI':// TODO WIFI內容分析
+      case HistoryType.wifi:// TODO WIFI內容分析
         break;
 
-      case 'TEXT':
-      case 'WEBSITE':
-      case 'PRODUCT':
-      case 'INDUSTRIAL':
+      case HistoryType.text:
+      case HistoryType.website:
+      case HistoryType.product:
+      case HistoryType.industrial:
+      case null:
     }
     return Text(contents, softWrap: true);
   }

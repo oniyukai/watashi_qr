@@ -94,7 +94,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                           }
                           return false;
                         });
-                        context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
+                        context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
                         _exitSelectionMode();
                       } else {
                         context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, <String>[]);

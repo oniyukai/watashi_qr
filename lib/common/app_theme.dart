@@ -37,12 +37,13 @@ enum ColorOption {
   };
 }
 
-ThemeData appTheme
-    (BuildContext context,
+ThemeData appTheme (
+    BuildContext context,
     String selectedTheme,
     String selectedColor,
     ColorScheme? lightDynamic,
-    ColorScheme? darkDynamic){
+    ColorScheme? darkDynamic
+    ){
   final Brightness brightness = ThemeOption.values.byName(selectedTheme).brightness
       ?? View.of(context).platformDispatcher.platformBrightness;
   final MaterialColor seedColor = ColorOption.values.byName(selectedColor).color

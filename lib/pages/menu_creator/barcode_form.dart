@@ -11,7 +11,7 @@ import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class BarcodeForm extends StatefulWidget with RouterBridge<String> {
+class BarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
   const BarcodeForm({super.key});
 
   @override
@@ -23,10 +23,10 @@ class _BarcodeFormState extends State<BarcodeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final barcodeType = widget.argumentOf(context);
+    final format = widget.argumentOf(context);
     final localeStr = Language.of(context)!;
     final theme = Theme.of(context);
-    if (barcodeType == null) return AppAboutPage();
+    if (format == null) return AppAboutPage();
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleBarCodeCreator),
@@ -36,18 +36,18 @@ class _BarcodeFormState extends State<BarcodeForm> {
             onPressed: () {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 final value = _formKey.currentState?.value['name'];
-                final bool isBarCodeGenerationHistoryEnabled = context.settingsProvider.isCreateAddHistory;
+                final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
                 final HistoryItem item = HistoryItem(
                   unixTime: Utils.nowUnixTime,
                   contents: value,
-                  format: barcodeType,
-                  type: Utils.determineType(barcodeType, value),
+                  format: format.name,
+                  type: HistoryType.fromDistinguish(format, value).name,
                   errorLevel: HistoryErrorLevel.none.name,
                   origin: HistoryOrigin.C.name,
                   isFavorite: false,
                   notes: '',
                 );
-                if (isBarCodeGenerationHistoryEnabled) HiveStorage.addItem(item, context:context);
+                if (isCreateAddHistory) HiveStorage.addItem(item, context:context);
                 context.routeOf<BarcodeView>().arguments(item).to();
               }
             },
@@ -61,20 +61,20 @@ class _BarcodeFormState extends State<BarcodeForm> {
             child: ListView(
               children: [
                 ListTileItem(
-                  title:Utils.formatNameStr(barcodeType, localeStr),
-                  icon:Utils.formatNameIcon(barcodeType),
+                  title: HistoryFormat.localeStrFromName(format.name, localeStr),
+                  icon: format.iconData,
                 ),
                 const SizedBox(height: 16),
                 FormBuilder(
                   key:_formKey,
                   child: BarcodeTextField(
-                    barcodeType: barcodeType,
+                    format: format,
                     name: 'name',
                     formKey: _formKey,
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(Utils.formatNameDescription(barcodeType, localeStr) ?? '',
+                Text(HistoryFormat.description(format, localeStr) ?? '',
                     softWrap: true,
                     style: theme.textTheme.bodyMedium
                 ),

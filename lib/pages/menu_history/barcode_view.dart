@@ -30,10 +30,11 @@ class _BarcodeViewState extends State<BarcodeView> {
     final localeStr = Language.of(context)!;
     final historyItem = widget.argumentOf(context);
     if (historyItem == null) return AppAboutPage();
-    final itemDescription = Utils.formatNameDescription(historyItem.format, localeStr);
+    final BarcodeQRCorrectionLevel? level = historyItem.getErrorLevel?.barcodeQRCorrectionLevel;
+    final itemDescription = HistoryFormat.description(historyItem.getFormat, localeStr);
     return Scaffold(
       appBar: AppBar(
-        title: Text(Utils.formatNameStr(historyItem.format, localeStr)),
+        title: Text(HistoryFormat.localeStrFromName(historyItem.format, localeStr)),
         actions: [
           CustomMenuButton(
             icon: const Icon(Icons.save),
@@ -41,8 +42,8 @@ class _BarcodeViewState extends State<BarcodeView> {
             onSelectedEnd: (int option) => _exportImage(
               option: const <String>['png', 'jpg', 'svg'][option],
               contents: historyItem.contents,
-              formatName: historyItem.format,
-              errorCorrectionLevel: historyItem.errorLevel,
+              format: historyItem.getFormat,
+              level: level,
               localeStr: localeStr,
             ),
           ),
@@ -50,8 +51,8 @@ class _BarcodeViewState extends State<BarcodeView> {
             icon: const Icon(Icons.share),
             onPressed: () => _shareImage(
               contents: historyItem.contents,
-              formatName: historyItem.format,
-              errorCorrectionLevel: historyItem.errorLevel,
+              format: historyItem.getFormat,
+              level: level,
             ), // 匯出PNG
           ),
         ],
@@ -62,14 +63,14 @@ class _BarcodeViewState extends State<BarcodeView> {
           child: Utils.isPortrait(context)
             ? Column(
               children: [
-                _barcodeSvgCard(historyItem, Utils.isPortrait(context)),
+                _barcodeSvgCard(historyItem, Utils.isPortrait(context), level),
                 const SizedBox(height: 24),
                 _expandedListView(localeStr, historyItem, itemDescription),
               ],
             )
             : Row(
               children: [
-                _barcodeSvgCard(historyItem, Utils.isPortrait(context)),
+                _barcodeSvgCard(historyItem, Utils.isPortrait(context), level),
                 const SizedBox(width: 24),
                 _expandedListView(localeStr, historyItem, itemDescription),
               ],
@@ -79,7 +80,7 @@ class _BarcodeViewState extends State<BarcodeView> {
     );
   }
 
-  Widget _barcodeSvgCard(HistoryItem historyItem, bool isPortrait) {
+  Widget _barcodeSvgCard(HistoryItem historyItem, bool isPortrait, BarcodeQRCorrectionLevel? level) {
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -97,8 +98,8 @@ class _BarcodeViewState extends State<BarcodeView> {
               child: SvgPicture.string(
                 _getBarcodeSvg(
                   contents: historyItem.contents,
-                  formatName: historyItem.format,
-                  errorCorrectionLevel: historyItem.errorLevel,
+                  format: historyItem.getFormat,
+                  level: level,
                   length: length,
                 ),
               ),
@@ -114,13 +115,13 @@ class _BarcodeViewState extends State<BarcodeView> {
       child: ListView(
         children: [
           ExpandableCard(
-            title: Utils.formatTypeStr(historyItem.type, localeStr),
-            icon: Utils.formatTypeIcon(historyItem.type),
+            title: HistoryType.localeStrFromName(historyItem.type, localeStr),
+            icon: historyItem.getTypeIconData,
             initialExpanded: true,
             expandedChild: SelectableText(historyItem.contents),
           ),
           const SizedBox(height: 8),
-          if (historyItem.format=='QR_CODE')
+          if (historyItem.format == HistoryFormat.qrCode.name)
             Center(child: Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
                 HistoryErrorLevel.localeStrFromName(historyItem.errorLevel, localeStr)
                 ?? HistoryErrorLevel.localeStrFromName(context.settingsProvider.selectedQRErrorLevel, localeStr)
@@ -135,8 +136,8 @@ class _BarcodeViewState extends State<BarcodeView> {
   Future<void> _exportImage({
     required String option,
     required String contents,
-    required String formatName,
-    required String errorCorrectionLevel,
+    required HistoryFormat? format,
+    required BarcodeQRCorrectionLevel? level,
     required Language localeStr
   }) async {
     try {
@@ -158,12 +159,12 @@ class _BarcodeViewState extends State<BarcodeView> {
       if (option == 'svg') {
         final String svg = _getBarcodeSvg(
             contents: contents,
-            formatName: formatName,
-            errorCorrectionLevel: errorCorrectionLevel
+            format: format,
+            level: level
         );
         await file.writeAsString(svg);
       } else {
-        final barcodeImage = _getBarcodeImage(contents, formatName, errorCorrectionLevel);
+        final barcodeImage = _getBarcodeImage(contents, format, level);
         file.writeAsBytesSync(option=='png' ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
       }
 
@@ -175,14 +176,14 @@ class _BarcodeViewState extends State<BarcodeView> {
 
   Future<void> _shareImage({
     required String contents,
-    required String formatName,
-    required String errorCorrectionLevel,
+    required HistoryFormat? format,
+    required BarcodeQRCorrectionLevel? level,
   }) async {
     try {
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/barcode.png';
       final File file = File(filePath);
-      final barcodeImage = _getBarcodeImage(contents, formatName, errorCorrectionLevel);
+      final barcodeImage = _getBarcodeImage(contents, format, level);
       file.writeAsBytesSync(img.encodePng(barcodeImage));
       await Share.shareXFiles([XFile(filePath)]);
     } catch (e) {
@@ -190,64 +191,63 @@ class _BarcodeViewState extends State<BarcodeView> {
     }
   }
 
-  img.Image _getBarcodeImage(String contents, String formatName, String errorCorrectionLevel){
-    final barcodeImage = img.Image(width: 1024, height: _getHeight(formatName, 1024.0).toInt());
+  img.Image _getBarcodeImage(String contents, HistoryFormat? format, BarcodeQRCorrectionLevel? level){
+    final barcodeImage = img.Image(width: 1024, height: _getHeight(format, 1024.0).toInt());
     img.fill(barcodeImage, color: img.ColorRgb8(255, 255, 255));
-    drawBarcode(barcodeImage, _getBarcode(formatName, errorCorrectionLevel), contents, font: img.arial48);
+    drawBarcode(barcodeImage, _getBarcode(format, level), contents, font: img.arial48);
     return barcodeImage;
   }
 
   String _getBarcodeSvg({
     required String contents,
-    required String formatName,
-    required String errorCorrectionLevel,
+    required HistoryFormat? format,
+    required BarcodeQRCorrectionLevel? level,
     double length = 1024,
   }) {
-    final Barcode barcode = _getBarcode(formatName, errorCorrectionLevel);
-    final double height = _getHeight(formatName, length);
+    final Barcode barcode = _getBarcode(format, level);
+    final double height = _getHeight(format, length);
     return barcode.toSvg(contents, width: length, height: height);
   }
 
-  double _getHeight(String formatName, double width) {
-    switch (formatName) {
-      case 'QR_CODE':
-      case 'AZTEC':
-      case 'DATA_MATRIX':
+  double _getHeight(HistoryFormat? format, double width) {
+    switch (format) {
+      case HistoryFormat.qrCode:
+      case HistoryFormat.aztec:
+      case HistoryFormat.dataMatrix:
         return width;
-      case 'PDF_417':
-      case 'EAN_13':
-      case 'EAN_8':
-      case 'UPC_A':
-      case 'UPC_E':
-      case 'Code_128':
-      case 'Code_93':
-      case 'Code_39':
-      case 'CODABAR':
-      case 'IFT':
+      case HistoryFormat.pdf417:
+      case HistoryFormat.ean13:
+      case HistoryFormat.ean8:
+      case HistoryFormat.upcA:
+      case HistoryFormat.upcE:
+      case HistoryFormat.code128:
+      case HistoryFormat.code93:
+      case HistoryFormat.code39:
+      case HistoryFormat.codebar:
+      case HistoryFormat.itf:
         return width/2.718;
       default:
         return width;
     }
   }
 
-  Barcode _getBarcode(String formatName, String errorCorrectionLevel){
-    final BarcodeQRCorrectionLevel level = HistoryErrorLevel.values.byName(errorCorrectionLevel)
-        .barcodeQRCorrectionLevel ?? HistoryErrorLevel.L.barcodeQRCorrectionLevel!;
+  Barcode _getBarcode(HistoryFormat? format, BarcodeQRCorrectionLevel? level){
+    level = level ?? HistoryErrorLevel.L.barcodeQRCorrectionLevel!;
 
-    switch (formatName) {
-      case 'QR_CODE': return Barcode.qrCode(errorCorrectLevel: level);
-      case 'AZTEC': return Barcode.aztec();
-      case 'DATA_MATRIX': return Barcode.dataMatrix();
-      case 'PDF_417': return Barcode.pdf417();
-      case 'EAN_13': return Barcode.ean13();
-      case 'EAN_8': return Barcode.ean8();
-      case 'UPC_A': return Barcode.upcA();
-      case 'UPC_E': return Barcode.upcE();
-      case 'Code_128': return Barcode.code128();
-      case 'Code_93': return Barcode.code93();
-      case 'Code_39': return Barcode.code39();
-      case 'CODABAR': return Barcode.codabar();
-      case 'IFT': return Barcode.itf();
+    switch (format) {
+      case HistoryFormat.qrCode: return Barcode.qrCode(errorCorrectLevel: level);
+      case HistoryFormat.aztec: return Barcode.aztec();
+      case HistoryFormat.dataMatrix: return Barcode.dataMatrix();
+      case HistoryFormat.pdf417: return Barcode.pdf417();
+      case HistoryFormat.ean13: return Barcode.ean13();
+      case HistoryFormat.ean8: return Barcode.ean8();
+      case HistoryFormat.upcA: return Barcode.upcA();
+      case HistoryFormat.upcE: return Barcode.upcE();
+      case HistoryFormat.code128: return Barcode.code128();
+      case HistoryFormat.code93: return Barcode.code93();
+      case HistoryFormat.code39: return Barcode.code39();
+      case HistoryFormat.codebar: return Barcode.codabar();
+      case HistoryFormat.itf: return Barcode.itf();
       default: return Barcode.qrCode(errorCorrectLevel: level);
     }
   }

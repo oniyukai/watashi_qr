@@ -44,7 +44,8 @@ class HistoryItemCard extends StatelessWidget {
                   : colorScheme.primary
           ),
           child: Center(
-            child: Icon(Utils.formatTypeIcon(historyItem.type),
+            child: Icon(
+                historyItem.getTypeIconData,
                 color: colorScheme.onPrimary
             ),
           ),
@@ -68,12 +69,12 @@ class HistoryItemCard extends StatelessWidget {
                 ) : const SizedBox.shrink(),
                 const SizedBox(width: 2.0),
                 Text(
-                  Utils.formatNameStr(historyItem.format, localeStr),
+                  HistoryFormat.localeStrFromName(historyItem.format, localeStr),
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(width: 2.0),
                 Icon(
-                    Utils.formatNameIcon(historyItem.format),
+                    historyItem.getFormatIconData,
                     size: 16.0,
                     color: theme.hintColor
                 ),
@@ -83,7 +84,7 @@ class HistoryItemCard extends StatelessWidget {
         ),
         subtitle: Row(
           children: [
-            Text(Utils.formatTypeStr(historyItem.type, localeStr),
+            Text(HistoryType.localeStrFromName(historyItem.type, localeStr),
               style: theme.textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
             ),
