@@ -22,7 +22,7 @@ class _MainSettingsPage extends State<MainSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final trailingIcon = Icon((Directionality.of(context) == TextDirection.ltr)
         ? Icons.chevron_right
         : Icons.chevron_left

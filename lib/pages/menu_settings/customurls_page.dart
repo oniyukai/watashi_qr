@@ -52,7 +52,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     return Scaffold(
@@ -88,7 +88,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                         final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
                         customSearchUrls.removeWhere((searchUrl) {
                           for (final title in _selectedTitles) {
-                            if (searchUrl.startsWith('$title<Separation.Object>')) {
+                            if (searchUrl.startsWith('$title${Language.separationObject}')) {
                               return true;
                             }
                           }
@@ -121,7 +121,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                     style: theme.textTheme.titleMedium,
                   )
                   else ...settings.customSearchUrls.map((searchUrl) {
-                    List<String> parts = searchUrl.split('<Separation.Object>');
+                    List<String> parts = searchUrl.split(Language.separationObject);
                     String title = parts[0];
                     return Column(
                       children: [

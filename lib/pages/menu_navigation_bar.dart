@@ -44,7 +44,7 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
   }
 
   Widget buildBottomNavigationBar() {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: (int index) => _onItemTapped(index),
@@ -70,7 +70,7 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
   }
 
   Widget buildSideNavigationBar() {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     return NavigationRail(
       selectedIndex: currentIndex,
       onDestinationSelected: (index) => _onItemTapped(index),

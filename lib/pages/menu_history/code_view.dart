@@ -17,18 +17,19 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class BarcodeView extends StatefulWidget with RouterBridge<HistoryItem> {
-  const BarcodeView({super.key});
+class CodeView extends StatefulWidget with RouterBridge<HistoryItem> {
+  const CodeView({super.key});
 
   @override
-  State<BarcodeView> createState() => _BarcodeViewState();
+  State<CodeView> createState() => _CodeViewState();
 }
 
-class _BarcodeViewState extends State<BarcodeView> {
+class _CodeViewState extends State<CodeView> {
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final historyItem = widget.argumentOf(context);
+    final isPortrait = Utils.isPortrait(context);
     if (historyItem == null) return AppAboutPage();
     final BarcodeQRCorrectionLevel? level = historyItem.getErrorLevel?.barcodeQRCorrectionLevel;
     final itemDescription = HistoryFormat.description(historyItem.getFormat, localeStr);
@@ -40,7 +41,7 @@ class _BarcodeViewState extends State<BarcodeView> {
             icon: const Icon(Icons.save),
             labelList: [Language.pngLabel, Language.jpgLabel, Language.svgLabel],
             onSelectedEnd: (int option) => _exportImage(
-              option: const <String>['png', 'jpg', 'svg'][option],
+              option: const <String>[Language.pngLabel, Language.jpgLabel, Language.svgLabel][option],
               contents: historyItem.contents,
               format: historyItem.getFormat,
               level: level,
@@ -60,76 +61,58 @@ class _BarcodeViewState extends State<BarcodeView> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Utils.isPortrait(context)
-            ? Column(
-              children: [
-                _barcodeSvgCard(historyItem, Utils.isPortrait(context), level),
-                const SizedBox(height: 24),
-                _expandedListView(localeStr, historyItem, itemDescription),
-              ],
-            )
-            : Row(
-              children: [
-                _barcodeSvgCard(historyItem, Utils.isPortrait(context), level),
-                const SizedBox(width: 24),
-                _expandedListView(localeStr, historyItem, itemDescription),
-              ],
-            ),
+          child: Flex(
+            direction: isPortrait ? Axis.vertical : Axis.horizontal,
+            children: [
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      double length = isPortrait ? constraints.maxWidth : constraints.maxHeight;
+                      length = isPortrait ? length*0.8 : length;
+                      length = min(length, (!isPortrait ? constraints.maxWidth : constraints.maxHeight)/1.618);
+                      return Center(
+                        child: SvgPicture.string(
+                          _getBarcodeSvg(
+                            contents: historyItem.contents,
+                            format: historyItem.getFormat,
+                            level: level,
+                            length: length,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              ),
+              isPortrait ? const SizedBox(height: 24) : const SizedBox(width: 24),
+              Expanded(
+                child: ListView(
+                  children: [
+                    ExpandableCard(
+                      title: HistoryType.localeStrFromName(historyItem.type, localeStr),
+                      icon: historyItem.getTypeIconData,
+                      initialExpanded: true,
+                      expandedChild: SelectableText(historyItem.contents),
+                    ),
+                    const SizedBox(height: 8),
+                    if (historyItem.format == HistoryFormat.qrCode.name)
+                      Center(child: Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
+                          HistoryErrorLevel.localeStrFromName(historyItem.errorLevel, localeStr)
+                              ?? HistoryErrorLevel.localeStrFromName(context.settingsProvider.selectedQRErrorLevel, localeStr)
+                      }'),),
+                    if (itemDescription!=null) Text(itemDescription),
+                    const SizedBox(height: 16),
+                  ],
+                )
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _barcodeSvgCard(HistoryItem historyItem, bool isPortrait, BarcodeQRCorrectionLevel? level) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      clipBehavior: Clip.antiAlias,
-
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            double length = isPortrait ? constraints.maxWidth : constraints.maxHeight;
-            length = isPortrait ? length*0.8 : length;
-            length = min(length, (!isPortrait ? constraints.maxWidth : constraints.maxHeight)/1.618);
-            return Center(
-              child: SvgPicture.string(
-                _getBarcodeSvg(
-                  contents: historyItem.contents,
-                  format: historyItem.getFormat,
-                  level: level,
-                  length: length,
-                ),
-              ),
-            );
-          },
-        ),
-      )
-    );
-  }
-
-  Widget _expandedListView(Language localeStr, HistoryItem historyItem, String? itemDescription) {
-    return Expanded(
-      child: ListView(
-        children: [
-          ExpandableCard(
-            title: HistoryType.localeStrFromName(historyItem.type, localeStr),
-            icon: historyItem.getTypeIconData,
-            initialExpanded: true,
-            expandedChild: SelectableText(historyItem.contents),
-          ),
-          const SizedBox(height: 8),
-          if (historyItem.format == HistoryFormat.qrCode.name)
-            Center(child: Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                HistoryErrorLevel.localeStrFromName(historyItem.errorLevel, localeStr)
-                ?? HistoryErrorLevel.localeStrFromName(context.settingsProvider.selectedQRErrorLevel, localeStr)
-            }'),),
-          if (itemDescription!=null) Text(itemDescription),
-          const SizedBox(height: 16),
-        ],
-      )
     );
   }
 
@@ -156,7 +139,7 @@ class _BarcodeViewState extends State<BarcodeView> {
       final String filePath = '$directoryPath/barcode.$option';
       final file = File(filePath);
 
-      if (option == 'svg') {
+      if (option == Language.svgLabel) {
         final String svg = _getBarcodeSvg(
             contents: contents,
             format: format,
@@ -165,7 +148,7 @@ class _BarcodeViewState extends State<BarcodeView> {
         await file.writeAsString(svg);
       } else {
         final barcodeImage = _getBarcodeImage(contents, format, level);
-        file.writeAsBytesSync(option=='png' ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
+        file.writeAsBytesSync(option==Language.pngLabel ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
       }
 
       Utils.showToast(localeStr.snackBarMessageSaveBitmapOk);
@@ -234,22 +217,22 @@ class _BarcodeViewState extends State<BarcodeView> {
   Barcode _getBarcode(HistoryFormat? format, BarcodeQRCorrectionLevel? level){
     level = level ?? HistoryErrorLevel.L.barcodeQRCorrectionLevel!;
 
-    switch (format) {
-      case HistoryFormat.qrCode: return Barcode.qrCode(errorCorrectLevel: level);
-      case HistoryFormat.aztec: return Barcode.aztec();
-      case HistoryFormat.dataMatrix: return Barcode.dataMatrix();
-      case HistoryFormat.pdf417: return Barcode.pdf417();
-      case HistoryFormat.ean13: return Barcode.ean13();
-      case HistoryFormat.ean8: return Barcode.ean8();
-      case HistoryFormat.upcA: return Barcode.upcA();
-      case HistoryFormat.upcE: return Barcode.upcE();
-      case HistoryFormat.code128: return Barcode.code128();
-      case HistoryFormat.code93: return Barcode.code93();
-      case HistoryFormat.code39: return Barcode.code39();
-      case HistoryFormat.codebar: return Barcode.codabar();
-      case HistoryFormat.itf: return Barcode.itf();
-      default: return Barcode.qrCode(errorCorrectLevel: level);
-    }
+    return switch (format) {
+      HistoryFormat.qrCode => Barcode.qrCode(errorCorrectLevel: level),
+      HistoryFormat.aztec => Barcode.aztec(),
+      HistoryFormat.dataMatrix=> Barcode.dataMatrix(),
+      HistoryFormat.pdf417 => Barcode.pdf417(),
+      HistoryFormat.ean13 => Barcode.ean13(),
+      HistoryFormat.ean8 => Barcode.ean8(),
+      HistoryFormat.upcA => Barcode.upcA(),
+      HistoryFormat.upcE => Barcode.upcE(),
+      HistoryFormat.code128 => Barcode.code128(),
+      HistoryFormat.code93 => Barcode.code93(),
+      HistoryFormat.code39 => Barcode.code39(),
+      HistoryFormat.codebar => Barcode.codabar(),
+      HistoryFormat.itf => Barcode.itf(),
+      _ => Barcode.qrCode(errorCorrectLevel: level)
+    };
   }
 
 }

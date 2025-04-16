@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:watashi_qr/pages/menu_creator/barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/qrcode_form.dart';
-import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
+import 'package:watashi_qr/pages/menu_history/code_view.dart';
 import 'package:watashi_qr/pages/menu_history/item_view.dart';
 import 'package:watashi_qr/pages/menu_scanner/scan_image_page.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
@@ -21,10 +21,9 @@ final Map<String, WidgetBuilder> _ROUTES_ = Utils.typeNameMap({
   BarcodeForm: (_) => BarcodeForm(),
   //menu_history
   ItemView: (_) => ItemView(),
-  BarcodeView: (_) => BarcodeView(),
+  CodeView: (_) => CodeView(),
   //menu_settings
   CustomurlsPage: (_) => CustomurlsPage(),
-  // ThirdpartylibPage: (_) => ThirdpartylibPage(),
   AppAboutPage: (_) => AppAboutPage(),
   CustomurlsForm: (_) => CustomurlsForm(),
 });

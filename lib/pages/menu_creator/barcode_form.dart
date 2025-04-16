@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
+import 'package:watashi_qr/pages/menu_history/code_view.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -24,7 +24,7 @@ class _BarcodeFormState extends State<BarcodeForm> {
   @override
   Widget build(BuildContext context) {
     final format = widget.argumentOf(context);
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final theme = Theme.of(context);
     if (format == null) return AppAboutPage();
     return Scaffold(
@@ -47,8 +47,8 @@ class _BarcodeFormState extends State<BarcodeForm> {
                   isFavorite: false,
                   notes: '',
                 );
-                if (isCreateAddHistory) HiveStorage.addItem(item, context:context);
-                context.routeOf<BarcodeView>().arguments(item).to();
+                if (isCreateAddHistory) HiveService.addItem(item, context:context);
+                context.routeOf<CodeView>().arguments(item).to();
               }
             },
           )

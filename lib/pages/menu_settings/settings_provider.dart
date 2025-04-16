@@ -25,15 +25,23 @@ enum PreferenceKey {
   isSaveDuplicates,
   selectedSearchEngine,
   customSearchUrls,
+
+  scannerWindowWidthPortrait,
+  scannerWindowHeightPortrait,
+  scannerWindowWidthLandscape,
+  scannerWindowHeightLandscape,
+  scannerZoomLevel,
 }
 
 enum SearchEngine {
-  google('https://www.google.com/search?q={code}'),
-  bing('https://www.bing.com/search?q={code}'),
-  wikipedia('https://wikipedia.org/w/index.php?search={code}');
+  google(Language.googleUrl),
+  bing(Language.bingUrl),
+  wikipedia(Language.wikipediaUrl);
 
   final String url;
   const SearchEngine(this.url);
+
+  static String urlByName(String n) => values.asNameMap()[n]?.url ?? google.url;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     google.name: Language.googleLabel,

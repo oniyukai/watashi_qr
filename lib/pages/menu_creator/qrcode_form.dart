@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
+import 'package:watashi_qr/pages/menu_history/code_view.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -47,16 +47,14 @@ class _QrcodeFormState extends State<QrcodeForm> {
       isFavorite: false,
       notes: '',
     );
-    if (isCreateAddHistory) HiveStorage.addItem(item, context:context);
-    context.routeOf<BarcodeView>().arguments(item).to();
+    if (isCreateAddHistory) HiveService.addItem(item, context:context);
+    context.routeOf<CodeView>().arguments(item).to();
   }
 
   @override
   Widget build(BuildContext context) {
     final historyType = widget.argumentOf(context);
-    final localeStr = Language.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+    final localeStr = Language.of(context);
     if (historyType == null) return AppAboutPage();
     return Scaffold(
       appBar: AppBar(
@@ -88,12 +86,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                 const SizedBox(height: 16),
                 FormBuilder(
                   key:_formKey,
-                  child: _formFromType(
-                    historyType: historyType,
-                    localeStr: localeStr,
-                    colorScheme: colorScheme,
-                    theme: theme,
-                  ),
+                  child: _formFromType(historyType, localeStr),
                 ),
               ],
             ),
@@ -105,12 +98,12 @@ class _QrcodeFormState extends State<QrcodeForm> {
 
   Future<void> importContactFromVcard(Language localeStr) async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['vcf'],
-      );
+      final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
         Utils.showToast(localeStr.cancelLabel);
+        return;
+      } else if (!result.files.single.path!.endsWith('.vcf')) {
+        Utils.showToast('Error: Not .vcf file');
         return;
       }
 
@@ -245,12 +238,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
     return 'null';
   }
 
-  Widget _formFromType({
-    required HistoryType historyType,
-    required Language localeStr,
-    required ColorScheme colorScheme,
-    required ThemeData theme,
-  }) {
+  Widget _formFromType(HistoryType historyType, Language localeStr) {
     switch(historyType) {
       case HistoryType.website:
         return FormBuilderTextField(

@@ -35,7 +35,13 @@ class Utils {
 
   // 震動一下
   static Future<void> deviceVibrate() async {
-    if ( await Vibration.hasVibrator() ) Vibration.vibrate();
+    if ( await Vibration.hasVibrator() ) {
+      if (await Vibration.hasCustomVibrationsSupport()) {
+        Vibration.vibrate(duration: 250);
+      } else {
+        Vibration.vibrate();
+      }
+    }
   }
 
   // 嗶的一聲
@@ -68,19 +74,6 @@ class Utils {
   static Future<void> searchInBrowser(String searchUrl, String keyWord) async {
     openUrlInBrowser(searchUrl.replaceAll('{code}', Uri.encodeComponent(keyWord)));
   }
-
-  // 一個可以支援使用enum的switch
-  // static dynamic funcSwitch<T>(T value, {required Map<T, Function?> cases, Function? defaultCase}) {
-  //   final keys = cases.keys.toList();
-  //   final startIndex = keys.indexOf(value);
-  //   if (startIndex != -1) {
-  //     for (int i = startIndex; i < keys.length; i++) {
-  //       final func = cases[ keys[i] ];
-  //       if (func != null) return func();
-  //     }
-  //   }
-  //   return (defaultCase != null) ? defaultCase() : null;
-  // }
 
   // 把'Type'名轉成String
   static String typeName(Type type) => type.toString();

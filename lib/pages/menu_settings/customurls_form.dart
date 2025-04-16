@@ -22,13 +22,13 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
     final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
     if (argument == null) return AppAboutPage();
     if (argument != '') {
-      final List<String> parts = argument.split('<Separation.Object>');
+      final List<String> parts = argument.split(Language.separationObject);
       _title = parts[0];
       _url = parts[1];
       _isAddorModify = false;
@@ -54,12 +54,12 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                   return;
                 }
                 if (_isAddorModify) {
-                  customSearchUrls.add('$formTitle<Separation.Object>$formUrl');
+                  customSearchUrls.add('$formTitle${Language.separationObject}$formUrl');
                   Utils.showToast(localeStr.customUrlAdded);
                 } else {
                   for (int i = 0; i<customSearchUrls.length; i++) {
-                    if (customSearchUrls[i].startsWith('$_title<Separation.Object>')) {
-                      customSearchUrls[i] = '$formTitle<Separation.Object>$formUrl';
+                    if (customSearchUrls[i].startsWith('$_title${Language.separationObject}')) {
+                      customSearchUrls[i] = '$formTitle${Language.separationObject}$formUrl';
                     }
                   }
                   Utils.showToast(localeStr.customUrlUpdated);
@@ -122,7 +122,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                   )
                 ),
                 const SizedBox(height: 16),
-                Text(localeStr.customSearchUrlsAddInfo,
+                Text('${localeStr.customSearchUrlsAddInfo}\n${localeStr.examples} ${Language.googleUrl}',
                   softWrap: true,
                   style: theme.textTheme.bodyMedium
                 ),
@@ -138,11 +138,10 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
   bool _isDuplicatedTitle(String formTitle, List<String> customSearchUrls) {
     if (_title == formTitle) return false;
     for (int i = 0; i<customSearchUrls.length; i++) {
-      if (customSearchUrls[i].startsWith('$formTitle<Separation.Object>')) {
+      if (customSearchUrls[i].startsWith('$formTitle${Language.separationObject}')) {
         return true;
       }
     }
     return false;
   }
-  
 }

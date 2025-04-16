@@ -12,7 +12,7 @@ class AppAboutPage extends StatefulWidget {
 class _AppAboutPageState extends State<AppAboutPage> {
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final theme = Theme.of(context);
     final trailingIcon = Icon((Directionality.of(context) == TextDirection.ltr)
       ? Icons.chevron_right
@@ -50,24 +50,22 @@ class _AppAboutPageState extends State<AppAboutPage> {
                 subtitle: Text(Language.appVersion),
               ),
               ListTile(
-                title: const Text('Version Code'),
-                subtitle: Text(Language.appVersionCode),
+                title: const Text('Version Tag'),
+                subtitle: Text(Language.appVersionTag),
               ),
               ListTile(
                 title: Text(localeStr.preferencesAboutOpenSourceLibrariesLabel),
                 trailing: trailingIcon,
-                onTap: () => Navigator.push(context, MaterialPageRoute(
-                    builder: (BuildContext context) => LicensePage(
-                      applicationName: localeStr.preferencesAboutOpenSourceLibrariesLabel,
-                    )
-                  )
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: localeStr.preferencesAboutOpenSourceLibrariesLabel,
                 ),
               ),
               ListTile(
-                title: const Text('Licences'),
-                subtitle: Text('The App is Licensed under \n${Language.gnuGeneralPublicLicenseV3} by YUKAI'),
+                title: const Text('Licence'),
+                subtitle: Text('This App is Licensed under\nGNU General Public License v3.0'),
                 trailing: trailingIcon,
-                onTap: () => Utils.openUrlInBrowser(Language.gnuGeneralPublicLicenseV3Url),
+                onTap: () => Utils.openUrlInBrowser('https://www.gnu.org/licenses/gpl-3.0.html'),
               ),
               ListTile(
                 title: Text(localeStr.preferencesSourceCodeLabel),

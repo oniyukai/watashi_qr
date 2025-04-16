@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_creator/barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/qrcode_form.dart';
-import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
+import 'package:watashi_qr/pages/menu_history/code_view.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -65,8 +65,8 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
         isFavorite: false,
         notes: '',
       );
-      if (isCreateAddHistory) HiveStorage.addItem(item, context:context);
-      context.routeOf<BarcodeView>().arguments(item).to();
+      if (isCreateAddHistory) HiveService.addItem(item, context:context);
+      context.routeOf<CodeView>().arguments(item).to();
     } else {
       Utils.showToast('${localeStr.clipboardEmpty}\n${localeStr.qrCodeTextGeneratorHintTextInputEditText}');
     }
@@ -74,7 +74,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     return Scaffold(
       body: SafeArea(
         child: Scrollbar(
@@ -114,7 +114,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                     children: _historyFormats.map((format) => ListTileItem(
                       title: HistoryFormat.localeStrFromName(format.name, localeStr),
                       icon: format.iconData,
-                      description: HistoryFormat.description(format, localeStr),
+                      description: HistoryFormat.composition(format, localeStr),
                       onTap: () => context.routeOf<BarcodeForm>()
                           .arguments(format)
                           .to(),

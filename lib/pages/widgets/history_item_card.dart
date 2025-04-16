@@ -19,7 +19,7 @@ class HistoryItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     return Card(

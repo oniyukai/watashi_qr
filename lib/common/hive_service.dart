@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -11,8 +12,8 @@ import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:intl/intl.dart';
 
-class HiveStorage {
-  const HiveStorage._();
+class HiveService {
+  const HiveService._();
 
   static late Box<HistoryItem> histories;
 
@@ -24,8 +25,6 @@ class HiveStorage {
   static Future<void> hiveClose() async {
     Hive.close();
   }
-
-  // histories_helper.dart
 
   static Future<int> addItem(
       HistoryItem item, {
@@ -98,6 +97,18 @@ class HiveStorage {
     Utils.showToast('Histories Sorting has been rearranged!');
   }
 
+  static Future<void> copyHistoriesToJson(Language localeStr) async {
+    final List<HistoryItem> historiesList = getReversedList();
+    if (historiesList.isEmpty) {
+      Utils.showToast(localeStr.labelHistoryEmpty);
+      return;
+    }
+    final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
+    final String jsonString = jsonEncode(jsonList);
+    Clipboard.setData(ClipboardData(text: jsonString));
+    Utils.showToast(localeStr.barcodeCopiedLabel);
+  }
+
   static Future<void> exportHistoriesToJson(Language localeStr) async {
     try {
       final List<HistoryItem> historiesList = getReversedList();
@@ -122,7 +133,7 @@ class HiveStorage {
       final String filePath = '$directoryPath/qr_$formattedDateTime.json';
       final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
       final String jsonString = jsonEncode(jsonList);
-      final File file = File(filePath);
+      final File file = File(filePath);  // todo?: 好像無法打開路徑
       await file.writeAsString(jsonString);
       Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n$filePath', 8);
     } catch (e) {
@@ -132,12 +143,12 @@ class HiveStorage {
 
   static Future<void> importHistoriesFromJson(Language localeStr) async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      );
+      final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
         Utils.showToast(localeStr.cancelLabel);
+        return;
+      } else if (!result.files.single.path!.endsWith('.json')) {
+        Utils.showToast('Error: Not .json file');
         return;
       }
 
@@ -171,5 +182,4 @@ class HiveStorage {
       Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', 16);
     }
   }
-
 }

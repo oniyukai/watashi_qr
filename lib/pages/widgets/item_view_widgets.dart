@@ -16,7 +16,7 @@ class AnalyzedContentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -40,7 +40,7 @@ class AnalyzedContentItem extends StatelessWidget {
       case HistoryType.website:
       case HistoryType.product:
       case HistoryType.industrial:
-      case null:
+      default:
     }
     return Text(contents, softWrap: true);
   }

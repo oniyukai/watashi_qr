@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
@@ -57,8 +57,8 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
   void _sortSelectedKeys() {
     _selectedKeys.sort((a, b) => b.compareTo(a));
     _selectedKeys.sort((a, b) {
-      final itemA = HiveStorage.getItem(a);
-      final itemB = HiveStorage.getItem(b);
+      final itemA = HiveService.getItem(a);
+      final itemB = HiveService.getItem(b);
       if (itemA==null || itemB==null){
         return 0;
       } else if (itemA.isFavorite && !itemB.isFavorite) {
@@ -73,7 +73,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -87,7 +87,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
           )
           : null,
         title: ValueListenableBuilder(
-          valueListenable: HiveStorage.histories.listenable(),
+          valueListenable: HiveService.histories.listenable(),
           builder: (context, Box box, _) {
             return _isSelectionMode
               ? Text('${_selectedKeys.length}/${box.length}')
@@ -107,7 +107,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
                     child: Text(localeStr.deleteLabel),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      HiveStorage.deleteItemList(_selectedKeys);
+                      HiveService.deleteItemList(_selectedKeys);
                       Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
                       _exitSelectionMode();
                     },
@@ -121,7 +121,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
                 String combinedText = '';
                 _sortSelectedKeys();
                 for (dynamic key in _selectedKeys) {
-                  final item = HiveStorage.getItem(key);
+                  final item = HiveService.getItem(key);
                   if (item != null) combinedText += '${item.contents}\n';
                 }
                 Clipboard.setData(ClipboardData(text: combinedText));
@@ -133,10 +133,10 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
               labelList: [localeStr.menuItemHistoryAddFavorite, localeStr.menuItemHistoryRemoveFavorite],
               onSelectedEnd: (int option) {
                 for (final dynamic key in _selectedKeys){
-                  final HistoryItem? item = HiveStorage.getItem(key);
+                  final HistoryItem? item = HiveService.getItem(key);
                   if (item == null) continue;
                   item.isFavorite = (option == 0);
-                  HiveStorage.updateItem(key, item);
+                  HiveService.updateItem(key, item);
                 }
                 _exitSelectionMode();
               },
@@ -144,12 +144,12 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
           ] else ...[
             CustomMenuButton(
               icon: const Icon(Icons.swap_vert),
-              labelList: [localeStr.exportJsonLabel, localeStr.importJsonLabel],
+              labelList: [localeStr.copyJsonLabel, localeStr.exportJsonLabel, localeStr.importJsonLabel],
               onSelectedList: [
-                () => HiveStorage.exportHistoriesToJson(localeStr),
-                () => HiveStorage.importHistoriesFromJson(localeStr),
+                () => HiveService.copyHistoriesToJson(localeStr),
+                () => HiveService.exportHistoriesToJson(localeStr),
+                () => HiveService.importHistoriesFromJson(localeStr),
               ],
-              onSelectedEnd: _exitSelectionMode,
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),
@@ -162,7 +162,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
                     child: Text(localeStr.deleteLabel),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      HiveStorage.clearHistories();
+                      HiveService.clearHistories();
                       Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
                       // setState( (){} );
                     },
@@ -179,9 +179,9 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: ValueListenableBuilder(
-            valueListenable: HiveStorage.histories.listenable(),
+            valueListenable: HiveService.histories.listenable(),
             builder: (context, Box box, _) {
-              List<HistoryItem> historiesList = HiveStorage.getReversedList();
+              List<HistoryItem> historiesList = HiveService.getReversedList();
               if (historiesList.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
               historiesList.sort((a, b) {
                 if (a.isFavorite && !b.isFavorite) {
@@ -193,6 +193,8 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
                 }
               });
               return ListView.builder(
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: false,
                 controller: _scrollController,
                 itemCount: historiesList.length,
                 itemBuilder: (context, index) {
@@ -218,5 +220,4 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
       ))
     );
   }
-
 }

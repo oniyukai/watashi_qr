@@ -21,7 +21,7 @@ class BarcodeTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     return FormBuilderTextField(
       name: name,
       maxLines: _allowLineBreaks,

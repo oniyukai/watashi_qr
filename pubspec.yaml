@@ -1,7 +1,7 @@
 name: watashi_qr
-description: "An open-source app that allows you to read and generate barcodes."
+description: "An Barcode Sannner App."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.7.2
@@ -9,17 +9,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.8
   permission_handler: ^12.0.0+1
-  shared_preferences: ^2.4.0
+  shared_preferences: ^2.5.3
   provider: ^6.1.2
   url_launcher: ^6.3.1
   dynamic_color: ^1.7.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.5
-  file_picker: ^10.1.0
+  file_picker: ^10.1.2
   intl: ^0.19.0
   fluttertoast: ^8.2.11
   flutter_vector_icons: ^2.0.0

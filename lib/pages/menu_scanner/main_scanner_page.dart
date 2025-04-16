@@ -3,19 +3,17 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/pages/menu_history/item_view.dart';
 import 'package:flutter/services.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/menu_scanner/scan_image_page.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:watashi_qr/pages/widgets/scanner_error.dart';
 
 class MainScannerPage extends StatefulWidget {
   const MainScannerPage({super.key});
@@ -27,32 +25,31 @@ class MainScannerPage extends StatefulWidget {
 class _MainScannerPageState extends State<MainScannerPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final SharedPreferences _prefs = Utils.prefs;
-  static const String _prefScanWindowWidthPortraitKey = 'scan_window_width_portrait';
-  static const String _prefScanWindowHeightPortraitKey = 'scan_window_height_portrait';
-  static const String _prefScanWindowWidthLandscapeKey = 'scan_window_width_landscape';
-  static const String _prefScanWindowHeightLandscapeKey = 'scan_window_height_landscape';
-  static const String _prefScanZoomLevelKey = 'scan_zoom_level';
-  bool _isFlashOn = false;
-  bool _hasCameraPermission = false;
-  bool _isOnDetecting = false;
+  final _prefScanWindowWidthPortraitKey = PreferenceKey.scannerWindowWidthPortrait.name;
+  final _prefScanWindowHeightPortraitKey = PreferenceKey.scannerWindowHeightPortrait.name;
+  final _prefScanWindowWidthLandscapeKey = PreferenceKey.scannerWindowWidthLandscape.name;
+  final _prefScanWindowHeightLandscapeKey = PreferenceKey.scannerWindowHeightLandscape.name;
+  final _prefScanZoomLevelKey = PreferenceKey.scannerZoomLevel.name;
   late MobileScannerController _mobileScannerController;
   late bool _isUseFrontcamera;
   late double _zoomLevel;
   late double _minScanWindowSize;
   late double _maxScanWindowSize;
   late double _defaultScanWindowSize;
-  Offset _initialPosition = Offset.zero;
-  Rect scanWindow = Rect.zero;
   late Size _screenSize;
+  late Rect scanWindow;
   late double _scanWindowWidth;
   late double _scanWindowHeight;
+  bool _isFlashOn = false;
+  bool _isOnDetecting = false;
+  late Offset _initialPosition;
   late double _initialWidth;
   late double _initialHeight;
 
   @override
   void initState() {
     super.initState();
-    _checkCameraPermission();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Utils.lockCurrentOrientation(context);
     });
@@ -66,6 +63,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
     _defaultScanWindowSize = _maxScanWindowSize * 0.5;
     _isUseFrontcamera = context.settingsProvider.isUseFrontcamera;
     _loadPrefsValues();
+    _initializeScanner();
   }
 
   Future<void> _loadPrefsValues() async {
@@ -83,27 +81,6 @@ class _MainScannerPageState extends State<MainScannerPage> {
     });
   }
 
-  Future<void> _checkCameraPermission() async {
-    final status = await Permission.camera.status;
-    setState(() {
-      _hasCameraPermission = status.isGranted;
-    });
-
-    if (!_hasCameraPermission) {
-      _requestCameraPermission();
-    } else {
-      _initializeScanner();
-    }
-  }
-
-  Future<void> _requestCameraPermission() async {
-    final status = await Permission.camera.request();
-    setState(() {
-      _hasCameraPermission = status.isGranted;
-    });
-    if (_hasCameraPermission) _initializeScanner();
-  }
-
   Future<void> _initializeScanner() async {
     try {
       _mobileScannerController = MobileScannerController(
@@ -111,11 +88,11 @@ class _MainScannerPageState extends State<MainScannerPage> {
         facing: _isUseFrontcamera ? CameraFacing.front : CameraFacing.back,
         torchEnabled: _isFlashOn,
       );
-      _mobileScannerController.setZoomScale(_zoomLevel); // todo debug: 進入時並沒有載入
+      // _mobileScannerController.setZoomScale(_zoomLevel); // todo debug: Controller uninitialize
 
       setState(() {});
     } catch (e) {
-      Utils.showToast('_initializeCamera: $e');
+      Utils.showToast('_initializeScanner: $e');
     }
   }
 
@@ -168,7 +145,12 @@ class _MainScannerPageState extends State<MainScannerPage> {
     _isFlashOn = false;
     final barcodeFormat = capture.barcodes.first.format;
     final String? contents = capture.barcodes.first.rawValue;
-    if (contents==null || contents.isEmpty) return;
+    if (contents==null || contents.isEmpty) {
+      Utils.showToast(Language.of(context).scanErrorLabel);
+      _isOnDetecting = false;
+      _mobileScannerController.start();
+      return;
+    }
 
     // 自動打開網站
     final bool isAutoOpenWebsite = context.settingsProvider.isAutoOpenWebsite;
@@ -196,7 +178,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) HiveStorage.addItem(item, context:context);
+    if (isScanAddHistory) HiveService.addItem(item, context:context);
 
     if (isContinuousScan) {
       Utils.showToast(item.contents);
@@ -210,7 +192,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
       Utils.lockCurrentOrientation(context);
     }
     _isOnDetecting = false;
-    await _mobileScannerController.start();
+    _mobileScannerController.start();
   }
 
   @override
@@ -223,7 +205,6 @@ class _MainScannerPageState extends State<MainScannerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
     final isPortrait = Utils.isPortrait(context);
     return Scaffold(
       appBar: AppBar(
@@ -249,13 +230,12 @@ class _MainScannerPageState extends State<MainScannerPage> {
               Utils.unlockCurrentOrientation();
               await context.routeTo(ScanImagePage);
               Utils.lockCurrentOrientation(context);
-              await _mobileScannerController.start();
+              _mobileScannerController.start();
             },
           ),
         ],
       ),
-      body: _hasCameraPermission
-          ? Stack(
+      body: Stack(
         fit: StackFit.expand,
         children: [
           LayoutBuilder(
@@ -269,7 +249,6 @@ class _MainScannerPageState extends State<MainScannerPage> {
             builder: (context) {
               NativeDeviceOrientation orientation = NativeDeviceOrientationReader.orientation(context);
 
-              // 設定旋轉角度
               int rotationAngle = 0;
               switch (orientation) {
                 case NativeDeviceOrientation.portraitUp:
@@ -328,8 +307,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
             ),
           ),
         ],
-      )
-          : Center(child: Text(localeStr.cameraPermissionDenied)),
+      ),
     );
   }
 
@@ -496,6 +474,25 @@ class _MainScannerPageState extends State<MainScannerPage> {
           ],
         );
       },
+    );
+  }
+}
+
+class ScannerError extends StatelessWidget {
+  const ScannerError({super.key, required this.error});
+  final MobileScannerException error;
+
+  @override
+  Widget build(BuildContext context) {
+    final String errorMessage = switch (error.errorCode) {
+      MobileScannerErrorCode.controllerUninitialized => 'Controller not ready.',
+      MobileScannerErrorCode.permissionDenied => Language.of(context).cameraPermissionDenied,
+      MobileScannerErrorCode.unsupported => 'Scanning is unsupported on this device',
+      _ => 'Generic Error',
+    };
+
+    return Center(
+      child: Text('$errorMessage\n\n${error.errorDetails?.message ?? ''}'),
     );
   }
 }

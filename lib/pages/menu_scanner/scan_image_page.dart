@@ -4,7 +4,7 @@ import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:path_provider/path_provider.dart';
@@ -127,14 +127,14 @@ class _ScanImagePageState extends State<ScanImagePage> {
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) HiveStorage.addItem(item, context:context);
+    if (isScanAddHistory) HiveService.addItem(item, context:context);
     await context.routeOf<ItemView>().arguments(item).to();
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleScan),

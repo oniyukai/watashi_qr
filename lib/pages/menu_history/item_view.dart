@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_history/barcode_view.dart';
+import 'package:watashi_qr/pages/menu_history/code_view.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -36,7 +36,7 @@ class _ItemViewState extends State<ItemView> {
     final argument = widget.argumentOf(context);
     if (argument == null) return;
     _historyItem = argument;
-    _isExistInhistories = HiveStorage.containsTime(_historyItem.unixTime);
+    _isExistInhistories = HiveService.containsTime(_historyItem.unixTime);
     _isSaveDuplicates = context.settingsProvider.isSaveDuplicates;
   }
 
@@ -55,18 +55,18 @@ class _ItemViewState extends State<ItemView> {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
-        HiveStorage.addItem(_historyItem, isDuplicatedEnabled: _isSaveDuplicates);
+        HiveService.addItem(_historyItem, isDuplicatedEnabled: _isSaveDuplicates);
       } else {
-        HiveStorage.deleteItem(_historyItem.key);
+        HiveService.deleteItem(_historyItem.key);
       }
     } else if (_isExistInhistories) {
-      HiveStorage.updateItem(_historyItem.key, _historyItem);
+      HiveService.updateItem(_historyItem.key, _historyItem);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context)!;
+    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format, localeStr);
     final isFormatNameSupported = !(formatNameStr.startsWith('"') && formatNameStr.endsWith('"'));
@@ -151,7 +151,7 @@ class _ItemViewState extends State<ItemView> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     leading: isFormatNameSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                    onTap: isFormatNameSupported ? ()=>context.routeOf<BarcodeView>().arguments(_historyItem).to() : null,
+                    onTap: isFormatNameSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -366,7 +366,7 @@ class _ItemViewState extends State<ItemView> {
 
   void _actionWebSearch(){
     final String selectedSearchEngine = context.settingsProvider.selectedSearchEngine;
-    final String searchEngine = SearchEngine.values.byName(selectedSearchEngine).url;
+    final String searchEngine = SearchEngine.urlByName(selectedSearchEngine);
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
@@ -381,10 +381,10 @@ class _ItemViewState extends State<ItemView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: customSearchUrls.map((searchUrl) => ListTileItem(
-              title: searchUrl.split('<Separation.Object>')[0],
-              description: searchUrl.split('<Separation.Object>')[1],
+              title: searchUrl.split(Language.separationObject)[0],
+              description: searchUrl.split(Language.separationObject)[1],
               onTap: () {
-                Utils.searchInBrowser(searchUrl.split('<Separation.Object>')[1], _historyItem.contents);
+                Utils.searchInBrowser(searchUrl.split(Language.separationObject)[1], _historyItem.contents);
                 Navigator.pop(context);
               }
             )).toList(),

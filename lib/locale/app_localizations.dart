@@ -14,12 +14,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
   bool isSupported(Locale locale) => const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
 
   @override
-  Future<Language> load(Locale locale) => _load(locale);
-
-  @override
-  bool shouldReload(covariant LocalizationsDelegate<Language> old) => false;
-
-  static Future<Language> _load(Locale locale) async {
+  Future<Language> load(Locale locale) async {
     switch (locale.languageCode) {
       case 'en':
         return LanguageEn();
@@ -31,6 +26,9 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
         return LanguageEn();
     }
   }
+
+  @override
+  bool shouldReload(covariant LocalizationsDelegate<Language> old) => false;
 }
 
 enum LocaleOption {
@@ -43,7 +41,7 @@ enum LocaleOption {
   final Locale? locale;
   const LocaleOption([this.locale]);
 
-  static Locale localeFromName(String n) => values.byName(n).locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+  static Locale localeFromName(String n) => values.asNameMap()[n]?.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     sys.name: localeStr.preferencesDefault,
@@ -53,16 +51,14 @@ enum LocaleOption {
     zhTw.name: Language.localeLanguageZhTw,
   };
 
-  static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate>[
+  static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     AppLocalizationsDelegate(),
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
+    ...GlobalMaterialLocalizations.delegates,
   ];
 
-  static List<Locale> supportedLocales = LocaleOption.values
+  static Iterable<Locale> supportedLocales = LocaleOption.values
       .where((option) => option.locale != null)
-      .map((option) => option.locale!).toList();
+      .map((option) => option.locale!);
 }
 
 // 如果要修改語言設定的代碼大致只需要本頁即可

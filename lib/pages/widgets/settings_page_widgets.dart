@@ -145,7 +145,7 @@ void genericAlertDialog({
         actions: <Widget>[
           if (!noCancelButton) TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(Language.of(context)!.cancelLabel),
+            child: Text(Language.of(context).cancelLabel),
           ),
           if (actions != null) ...actions,
         ],

@@ -7,11 +7,11 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/common/hive_storage.dart';
+import 'package:watashi_qr/common/hive_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HiveStorage.hiveInit();
+  await HiveService.hiveInit();
   await Utils.prefsInit();
   runApp(
     MultiProvider(
@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.detached) {
-      HiveStorage.hiveClose();
+      HiveService.hiveClose();
     }
   }
 
