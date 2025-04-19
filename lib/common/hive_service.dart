@@ -133,7 +133,7 @@ class HiveService {
       final String filePath = '$directoryPath/qr_$formattedDateTime.json';
       final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
       final String jsonString = jsonEncode(jsonList);
-      final File file = File(filePath);  // todo?: 好像無法打開路徑
+      final File file = File(filePath);  // todo debug: 無法打開路徑
       await file.writeAsString(jsonString);
       Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n$filePath', 8);
     } catch (e) {

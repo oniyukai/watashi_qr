@@ -172,7 +172,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
         return 'tel:${valueMap['phone']}';
       case HistoryType.location:
         String height = valueMap['height'] ?? '';
-        String request = valueMap['height'] ?? '';
+        String request = valueMap['request'] ?? '';
         height = height.isNotEmpty ? ',$height' : '';
         request = request.isNotEmpty ? '?q=$request' : '';
         return 'geo:${valueMap['latitude']},${valueMap['longitude']}$height$request';

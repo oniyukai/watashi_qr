@@ -6,8 +6,7 @@ typedef K = LanguageKey;
 
 class LanguageZhTw extends Language {
   LanguageZhTw() : super(
-    fallback: LanguageEn(), {
-    // Permission Denied
+    fallback: LanguageEn(), const {
     // Permission Denied
     K.cameraPermissionDenied: '等待授權存取相機。',
     // AlertDialog

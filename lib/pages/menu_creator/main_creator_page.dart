@@ -53,7 +53,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String selectedQRErrorLevel = context.settingsProvider.selectedQRErrorLevel;
     final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
-    if (clipboardData != null && clipboardData.text != null) {
+    if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
       final String contents = clipboardData.text!;
       final HistoryItem item = HistoryItem(
         unixTime: Utils.nowUnixTime,

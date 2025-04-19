@@ -5,6 +5,7 @@ class ListTileItem extends StatelessWidget {
   final IconData? icon;
   final String? description;
   final bool? selected;
+  final Widget? trailing;
   final Function()? onTap;
   final Function()? onLongPress;
 
@@ -14,6 +15,7 @@ class ListTileItem extends StatelessWidget {
     this.icon,
     this.description,
     this.selected,
+    this.trailing,
     this.onTap,
     this.onLongPress,
   });
@@ -52,6 +54,7 @@ class ListTileItem extends StatelessWidget {
         style: theme.textTheme.bodySmall,
         overflow: TextOverflow.ellipsis,
       ) : null,
+      trailing: trailing,
     );
   }
 }

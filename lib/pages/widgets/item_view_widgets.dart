@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
+import 'package:flutter/services.dart';
 
 class AnalyzedContentItem extends StatelessWidget {
   final String contents;
@@ -17,32 +20,208 @@ class AnalyzedContentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
 
     switch (type) {
-      case HistoryType.contact: // TODO CONTACT內容分析
-        break;
-      case HistoryType.mail: // TODO MAIL內容分析
-        break;
-      case HistoryType.sms: // TODO SMS內容分析
-        break;
-      case HistoryType.phone:// TODO PHONE內容分析
-        break;
-      case HistoryType.location:// TODO LOCATION內容分析
-        break;
-      case HistoryType.agend:// TODO AGEND內容分析
-        break;
-      case HistoryType.wifi:// TODO WIFI內容分析
-        break;
-
+      case HistoryType.contact:
+        String name = '';
+        String organisation = '';
+        String jobTitle = '';
+        String website = '';
+        String mail = '';
+        String phone = '';
+        String address = '';
+        String notes = '';
+        for (final i in contents.split('\n')) {
+          final String upperI = i.toUpperCase();
+          if (upperI.startsWith('FN:') ){
+            if (name.isNotEmpty) name += '\n';
+            name += i.substring(3);
+          } else if (upperI.startsWith('ORG:') ) {
+            if (organisation.isNotEmpty) organisation += '\n';
+            organisation += i.substring(4);
+          } else if (upperI.startsWith('TITLE:') ) {
+            if (jobTitle.isNotEmpty) jobTitle += '\n';
+            jobTitle += i.substring(6);
+          } else if (upperI.startsWith('URL:') ) {
+            if (website.isNotEmpty) website += '\n';
+            website += i.substring(4);
+          } else if (upperI.startsWith('EMAIL') ) {
+            if (mail.isNotEmpty) mail += '\n';
+            mail += i.split(':').last;
+          } else if (upperI.startsWith('TEL') ) {
+            if (phone.isNotEmpty) phone += '\n';
+            phone += i.split(':').last;
+          } else if (upperI.startsWith('ADR:') ) {
+            if (address.isNotEmpty) address += '\n';
+            address += i.substring(4).split(';').where((split) => split.isNotEmpty).join('\n');
+          } else if (upperI.startsWith('NOTE:') ) {
+            if (notes.isNotEmpty) notes += '\n';
+            notes += i.substring(5);
+          }
+        }
+        return AnalyzedColumn(map: {
+          localeStr.matrixContactNameLabel: name,
+          localeStr.matrixContactOrganisationLabel: organisation,
+          localeStr.matrixContactJobTitleLabel: jobTitle,
+          localeStr.matrixUriUrlLabel: website,
+          localeStr.matrixContactMailLabel: mail,
+          localeStr.matrixContactPhoneLabel: phone,
+          localeStr.matrixContactAddressLabel: address,
+          localeStr.matrixContactNotesLabel: notes,
+        });
+      case HistoryType.mail:
+        String? email;
+        String? subject;
+        String? message;
+        for (final i in contents.substring(7).split(';')){
+          final String upperI = i.toUpperCase();
+          if (upperI.startsWith('TO:') ){
+            email = i.substring(3);
+          } else if (upperI.startsWith('SUB:') ) {
+            subject = i.substring(4);
+          } else if (upperI.startsWith('BODY:') ) {
+            message = i.substring(5);
+          }
+        }
+        if ((email ?? subject ?? message) == null) break;
+        return AnalyzedColumn(map: {
+          localeStr.matrixEmailRecipientLabel: email,
+          localeStr.matrixSubjectLabel: subject,
+          localeStr.matrixBodyLabel: message,
+        });
+      case HistoryType.sms:
+        String? phone;
+        String? message;
+        for (final i in contents.substring(6).split(':')){
+          if (phone == null) {
+            phone = i;
+          } else {
+            message = i;
+          }
+        }
+        if ((phone ?? message) == null) break;
+        return AnalyzedColumn(map: {
+          localeStr.matrixPhoneTelNumberLabel: phone,
+          localeStr.matrixBodyLabel: message,
+        });
+      case HistoryType.phone:
+        return AnalyzedColumn(map: {
+          localeStr.matrixPhoneTelNumberLabel: contents.substring(4),
+        });
+      case HistoryType.location:
+        String? latitude;
+        String? longitude;
+        String? height;
+        String? request;
+        final substring = contents.substring(4);
+        final temp = substring.split('?');
+        for (final i in temp.first.split(',')){
+          if (latitude == null) {
+            latitude = i;
+          } else if (longitude == null) {
+            longitude = i;
+          } else {
+            height = i;
+          }
+        }
+        if (temp.length >= 2) request = temp.last.substring(2);
+        if ((latitude ?? longitude ?? height ?? request) == null) break;
+        return AnalyzedColumn(map: {
+          localeStr.matrixLocalisationLatitudeLabel: latitude,
+          localeStr.matrixLocalisationLongitudeLabel: longitude,
+          localeStr.matrixLocalisationAltitudeLabel: height,
+          localeStr.matrixLocalisationQueryLabel: request,
+        });
+      case HistoryType.agend:
+        String? summary;
+        String? startDate;
+        String? endDate;
+        String? location;
+        String? description;
+        for (final i in contents.split('\n')){
+          final String upperI = i.toUpperCase();
+          if (upperI.startsWith('SUMMARY:') ){
+            summary = i.substring(8);
+          } else if (upperI.startsWith('DTSTART') ) {
+            final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
+            final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
+            startDate = formatter.format(dateTime);
+          } else if (upperI.startsWith('DTEND') ) {
+            final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
+            final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
+            endDate = formatter.format(dateTime);
+          } else if (upperI.startsWith('LOCATION:') ) {
+            location = i.substring(9);
+          } else if (upperI.startsWith('DESCRIPTION:') ) {
+            description = i.substring(12);
+          }
+        }
+        return AnalyzedColumn(map: {
+          localeStr.matrixAgendaNameEventLabel: summary,
+          localeStr.matrixAgendaStartDateEventLabel: startDate,
+          localeStr.matrixAgendaEndDateEventLabel: endDate,
+          localeStr.matrixAgendaPlaceEventLabel: location,
+          localeStr.matrixAgendaDescriptionEventLabel: description,
+        });
+      case HistoryType.wifi:
+        String? ssid;
+        String? password;
+        String? security;
+        String? hide;
+        for (final i in contents.substring(5).split(';')){
+          final String upperI = i.toUpperCase();
+          final String? substring = i.length>2 ? i.substring(2) : null;
+          if (upperI.startsWith('S:') ){
+            ssid = substring;
+          } else if (upperI.startsWith('P:') ) {
+            password = substring;
+          } else if (upperI.startsWith('T:') ) {
+            security = substring;
+          } else if (upperI.startsWith('H:') ) {
+            hide = substring;
+          }
+        }
+        if ((ssid ?? password ?? security ?? hide) == null) break;
+        return AnalyzedColumn(map: {
+          localeStr.matrixWifiSsidLabel: ssid,
+          localeStr.matrixWifiPasswordLabel: password,
+          localeStr.matrixWifiEncryptionLabel: security,
+          localeStr.matrixWifiIsHiddenLabel: hide,
+        });
       case HistoryType.text:
       case HistoryType.website:
       case HistoryType.product:
       case HistoryType.industrial:
       default:
     }
-    return Text(contents, softWrap: true);
+    return SelectableText(contents);
+  }
+}
+
+
+class AnalyzedColumn extends StatelessWidget {
+  final Map<String, String?> map;
+  const AnalyzedColumn({super.key, required this.map});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: map.entries.map((entry) {
+        if (entry.value != null && entry.value!.isNotEmpty) {
+          return ListTileItem(
+            title: entry.value!,
+            description: entry.key,
+            trailing: IconButton(
+              iconSize: 20,
+              onPressed: () => Clipboard.setData(ClipboardData(text: entry.value!)),
+              icon: const Icon(Icons.copy),
+            ),
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      }).toList(),
+    );
   }
 }
 
@@ -86,7 +265,7 @@ class PressButtonGrid extends StatelessWidget {
                 color: theme.textTheme.bodyMedium!.color,
               ),
               const SizedBox(height: 4),
-              Text(
+              Text(  // todo debug: 字會超出大小
                 description,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium,

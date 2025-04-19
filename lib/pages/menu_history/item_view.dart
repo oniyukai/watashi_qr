@@ -110,25 +110,24 @@ class _ItemViewState extends State<ItemView> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('${localeStr.aboutBarcodeFormatLabel}$formatNameStr'),
-                                Text(Utils.formatUnixTimes(_historyItem.unixTime)),
+                                SelectableText('${localeStr.aboutBarcodeFormatLabel}$formatNameStr'),
+                                SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
                               ],
                             ),
-                            Text('${localeStr.aboutBarcodeOriginLabel}${
+                            SelectableText('${localeStr.aboutBarcodeOriginLabel}${
                                 _historyItem.origin == HistoryOrigin.S.name ? localeStr.titleScan : localeStr.titleGenerate
                             }'),
                             if (_historyItem.errorLevel != HistoryErrorLevel.none.name)
-                              Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
+                              SelectableText('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
                                   HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel, localeStr)
                               }'),
                             if (_historyItem.notes.isNotEmpty) Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${localeStr.matrixContactNotesLabel}: '),
+                                SelectableText('${localeStr.matrixContactNotesLabel}: '),
                                 Expanded(
-                                  child: Text(
+                                  child: SelectableText(
                                     _historyItem.notes,
-                                    softWrap: true,
                                     style: TextStyle(
                                       color: colorScheme.tertiary,
                                       fontWeight: FontWeight.bold,

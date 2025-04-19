@@ -1,3 +1,22 @@
+// extension KeyTools on LanguageKey {
+//   static String labelGenerator(String func, String typeDef) {
+//     String s = '';
+//     for (final item in LanguageKey.values) {
+//       s += 'String get ${item.name} => $func($typeDef.${item.name});\n';
+//     }
+//     return s;
+//   }
+//
+//   static String templateGenerator(Map<LanguageKey, String> map, String typeDef) {
+//     String s = '';
+//     for (final item in LanguageKey.values) {
+//       final text = map[item] != null ? "'${map[item]}'" : null;
+//       s += '$typeDef.${item.name}: $text,\n';
+//     }
+//     return s;
+//   }
+// }
+
 enum LanguageKey {
   // Permission Denied
   cameraPermissionDenied,
@@ -388,14 +407,4 @@ enum LanguageKey {
   // About BDD
   // About Library Third
   // Countries
-  ;
-
-  // static String labelGenerator(String func, String typeDef) {
-  //   String s = '';
-  //   for (final item in values) {
-  //     s += 'String get ${item.name} => $func($typeDef.${item.name});\n';
-  //     // s += '$typeDef.${item.name}: null\n';
-  //   }
-  //   return s;
-  // }
 }
