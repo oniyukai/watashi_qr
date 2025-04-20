@@ -28,8 +28,7 @@ class HistoryItemCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
-        // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         onTap: onTap,
         onLongPress: onLongPress,
         minTileHeight: 40,
@@ -62,11 +61,11 @@ class HistoryItemCard extends StatelessWidget {
             const SizedBox(width: 4.0),
             Row(
               children: [
-                (historyItem.isFavorite) ? Icon(
-                    Icons.favorite,
-                    size: 16.0,
-                    color: theme.hintColor
-                ) : const SizedBox.shrink(),
+                if (historyItem.isFavorite) Icon(
+                  Icons.favorite,
+                  size: 16.0,
+                  color: theme.hintColor
+                ),
                 const SizedBox(width: 2.0),
                 Text(
                   HistoryFormat.localeStrFromName(historyItem.format, localeStr),
@@ -101,10 +100,11 @@ class HistoryItemCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                    (historyItem.origin == HistoryOrigin.S.name)
-                        ? Icons.fullscreen
-                        : Icons.edit_outlined,
-                    size: 16.0, color: theme.hintColor),
+                  (historyItem.origin == HistoryOrigin.S.name)
+                    ? Icons.fullscreen
+                    : Icons.edit_outlined,
+                  size: 16.0, color: theme.hintColor
+                ),
                 const SizedBox(width: 2.0),
                 Text(
                   Utils.formatUnixTimes(historyItem.unixTime),

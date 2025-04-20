@@ -227,16 +227,12 @@ class AnalyzedColumn extends StatelessWidget {
 
 
 class PressButtonGrid extends StatelessWidget {
-  final double width;
-  final double height;
   final IconData icon;
   final String description;
   final Function()? onTap;
 
   const PressButtonGrid({
     super.key,
-    required this.width,
-    required this.height,
     required this.icon,
     required this.description,
     required this.onTap,
@@ -247,25 +243,22 @@ class PressButtonGrid extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: EdgeInsets.all(0),
+      margin: const EdgeInsets.all(0),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: BorderRadius.circular(12.0),
         onTap: onTap,
-        child: Container(
-          width: width,
-          height: height,
-          padding: EdgeInsets.all(12.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: height*0.25,
                 color: theme.textTheme.bodyMedium!.color,
               ),
               const SizedBox(height: 4),
-              Text(  // todo debug: 字會超出大小
+              Text(
                 description,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium,

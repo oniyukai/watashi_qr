@@ -189,23 +189,32 @@ class _ItemViewState extends State<ItemView> {
                 const SizedBox(height: 8),
                 Text('  ${localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 4),
-                LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    final availableWidth = constraints.maxWidth;
-                    final columnCount = 3;  // 每幾格換一行
-                    final spacing = 8.0;  // 格子的間距
-                    // 根据屏幕宽度和间距计算按钮的宽度 換算格子所需的長寬
-                    final buttonWidth = (availableWidth - (columnCount - 1) * spacing) / columnCount;
-                    final buttonHeight = 100.0;
-                    return Wrap(
-                      alignment: WrapAlignment.start,
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: _getActionGridList(localeStr, buttonWidth, buttonHeight),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
+                Builder(builder: (_) {
+                  final List<Widget> rows = [];
+                  final actionCards = _getActionGridList(localeStr);
+                  for (var i = 0; i < actionCards.length; i += 3) {
+                    final end = i + 3 > actionCards.length ? actionCards.length : i + 3;
+                    final List<Widget> rowChildren = [];
+                    for (int j = 0; j < end - i; j++) {
+                      rowChildren.add(Expanded(child: actionCards.sublist(i, end)[j]));
+                      if (j < end - i - 1) {
+                        rowChildren.add(const SizedBox(width: 8.0));
+                      }
+                    }
+                    while (rowChildren.length < 5) {
+                      rowChildren.add(const Expanded(child:SizedBox.shrink()));
+                      if (rowChildren.length < 5) {
+                        rowChildren.add(const SizedBox(width: 8.0));
+                      }
+                    }
+                    rows.add(IntrinsicHeight(
+                      child: Row(children: rowChildren),
+                    ));
+                    rows.add(const SizedBox(height: 8));
+                  }
+                  return Column(children: rows);
+                }),
+                const SizedBox(height: 8),
               ],
             ),
           )
@@ -214,26 +223,26 @@ class _ItemViewState extends State<ItemView> {
     );
   }
 
-  List<PressButtonGrid> _getActionGridList(Language localeStr, double width, double height,) {
+  List<PressButtonGrid> _getActionGridList(Language localeStr) {
     final String type = _historyItem.type;
     final bool willExist = _isWillExist ?? _isExistInhistories;
     return <PressButtonGrid>[
       type != HistoryType.website.name ?
-      PressButtonGrid(width: width, height: height,
+      PressButtonGrid(
           icon: Icons.search,
           description: localeStr.actionWebSearchLabel,
           onTap: () => _actionWebSearch()
-      ) : PressButtonGrid(width: width, height: height,
+      ) : PressButtonGrid(
         icon: Icons.open_in_browser,
         description: localeStr.actionOpenLink,
         onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
-    ),
-      if (context.settingsProvider.customSearchUrls.isNotEmpty) PressButtonGrid(width: width, height: height,
+      ),
+      if (context.settingsProvider.customSearchUrls.isNotEmpty) PressButtonGrid(
         icon: Icons.search,
         description: localeStr.customSearchUrls,
         onTap: () => _showCustomSearchDialog(localeStr),
       ),
-      PressButtonGrid(width: width, height: height,
+      PressButtonGrid(
         icon: Icons.edit_note,
         description: localeStr.actionModifyNotes,
         onTap: () {
@@ -276,7 +285,7 @@ class _ItemViewState extends State<ItemView> {
       //   'description': localeStr.qrCodeTypeNameWifi,
       //   'onTap': () {}, // TODO WIFI按鈕功能
       // },
-      PressButtonGrid(width: width, height: height,
+      PressButtonGrid(
         icon: willExist ? Icons.delete_forever : Icons.add,
         description: willExist
             ? localeStr.menuItemHistoryDeleteFromHistory

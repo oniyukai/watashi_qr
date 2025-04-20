@@ -137,7 +137,7 @@ class _CodeViewState extends State<CodeView> {
         return;
       }
       final String filePath = '$directoryPath/barcode.$option';
-      final file = File(filePath); // todo debug: 無法打開路徑
+      final file = File(filePath);
 
       if (option == Language.svgLabel) {
         final String svg = _getBarcodeSvg(
