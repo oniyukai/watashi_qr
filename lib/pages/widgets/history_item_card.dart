@@ -24,11 +24,13 @@ class HistoryItemCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       elevation: 0,
-      color: colorScheme.primary.withValues(alpha:selected ? 0.5 : 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+        selected: selected,
+        tileColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.25),
+        selectedTileColor: theme.colorScheme.primaryContainer,
         onTap: onTap,
         onLongPress: onLongPress,
         minTileHeight: 40,

@@ -35,8 +35,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
       Utils.showToast('Error: contents.length > 4296');
       return;
     }
-    final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
-    final String selectedQRErrorLevel = context.settingsProvider.selectedQRErrorLevel;
+    final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
+    final String selectedQRErrorLevel = context.readSettings.selectedQRErrorLevel;
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,

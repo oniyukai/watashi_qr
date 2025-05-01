@@ -21,7 +21,6 @@ class ScanImagePage extends StatefulWidget with RouterBridge<XFile> {
 }
 
 class _ScanImagePageState extends State<ScanImagePage> {
-  final MobileScannerController _controller = MobileScannerController();
   XFile? _imageFile;
   BarcodeCapture? _barcodeCapture;
   final CropController _cropController = CropController();
@@ -38,7 +37,6 @@ class _ScanImagePageState extends State<ScanImagePage> {
 
   @override
   void dispose() {
-    // _controller.dispose();
     super.dispose();
   }
 
@@ -92,7 +90,7 @@ class _ScanImagePageState extends State<ScanImagePage> {
 
         // Analyze the cropped image using mobile_scanner
         final BarcodeCapture? barcodeCapture =
-        await _controller.analyzeImage(tempFile.path);
+        await Utils.mobileScannerController.analyzeImage(tempFile.path);
 
         if (mounted) {
           setState(() {
@@ -116,7 +114,7 @@ class _ScanImagePageState extends State<ScanImagePage> {
     final String? contents = _barcodeCapture?.barcodes.first.rawValue;
     if (barcodeFormat==null || contents==null || contents.isEmpty) return;
     final format = HistoryFormat.fromScannerFormat(barcodeFormat);
-    final bool isScanAddHistory = context.settingsProvider.isScanAddHistory;
+    final bool isScanAddHistory = context.readSettings.isScanAddHistory;
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
@@ -171,5 +169,4 @@ class _ScanImagePageState extends State<ScanImagePage> {
       ),
     );
   }
-
 }

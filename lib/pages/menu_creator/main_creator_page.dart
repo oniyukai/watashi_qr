@@ -51,8 +51,8 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
 
   Future<void> _createQrFromClipboard(Language localeStr) async {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-    final String selectedQRErrorLevel = context.settingsProvider.selectedQRErrorLevel;
-    final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
+    final String selectedQRErrorLevel = context.readSettings.selectedQRErrorLevel;
+    final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
     if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
       final String contents = clipboardData.text!;
       final HistoryItem item = HistoryItem(

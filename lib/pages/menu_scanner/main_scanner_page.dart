@@ -30,8 +30,6 @@ class _MainScannerPageState extends State<MainScannerPage> {
   final _prefScanWindowWidthLandscapeKey = PreferenceKey.scannerWindowWidthLandscape.name;
   final _prefScanWindowHeightLandscapeKey = PreferenceKey.scannerWindowHeightLandscape.name;
   final _prefScanZoomLevelKey = PreferenceKey.scannerZoomLevel.name;
-  late MobileScannerController _mobileScannerController;
-  late bool _isUseFrontcamera;
   late double _zoomLevel;
   late double _minScanWindowSize;
   late double _maxScanWindowSize;
@@ -58,12 +56,16 @@ class _MainScannerPageState extends State<MainScannerPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    Utils.mobileScannerController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.unrestricted,
+      facing: context.watchSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back,
+    );
+
     _minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.2;
     _maxScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.75;
     _defaultScanWindowSize = _maxScanWindowSize * 0.5;
-    _isUseFrontcamera = context.settingsProvider.isUseFrontcamera;
     _loadPrefsValues();
-    _initializeScanner();
+    // Utils.mobileScannerController.setZoomScale(_zoomLevel); // todo debug: Controller uninitialize
   }
 
   Future<void> _loadPrefsValues() async {
@@ -79,21 +81,6 @@ class _MainScannerPageState extends State<MainScannerPage> {
           : _prefScanWindowHeightLandscapeKey)
           ?? _defaultScanWindowSize;
     });
-  }
-
-  Future<void> _initializeScanner() async {
-    try {
-      _mobileScannerController = MobileScannerController(
-        detectionSpeed: DetectionSpeed.unrestricted,
-        facing: _isUseFrontcamera ? CameraFacing.front : CameraFacing.back,
-        torchEnabled: _isFlashOn,
-      );
-      // _mobileScannerController.setZoomScale(_zoomLevel); // todo debug: Controller uninitialize
-
-      setState(() {});
-    } catch (e) {
-      Utils.showToast('_initializeScanner: $e');
-    }
   }
 
   Future<void> _saveZoomLevel(double zoomLevel) async {
@@ -132,7 +119,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
 
   void _toggleFlash() {
     try {
-      _mobileScannerController.toggleTorch();
+      Utils.mobileScannerController.toggleTorch();
     } catch (e) {
       Utils.showToast('_toggleFlash: $e');
     }
@@ -141,32 +128,34 @@ class _MainScannerPageState extends State<MainScannerPage> {
   Future<void> _mobileScannerOnDetect(BarcodeCapture capture) async {
     if (_isOnDetecting) return;
     _isOnDetecting = true;
-    await _mobileScannerController.stop();
-    _isFlashOn = false;
+    await Utils.mobileScannerController.stop();
+    setState(() {
+      _isFlashOn = false;
+    });
     final barcodeFormat = capture.barcodes.first.format;
     final String? contents = capture.barcodes.first.rawValue;
     if (contents==null || contents.isEmpty) {
       Utils.showToast(Language.of(context).scanErrorLabel);
       _isOnDetecting = false;
-      _mobileScannerController.start();
+      Utils.mobileScannerController.start();
       return;
     }
 
     // 自動打開網站
-    final bool isAutoOpenWebsite = context.settingsProvider.isAutoOpenWebsite;
+    final bool isAutoOpenWebsite = context.readSettings.isAutoOpenWebsite;
     // 連續掃描
-    final bool isContinuousScan = context.settingsProvider.isContinuousScan;
+    final bool isContinuousScan = context.readSettings.isContinuousScan;
     // 掃描震動
-    final bool isVibrateOnScan = context.settingsProvider.isVibrateOnScan;
+    final bool isVibrateOnScan = context.readSettings.isVibrateOnScan;
     if (isVibrateOnScan) Utils.deviceVibrate();
     // 播放音效
-    final bool isBipOnScan = context.settingsProvider.isBipOnScan;
+    final bool isBipOnScan = context.readSettings.isBipOnScan;
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
     // 複製到剪貼簿
-    final bool isBarcodeCopied = context.settingsProvider.isBarcodeCopied;
+    final bool isBarcodeCopied = context.readSettings.isBarcodeCopied;
     if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: contents));
 
-    final bool isScanAddHistory = context.settingsProvider.isScanAddHistory;
+    final bool isScanAddHistory = context.readSettings.isScanAddHistory;
     final format = HistoryFormat.fromScannerFormat(barcodeFormat);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
@@ -192,12 +181,12 @@ class _MainScannerPageState extends State<MainScannerPage> {
       Utils.lockCurrentOrientation(context);
     }
     _isOnDetecting = false;
-    _mobileScannerController.start();
+    Utils.mobileScannerController.start();
   }
 
   @override
   void dispose() {
-    _mobileScannerController.dispose();
+    Utils.mobileScannerController.dispose();
     _audioPlayer.dispose();
     Utils.unlockCurrentOrientation();
     super.dispose();
@@ -214,7 +203,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+            icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off), // todo debug: 菜單到其他頁面沒有重製狀態
             onPressed: () {
               setState(() {
                 _isFlashOn = !_isFlashOn;
@@ -225,12 +214,14 @@ class _MainScannerPageState extends State<MainScannerPage> {
           IconButton(
             icon: const Icon(Icons.photo),
             onPressed: () async {
-              await _mobileScannerController.stop();
-              _isFlashOn = false;
+              await Utils.mobileScannerController.stop();
               Utils.unlockCurrentOrientation();
               await context.routeTo(ScanImagePage);
               Utils.lockCurrentOrientation(context);
-              _mobileScannerController.start();
+              Utils.mobileScannerController.start();
+              setState(() {
+                _isFlashOn = false;
+              });
             },
           ),
         ],
@@ -271,7 +262,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
                 child: RotatedBox(
                   quarterTurns: rotationAngle ~/ 90,
                   child: MobileScanner(
-                    controller: _mobileScannerController,
+                    controller: Utils.mobileScannerController,
                     scanWindow: scanWindow,
                     errorBuilder: (context, error, child) => ScannerError(error: error),
                     onDetect: (capture) => _mobileScannerOnDetect(capture),
@@ -297,7 +288,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
                     onChanged: (double value) {
                       setState(() {
                         _zoomLevel = value;
-                        _mobileScannerController.setZoomScale(value);
+                        Utils.mobileScannerController.setZoomScale(value);
                       });
                     },
                     onChangeEnd: (double value) => _saveZoomLevel(value),

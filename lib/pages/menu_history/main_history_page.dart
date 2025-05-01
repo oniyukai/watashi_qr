@@ -144,9 +144,9 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
           ] else ...[
             CustomMenuButton(
               icon: const Icon(Icons.swap_vert),
-              labelList: [localeStr.copyJsonLabel, localeStr.exportJsonLabel, localeStr.importJsonLabel],
+              labelList: [localeStr.shareJsonLabel, localeStr.exportJsonLabel, localeStr.importJsonLabel],
               onSelectedList: [
-                () => HiveService.copyHistoriesToJson(localeStr),
+                () => HiveService.shareHistoriesToJson(localeStr),
                 () => HiveService.exportHistoriesToJson(localeStr),
                 () => HiveService.importHistoriesFromJson(localeStr),
               ],

@@ -1,3 +1,4 @@
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class Utils {
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
   }
+
+  static late MobileScannerController mobileScannerController;
 
   static late SharedPreferences prefs;
   static Future<void> prefsInit() async {
@@ -85,7 +88,7 @@ class Utils {
 
   // 看設定要不要鎖定螢幕轉向
   static Future<void> lockCurrentOrientation(BuildContext context) async {
-    final bool isScreenRotationEnabled = context.settingsProvider.isScreenRotation;
+    final bool isScreenRotationEnabled = context.readSettings.isScreenRotation;
     if (isScreenRotationEnabled) {
       if (isPortrait(context)) {
         await SystemChrome.setPreferredOrientations( const <DeviceOrientation>[

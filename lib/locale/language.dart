@@ -105,7 +105,7 @@ abstract class Language {
   String get exportLabel => _translate(K.exportLabel);
   String get exportJsonLabel => _translate(K.exportJsonLabel);
   String get importJsonLabel => _translate(K.importJsonLabel);
-  String get copyJsonLabel => _translate(K.copyJsonLabel);
+  String get shareJsonLabel => _translate(K.shareJsonLabel);
   String get snackBarMessageFileExportSuccess => _translate(K.snackBarMessageFileExportSuccess);
   String get snackBarMessageFileExportError => _translate(K.snackBarMessageFileExportError);
   String get snackBarMessageFileImportSuccess => _translate(K.snackBarMessageFileImportSuccess);
@@ -408,8 +408,8 @@ abstract class Language {
 
   // No translatable    Don't translate!
   static const String appName = 'Watashi QR';
-  static const String appVersion = '1.1.0';
-  static const String appVersionTag = 'v1.0_25.04.16';
+  static const String appVersion = '1.1.1';
+  static const String appVersionTag = 'v1.0_25.05.02';
   static const String pngLabel = 'PNG';
   static const String jpgLabel = 'JPG';
   static const String svgLabel = 'SVG';
@@ -448,6 +448,6 @@ abstract class Language {
   // Local Language text
   static const String localeLanguageEn = 'English';
   static const String localeLanguageJa = '日本語';
-  static const String localeLanguageZh = '简体中文';
-  static const String localeLanguageZhTw = '繁體中文';
+  static const String localeLanguageZhHans = '简体中文';
+  static const String localeLanguageZhHant = '繁體中文';
 }

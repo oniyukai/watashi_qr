@@ -1,4 +1,5 @@
-<div style="text-align: center;">
+<center>
+
   <img alt="" src="assets/appicon.png" width="64">
 
   ## Watashi QR
@@ -6,7 +7,8 @@
   <h4>An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
 
   [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
-</div>
+
+</center>
 
 ## Formats
 
@@ -35,18 +37,18 @@ Different barcode formats are supported:
     <td><img alt="" src="static/screenshot_02.png"></td>
     <td><img alt="" src="static/screenshot_03.png"></td>
     <td><img alt="" src="static/screenshot_04.png"></td>
-  <tr>
+  </tr>
   <tr>
     <td><img alt="" src="static/screenshot_05.png"></td>
     <td><img alt="" src="static/screenshot_06.png"></td>
     <td><img alt="" src="static/screenshot_07.png"></td>
     <td><img alt="" src="static/screenshot_08.png"></td>
-  <tr>
+  </tr>
 </table>
 
 ## Donate
 
-If you like Watashi QR, you can support me via [Liberapay](https://liberapay.com/).
+If you like Watashi QR, you can support me via [Liberapay](https://liberapay.com/yukai/).
 
 ## Licences
 

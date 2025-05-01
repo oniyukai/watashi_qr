@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'language_en.dart';
-import 'language_ja.dart';
-import 'language_zh.dart';
-import 'language_zh_tw.dart';
+import 'en.dart';
+import 'ja.dart';
+import 'zh_hans.dart';
+import 'zh_hant.dart';
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
 
@@ -15,16 +15,12 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
 
   @override
   Future<Language> load(Locale locale) async {
-    switch (locale.languageCode) {
-      case 'en':
-        return LanguageEn();
-      case 'ja':
-        return LanguageJa();
-      case 'zh':
-        return (locale.scriptCode == 'Hans') ? LanguageZh() : LanguageZhTw();
-      default:
-        return LanguageEn();
-    }
+    return switch (locale.languageCode) {
+      'en' => En(),
+      'ja' => Ja(),
+      'zh' => (locale.scriptCode == 'Hans') ? ZhHans() : ZhHant(),
+      _ => En(),
+    };
   }
 
   @override
@@ -35,8 +31,8 @@ enum LocaleOption {
   sys,
   en(Locale('en')),
   ja(Locale('ja')),
-  zh(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN')),
-  zhTw(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'));
+  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans')),
+  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
 
   final Locale? locale;
   const LocaleOption([this.locale]);
@@ -47,8 +43,8 @@ enum LocaleOption {
     sys.name: localeStr.preferencesDefault,
     en.name: Language.localeLanguageEn,
     ja.name: Language.localeLanguageJa,
-    zh.name: Language.localeLanguageZh,
-    zhTw.name: Language.localeLanguageZhTw,
+    zhHans.name: Language.localeLanguageZhHans,
+    zhHant.name: Language.localeLanguageZhHant,
   };
 
   static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[

@@ -37,7 +37,7 @@ class _ItemViewState extends State<ItemView> {
     if (argument == null) return;
     _historyItem = argument;
     _isExistInhistories = HiveService.containsTime(_historyItem.unixTime);
-    _isSaveDuplicates = context.settingsProvider.isSaveDuplicates;
+    _isSaveDuplicates = context.readSettings.isSaveDuplicates;
   }
 
   @override
@@ -237,7 +237,7 @@ class _ItemViewState extends State<ItemView> {
         description: localeStr.actionOpenLink,
         onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
       ),
-      if (context.settingsProvider.customSearchUrls.isNotEmpty) PressButtonGrid(
+      if (context.readSettings.customSearchUrls.isNotEmpty) PressButtonGrid(
         icon: Icons.search,
         description: localeStr.customSearchUrls,
         onTap: () => _showCustomSearchDialog(localeStr),
@@ -373,13 +373,13 @@ class _ItemViewState extends State<ItemView> {
   }
 
   void _actionWebSearch(){
-    final String selectedSearchEngine = context.settingsProvider.selectedSearchEngine;
+    final String selectedSearchEngine = context.readSettings.selectedSearchEngine;
     final String searchEngine = SearchEngine.urlByName(selectedSearchEngine);
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
   void _showCustomSearchDialog(Language localeStr) {
-    final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
+    final List<String> customSearchUrls = context.readSettings.customSearchUrls;
     genericAlertDialog(
       context: context,
       titleStr: localeStr.customSearchUrls,

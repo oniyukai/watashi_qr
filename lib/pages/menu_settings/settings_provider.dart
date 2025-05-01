@@ -130,5 +130,6 @@ class SettingsProvider extends ChangeNotifier {
 }
 
 extension Context on BuildContext {
-  SettingsProvider get settingsProvider => Provider.of<SettingsProvider>(this, listen: false); //same mean: read<SettingsProvider>();
+  SettingsProvider get readSettings => Provider.of<SettingsProvider>(this, listen: false); //same mean: read<SettingsProvider>();
+  SettingsProvider get watchSettings => Provider.of<SettingsProvider>(this, listen: true); //same mean: watch<SettingsProvider>();
 }

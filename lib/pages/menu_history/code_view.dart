@@ -102,7 +102,7 @@ class _CodeViewState extends State<CodeView> {
                     if (historyItem.format == HistoryFormat.qrCode.name)
                       Center(child: Text('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
                           HistoryErrorLevel.localeStrFromName(historyItem.errorLevel, localeStr)
-                              ?? HistoryErrorLevel.localeStrFromName(context.settingsProvider.selectedQRErrorLevel, localeStr)
+                              ?? HistoryErrorLevel.localeStrFromName(context.readSettings.selectedQRErrorLevel, localeStr)
                       }'),),
                     if (itemDescription!=null) Text(itemDescription),
                     const SizedBox(height: 16),

@@ -1,12 +1,12 @@
 import 'package:watashi_qr/locale/language_key.dart';
 import 'language.dart';
-import 'language_en.dart';
+import 'en.dart';
 
 typedef K = LanguageKey;
 
-class LanguageZhTw extends Language {
-  LanguageZhTw() : super(
-    fallback: LanguageEn(), const {
+class ZhHant extends Language {
+  ZhHant() : super(
+    fallback: En(), const {
     // Permission Denied
     K.cameraPermissionDenied: '等待授權存取相機。',
     // AlertDialog
@@ -97,7 +97,7 @@ class LanguageZhTw extends Language {
     K.exportLabel: '匯出',
     K.exportJsonLabel: '匯出為 JSON',
     K.importJsonLabel: '匯入 (JSON)',
-    K.copyJsonLabel: '複製JSON文本',
+    K.shareJsonLabel: '分享為 JSON',
     K.snackBarMessageFileExportSuccess: '檔案已儲存！',
     K.snackBarMessageFileExportError: '發生了錯誤！檔案未儲存。',
     K.snackBarMessageFileImportSuccess: '檔案已匯入！',

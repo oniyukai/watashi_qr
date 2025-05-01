@@ -1,10 +1,10 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -33,7 +33,7 @@ class HiveService {
       }
   ) async {
     bool isHistoryDuplicatedEnabled = (context==null)
-      ? true : context.settingsProvider.isSaveDuplicates;
+      ? true : context.readSettings.isSaveDuplicates;
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
     if (isHistoryDuplicatedEnabled == true) return await histories.add(item);
 
@@ -97,16 +97,25 @@ class HiveService {
     Utils.showToast('Histories Sorting has been rearranged!');
   }
 
-  static Future<void> copyHistoriesToJson(Language localeStr) async {
-    final List<HistoryItem> historiesList = getReversedList();
-    if (historiesList.isEmpty) {
-      Utils.showToast(localeStr.labelHistoryEmpty);
-      return;
+  static Future<void> shareHistoriesToJson(Language localeStr) async {
+    try {
+      final List<HistoryItem> historiesList = getReversedList();
+      if (historiesList.isEmpty) {
+        Utils.showToast(localeStr.labelHistoryEmpty);
+        return;
+      }
+      final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
+      final String jsonString = jsonEncode(jsonList);
+      final Directory tempDir = await getTemporaryDirectory();
+      final DateTime now = DateTime.now();
+      final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
+      final String filePath = '${tempDir.path}/qr_$formattedDateTime.json';
+      final File file = File(filePath);
+      file.writeAsString(jsonString);
+      await Share.shareXFiles([XFile(filePath)]);
+    } catch (e) {
+      Utils.showToast(e.toString());
     }
-    final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
-    final String jsonString = jsonEncode(jsonList);
-    Clipboard.setData(ClipboardData(text: jsonString));
-    Utils.showToast(localeStr.barcodeCopiedLabel);
   }
 
   static Future<void> exportHistoriesToJson(Language localeStr) async {

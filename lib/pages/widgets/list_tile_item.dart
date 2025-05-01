@@ -30,7 +30,8 @@ class ListTileItem extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       minTileHeight: 40,
       minVerticalPadding: 0,
-      tileColor: (selected==true) ? colorScheme.primary.withValues(alpha:0.5) : null,
+      selected: selected==true,
+      selectedTileColor: theme.colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: onLongPress,
       leading: (icon != null) ? Container(

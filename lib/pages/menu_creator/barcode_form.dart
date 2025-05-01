@@ -36,7 +36,7 @@ class _BarcodeFormState extends State<BarcodeForm> {
             onPressed: () {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 final value = _formKey.currentState?.value['name'];
-                final bool isCreateAddHistory = context.settingsProvider.isCreateAddHistory;
+                final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
                 final HistoryItem item = HistoryItem(
                   unixTime: Utils.nowUnixTime,
                   contents: value,

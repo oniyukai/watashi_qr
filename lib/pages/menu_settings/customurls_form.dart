@@ -25,7 +25,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
     final localeStr = Language.of(context);
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
-    final List<String> customSearchUrls = context.settingsProvider.customSearchUrls;
+    final List<String> customSearchUrls = context.readSettings.customSearchUrls;
     if (argument == null) return AppAboutPage();
     if (argument != '') {
       final List<String> parts = argument.split(Language.separationObject);
@@ -64,7 +64,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                   }
                   Utils.showToast(localeStr.customUrlUpdated);
                 }
-                context.settingsProvider.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
+                context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
                 Navigator.pop(context);
               }
             },

@@ -108,7 +108,7 @@ enum LanguageKey {
   exportLabel,
   exportJsonLabel,
   importJsonLabel,
-  copyJsonLabel,
+  shareJsonLabel,
   snackBarMessageFileExportSuccess,
   snackBarMessageFileExportError,
   snackBarMessageFileImportSuccess,

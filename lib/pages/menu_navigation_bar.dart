@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/pages/menu_creator/main_creator_page.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_page.dart';
-import 'package:watashi_qr/pages/menu_indexed_stack.dart';
 import 'package:watashi_qr/pages/menu_scanner/main_scanner_page.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_page.dart';
 import 'package:watashi_qr/locale/language.dart';
@@ -23,10 +22,17 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
     MainSettingsPage(),
   ];
 
-  int currentIndex = 0;
+  int _currentIndex = 0;
 
   void _onItemTapped(int index) {
-    setState(() => currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+      if (_currentIndex == 0) {
+        Utils.mobileScannerController.start();
+      } else {
+        Utils.mobileScannerController.stop();
+      }
+    });
   }
 
   @override
@@ -37,7 +43,7 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
       body: Row(
         children: [
           (!isPortrait) ? buildSideNavigationBar() : const SizedBox.shrink(),
-          Expanded(child: CustomIndexedStack(index: currentIndex, children: _pages,)),
+          Expanded(child: IndexedStack(index: _currentIndex, children: _pages)),
         ],
       ),
     );
@@ -46,7 +52,7 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
   Widget buildBottomNavigationBar() {
     final localeStr = Language.of(context);
     return NavigationBar(
-      selectedIndex: currentIndex,
+      selectedIndex: _currentIndex,
       onDestinationSelected: (int index) => _onItemTapped(index),
       destinations: <NavigationDestination>[
         NavigationDestination(
@@ -72,7 +78,7 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
   Widget buildSideNavigationBar() {
     final localeStr = Language.of(context);
     return NavigationRail(
-      selectedIndex: currentIndex,
+      selectedIndex: _currentIndex,
       onDestinationSelected: (index) => _onItemTapped(index),
       labelType: NavigationRailLabelType.all,
       groupAlignment: 1.0,

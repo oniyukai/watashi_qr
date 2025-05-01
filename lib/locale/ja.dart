@@ -1,12 +1,12 @@
 import 'package:watashi_qr/locale/language_key.dart';
 import 'language.dart';
-import 'language_en.dart';
+import 'en.dart';
 
 typedef K = LanguageKey;
 
-class LanguageJa extends Language {
-  LanguageJa() : super(
-    fallback: LanguageEn(), const {
+class Ja extends Language {
+  Ja() : super(
+    fallback: En(), const {
     // Permission Denied
     K.cameraPermissionDenied: 'カメラへのアクセスが許可されるのを待っています。',
     // AlertDialog
@@ -97,7 +97,7 @@ class LanguageJa extends Language {
     K.exportLabel: 'エクスポート',
     K.exportJsonLabel: 'JSONとしてエクスポート',
     K.importJsonLabel: 'インポート (JSON)',
-    K.copyJsonLabel: 'コピーJSON本文 ',
+    K.shareJsonLabel: 'JOSNを共有する',
     K.snackBarMessageFileExportSuccess: 'ファイルを保存しました！',
     K.snackBarMessageFileExportError: 'エラーが発生しました！ファイルを保存できませんでした。',
     K.snackBarMessageFileImportSuccess: 'ファイルをインポートしました！',

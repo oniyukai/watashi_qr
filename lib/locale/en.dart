@@ -3,8 +3,8 @@ import 'language.dart';
 
 typedef K = LanguageKey;
 
-class LanguageEn extends Language {
-  LanguageEn() : super(
+class En extends Language {
+  En() : super(
     fallback: null, const { // 英文沒有替代語言
     // Permission Denied
     K.cameraPermissionDenied: 'Waiting for Authorized Access to the Camera.',
@@ -96,7 +96,7 @@ class LanguageEn extends Language {
     K.exportLabel: 'Export',
     K.exportJsonLabel: 'Export as JSON',
     K.importJsonLabel: 'Import (JSON)',
-    K.copyJsonLabel: 'Copy JSON Text',
+    K.shareJsonLabel: 'Share as JSON',
     K.snackBarMessageFileExportSuccess: 'File saved!',
     K.snackBarMessageFileExportError: 'An error has occurred! File not saved.',
     K.snackBarMessageFileImportSuccess: 'File imported!',
