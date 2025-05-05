@@ -12,7 +12,7 @@ import 'package:watashi_qr/common/hive_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await HiveService.hiveInit();
-  await Utils.prefsInit();
+  await Utils.init();
   runApp(
     MultiProvider(
       providers: [

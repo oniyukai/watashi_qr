@@ -407,23 +407,24 @@ abstract class Language {
 
 
   // No translatable    Don't translate!
-  static const String appName = 'Watashi QR';
-  static const String appVersion = '1.1.1';
-  static const String appVersionTag = 'v1.0_25.05.02';
-  static const String pngLabel = 'PNG';
-  static const String jpgLabel = 'JPG';
-  static const String svgLabel = 'SVG';
+  static const String
+      appName = 'Watashi QR',
+      appVersion = '1.1.1',
+      appVersionTag = 'v1.0_25.05.02',
+      pngLabel = 'PNG',
+      jpgLabel = 'JPG',
+      svgLabel = 'SVG',
   // Animations
   // Default font
   // External Services Label
-  static const String googleLabel = 'Google';
-  static const String bingLabel = 'Bing';
-  static const String wikipediaLabel = 'Wikipedia';
-  static const String googleUrl = 'https://www.google.com/search?q={code}';
-  static const String bingUrl = 'https://www.bing.com/search?q={code}';
-  static const String wikipediaUrl = 'https://wikipedia.org/w/index.php?search={code}';
+      googleLabel = 'Google',
+      bingLabel = 'Bing',
+      wikipediaLabel = 'Wikipedia',
+      googleUrl = 'https://www.google.com/search?q={code}',
+      bingUrl = 'https://www.bing.com/search?q={code}',
+      wikipediaUrl = 'https://wikipedia.org/w/index.php?search={code}',
   // Preferences Settings Keys
-  static const String separationObject = '<Separation.Object>';
+      separationObject = '<Separation.Object>',
   // Preferences Entry Values
   // About Library Third
   // Activity KTX
@@ -444,10 +445,10 @@ abstract class Language {
   // ez-vcard
   // Color Picker
   // Link
-  static const String sourceCodeLink = 'https://github.com/oniyukai/watashi_qr';
+      sourceCodeLink = 'https://github.com/oniyukai/watashi_qr',
   // Local Language text
-  static const String localeLanguageEn = 'English';
-  static const String localeLanguageJa = '日本語';
-  static const String localeLanguageZhHans = '简体中文';
-  static const String localeLanguageZhHant = '繁體中文';
+      localeLanguageEn = 'English',
+      localeLanguageJa = '日本語',
+      localeLanguageZhHans = '简体中文',
+      localeLanguageZhHant = '繁體中文';
 }

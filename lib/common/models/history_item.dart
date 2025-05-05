@@ -83,7 +83,7 @@ class HistoryItem extends HiveObject {
 enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   qrCode(Icons.qr_code),
   dataMatrix(MaterialCommunityIcons.data_matrix),
-  aztec(MaterialCommunityIcons.barcode), // TODO: No corresponding icon has been found yet
+  aztec(IconData(22238)),
   pdf417(MaterialCommunityIcons.barcode), // TODO: No corresponding icon has been found yet
   ean13(MaterialCommunityIcons.barcode),
   ean8(MaterialCommunityIcons.barcode),

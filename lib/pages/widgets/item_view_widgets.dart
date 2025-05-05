@@ -242,31 +242,21 @@ class PressButtonGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(0),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12.0),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: theme.textTheme.bodyMedium!.color,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium,
-                softWrap:true,
-              ),
-            ],
+        title: Icon(icon),
+        subtitle: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            description,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: theme.textTheme.bodyMedium!.fontSize),
+            softWrap: true,
           ),
-        ),
+        )
       ),
     );
   }

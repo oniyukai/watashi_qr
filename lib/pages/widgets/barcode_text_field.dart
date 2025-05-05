@@ -30,9 +30,6 @@ class BarcodeTextField extends StatelessWidget {
         prefixIcon: Icon(_isRequestNumbers ? Icons.pin_outlined : Icons.format_size),
         labelText: HistoryFormat.composition(format, localeStr),
         errorMaxLines: 8,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
       ),
       keyboardType: _isRequestNumbers ? TextInputType.number : null,
       validator: (value) => _barcodeValidators(value, localeStr),

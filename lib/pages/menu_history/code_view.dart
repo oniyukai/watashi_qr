@@ -66,7 +66,7 @@ class _CodeViewState extends State<CodeView> {
             children: [
               Card(
                 color: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                clipBehavior: Clip.antiAlias,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                   child: LayoutBuilder(
@@ -168,7 +168,7 @@ class _CodeViewState extends State<CodeView> {
       final File file = File(filePath);
       final barcodeImage = _getBarcodeImage(contents, format, level);
       file.writeAsBytesSync(img.encodePng(barcodeImage));
-      await Share.shareXFiles([XFile(filePath)]);
+      await Utils.share(ShareParams(files: [XFile(filePath)]));
     } catch (e) {
       Utils.showToast(e.toString());
     }

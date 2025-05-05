@@ -40,6 +40,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
   late double _scanWindowHeight;
   bool _isFlashOn = false;
   bool _isOnDetecting = false;
+  bool _isPageInitialized = false;
   late Offset _initialPosition;
   late double _initialWidth;
   late double _initialHeight;
@@ -47,25 +48,27 @@ class _MainScannerPageState extends State<MainScannerPage> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Utils.lockCurrentOrientation(context);
-    });
+    // todo debug: 當我離開App回來, 鏡頭倍率卻是0
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Utils.mobileScannerController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.unrestricted,
-      facing: context.watchSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back,
-    );
-
     _minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.2;
     _maxScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.75;
     _defaultScanWindowSize = _maxScanWindowSize * 0.5;
     _loadPrefsValues();
-    // Utils.mobileScannerController.setZoomScale(_zoomLevel); // todo debug: Controller uninitialize
+    if (!_isPageInitialized) {
+      Utils.mobileScannerControllerStart(context);
+      _isPageInitialized = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    Utils.mobileScannerController.dispose();
+    _audioPlayer.dispose();
+    super.dispose();
   }
 
   Future<void> _loadPrefsValues() async {
@@ -137,7 +140,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
     if (contents==null || contents.isEmpty) {
       Utils.showToast(Language.of(context).scanErrorLabel);
       _isOnDetecting = false;
-      Utils.mobileScannerController.start();
+      Utils.mobileScannerControllerStart(context);
       return;
     }
 
@@ -181,15 +184,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
       Utils.lockCurrentOrientation(context);
     }
     _isOnDetecting = false;
-    Utils.mobileScannerController.start();
-  }
-
-  @override
-  void dispose() {
-    Utils.mobileScannerController.dispose();
-    _audioPlayer.dispose();
-    Utils.unlockCurrentOrientation();
-    super.dispose();
+    Utils.mobileScannerControllerStart(context);
   }
 
   @override
@@ -218,7 +213,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
               Utils.unlockCurrentOrientation();
               await context.routeTo(ScanImagePage);
               Utils.lockCurrentOrientation(context);
-              Utils.mobileScannerController.start();
+              Utils.mobileScannerControllerStart(context);
               setState(() {
                 _isFlashOn = false;
               });

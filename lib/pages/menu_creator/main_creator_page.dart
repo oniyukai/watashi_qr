@@ -79,59 +79,57 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
       body: SafeArea(
         child: Scrollbar(
           controller: _scrollController,
-          child: Padding(
+          child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ListView(
-              controller: _scrollController,
-              children: [
-                const SizedBox(height: 16),
-                ExpandableCard(
-                  title: localeStr.titleQrCodeCreator,
-                  icon: Icons.qr_code,
-                  expandedChild: Column(
-                    children: [
-                      ListTileItem(
-                        title: localeStr.createQrFromClipboard,
-                        icon: Icons.content_copy,
-                        onTap: () => _createQrFromClipboard(localeStr),
-                      ),
-                      ..._historyTypes.map((type) => ListTileItem(
-                        title: HistoryType.localeStrFromName(type.name, localeStr),
-                        icon: type.iconData,
-                        onTap: () => context.routeOf<QrcodeForm>()
-                            .arguments(type)
-                            .to(),
-                        )
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ExpandableCard(
-                  title: localeStr.titleBarCodeCreator,
-                  icon: MaterialCommunityIcons.barcode,
-                  expandedChild: Column(
-                    children: _historyFormats.map((format) => ListTileItem(
-                      title: HistoryFormat.localeStrFromName(format.name, localeStr),
-                      icon: format.iconData,
-                      description: HistoryFormat.composition(format, localeStr),
-                      onTap: () => context.routeOf<BarcodeForm>()
-                          .arguments(format)
+            controller: _scrollController,
+            children: [
+              const SizedBox(height: 16),
+              ExpandableCard(
+                title: localeStr.titleQrCodeCreator,
+                icon: Icons.qr_code,
+                expandedChild: Column(
+                  children: [
+                    ListTileItem(
+                      title: localeStr.createQrFromClipboard,
+                      icon: Icons.content_copy,
+                      onTap: () => _createQrFromClipboard(localeStr),
+                    ),
+                    ..._historyTypes.map((type) => ListTileItem(
+                      title: HistoryType.localeStrFromName(type.name, localeStr),
+                      icon: type.iconData,
+                      onTap: () => context.routeOf<QrcodeForm>()
+                          .arguments(type)
                           .to(),
-                    )).toList(),
-                  ),
+                      )
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                // Center( 已被刪除的功能
-                //   child: Text(localeStr.shareToThisAppLabel,
-                //       softWrap: true,
-                //       style: theme.textTheme.bodyMedium
-                //   ),
-                // ),
-                // const SizedBox(height: 16),
-              ],
-            ),
-          )
+              ),
+              const SizedBox(height: 16),
+              ExpandableCard(
+                title: localeStr.titleBarCodeCreator,
+                icon: MaterialCommunityIcons.barcode,
+                expandedChild: Column(
+                  children: _historyFormats.map((format) => ListTileItem(
+                    title: HistoryFormat.localeStrFromName(format.name, localeStr),
+                    icon: format.iconData,
+                    description: HistoryFormat.composition(format, localeStr),
+                    onTap: () => context.routeOf<BarcodeForm>()
+                        .arguments(format)
+                        .to(),
+                  )).toList(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Center( 已被刪除的功能
+              //   child: Text(localeStr.shareToThisAppLabel,
+              //       softWrap: true,
+              //       style: theme.textTheme.bodyMedium
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );

@@ -110,44 +110,48 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Consumer<SettingsProvider>(
-              builder:(context, settings, child) => ListView(
-                children: [
-                  const SizedBox(height: 16.0),
-                  if (settings.customSearchUrls.isEmpty) Text(
+          child: Consumer<SettingsProvider>(
+            builder:(context, settings, child) {
+              if (settings.customSearchUrls.isEmpty) {
+                return Center(
+                  child: Text(
                     localeStr.customSearchUrlsListIsEmptyMessage,
                     style: theme.textTheme.titleMedium,
                   )
-                  else ...settings.customSearchUrls.map((searchUrl) {
-                    List<String> parts = searchUrl.split(Language.separationObject);
-                    String title = parts[0];
-                    return Column(
-                      children: [
-                        ListTileItem(
-                          title: title,
-                          description: parts[1],
-                          selected: _selectedTitles.contains(title),
-                          onTap: () {
-                            if (_isSelectionMode) {
-                              _toggleSelection(title);
-                            } else {
-                              context.routeOf<CustomurlsForm>()
-                                  .arguments(searchUrl)
-                                  .to();
-                            }
-                          },
-                          onLongPress: () => _enterSelectionMode(title),
-                        ),
-                        const SizedBox(height: 4)
-                      ],
-                    );
-                  }),
-                  const SizedBox(height: 16.0),
-                ],
-              )
-            ),
+                );
+              }
+              return ListView.builder(
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: false,
+                padding: const EdgeInsets.all(16.0),
+                itemCount: settings.customSearchUrls.length,
+                itemBuilder: (context, index) {
+                  final String searchUrl = settings.customSearchUrls[index];
+                  final List<String> parts = searchUrl.split(Language.separationObject);
+                  final String title = parts[0];
+                  final String url = parts[1];
+                  return Card(
+                    elevation: 0,
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTileItem(
+                      title: title,
+                      description: url,
+                      selected: _selectedTitles.contains(title),
+                      onTap: () {
+                        if (_isSelectionMode) {
+                          _toggleSelection(title);
+                        } else {
+                          context.routeOf<CustomurlsForm>()
+                              .arguments(searchUrl)
+                              .to();
+                        }
+                      },
+                      onLongPress: () => _enterSelectionMode(title),
+                    ),
+                  );
+                }
+              );
+            }
           ),
         ),
       ),

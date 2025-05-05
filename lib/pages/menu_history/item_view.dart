@@ -76,148 +76,145 @@ class _ItemViewState extends State<ItemView> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: Padding(
+          child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ListView(
-              children: [
-                ExpandableCard(
-                  title: localeStr.barCodeContentLabel,
-                  icon: _historyItem.getTypeIconData,
-                  initialExpanded: true,
-                  expandedChild: AnalyzedContentItem(
-                    contents: _historyItem.contents,
-                    format: _historyItem.getFormat,
-                    type: _historyItem.getType,
-                  ),
+            children: [
+              ExpandableCard(
+                title: localeStr.barCodeContentLabel,
+                icon: _historyItem.getTypeIconData,
+                initialExpanded: true,
+                expandedChild: AnalyzedContentItem(
+                  contents: _historyItem.contents,
+                  format: _historyItem.getFormat,
+                  type: _historyItem.getType,
                 ),
-                const SizedBox(height: 8),
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        minTileHeight: 0,
-                        contentPadding: const EdgeInsets.only(left: 16, top: 8),
-                        leading: Icon(_historyItem.getFormatIconData),
-                        title: Text(localeStr.aboutBarcodeInformationLabel),
-                      ),
-                      ListTile(
-                        minVerticalPadding: 0,
-                        contentPadding: const EdgeInsets.only(right: 16, left: 16, bottom: 8),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SelectableText('${localeStr.aboutBarcodeFormatLabel}$formatNameStr'),
-                                SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
-                              ],
-                            ),
-                            SelectableText('${localeStr.aboutBarcodeOriginLabel}${
-                                _historyItem.origin == HistoryOrigin.S.name ? localeStr.titleScan : localeStr.titleGenerate
+              ),
+              const SizedBox(height: 8),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    ListTile(
+                      minTileHeight: 0,
+                      contentPadding: const EdgeInsets.only(left: 16, top: 8),
+                      leading: Icon(_historyItem.getFormatIconData),
+                      title: Text(localeStr.aboutBarcodeInformationLabel),
+                    ),
+                    ListTile(
+                      minVerticalPadding: 0,
+                      contentPadding: const EdgeInsets.only(right: 16, left: 16, bottom: 8),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SelectableText('${localeStr.aboutBarcodeFormatLabel}$formatNameStr'),
+                              SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
+                            ],
+                          ),
+                          SelectableText('${localeStr.aboutBarcodeOriginLabel}${
+                              _historyItem.origin == HistoryOrigin.S.name ? localeStr.titleScan : localeStr.titleGenerate
+                          }'),
+                          if (_historyItem.errorLevel != HistoryErrorLevel.none.name)
+                            SelectableText('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
+                                HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel, localeStr)
                             }'),
-                            if (_historyItem.errorLevel != HistoryErrorLevel.none.name)
-                              SelectableText('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                                  HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel, localeStr)
-                              }'),
-                            if (_historyItem.notes.isNotEmpty) Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SelectableText('${localeStr.matrixContactNotesLabel}: '),
-                                Expanded(
-                                  child: SelectableText(
-                                    _historyItem.notes,
-                                    style: TextStyle(
-                                      color: colorScheme.tertiary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                          if (_historyItem.notes.isNotEmpty) Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SelectableText('${localeStr.matrixContactNotesLabel}: '),
+                              Expanded(
+                                child: SelectableText(
+                                  _historyItem.notes,
+                                  style: TextStyle(
+                                    color: colorScheme.tertiary,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: isFormatNameSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
+                  onTap: isFormatNameSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: Icon(_historyItem.isFavorite ? Icons.favorite : Icons.favorite_outline),
+                        onTap: () => setState(() {
+                          _historyItem.isFavorite = !_historyItem.isFavorite;
+                        }),
+                      ),
+                      const SizedBox(width: 16),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: const Icon(Icons.share),
+                        onTap: () => Utils.share(ShareParams(text: _historyItem.contents)),
+                      ),
+                      const SizedBox(width: 16),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: const Icon(Icons.edit),
+                        onTap: () => _showModifyContentsSheet(localeStr),
+                      ),
+                      const SizedBox(width: 16),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: const Icon(Icons.copy),
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: _historyItem.contents));
+                          Utils.showToast(localeStr.barcodeCopiedLabel);
+                        },
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    leading: isFormatNameSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                    onTap: isFormatNameSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        InkWell(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: Icon(_historyItem.isFavorite ? Icons.favorite : Icons.favorite_outline),
-                          onTap: () => setState(() {
-                            _historyItem.isFavorite = !_historyItem.isFavorite;
-                          }),
-                        ),
-                        const SizedBox(width: 16),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: const Icon(Icons.share),
-                          onTap: () => _shareContents(_historyItem.contents),
-                        ),
-                        const SizedBox(width: 16),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: const Icon(Icons.edit),
-                          onTap: () => _showModifyContentsSheet(localeStr),
-                        ),
-                        const SizedBox(width: 16),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(12.0),
-                          child: const Icon(Icons.copy),
-                          onTap: () {
-                            Clipboard.setData(ClipboardData(text: _historyItem.contents));
-                            Utils.showToast(localeStr.barcodeCopiedLabel);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('  ${localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 4),
-                Builder(builder: (_) {
-                  final List<Widget> rows = [];
-                  final actionCards = _getActionGridList(localeStr);
-                  for (var i = 0; i < actionCards.length; i += 3) {
-                    final end = i + 3 > actionCards.length ? actionCards.length : i + 3;
-                    final List<Widget> rowChildren = [];
-                    for (int j = 0; j < end - i; j++) {
-                      rowChildren.add(Expanded(child: actionCards.sublist(i, end)[j]));
-                      if (j < end - i - 1) {
-                        rowChildren.add(const SizedBox(width: 8.0));
-                      }
+              ),
+              const SizedBox(height: 8),
+              Text('  ${localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 4),
+              Builder(builder: (_) {
+                final List<Widget> rows = [];
+                final actionCards = _getActionGridList(localeStr);
+                for (var i = 0; i < actionCards.length; i += 3) {
+                  final end = i + 3 > actionCards.length ? actionCards.length : i + 3;
+                  final List<Widget> rowChildren = [];
+                  for (int j = 0; j < end - i; j++) {
+                    rowChildren.add(Expanded(child: actionCards.sublist(i, end)[j]));
+                    if (j < end - i - 1) {
+                      rowChildren.add(const SizedBox(width: 8.0));
                     }
-                    while (rowChildren.length < 5) {
-                      rowChildren.add(const Expanded(child:SizedBox.shrink()));
-                      if (rowChildren.length < 5) {
-                        rowChildren.add(const SizedBox(width: 8.0));
-                      }
-                    }
-                    rows.add(IntrinsicHeight(
-                      child: Row(children: rowChildren),
-                    ));
-                    rows.add(const SizedBox(height: 8));
                   }
-                  return Column(children: rows);
-                }),
-                const SizedBox(height: 8),
-              ],
-            ),
-          )
+                  while (rowChildren.length < 5) {
+                    rowChildren.add(const Expanded(child:SizedBox.shrink()));
+                    if (rowChildren.length < 5) {
+                      rowChildren.add(const SizedBox(width: 8.0));
+                    }
+                  }
+                  rows.add(IntrinsicHeight(
+                    child: Row(children: rowChildren),
+                  ));
+                  rows.add(const SizedBox(height: 8));
+                }
+                return Column(children: rows);
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -300,14 +297,6 @@ class _ItemViewState extends State<ItemView> {
         },
       ),
     ];
-  }
-
-  Future<void> _shareContents(String contents) async {
-    try {
-      await Share.share(contents);
-    } catch (e) {
-      Utils.showToast(e.toString());
-    }
   }
 
   void _showModifyContentsSheet(Language localeStr){
@@ -428,9 +417,6 @@ class _ItemViewState extends State<ItemView> {
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.format_size),
                       labelText: localeStr.barcodeTextCompositionLabel,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
                     ),
                     keyboardType: TextInputType.text,
                   ),

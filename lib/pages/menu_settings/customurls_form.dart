@@ -73,62 +73,54 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: Padding(
+          child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ListView(
-              children: [
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: Column(
-                    children: [
-                      FormBuilderTextField(
-                        name: 'formTitle',
-                        initialValue: _title,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.format_size),
-                          labelText: localeStr.matrixContactNameLabel,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                        ]),
-                        keyboardType: TextInputType.text,
+            children: [
+              const SizedBox(height: 16),
+              FormBuilder(
+                key:_formKey,
+                child: Column(
+                  children: [
+                    FormBuilderTextField(
+                      name: 'formTitle',
+                      initialValue: _title,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.format_size),
+                        labelText: localeStr.matrixContactNameLabel,
                       ),
-                      const SizedBox(height: 16),
-                      FormBuilderTextField(
-                        name: 'formUrl',
-                        initialValue: _url,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.web),
-                          labelText: localeStr.matrixUriUrlLabel,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                          FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
-                          FormBuilderValidators.contains('{code}', errorText: localeStr.customSearchUrlsErrorUrl),
-                          FormBuilderValidators.contains('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
-                        ]),
-                        keyboardType: TextInputType.url,
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                      ]),
+                      keyboardType: TextInputType.text,
+                    ),
+                    const SizedBox(height: 16),
+                    FormBuilderTextField(
+                      name: 'formUrl',
+                      initialValue: _url,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.web),
+                        labelText: localeStr.matrixUriUrlLabel,
                       ),
-                    ],
-                  )
-                ),
-                const SizedBox(height: 16),
-                Text('${localeStr.customSearchUrlsAddInfo}\n${localeStr.examples} ${Language.googleUrl}',
-                  softWrap: true,
-                  style: theme.textTheme.bodyMedium
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                        FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
+                        FormBuilderValidators.contains('{code}', errorText: localeStr.customSearchUrlsErrorUrl),
+                        FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
+                      ]),
+                      keyboardType: TextInputType.url,
+                    ),
+                  ],
+                )
+              ),
+              const SizedBox(height: 16),
+              Text('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
+                softWrap: true,
+                style: theme.textTheme.bodyMedium
+              ),
+              const SizedBox(height: 16),
+            ],
           ),
         ),
       ),

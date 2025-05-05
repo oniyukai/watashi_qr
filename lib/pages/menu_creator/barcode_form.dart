@@ -56,35 +56,32 @@ class _BarcodeFormState extends State<BarcodeForm> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: Padding(
+          child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ListView(
-              children: [
-                ListTileItem(
-                  title: HistoryFormat.localeStrFromName(format.name, localeStr),
-                  icon: format.iconData,
+            children: [
+              ListTileItem(
+                title: HistoryFormat.localeStrFromName(format.name, localeStr),
+                icon: format.iconData,
+              ),
+              const SizedBox(height: 16),
+              FormBuilder(
+                key:_formKey,
+                child: BarcodeTextField(
+                  format: format,
+                  name: 'name',
+                  formKey: _formKey,
                 ),
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: BarcodeTextField(
-                    format: format,
-                    name: 'name',
-                    formKey: _formKey,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(HistoryFormat.description(format, localeStr) ?? '',
-                    softWrap: true,
-                    style: theme.textTheme.bodyMedium
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              Text(HistoryFormat.description(format, localeStr) ?? '',
+                  softWrap: true,
+                  style: theme.textTheme.bodyMedium
+              ),
+              const SizedBox(height: 16),
+            ],
           ),
         )
       )
     );
   }
-
 }

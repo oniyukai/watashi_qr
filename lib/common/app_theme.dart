@@ -76,5 +76,10 @@ ThemeData appTheme (
       backgroundColor: colorScheme.surfaceContainerHighest,
       indicatorColor: colorScheme.primary.withValues(alpha:0.25),
     ),
+    inputDecorationTheme: const InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+      ),
+    ),
   );
 }

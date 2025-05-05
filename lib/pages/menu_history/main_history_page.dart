@@ -55,7 +55,6 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
   }
 
   void _sortSelectedKeys() {
-    _selectedKeys.sort((a, b) => b.compareTo(a));
     _selectedKeys.sort((a, b) {
       final itemA = HiveService.getItem(a);
       final itemB = HiveService.getItem(b);
@@ -64,6 +63,10 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
       } else if (itemA.isFavorite && !itemB.isFavorite) {
         return -1;
       } else if (!itemA.isFavorite && itemB.isFavorite) {
+        return 1;
+      } else if (itemA.unixTime > itemB.unixTime) {
+        return -1;
+      } else if (itemA.unixTime < itemB.unixTime) {
         return 1;
       } else {
         return 0;
@@ -176,47 +179,36 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
 
       body: SafeArea(child: Scrollbar(
         controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          child: ValueListenableBuilder(
-            valueListenable: HiveService.histories.listenable(),
-            builder: (context, Box box, _) {
-              List<HistoryItem> historiesList = HiveService.getReversedList();
-              if (historiesList.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
-              historiesList.sort((a, b) {
-                if (a.isFavorite && !b.isFavorite) {
-                  return -1;
-                } else if (!a.isFavorite && b.isFavorite) {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              });
-              return ListView.builder(
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: false,
-                controller: _scrollController,
-                itemCount: historiesList.length,
-                itemBuilder: (context, index) {
-                  final item = historiesList[index];
-                  final key = item.key;
-                  return HistoryItemCard(
-                    historyItem: item,
-                    selected: _selectedKeys.contains(key),
-                    onTap: () {
-                      if (_isSelectionMode) {
-                        _toggleSelection(key);
-                      } else {
-                        context.routeOf<ItemView>().arguments(item).to();
-                      }
-                    },
-                    onLongPress: () => _enterSelectionMode(key),
-                  );
-                },
-              );
-            }
-          ),
-        )
+        child: ValueListenableBuilder(
+          valueListenable: HiveService.histories.listenable(),
+          builder: (context, Box box, _) {
+            final List<HistoryItem> historiesList = HiveService.getReversedList(true);
+            if (historiesList.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
+            return ListView.builder(
+              addAutomaticKeepAlives: false,
+              addRepaintBoundaries: false,
+              padding: const EdgeInsets.all(4.0),
+              controller: _scrollController,
+              itemCount: historiesList.length,
+              itemBuilder: (context, index) {
+                final item = historiesList[index];
+                final key = item.key;
+                return HistoryItemCard(
+                  historyItem: item,
+                  selected: _selectedKeys.contains(key),
+                  onTap: () {
+                    if (_isSelectionMode) {
+                      _toggleSelection(key);
+                    } else {
+                      context.routeOf<ItemView>().arguments(item).to();
+                    }
+                  },
+                  onLongPress: () => _enterSelectionMode(key),
+                );
+              },
+            );
+          }
+        ),
       ))
     );
   }

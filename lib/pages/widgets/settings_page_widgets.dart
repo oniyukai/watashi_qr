@@ -56,7 +56,6 @@ class ListTileSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(icon)),
       title: Text(str),
@@ -67,7 +66,7 @@ class ListTileSwitch extends StatelessWidget {
         onChanged: (bool value) {
           if (enabled) onToggle(value);
         },
-        activeColor: enabled ? colorScheme.primary : Colors.grey,
+        activeColor: enabled ? null : Colors.grey,
       ),
     );
   }
@@ -110,6 +109,7 @@ class ListTilePicker extends StatelessWidget {
                 title: Text(entry.value),
                 value: entry.key,
                 groupValue: selectedOption,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                 onChanged: (value) {
                   if (value != null) {
                     onChanged(value);

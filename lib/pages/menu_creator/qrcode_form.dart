@@ -75,21 +75,19 @@ class _QrcodeFormState extends State<QrcodeForm> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: Padding(
+          child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ListView(
-              children: [
-                ListTileItem(
-                  title: HistoryType.localeStrFromName(historyType.name, localeStr),
-                  icon: historyType.iconData,
-                ),
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: _formFromType(historyType, localeStr),
-                ),
-              ],
-            ),
+            children: [
+              ListTileItem(
+                title: HistoryType.localeStrFromName(historyType.name, localeStr),
+                icon: historyType.iconData,
+              ),
+              const SizedBox(height: 16),
+              FormBuilder(
+                key:_formKey,
+                child: _formFromType(historyType, localeStr),
+              ),
+            ],
           ),
         )
       )
@@ -247,9 +245,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.web),
             labelText: localeStr.qrCodeTextGeneratorHintUrlInputEditText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
           ),
           keyboardType: TextInputType.url,
           validator: FormBuilderValidators.compose([
@@ -282,9 +277,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintName,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.name,
                 ),
@@ -294,9 +286,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintFirstName,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.name,
                 ),
@@ -306,9 +295,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.matrixContactOrganisationLabel,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -318,9 +304,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.matrixContactJobTitleLabel,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -331,9 +314,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.web),
                     labelText: localeStr.qrCodeTextInputEditTextHintWebSite,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.url,
                 ),
@@ -355,9 +335,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.mail_outline),
                               labelText: entry.value,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
                             ),
                             keyboardType: TextInputType.emailAddress,
                           ),
@@ -367,11 +344,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                           child: DropdownMenu(
                               initialSelection: _contactMailType[entry.key],
                               expandedInsets: EdgeInsets.zero,
-                              inputDecorationTheme: const InputDecorationTheme(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                ),
-                              ),
+                              inputDecorationTheme: const InputDecorationTheme(),
                               dropdownMenuEntries: [
                                 DropdownMenuEntry(value: 'home', label: localeStr.spinnerTypeHome),
                                 DropdownMenuEntry(value: 'work', label: localeStr.spinnerTypeWork),
@@ -406,9 +379,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                             decoration: InputDecoration(
                               prefixIcon: const Icon(Icons.call),
                               labelText: entry.value,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
                             ),
                             keyboardType: TextInputType.phone,
                           ),
@@ -418,11 +388,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                           child: DropdownMenu(
                               initialSelection: _contactPhoneType[entry.key],
                               expandedInsets: EdgeInsets.zero,
-                              inputDecorationTheme: const InputDecorationTheme(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                ),
-                              ),
+                              inputDecorationTheme: const InputDecorationTheme(),
                               dropdownMenuEntries: [
                                 DropdownMenuEntry(value: 'cell', label: localeStr.spinnerTypeMobile),
                                 DropdownMenuEntry(value: 'home', label: localeStr.spinnerTypeHome),
@@ -447,9 +413,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintStreetAddress,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -459,9 +422,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintCity,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -471,9 +431,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintRegion,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -483,9 +440,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintPostalCode,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -495,9 +449,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintCountry,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -507,9 +458,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     labelText: localeStr.qrCodeTextInputEditTextHintNotes,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -527,9 +475,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.mail_outline),
                 labelText: localeStr.qrCodeTextInputEditTextHintEmail,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.emailAddress,
               validator: FormBuilderValidators.compose([
@@ -547,9 +492,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
                 labelText: localeStr.qrCodeTextInputEditTextHintEmailSubject,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.text,
             ),
@@ -560,9 +502,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
                 labelText: localeStr.qrCodeTextInputEditTextHintMessage,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.multiline,
             ),
@@ -577,9 +516,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.call),
                 labelText: localeStr.qrCodeTextGeneratorHintPhoneInputEditText,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.phone,
               validator: FormBuilderValidators.compose([
@@ -597,9 +533,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
                 labelText: localeStr.qrCodeTextInputEditTextHintMessage,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.multiline,
               validator: FormBuilderValidators.compose([
@@ -618,9 +551,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.call),
             labelText: localeStr.qrCodeTextGeneratorHintPhoneInputEditText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
           ),
           keyboardType: TextInputType.phone,
           validator: FormBuilderValidators.compose([
@@ -639,9 +569,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 labelText: localeStr.qrCodeTextInputEditTextHintLocalisationLatitude,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.number,
               validator: FormBuilderValidators.compose([
@@ -659,9 +586,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 labelText: localeStr.qrCodeTextInputEditTextHintLocalisationLongitude,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.number,
               validator: FormBuilderValidators.compose([
@@ -679,9 +603,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 labelText: localeStr.qrCodeTextInputEditTextHintLocalisationHeight,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -701,9 +622,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 labelText: localeStr.qrCodeTextInputEditTextHintLocalisationRequest,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.text,
             ),
@@ -719,9 +637,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
                 labelText: localeStr.qrCodeTextInputEditTextHintAgendaEventName,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.text,
               validator: FormBuilderValidators.compose([
@@ -747,8 +662,10 @@ class _QrcodeFormState extends State<QrcodeForm> {
                 Expanded(
                   child: FormBuilderDateTimePicker(
                     name: 'begindate',
-                    decoration:
-                    const InputDecoration(icon: Icon(Icons.event)),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.event),
+                      border: UnderlineInputBorder(),
+                    ),
                     initialValue: DateTime.now(),
                     inputType: InputType.date,
                     format: DateFormat('yyyy-MM-dd'),
@@ -760,8 +677,10 @@ class _QrcodeFormState extends State<QrcodeForm> {
                     visible: !_agendAllday,
                     child: FormBuilderDateTimePicker(
                       name: 'begintime',
-                      decoration:
-                      const InputDecoration(icon: Icon(Icons.schedule)),
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.schedule),
+                        border: UnderlineInputBorder(),
+                      ),
                       initialValue: DateTime.now(),
                       inputType: InputType.time,
                       format: DateFormat('HH:mm'),
@@ -777,8 +696,10 @@ class _QrcodeFormState extends State<QrcodeForm> {
                 Expanded(
                   child: FormBuilderDateTimePicker(
                     name: 'enddate',
-                    decoration:
-                    const InputDecoration(icon: Icon(Icons.event)),
+                    decoration: const InputDecoration(
+                      icon: Icon(Icons.event),
+                      border: UnderlineInputBorder(),
+                    ),
                     initialValue: DateTime.now(),
                     inputType: InputType.date,
                     format: DateFormat('yyyy-MM-dd'),
@@ -790,8 +711,10 @@ class _QrcodeFormState extends State<QrcodeForm> {
                     visible: !_agendAllday,
                     child: FormBuilderDateTimePicker(
                       name: 'endtime',
-                      decoration:
-                      const InputDecoration(icon: Icon(Icons.schedule)),
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.schedule),
+                        border: UnderlineInputBorder(),
+                      ),
                       initialValue: DateTime.now(),
                       inputType: InputType.time,
                       format: DateFormat('HH:mm'),
@@ -808,9 +731,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.location_on),
                 labelText: localeStr.qrCodeTextInputEditTextHintAgendaPlace,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.text,
             ),
@@ -821,9 +741,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
                 labelText: localeStr.qrCodeTextInputEditTextHintAgendaDescription,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.text,
             ),
@@ -838,9 +755,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
                 labelText: localeStr.qrCodeTextInputEditTextHintWifiSsid,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.text,
               validator: FormBuilderValidators.compose([
@@ -854,11 +768,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             DropdownMenu(
               initialSelection: _wifiSecurityType,
               expandedInsets: EdgeInsets.zero,
-              inputDecorationTheme: const InputDecorationTheme(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-              ),
+              inputDecorationTheme: const InputDecorationTheme(),
               dropdownMenuEntries: [
                 DropdownMenuEntry(value: 'WEP', label: localeStr.spinnerWifiEncryptionWep),
                 DropdownMenuEntry(value: 'WPA', label: localeStr.spinnerWifiEncryptionWpa),
@@ -878,9 +788,6 @@ class _QrcodeFormState extends State<QrcodeForm> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.password),
                 labelText: localeStr.qrCodeTextInputEditTextHintWifiPassword,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               keyboardType: TextInputType.visiblePassword,
               validator: FormBuilderValidators.compose([

@@ -27,7 +27,7 @@ class ListTileItem extends StatelessWidget {
 
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      contentPadding: const EdgeInsets.all(8),
       minTileHeight: 40,
       minVerticalPadding: 0,
       selected: selected==true,

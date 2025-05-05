@@ -28,10 +28,20 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
     setState(() {
       _currentIndex = index;
       if (_currentIndex == 0) {
-        Utils.mobileScannerController.start();
+        Utils.mobileScannerControllerStart(context);
+        Utils.lockCurrentOrientation(context);
       } else {
         Utils.mobileScannerController.stop();
+        Utils.unlockCurrentOrientation();
       }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_currentIndex == 0) Utils.lockCurrentOrientation(context);
     });
   }
 

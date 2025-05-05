@@ -37,16 +37,7 @@ class HiveService {
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
     if (isHistoryDuplicatedEnabled == true) return await histories.add(item);
 
-    final List<HistoryItem> historiesList = getReversedList();
-    historiesList.sort((a, b) {
-      if (a.isFavorite && !b.isFavorite) {
-        return -1;
-      } else if (!a.isFavorite && b.isFavorite) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+    final List<HistoryItem> historiesList = getReversedList(true);
     final int latestDuplicateIndex = historiesList.indexWhere((e) =>
       (e.format==item.format) && (e.contents==item.contents)
     );
@@ -60,8 +51,21 @@ class HiveService {
     }
   }
 
-  static List<HistoryItem> getReversedList() {
-    return histories.values.toList().reversed.toList();
+  static List<HistoryItem> getReversedList([bool isSortFavorite = false]) {
+    final historiesList = histories.values.toList().reversed.toList();
+    historiesList.sort((a, b) {
+      if (isSortFavorite && a.isFavorite && !b.isFavorite) {
+        return -1;
+      } else if (isSortFavorite && !a.isFavorite && b.isFavorite) {
+        return 1;
+      } else if (a.unixTime > b.unixTime) {
+        return -1;
+      } else if (a.unixTime < b.unixTime) {
+        return 1;
+      }
+      return 0;
+    });
+    return historiesList;
   }
 
   static HistoryItem? getItem(dynamic key) {
@@ -112,7 +116,7 @@ class HiveService {
       final String filePath = '${tempDir.path}/qr_$formattedDateTime.json';
       final File file = File(filePath);
       file.writeAsString(jsonString);
-      await Share.shareXFiles([XFile(filePath)]);
+      await Utils.share(ShareParams(files: [XFile(filePath)]));
     } catch (e) {
       Utils.showToast(e.toString());
     }
