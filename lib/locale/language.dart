@@ -410,7 +410,7 @@ abstract class Language {
   static const String
       appName = 'Watashi QR',
       appVersion = '1.1.1',
-      appVersionTag = 'v1.0_25.05.02',
+      appVersionTag = 'v1.0_25.05.05',
       pngLabel = 'PNG',
       jpgLabel = 'JPG',
       svgLabel = 'SVG',
