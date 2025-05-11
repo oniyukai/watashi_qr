@@ -31,8 +31,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
   final List<String> _contactPhoneType = <String>['cell', 'cell', 'cell']; // only for the _CONTACT form
 
   void _sendForm(String contents, HistoryType historyType) {
-    if (contents.length > 4296) {
-      Utils.showToast('Error: contents.length > 4296');
+    if (contents.length > 2953) {
+      Utils.showToast('${Language.of(context).errorBarcodeWrongLengthMessage}< 2953');
       return;
     }
     final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
@@ -249,6 +249,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
           keyboardType: TextInputType.url,
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+            FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
             FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
           ]),
           onEditingComplete: () {

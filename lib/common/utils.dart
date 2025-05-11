@@ -83,10 +83,10 @@ class Utils {
   static Future<void> openUrlInBrowser(String urlstr) async {
     final Uri url = Uri.parse(urlstr);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $urlstr');
+      showToast('Could not launch $urlstr');
     }
   }
-  static Future<void> searchInBrowser(String searchUrl, String keyWord) async {
+  static void searchInBrowser(String searchUrl, String keyWord) {
     openUrlInBrowser(searchUrl.replaceAll('{code}', Uri.encodeComponent(keyWord)));
   }
 

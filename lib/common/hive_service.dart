@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
@@ -15,16 +16,18 @@ import 'package:intl/intl.dart';
 class HiveService {
   const HiveService._();
 
-  static late Box<HistoryItem> histories;
+  static late Box<HistoryItem> _histories;
 
   static Future<void> hiveInit() async {
     await Hive.initFlutter('${(await getApplicationSupportDirectory()).path}/hive');
     Hive.registerAdapter(HistoryItemAdapter());
-    histories = await Hive.openBox<HistoryItem>('histories');
+    _histories = await Hive.openBox<HistoryItem>('histories');
   }
   static Future<void> hiveClose() async {
-    Hive.close();
+    await Hive.close();
   }
+
+  static ValueListenable<Box<HistoryItem>> get getListenable => _histories.listenable();
 
   static Future<int> addItem(
       HistoryItem item, {
@@ -35,28 +38,32 @@ class HiveService {
     bool isHistoryDuplicatedEnabled = (context==null)
       ? true : context.readSettings.isSaveDuplicates;
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
-    if (isHistoryDuplicatedEnabled == true) return await histories.add(item);
+    if (isHistoryDuplicatedEnabled == true) return await _histories.add(item);
 
-    final List<HistoryItem> historiesList = getReversedList(true);
+    final List<HistoryItem> historiesList = getReversedList(sortF: true);
     final int latestDuplicateIndex = historiesList.indexWhere((e) =>
       (e.format==item.format) && (e.contents==item.contents)
     );
     if (latestDuplicateIndex==-1) {
-      return await histories.add(item);
+      return await _histories.add(item);
     } else {
       item.isFavorite = historiesList[latestDuplicateIndex].isFavorite;
       item.notes = historiesList[latestDuplicateIndex].notes;
       deleteItem(historiesList[latestDuplicateIndex].key);
-      return await histories.add(item);
+      return await _histories.add(item);
     }
   }
 
-  static List<HistoryItem> getReversedList([bool isSortFavorite = false]) {
-    final historiesList = histories.values.toList().reversed.toList();
+  static List<HistoryItem> getReversedList({
+    bool sortF = false,
+    List<HistoryItem>? list }) {
+    final List<HistoryItem> historiesList = (list == null)
+        ? _histories.values.toList().reversed.toList()
+        : <HistoryItem>[...list];
     historiesList.sort((a, b) {
-      if (isSortFavorite && a.isFavorite && !b.isFavorite) {
+      if (sortF && a.isFavorite && !b.isFavorite) {
         return -1;
-      } else if (isSortFavorite && !a.isFavorite && b.isFavorite) {
+      } else if (sortF && !a.isFavorite && b.isFavorite) {
         return 1;
       } else if (a.unixTime > b.unixTime) {
         return -1;
@@ -69,35 +76,44 @@ class HiveService {
   }
 
   static HistoryItem? getItem(dynamic key) {
-    return histories.get(key);
+    return _histories.get(key);
+  }
+
+  static List<HistoryItem> getItems(Iterable<dynamic> keys) {
+    final List<HistoryItem> historiesList = <HistoryItem>[];
+    for (final key in keys) {
+      final value = getItem(key);
+      if (value != null) historiesList.add(value);
+    }
+    return historiesList;
   }
 
   static bool containsTime(int unixTime) {
-    final List<int> unixTimeList = histories.values.map((value) => value.unixTime).toList();
+    final List<int> unixTimeList = _histories.values.map((value) => value.unixTime).toList();
     return (unixTimeList.contains(unixTime)) ? true : false;
   }
 
   static Future<void> updateItem(dynamic key, HistoryItem item) async {
-    await histories.put(key, item);
+    await _histories.put(key, item);
   }
 
   static Future<void> deleteItem(dynamic key) async {
-    await histories.delete(key);
+    await _histories.delete(key);
   }
 
-  static Future<void> deleteItemList(Iterable<dynamic> keys) async {
-    await histories.deleteAll(keys);
+  static Future<void> deleteItems(Iterable<dynamic> keys) async {
+    await _histories.deleteAll(keys);
   }
 
   static Future<int> clearHistories() async {
-    return await histories.clear();
+    return await _histories.clear();
   }
 
   static Future<void> sortHistories() async {
-    final List<HistoryItem> historyItemList = histories.values.toList();
+    final List<HistoryItem> historyItemList = _histories.values.toList();
     historyItemList.sort((a, b) => a.unixTime.compareTo(b.unixTime));
     await clearHistories();
-    await histories.addAll(historyItemList);
+    await _histories.addAll(historyItemList);
     Utils.showToast('Histories Sorting has been rearranged!');
   }
 
@@ -115,7 +131,7 @@ class HiveService {
       final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
       final String filePath = '${tempDir.path}/qr_$formattedDateTime.json';
       final File file = File(filePath);
-      file.writeAsString(jsonString);
+      await file.writeAsString(jsonString);
       await Utils.share(ShareParams(files: [XFile(filePath)]));
     } catch (e) {
       Utils.showToast(e.toString());
@@ -171,7 +187,7 @@ class HiveService {
       int added = 0;
       int replaced = 0;
 
-      final Map<int, dynamic> timeKeyMap = histories.toMap().map((key, value) {
+      final Map<int, dynamic> timeKeyMap = _histories.toMap().map((key, value) {
         return MapEntry(value.unixTime, key);
       }); // timeKeyMap的key, value要是相反的，使用要注意
 

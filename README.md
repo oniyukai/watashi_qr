@@ -1,14 +1,10 @@
-<center>
+<p align="center"><img alt="" src="assets/appicon.png" width="64"><p>
 
-  <img alt="" src="assets/appicon.png" width="64">
+<h2 align="center">Watashi QR</h2>
 
-  ## Watashi QR
+<h4 align="center">An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
 
-  <h4>An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
-
-  [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
-
-</center>
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Formats
 

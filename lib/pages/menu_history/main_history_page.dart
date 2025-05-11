@@ -21,7 +21,7 @@ class MainHistoryPage extends StatefulWidget {
 class _MainHistoryPageState extends State<MainHistoryPage> {
   final ScrollController _scrollController = ScrollController();
   bool _isSelectionMode = false;
-  final List<dynamic> _selectedKeys = <dynamic>[];
+  final Set<dynamic> _selectedKeys = <dynamic>{};
 
   void _enterSelectionMode(dynamic key) {
     if (_isSelectionMode == true) {
@@ -54,26 +54,6 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
     });
   }
 
-  void _sortSelectedKeys() {
-    _selectedKeys.sort((a, b) {
-      final itemA = HiveService.getItem(a);
-      final itemB = HiveService.getItem(b);
-      if (itemA==null || itemB==null){
-        return 0;
-      } else if (itemA.isFavorite && !itemB.isFavorite) {
-        return -1;
-      } else if (!itemA.isFavorite && itemB.isFavorite) {
-        return 1;
-      } else if (itemA.unixTime > itemB.unixTime) {
-        return -1;
-      } else if (itemA.unixTime < itemB.unixTime) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
@@ -90,7 +70,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
           )
           : null,
         title: ValueListenableBuilder(
-          valueListenable: HiveService.histories.listenable(),
+          valueListenable: HiveService.getListenable,
           builder: (context, Box box, _) {
             return _isSelectionMode
               ? Text('${_selectedKeys.length}/${box.length}')
@@ -110,7 +90,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
                     child: Text(localeStr.deleteLabel),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      HiveService.deleteItemList(_selectedKeys);
+                      HiveService.deleteItems(_selectedKeys);
                       Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
                       _exitSelectionMode();
                     },
@@ -121,12 +101,11 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
             IconButton(
               icon: const Icon(Icons.content_copy),
               onPressed: () {
-                String combinedText = '';
-                _sortSelectedKeys();
-                for (dynamic key in _selectedKeys) {
-                  final item = HiveService.getItem(key);
-                  if (item != null) combinedText += '${item.contents}\n';
-                }
+                final List<HistoryItem> items = HiveService.getReversedList(
+                  sortF: true,
+                  list: HiveService.getItems(_selectedKeys),
+                );
+                final String combinedText = items.map((item) => item.contents).join('\n');
                 Clipboard.setData(ClipboardData(text: combinedText));
                 Utils.showToast(localeStr.barcodeCopiedLabel);
                 _exitSelectionMode();
@@ -135,7 +114,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
             CustomMenuButton(
               labelList: [localeStr.menuItemHistoryAddFavorite, localeStr.menuItemHistoryRemoveFavorite],
               onSelectedEnd: (int option) {
-                for (final dynamic key in _selectedKeys){
+                for (final key in _selectedKeys){
                   final HistoryItem? item = HiveService.getItem(key);
                   if (item == null) continue;
                   item.isFavorite = (option == 0);
@@ -180,9 +159,9 @@ class _MainHistoryPageState extends State<MainHistoryPage> {
       body: SafeArea(child: Scrollbar(
         controller: _scrollController,
         child: ValueListenableBuilder(
-          valueListenable: HiveService.histories.listenable(),
+          valueListenable: HiveService.getListenable,
           builder: (context, Box box, _) {
-            final List<HistoryItem> historiesList = HiveService.getReversedList(true);
+            final List<HistoryItem> historiesList = HiveService.getReversedList(sortF: true);
             if (historiesList.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
             return ListView.builder(
               addAutomaticKeepAlives: false,

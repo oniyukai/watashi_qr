@@ -6,6 +6,7 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
 import 'package:watashi_qr/pages/widgets/custom_menu_button.dart';
 import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:file_picker/file_picker.dart';
@@ -27,16 +28,17 @@ class CodeView extends StatefulWidget with RouterBridge<HistoryItem> {
 class _CodeViewState extends State<CodeView> {
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     final historyItem = widget.argumentOf(context);
-    final isPortrait = Utils.isPortrait(context);
     if (historyItem == null) return AppAboutPage();
+    final localeStr = Language.of(context);
+    final isPortrait = Utils.isPortrait(context);
+    final validatorMsg = barcodeValidator(historyItem.contents, historyItem.getFormat, localeStr);
     final BarcodeQRCorrectionLevel? level = historyItem.getErrorLevel?.barcodeQRCorrectionLevel;
     final itemDescription = HistoryFormat.description(historyItem.getFormat, localeStr);
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryFormat.localeStrFromName(historyItem.format, localeStr)),
-        actions: [
+        actions: (validatorMsg == null) ? [
           CustomMenuButton(
             icon: const Icon(Icons.save),
             labelList: [Language.pngLabel, Language.jpgLabel, Language.svgLabel],
@@ -56,7 +58,7 @@ class _CodeViewState extends State<CodeView> {
               level: level,
             ), // 匯出PNG
           ),
-        ],
+        ] : null,
       ),
       body: SafeArea(
         child: Padding(
@@ -75,14 +77,14 @@ class _CodeViewState extends State<CodeView> {
                       length = isPortrait ? length*0.8 : length;
                       length = min(length, (!isPortrait ? constraints.maxWidth : constraints.maxHeight)/1.618);
                       return Center(
-                        child: SvgPicture.string(
+                        child: (validatorMsg == null) ? SvgPicture.string(
                           _getBarcodeSvg(
                             contents: historyItem.contents,
                             format: historyItem.getFormat,
                             level: level,
                             length: length,
                           ),
-                        ),
+                        ) : Text(validatorMsg),
                       );
                     },
                   ),
@@ -217,22 +219,9 @@ class _CodeViewState extends State<CodeView> {
   Barcode _getBarcode(HistoryFormat? format, BarcodeQRCorrectionLevel? level){
     level = level ?? HistoryErrorLevel.L.barcodeQRCorrectionLevel!;
 
-    return switch (format) {
-      HistoryFormat.qrCode => Barcode.qrCode(errorCorrectLevel: level),
-      HistoryFormat.aztec => Barcode.aztec(),
-      HistoryFormat.dataMatrix=> Barcode.dataMatrix(),
-      HistoryFormat.pdf417 => Barcode.pdf417(),
-      HistoryFormat.ean13 => Barcode.ean13(),
-      HistoryFormat.ean8 => Barcode.ean8(),
-      HistoryFormat.upcA => Barcode.upcA(),
-      HistoryFormat.upcE => Barcode.upcE(),
-      HistoryFormat.code128 => Barcode.code128(),
-      HistoryFormat.code93 => Barcode.code93(),
-      HistoryFormat.code39 => Barcode.code39(),
-      HistoryFormat.codebar => Barcode.codabar(),
-      HistoryFormat.itf => Barcode.itf(),
-      _ => Barcode.qrCode(errorCorrectLevel: level)
-    };
+    return (format == null || format == HistoryFormat.qrCode)
+        ? Barcode.qrCode(errorCorrectLevel: level)
+        : format.barcodeFunc();
   }
 
 }

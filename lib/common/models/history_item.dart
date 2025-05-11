@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 part 'history_item.g.dart';
 
 @HiveType(typeId: 0)
@@ -98,23 +98,37 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   final IconData iconData;
   const HistoryFormat(this.iconData);
 
-  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) {
-    return const <BarcodeFormat, HistoryFormat>{
-      BarcodeFormat.qrCode: qrCode,
-      BarcodeFormat.dataMatrix: dataMatrix,
-      BarcodeFormat.aztec: aztec,
-      BarcodeFormat.pdf417: pdf417,
-      BarcodeFormat.ean13: ean13,
-      BarcodeFormat.ean8: ean8,
-      BarcodeFormat.upcA: upcA,
-      BarcodeFormat.upcE: upcE,
-      BarcodeFormat.code128: code128,
-      BarcodeFormat.code93: code93,
-      BarcodeFormat.code39: code39,
-      BarcodeFormat.codebar: codebar,
-      BarcodeFormat.itf: itf,
-    }[barcodeFormat];
-  }
+  Barcode Function() get barcodeFunc => switch (this) {
+    qrCode => Barcode.qrCode,
+    aztec => Barcode.aztec,
+    dataMatrix=> Barcode.dataMatrix,
+    pdf417 => Barcode.pdf417,
+    ean13 => Barcode.ean13,
+    ean8 => Barcode.ean8,
+    upcA => Barcode.upcA,
+    upcE => Barcode.upcE,
+    code128 => Barcode.code128,
+    code93 => Barcode.code93,
+    code39 => Barcode.code39,
+    codebar => Barcode.codabar,
+    itf => Barcode.itf,
+  };
+
+  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) => const <BarcodeFormat, HistoryFormat>{
+    BarcodeFormat.qrCode: qrCode,
+    BarcodeFormat.dataMatrix: dataMatrix,
+    BarcodeFormat.aztec: aztec,
+    BarcodeFormat.pdf417: pdf417,
+    BarcodeFormat.ean13: ean13,
+    BarcodeFormat.ean8: ean8,
+    BarcodeFormat.upcA: upcA,
+    BarcodeFormat.upcE: upcE,
+    BarcodeFormat.code128: code128,
+    BarcodeFormat.code93: code93,
+    BarcodeFormat.code39: code39,
+    BarcodeFormat.codebar: codebar,
+    BarcodeFormat.itf: itf,
+  }[barcodeFormat];
 
   static String localeStrFromName(String n, Language localeStr) => <HistoryFormat, String>{
     qrCode: localeStr.barcodeQrCodeLabel,
@@ -199,9 +213,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
       case HistoryFormat.dataMatrix:
       case HistoryFormat.aztec:
       case HistoryFormat.pdf417:
-        if (isURL(contents)) {
-          return website;
-        } else if (upperContents.startsWith('BEGIN:VCARD\n')) {
+        if (upperContents.startsWith('BEGIN:VCARD\n')) {
           return contact;
         } else if (upperContents.startsWith('MAILTO:') || upperContents.startsWith('MATMSG:')) {
           return mail;
@@ -215,6 +227,13 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
           return agend;
         } else if (upperContents.startsWith('WIFI:')) {
           return wifi;
+        } else if (isURL(contents, {
+          'protocols': ['http', 'https'],
+          'require_tld': true,
+          'require_protocol': true,
+          'allow_underscores': false,
+        })) {
+          return website;
         } else {
           return text;
         }

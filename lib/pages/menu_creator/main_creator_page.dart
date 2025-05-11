@@ -22,7 +22,7 @@ class MainCreatorPage extends StatefulWidget {
 
 class _MainCreatorPageState extends State<MainCreatorPage> {
   final ScrollController _scrollController = ScrollController();
-  final List<HistoryType> _historyTypes = const <HistoryType>[
+  final Set<HistoryType> _historyTypes = const <HistoryType>{
     HistoryType.text,
     HistoryType.website,
     HistoryType.contact,
@@ -32,9 +32,9 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
     HistoryType.location,
     HistoryType.agend,
     HistoryType.wifi,
-  ];
+  };
 
-  final List<HistoryFormat> _historyFormats = const <HistoryFormat>[
+  final Set<HistoryFormat> _historyFormats = const <HistoryFormat>{
     HistoryFormat.dataMatrix,
     HistoryFormat.aztec,
     HistoryFormat.pdf417,
@@ -47,14 +47,18 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
     HistoryFormat.code39,
     HistoryFormat.codebar,
     HistoryFormat.itf,
-  ];
+  };
 
   Future<void> _createQrFromClipboard(Language localeStr) async {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-    final String selectedQRErrorLevel = context.readSettings.selectedQRErrorLevel;
-    final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
-    if (clipboardData != null && clipboardData.text != null && clipboardData.text!.isNotEmpty) {
-      final String contents = clipboardData.text!;
+    final String? contents = clipboardData?.text;
+    if (contents == null || contents.isEmpty) {
+      Utils.showToast('${localeStr.clipboardEmpty}\n${localeStr.qrCodeTextGeneratorHintTextInputEditText}');
+    } else if (contents.length > 2953) {
+      Utils.showToast('${localeStr.errorBarcodeWrongLengthMessage}< 2953');
+    } else {
+      final String selectedQRErrorLevel = context.readSettings.selectedQRErrorLevel;
+      final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
       final HistoryItem item = HistoryItem(
         unixTime: Utils.nowUnixTime,
         contents: contents,
@@ -67,8 +71,6 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
       );
       if (isCreateAddHistory) HiveService.addItem(item, context:context);
       context.routeOf<CodeView>().arguments(item).to();
-    } else {
-      Utils.showToast('${localeStr.clipboardEmpty}\n${localeStr.qrCodeTextGeneratorHintTextInputEditText}');
     }
   }
 
@@ -121,7 +123,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Center( 已被刪除的功能
+              // Center( // todo?: 有緣或許有分享到該程式的功能
               //   child: Text(localeStr.shareToThisAppLabel,
               //       softWrap: true,
               //       style: theme.textTheme.bodyMedium

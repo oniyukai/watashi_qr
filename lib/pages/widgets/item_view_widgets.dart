@@ -59,7 +59,7 @@ class AnalyzedContentItem extends StatelessWidget {
             notes += i.substring(5);
           }
         }
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixContactNameLabel: name,
           localeStr.matrixContactOrganisationLabel: organisation,
           localeStr.matrixContactJobTitleLabel: jobTitle,
@@ -70,21 +70,12 @@ class AnalyzedContentItem extends StatelessWidget {
           localeStr.matrixContactNotesLabel: notes,
         });
       case HistoryType.mail:
-        String? email;
-        String? subject;
-        String? message;
-        for (final i in contents.substring(7).split(';')){
-          final String upperI = i.toUpperCase();
-          if (upperI.startsWith('TO:') ){
-            email = i.substring(3);
-          } else if (upperI.startsWith('SUB:') ) {
-            subject = i.substring(4);
-          } else if (upperI.startsWith('BODY:') ) {
-            message = i.substring(5);
-          }
-        }
+        final analyzed = analyzeMail(contents);
+        final String? email = analyzed['email'];
+        final String? subject = analyzed['subject'];
+        final String? message = analyzed['message'];
         if ((email ?? subject ?? message) == null) break;
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixEmailRecipientLabel: email,
           localeStr.matrixSubjectLabel: subject,
           localeStr.matrixBodyLabel: message,
@@ -100,12 +91,12 @@ class AnalyzedContentItem extends StatelessWidget {
           }
         }
         if ((phone ?? message) == null) break;
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixPhoneTelNumberLabel: phone,
           localeStr.matrixBodyLabel: message,
         });
       case HistoryType.phone:
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixPhoneTelNumberLabel: contents.substring(4),
         });
       case HistoryType.location:
@@ -126,7 +117,7 @@ class AnalyzedContentItem extends StatelessWidget {
         }
         if (temp.length >= 2) request = temp.last.substring(2);
         if ((latitude ?? longitude ?? height ?? request) == null) break;
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixLocalisationLatitudeLabel: latitude,
           localeStr.matrixLocalisationLongitudeLabel: longitude,
           localeStr.matrixLocalisationAltitudeLabel: height,
@@ -156,7 +147,7 @@ class AnalyzedContentItem extends StatelessWidget {
             description = i.substring(12);
           }
         }
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixAgendaNameEventLabel: summary,
           localeStr.matrixAgendaStartDateEventLabel: startDate,
           localeStr.matrixAgendaEndDateEventLabel: endDate,
@@ -182,7 +173,7 @@ class AnalyzedContentItem extends StatelessWidget {
           }
         }
         if ((ssid ?? password ?? security ?? hide) == null) break;
-        return AnalyzedColumn(map: {
+        return AnalyzedContentColumn(map: {
           localeStr.matrixWifiSsidLabel: ssid,
           localeStr.matrixWifiPasswordLabel: password,
           localeStr.matrixWifiEncryptionLabel: security,
@@ -199,9 +190,9 @@ class AnalyzedContentItem extends StatelessWidget {
 }
 
 
-class AnalyzedColumn extends StatelessWidget {
+class AnalyzedContentColumn extends StatelessWidget {
   final Map<String, String?> map;
-  const AnalyzedColumn({super.key, required this.map});
+  const AnalyzedContentColumn({super.key, required this.map});
 
   @override
   Widget build(BuildContext context) {
@@ -260,4 +251,33 @@ class PressButtonGrid extends StatelessWidget {
       ),
     );
   }
+}
+
+Map<String, String?> analyzeMail(String contents) {
+  String? email;
+  String? subject;
+  String? message;
+  if (contents.toUpperCase().startsWith('MAILTO:')) {
+    final substring = contents.substring(7);
+    final Uri uri = Uri.parse('mailto:$substring');
+    email = uri.path;
+    subject = uri.queryParameters['subject'];
+    message = uri.queryParameters['body'];
+  } else {
+    for (final i in contents.substring(7).split(';')) {
+      final String upperI = i.toUpperCase();
+      if (upperI.startsWith('TO:')) {
+        email = i.substring(3);
+      } else if (upperI.startsWith('SUB:')) {
+        subject = i.substring(4);
+      } else if (upperI.startsWith('BODY:')) {
+        message = i.substring(5);
+      }
+    }
+  }
+  return {
+    'email': email,
+    'subject': subject,
+    'message': message,
+  };
 }

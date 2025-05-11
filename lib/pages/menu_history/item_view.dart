@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -15,6 +16,7 @@ import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/pages/widgets/item_view_widgets.dart';
 import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'dart:io';
 
 class ItemView extends StatefulWidget with RouterBridge<HistoryItem> {
   const ItemView({super.key});
@@ -69,7 +71,7 @@ class _ItemViewState extends State<ItemView> {
     final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format, localeStr);
-    final isFormatNameSupported = !(formatNameStr.startsWith('"') && formatNameStr.endsWith('"'));
+    final isFormatSupported = _historyItem.getFormat != null;
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryType.localeStrFromName(_historyItem.type, localeStr)),
@@ -147,8 +149,8 @@ class _ItemViewState extends State<ItemView> {
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  leading: isFormatNameSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                  onTap: isFormatNameSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
+                  leading: isFormatSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
+                  onTap: isFormatSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -221,15 +223,15 @@ class _ItemViewState extends State<ItemView> {
   }
 
   List<PressButtonGrid> _getActionGridList(Language localeStr) {
-    final String type = _historyItem.type;
+    final type = _historyItem.getType;
     final bool willExist = _isWillExist ?? _isExistInhistories;
     return <PressButtonGrid>[
-      type != HistoryType.website.name ?
-      PressButtonGrid(
+      if (type != HistoryType.website) PressButtonGrid(
           icon: Icons.search,
           description: localeStr.actionWebSearchLabel,
           onTap: () => _actionWebSearch()
-      ) : PressButtonGrid(
+      ),
+      if (type == HistoryType.website) PressButtonGrid(
         icon: Icons.open_in_browser,
         description: localeStr.actionOpenLink,
         onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
@@ -237,13 +239,13 @@ class _ItemViewState extends State<ItemView> {
       if (context.readSettings.customSearchUrls.isNotEmpty) PressButtonGrid(
         icon: Icons.search,
         description: localeStr.customSearchUrls,
-        onTap: () => _showCustomSearchDialog(localeStr),
+        onTap: () => _actionCustomSearch(localeStr),
       ),
       PressButtonGrid(
         icon: Icons.edit_note,
         description: localeStr.actionModifyNotes,
         onTap: () {
-          _showModifyNotesSheet(localeStr);
+          _actionModifyNotes(localeStr);
           setState(() {});
         },
       ),
@@ -252,11 +254,16 @@ class _ItemViewState extends State<ItemView> {
       //   'description': localeStr.actionAddToContacts,
       //   'onTap': () {}, // TODO CONTACT按鈕功能
       // },
-      // if (type == 'MAIL') {
-      //   'icon': Icons.mail_outline,
-      //   'description': localeStr.actionSendMailLabel,
-      //   'onTap': () {}, // TODO MAIL按鈕功能
-      // },
+      if (type == HistoryType.contact) PressButtonGrid(
+        icon: Icons.share,
+        description: localeStr.actionShareVcfFile,
+        onTap: () => _actionShareContact(_historyItem.contents),
+      ),
+      if (type == HistoryType.mail) PressButtonGrid(
+        icon: Icons.mail_outline,
+        description: localeStr.actionSendMailLabel,
+        onTap: () => _actionMailTo(_historyItem.contents),
+      ),
       // if (type == 'PHONE' || type == 'SMS') {
       //   'icon': Icons.sms_outlined,
       //   'description': localeStr.actionSendSmsLabel,
@@ -267,21 +274,21 @@ class _ItemViewState extends State<ItemView> {
       //     'description': localeStr.actionCallPhoneLabel,
       //     'onTap': () {}, // TODO PHONE按鈕功能
       //   },
-      // if (type == 'LOCATION') {
-      //     'icon': Icons.location_on,
-      //     'description': localeStr.actionShowLocation,
-      //     'onTap': () {}, // TODO LOCATION按鈕功能
-      //   },
-      // if (type == 'AGEND') {
-      //     'icon': Icons.event,
-      //     'description': localeStr.actionAddToCalendar,
-      //     'onTap': () {}, // TODO AGEND按鈕功能
-      //   },
-      // if (type == 'WIFI') {
-      //   'icon': Icons.wifi,
-      //   'description': localeStr.qrCodeTypeNameWifi,
-      //   'onTap': () {}, // TODO WIFI按鈕功能
-      // },
+      if (type == HistoryType.location) PressButtonGrid(
+        icon: Icons.location_on,
+        description: localeStr.actionShowLocation,
+        onTap: () => _actionOpenLocation(_historyItem.contents),
+      ),
+      if (type == HistoryType.agend) PressButtonGrid(
+        icon: Icons.event,
+        description: localeStr.actionAddToCalendar,
+        onTap: () => _actionShareAgend(_historyItem.contents),
+      ),
+      // if (type == HistoryType.wifi) PressButtonGrid(
+      //   icon: Icons.wifi,
+      //   description: localeStr.qrCodeTypeNameWifi,
+      //   onTap: () {}, // Notodo: WIFI按鈕(決定不加入)
+      // ),
       PressButtonGrid(
         icon: willExist ? Icons.delete_forever : Icons.add,
         description: willExist
@@ -367,7 +374,7 @@ class _ItemViewState extends State<ItemView> {
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
-  void _showCustomSearchDialog(Language localeStr) {
+  void _actionCustomSearch(Language localeStr) {
     final List<String> customSearchUrls = context.readSettings.customSearchUrls;
     genericAlertDialog(
       context: context,
@@ -391,7 +398,7 @@ class _ItemViewState extends State<ItemView> {
     );
   }
 
-  void _showModifyNotesSheet(Language localeStr){
+  void _actionModifyNotes(Language localeStr) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -450,8 +457,32 @@ class _ItemViewState extends State<ItemView> {
     );
   }
 
+  Future<void> _actionShareContact(String contents) async {
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/contact.vcf');
+    await file.writeAsString(contents);
+    await Utils.share(ShareParams(files: [XFile(file.path)]));
+  }
 
+  void _actionMailTo(String contents) {
+    final analyzed = analyzeMail(contents);
+    final String? email = analyzed['email'];
+    final String? subject = analyzed['subject'];
+    final String? message = analyzed['message'];
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {
+        'subject': subject,
+        'body': message,
+      },
+    );
+    if ((email ?? subject ?? message) != null) Utils.openUrlInBrowser(emailUri.toString());
+  }
 
+  void _actionOpenLocation(String contents) => Utils.openUrlInBrowser('geo:${contents.substring(4)}');
 
+  Future<void> _actionShareAgend(String contents) async { // TODO AGEND按鈕功能
 
+  }
 }

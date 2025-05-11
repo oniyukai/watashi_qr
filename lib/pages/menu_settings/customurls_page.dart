@@ -17,7 +17,7 @@ class CustomurlsPage extends StatefulWidget {
 
 class _CustomurlsPageState extends State<CustomurlsPage> {
   bool _isSelectionMode = false;
-  final List<String> _selectedTitles = <String>[];
+  final Set<String> _selectedTitles = <String>{};
 
   void _enterSelectionMode(String title) {
     if (_isSelectionMode == true) {
