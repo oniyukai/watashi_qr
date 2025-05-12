@@ -73,7 +73,7 @@ class _BarcodeFormState extends State<BarcodeForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(HistoryFormat.description(format, localeStr) ?? '',
+              Text(format.description(localeStr) ?? '',
                   softWrap: true,
                   style: theme.textTheme.bodyMedium
               ),

@@ -146,7 +146,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     itf: localeStr.barcodeItfLabel,
   }[values.asNameMap()[n]] ?? '"$n"';
 
-  static String composition(HistoryFormat? format, Language localeStr) => <HistoryFormat, String>{
+  String composition(Language localeStr) => <HistoryFormat, String>{
     qrCode: localeStr.barcodeTextCompositionLabel,
     dataMatrix: localeStr.barcodeTextNoSpecialCompositionLabel,
     aztec: localeStr.barcodeTextNoSpecialCompositionLabel,
@@ -160,9 +160,9 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39: localeStr.barcodeTextUpperNoSpecialCompositionLabel,
     codebar: localeStr.barcodeDigitsCompositionLabel,
     itf: localeStr.barcodeEvenDigitsCompositionLabel,
-  }[format] ?? localeStr.barcodeTextCompositionLabel;
+  }[this] ?? localeStr.barcodeTextCompositionLabel;
 
-  static String? description(HistoryFormat? format, Language localeStr) => <HistoryFormat, String>{
+  String? description(Language localeStr) => <HistoryFormat, String>{
     ean13: localeStr.barcodeEan13DescriptionLabel,
     ean8: localeStr.barcodeEan8DescriptionLabel,
     upcA: localeStr.barcodeUpcADescriptionLabel,
@@ -172,7 +172,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39: localeStr.barcodeCode39DescriptionLabel,
     codebar: localeStr.barcodeCodabarDescriptionLabel,
     itf: localeStr.barcodeItfDescriptionLabel,
-  }[format];
+  }[this];
 }
 
 
@@ -265,12 +265,7 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
   const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
 
-  static String? localeStrFromName(String n, Language localeStr) => <HistoryErrorLevel, String>{
-    L: localeStr.qrCodeErrorCorrectionLevelNameLow,
-    M: localeStr.qrCodeErrorCorrectionLevelNameMedium,
-    Q: localeStr.qrCodeErrorCorrectionLevelNameQuartile,
-    H: localeStr.qrCodeErrorCorrectionLevelNameHigh,
-  }[values.asNameMap()[n]];
+  static String? localeStrFromName(String n, Language localeStr) => optionMap(localeStr)[n];
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     L.name: localeStr.qrCodeErrorCorrectionLevelNameLow,

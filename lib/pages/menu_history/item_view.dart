@@ -249,41 +249,42 @@ class _ItemViewState extends State<ItemView> {
           setState(() {});
         },
       ),
-      // if (type == 'CONTACT' || type == 'MAIL' || type == 'PHONE' || type == 'SMS') {
-      //   'icon': Icons.contacts_outlined,
-      //   'description': localeStr.actionAddToContacts,
-      //   'onTap': () {}, // TODO CONTACT按鈕功能
-      // },
+      // if (const {HistoryType.contact, HistoryType.mail, HistoryType.phone, HistoryType.sms}
+      //     .contains(type)) PressButtonGrid(
+      //   icon: Icons.contacts_outlined,
+      //   description: localeStr.actionAddToContacts,
+      //   onTap: () => _actionAddToContacts(_historyItem.contents, type!), // TODO CONTACT按鈕功能
+      // ),
       if (type == HistoryType.contact) PressButtonGrid(
         icon: Icons.share,
         description: localeStr.actionShareVcfFile,
-        onTap: () => _actionShareContact(_historyItem.contents),
+        onTap: () => _actionShareVcfFile(_historyItem.contents),
       ),
       if (type == HistoryType.mail) PressButtonGrid(
         icon: Icons.mail_outline,
         description: localeStr.actionSendMailLabel,
-        onTap: () => _actionMailTo(_historyItem.contents),
+        onTap: () => _actionSendMail(_historyItem.contents),
       ),
-      // if (type == 'PHONE' || type == 'SMS') {
-      //   'icon': Icons.sms_outlined,
-      //   'description': localeStr.actionSendSmsLabel,
-      //   'onTap': () {}, // TODO SMS按鈕功能
-      // },
-      // if (type == 'PHONE' || type == 'SMS') {
-      //     'icon': Icons.call,
-      //     'description': localeStr.actionCallPhoneLabel,
-      //     'onTap': () {}, // TODO PHONE按鈕功能
-      //   },
+      if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
+        icon: Icons.sms_outlined,
+        description: localeStr.actionSendSmsLabel,
+        onTap: () => _actionSendSms(_historyItem.contents, type!),
+      ),
+      if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
+        icon: Icons.call,
+        description: localeStr.actionCallPhoneLabel,
+        onTap: () => _actionCallPhone(_historyItem.contents, type!),
+      ),
       if (type == HistoryType.location) PressButtonGrid(
         icon: Icons.location_on,
         description: localeStr.actionShowLocation,
-        onTap: () => _actionOpenLocation(_historyItem.contents),
+        onTap: () => _actionShowLocation(_historyItem.contents),
       ),
-      if (type == HistoryType.agend) PressButtonGrid(
-        icon: Icons.event,
-        description: localeStr.actionAddToCalendar,
-        onTap: () => _actionShareAgend(_historyItem.contents),
-      ),
+      // if (type == HistoryType.agend) PressButtonGrid(
+      //   icon: Icons.event,
+      //   description: localeStr.actionAddToCalendar,
+      //   onTap: () => _actionShareAgend(_historyItem.contents), // TODO AGEND按鈕功能
+      // ),
       // if (type == HistoryType.wifi) PressButtonGrid(
       //   icon: Icons.wifi,
       //   description: localeStr.qrCodeTypeNameWifi,
@@ -457,19 +458,19 @@ class _ItemViewState extends State<ItemView> {
     );
   }
 
-  Future<void> _actionShareContact(String contents) async {
+  Future<void> _actionShareVcfFile(String contents) async {
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/contact.vcf');
     await file.writeAsString(contents);
     await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
-  void _actionMailTo(String contents) {
+  void _actionSendMail(String contents) {
     final analyzed = analyzeMail(contents);
     final String? email = analyzed['email'];
     final String? subject = analyzed['subject'];
     final String? message = analyzed['message'];
-    final Uri emailUri = Uri(
+    final Uri uri = Uri(
       scheme: 'mailto',
       path: email,
       queryParameters: {
@@ -477,12 +478,40 @@ class _ItemViewState extends State<ItemView> {
         'body': message,
       },
     );
-    if ((email ?? subject ?? message) != null) Utils.openUrlInBrowser(emailUri.toString());
+    if ((email ?? subject ?? message) != null) Utils.openUrlInBrowser(uri.toString());
   }
 
-  void _actionOpenLocation(String contents) => Utils.openUrlInBrowser('geo:${contents.substring(4)}');
-
-  Future<void> _actionShareAgend(String contents) async { // TODO AGEND按鈕功能
-
+  void _actionSendSms(String contents, HistoryType type) {
+    String? phone;
+    String? message;
+    if (type == HistoryType.sms) {
+      final analyzed = analyzeSms(contents);
+      phone = analyzed['phone'];
+      message = analyzed['message'];
+    } else if (type == HistoryType.phone) {
+      phone = contents.substring(4);
+    }
+    if (phone == null) return;
+    final Uri uri = Uri(
+      scheme: 'smsto',
+      path: phone,
+      queryParameters: (message != null)
+          ? {'body': message}
+          : null,
+    );
+    Utils.openUrlInBrowser(uri.toString());
   }
+
+  void _actionCallPhone(String contents, HistoryType type) {
+    String? phone;
+    if (type == HistoryType.sms) {
+      final analyzed = analyzeSms(contents);
+      phone = analyzed['phone'];
+    } else if (type == HistoryType.phone) {
+      phone = contents.substring(4);
+    }
+    if (phone != null) Utils.openUrlInBrowser('tel:$phone');
+  }
+
+  void _actionShowLocation(String contents) => Utils.openUrlInBrowser('geo:${contents.substring(4)}');
 }

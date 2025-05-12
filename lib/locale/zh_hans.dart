@@ -198,7 +198,7 @@ class ZhHans extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: '你必须接受许可才能使用此功能。',
     K.snackBarMessageSaveBitmapOk: '图片已保存',
-    K.snackBarMessageSaveBitmapError: '图片未被保存…\n可能是存储空间不足？',
+    K.snackBarMessageSaveBitmapError: '图片未被保存…',
     K.snackBarMessageShareBitmapError: '分享配置时发生错误。',
     // Actions
     K.actionsLabel: '功能',

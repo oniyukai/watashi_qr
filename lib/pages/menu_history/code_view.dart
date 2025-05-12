@@ -34,7 +34,6 @@ class _CodeViewState extends State<CodeView> {
     final isPortrait = Utils.isPortrait(context);
     final validatorMsg = barcodeValidator(historyItem.contents, historyItem.getFormat, localeStr);
     final BarcodeQRCorrectionLevel? level = historyItem.getErrorLevel?.barcodeQRCorrectionLevel;
-    final itemDescription = HistoryFormat.description(historyItem.getFormat, localeStr);
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryFormat.localeStrFromName(historyItem.format, localeStr)),
@@ -106,7 +105,7 @@ class _CodeViewState extends State<CodeView> {
                           HistoryErrorLevel.localeStrFromName(historyItem.errorLevel, localeStr)
                               ?? HistoryErrorLevel.localeStrFromName(context.readSettings.selectedQRErrorLevel, localeStr)
                       }'),),
-                    if (itemDescription!=null) Text(itemDescription),
+                    Text(historyItem.getFormat?.description(localeStr) ?? ''),
                     const SizedBox(height: 16),
                   ],
                 )
@@ -155,7 +154,7 @@ class _CodeViewState extends State<CodeView> {
 
       Utils.showToast(localeStr.snackBarMessageSaveBitmapOk);
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageSaveBitmapError}\n$e', 8);
+      Utils.showToast('${localeStr.snackBarMessageSaveBitmapError}\n$e', true);
     }
   }
 

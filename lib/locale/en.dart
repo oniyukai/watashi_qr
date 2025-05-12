@@ -197,7 +197,7 @@ class En extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: 'You must accept permission to use this functionality.',
     K.snackBarMessageSaveBitmapOk: 'Image has been saved',
-    K.snackBarMessageSaveBitmapError: 'Image has not been saved…\nInsufficient memory?',
+    K.snackBarMessageSaveBitmapError: 'Image has not been saved…',
     K.snackBarMessageShareBitmapError: 'An error occurred during share configuration.',
     // Actions
     K.actionsLabel: 'Actions',

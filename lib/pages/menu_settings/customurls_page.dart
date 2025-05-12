@@ -6,6 +6,7 @@ import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:watashi_qr/common/router.dart';
+import 'package:watashi_qr/pages/widgets/selection_module.dart';
 import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
 
 class CustomurlsPage extends StatefulWidget {
@@ -15,41 +16,7 @@ class CustomurlsPage extends StatefulWidget {
   State<CustomurlsPage> createState() => _CustomurlsPageState();
 }
 
-class _CustomurlsPageState extends State<CustomurlsPage> {
-  bool _isSelectionMode = false;
-  final Set<String> _selectedTitles = <String>{};
-
-  void _enterSelectionMode(String title) {
-    if (_isSelectionMode == true) {
-      _toggleSelection(title);
-    } else {
-      setState(() {
-        _isSelectionMode = true;
-        _selectedTitles.add(title);
-      });
-    }
-  }
-
-  void _exitSelectionMode() {
-    setState(() {
-      _isSelectionMode = false;
-      _selectedTitles.clear();
-    });
-  }
-
-  void _toggleSelection(String title) {
-    setState(() {
-      if (_selectedTitles.contains(title)) {
-        _selectedTitles.remove(title);
-        if (_selectedTitles.isEmpty) {
-          _isSelectionMode = false;
-        }
-      } else {
-        _selectedTitles.add(title);
-      }
-    });
-  }
-
+class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<CustomurlsPage, String>  {
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
@@ -57,7 +24,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: _isSelectionMode
+        backgroundColor: isSelectionMode
           ? colorScheme.primary.withValues(alpha:0.25)
           : null,
         title: Text(localeStr.customSearchUrls),
@@ -75,7 +42,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                 context: context,
                 titleStr: localeStr.deleteLabel,
                 content: Text(
-                  _isSelectionMode
+                  isSelectionMode
                     ? localeStr.popupMessageConfirmationDeleteSelectedItemsHistory
                     : localeStr.popupMessageConfirmationDeleteHistory
                 ),
@@ -84,10 +51,10 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                     child: Text(localeStr.deleteLabel),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      if (_isSelectionMode) {
+                      if (isSelectionMode) {
                         final List<String> customSearchUrls = context.readSettings.customSearchUrls;
                         customSearchUrls.removeWhere((searchUrl) {
-                          for (final title in _selectedTitles) {
+                          for (final title in selectedObjects) {
                             if (searchUrl.startsWith('$title${Language.separationObject}')) {
                               return true;
                             }
@@ -95,7 +62,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                           return false;
                         });
                         context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
-                        _exitSelectionMode();
+                        exitSelectionMode();
                       } else {
                         context.readSettings.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
                       }
@@ -136,17 +103,17 @@ class _CustomurlsPageState extends State<CustomurlsPage> {
                     child: ListTileItem(
                       title: title,
                       description: url,
-                      selected: _selectedTitles.contains(title),
+                      selected: selectedObjects.contains(title),
                       onTap: () {
-                        if (_isSelectionMode) {
-                          _toggleSelection(title);
+                        if (isSelectionMode) {
+                          toggleSelection(title);
                         } else {
                           context.routeOf<CustomurlsForm>()
                               .arguments(searchUrl)
                               .to();
                         }
                       },
-                      onLongPress: () => _enterSelectionMode(title),
+                      onLongPress: () => enterSelectionMode(title),
                     ),
                   );
                 }

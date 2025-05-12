@@ -115,7 +115,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                   children: _historyFormats.map((format) => ListTileItem(
                     title: HistoryFormat.localeStrFromName(format.name, localeStr),
                     icon: format.iconData,
-                    description: HistoryFormat.composition(format, localeStr),
+                    description: format.composition(localeStr),
                     onTap: () => context.routeOf<BarcodeForm>()
                         .arguments(format)
                         .to(),

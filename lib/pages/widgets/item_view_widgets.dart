@@ -81,15 +81,9 @@ class AnalyzedContentItem extends StatelessWidget {
           localeStr.matrixBodyLabel: message,
         });
       case HistoryType.sms:
-        String? phone;
-        String? message;
-        for (final i in contents.substring(6).split(':')){
-          if (phone == null) {
-            phone = i;
-          } else {
-            message = i;
-          }
-        }
+        final analyzed = analyzeSms(contents);
+        final String? phone = analyzed['phone'];
+        final String? message = analyzed['message'];
         if ((phone ?? message) == null) break;
         return AnalyzedContentColumn(map: {
           localeStr.matrixPhoneTelNumberLabel: phone,
@@ -278,6 +272,26 @@ Map<String, String?> analyzeMail(String contents) {
   return {
     'email': email,
     'subject': subject,
+    'message': message,
+  };
+}
+
+Map<String, String?> analyzeSms(String contents) {
+  String? phone;
+  String? message;
+  final substring = contents.substring(6);
+  for (final i in substring.split(':')){
+    if (phone == null) {
+      phone = i;
+    } else {
+      message = i;
+    }
+  }
+  final Uri uri = Uri.parse('smsto:$substring');
+  phone = phone ?? uri.path;
+  message = message ?? uri.queryParameters['body'];
+  return {
+    'phone': phone,
     'message': message,
   };
 }

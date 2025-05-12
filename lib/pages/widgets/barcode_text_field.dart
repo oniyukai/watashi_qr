@@ -29,7 +29,7 @@ class BarcodeTextField extends StatelessWidget {
       initialValue: initialValue,
       decoration: InputDecoration(
         prefixIcon: Icon(isNumbers ? Icons.pin_outlined : Icons.format_size),
-        labelText: HistoryFormat.composition(format, localeStr),
+        labelText: format?.composition(localeStr) ?? localeStr.barcodeTextCompositionLabel,
         errorMaxLines: 8,
       ),
       keyboardType: isNumbers ? TextInputType.number : null,

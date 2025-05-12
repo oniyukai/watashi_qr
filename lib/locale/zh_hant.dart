@@ -198,7 +198,7 @@ class ZhHant extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: '你必須接受許可以使用此功能。',
     K.snackBarMessageSaveBitmapOk: '圖片已儲存',
-    K.snackBarMessageSaveBitmapError: '圖片未被儲存…\n可能是儲存空間不足？',
+    K.snackBarMessageSaveBitmapError: '圖片未被儲存…',
     K.snackBarMessageShareBitmapError: '分享組態時發生錯誤。',
     // Actions
     K.actionsLabel: '功能',

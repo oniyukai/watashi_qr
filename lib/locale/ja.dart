@@ -198,7 +198,7 @@ class Ja extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: 'この機能を使用するには、許可を受け入れる必要があります。',
     K.snackBarMessageSaveBitmapOk: '画像を保存しました',
-    K.snackBarMessageSaveBitmapError: '画像を保存できませんでした…\nメモリ不足ですか？',
+    K.snackBarMessageSaveBitmapError: '画像を保存できませんでした…',
     K.snackBarMessageShareBitmapError: '共有構成中にエラーが発生しました。',
     // Actions
     K.actionsLabel: 'アクション',

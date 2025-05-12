@@ -164,9 +164,9 @@ class HiveService {
       final String jsonString = jsonEncode(jsonList);
       final File file = File(filePath);
       await file.writeAsString(jsonString);
-      Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n$filePath', 8);
+      Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n$filePath', true);
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileExportError}\n$e', 8);
+      Utils.showToast('${localeStr.snackBarMessageFileExportError}\n$e', true);
     }
   }
 
@@ -205,10 +205,10 @@ class HiveService {
 
       String endTip = localeStr.snackBarMessageFileImportSuccess;
       endTip += '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
-      Utils.showToast(endTip, 8);
+      Utils.showToast(endTip, true);
       sortHistories();
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', 16);
+      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', true);
     }
   }
 }

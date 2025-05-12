@@ -109,7 +109,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
       final String vCardString = await file.readAsString();
       _sendForm(vCardString, HistoryType.contact);
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', 16);
+      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', true);
     }
   }
 

@@ -69,13 +69,11 @@ class Utils {
   }
 
   //  一個簡易的Toast訊息提示
-  static void showToast(String contentStr, [int? time]) {
+  static void showToast(String msg, [bool longTime = false]) {
     Fluttertoast.showToast(
-      msg: contentStr,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: time ?? 2,
-      fontSize: 16.0, // 文字大小
+      msg: msg,
+      toastLength: longTime ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT,
+      timeInSecForIosWeb: longTime ? 4 : 2,
     );
   }
 
