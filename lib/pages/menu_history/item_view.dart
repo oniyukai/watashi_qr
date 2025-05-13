@@ -253,7 +253,7 @@ class _ItemViewState extends State<ItemView> {
       //     .contains(type)) PressButtonGrid(
       //   icon: Icons.contacts_outlined,
       //   description: localeStr.actionAddToContacts,
-      //   onTap: () => _actionAddToContacts(_historyItem.contents, type!), // TODO CONTACT按鈕功能
+      //   onTap: () => _actionAddToContacts(_historyItem.contents, type!), // todo
       // ),
       if (type == HistoryType.contact) PressButtonGrid(
         icon: Icons.share,
@@ -283,7 +283,7 @@ class _ItemViewState extends State<ItemView> {
       // if (type == HistoryType.agend) PressButtonGrid(
       //   icon: Icons.event,
       //   description: localeStr.actionAddToCalendar,
-      //   onTap: () => _actionShareAgend(_historyItem.contents), // TODO AGEND按鈕功能
+      //   onTap: () => _actionShareAgend(_historyItem.contents), // todo
       // ),
       // if (type == HistoryType.wifi) PressButtonGrid(
       //   icon: Icons.wifi,

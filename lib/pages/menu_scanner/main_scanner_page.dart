@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/common/hive_service.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/pages/menu_navigation_bar.dart';
 import 'package:watashi_qr/pages/menu_scanner/scan_image_page.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 
@@ -22,7 +24,7 @@ class MainScannerPage extends StatefulWidget {
   State<MainScannerPage> createState() => _MainScannerPageState();
 }
 
-class _MainScannerPageState extends State<MainScannerPage> {
+class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingObserver {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final SharedPreferences _prefs = Utils.prefs;
   final _prefScanWindowWidthPortraitKey = PreferenceKey.scannerWindowWidthPortrait.name;
@@ -39,7 +41,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
   late double _scanWindowWidth;
   late double _scanWindowHeight;
   bool _isFlashOn = false;
-  bool _isOnDetecting = false;
+  bool _isDetectDisable = false;
   bool _isPageInitialized = false;
   late Offset _initialPosition;
   late double _initialWidth;
@@ -48,27 +50,59 @@ class _MainScannerPageState extends State<MainScannerPage> {
   @override
   void initState() {
     super.initState();
-    // todo debug: 當我離開App回來, 鏡頭倍率卻是0
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     super.didChangeDependencies();
     _minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.2;
     _maxScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.75;
     _defaultScanWindowSize = _maxScanWindowSize * 0.5;
     _loadPrefsValues();
-    if (!_isPageInitialized) {
+    if (context.watch<MenuNavBarProvider>().currentIndex == 0 && !_isDetectDisable) {
+      if (!_isPageInitialized) { // 關閉後開啟app偵測沒反應, 以下以修正該問題
+        await Utils.mobileScannerController.start();
+        await Utils.mobileScannerController.stop();
+      }
+      Utils.lockCurrentOrientation(context);
       Utils.mobileScannerControllerStart(context);
-      _isPageInitialized = true;
+    } else {
+      Utils.mobileScannerController.stop();
+      Utils.unlockCurrentOrientation();
+      _isFlashOn = false;
+      setState(() {});
     }
+    if (!_isPageInitialized) _isPageInitialized = true;
   }
 
   @override
   void dispose() {
     Utils.mobileScannerController.dispose();
     _audioPlayer.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        _isFlashOn = false;
+        setState((){});
+        break;
+      case AppLifecycleState.resumed:
+        if (context.read<MenuNavBarProvider>().currentIndex == 0
+            && !_isDetectDisable
+            && _isPageInitialized) {
+          Utils.mobileScannerController.setZoomScale(_zoomLevel);
+        }
+        break;
+      case AppLifecycleState.inactive:
+    }
   }
 
   Future<void> _loadPrefsValues() async {
@@ -129,8 +163,8 @@ class _MainScannerPageState extends State<MainScannerPage> {
   }
 
   Future<void> _mobileScannerOnDetect(BarcodeCapture capture) async {
-    if (_isOnDetecting) return;
-    _isOnDetecting = true;
+    if (_isDetectDisable) return;
+    _isDetectDisable = true;
     await Utils.mobileScannerController.stop();
     setState(() {
       _isFlashOn = false;
@@ -139,7 +173,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
     final String? contents = capture.barcodes.first.rawValue;
     if (contents==null || contents.isEmpty) {
       Utils.showToast(Language.of(context).scanErrorLabel);
-      _isOnDetecting = false;
+      _isDetectDisable = false;
       Utils.mobileScannerControllerStart(context);
       return;
     }
@@ -183,7 +217,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
       await context.routeOf<ItemView>().arguments(item).to();
       Utils.lockCurrentOrientation(context);
     }
-    _isOnDetecting = false;
+    _isDetectDisable = false;
     Utils.mobileScannerControllerStart(context);
   }
 
@@ -198,17 +232,16 @@ class _MainScannerPageState extends State<MainScannerPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off), // todo debug: 菜單到其他頁面沒有重製狀態
-            onPressed: () {
-              setState(() {
-                _isFlashOn = !_isFlashOn;
-                _toggleFlash();
-              });
-            },
+            icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+            onPressed: () => setState(() {
+              _isFlashOn = !_isFlashOn;
+              _toggleFlash();
+            }),
           ),
           IconButton(
             icon: const Icon(Icons.photo),
             onPressed: () async {
+              _isDetectDisable = true;
               await Utils.mobileScannerController.stop();
               Utils.unlockCurrentOrientation();
               await context.routeTo(ScanImagePage);
@@ -217,6 +250,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
               setState(() {
                 _isFlashOn = false;
               });
+              _isDetectDisable = false;
             },
           ),
         ],
@@ -256,7 +290,7 @@ class _MainScannerPageState extends State<MainScannerPage> {
               return Center(
                 child: RotatedBox(
                   quarterTurns: rotationAngle ~/ 90,
-                  child: MobileScanner(
+                  child: MobileScanner(  // todo: updata mobile_scanner to v7.x.x with breaking changes
                     controller: Utils.mobileScannerController,
                     scanWindow: scanWindow,
                     errorBuilder: (context, error, child) => ScannerError(error: error),

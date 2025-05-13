@@ -94,7 +94,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
     );
   }
 
-  Future<void> importContactFromVcard(Language localeStr) async {
+  Future<void> _importContactFromVcard(Language localeStr) async {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
@@ -263,14 +263,13 @@ class _QrcodeFormState extends State<QrcodeForm> {
             final menuFieldWidth = constraints.maxWidth * 0.35 - 6;
             return Column(
               children: [
-                // // todo: 從手機選擇聯絡人功能
                 // ElevatedButton(
                 //   child: Text(localeStr.qrCodeTypeNameGenerateFromContact),
-                //   onPressed: ()=>(),
+                //   onPressed: () => _importContactFromContact(localeStr), // todo
                 // ),
                 ElevatedButton(
-                  onPressed: () => importContactFromVcard(localeStr),
                   child: Text(localeStr.qrCodeImportContactFromVcard),
+                  onPressed: () => _importContactFromVcard(localeStr),
                 ),
                 const SizedBox(height: 16),
                 FormBuilderTextField(

@@ -21,7 +21,6 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
@@ -80,12 +79,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
           child: Consumer<SettingsProvider>(
             builder:(context, settings, child) {
               if (settings.customSearchUrls.isEmpty) {
-                return Center(
-                  child: Text(
-                    localeStr.customSearchUrlsListIsEmptyMessage,
-                    style: theme.textTheme.titleMedium,
-                  )
-                );
+                return Center(child: Text(localeStr.customSearchUrlsListIsEmptyMessage));
               }
               return ListView.builder(
                 addAutomaticKeepAlives: false,

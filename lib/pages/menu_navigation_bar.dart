@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:watashi_qr/pages/menu_creator/main_creator_page.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_page.dart';
 import 'package:watashi_qr/pages/menu_scanner/main_scanner_page.dart';
@@ -13,6 +14,16 @@ class MenuNavigationBar extends StatefulWidget {
   State<MenuNavigationBar> createState() => _MenuNavigationBarState();
 }
 
+class MenuNavBarProvider extends ChangeNotifier {
+  int _currentIndex = 0;
+  int get currentIndex => _currentIndex;
+
+  void updateIndex(int index) {
+    _currentIndex = index;
+    notifyListeners();
+  }
+}
+
 class _MenuNavigationBarState extends State<MenuNavigationBar> {
 
   final List<Widget> _pages = const <Widget>[
@@ -22,48 +33,27 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
     MainSettingsPage(),
   ];
 
-  int _currentIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-      if (_currentIndex == 0) {
-        Utils.mobileScannerControllerStart(context);
-        Utils.lockCurrentOrientation(context);
-      } else {
-        Utils.mobileScannerController.stop();
-        Utils.unlockCurrentOrientation();
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (_currentIndex == 0) Utils.lockCurrentOrientation(context);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool isPortrait = Utils.isPortrait(context);
-    return Scaffold(
-      bottomNavigationBar: (isPortrait) ? buildBottomNavigationBar() : null,
-      body: Row(
-        children: [
-          (!isPortrait) ? buildSideNavigationBar() : const SizedBox.shrink(),
-          Expanded(child: IndexedStack(index: _currentIndex, children: _pages)),
-        ],
-      ),
+    return Consumer<MenuNavBarProvider>(
+      builder: (context, state, _) => Scaffold(
+        bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
+        body: Row(
+          children: [
+            if (!isPortrait) _buildSideNavigationBar(state),
+            Expanded(child: IndexedStack(index: state.currentIndex, children: _pages)),
+          ],
+        ),
+      )
     );
   }
 
-  Widget buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(MenuNavBarProvider state) {
     final localeStr = Language.of(context);
     return NavigationBar(
-      selectedIndex: _currentIndex,
-      onDestinationSelected: (int index) => _onItemTapped(index),
+      selectedIndex: state.currentIndex,
+      onDestinationSelected: (int index) => state.updateIndex(index),
       destinations: <NavigationDestination>[
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
@@ -85,11 +75,11 @@ class _MenuNavigationBarState extends State<MenuNavigationBar> {
     );
   }
 
-  Widget buildSideNavigationBar() {
+  Widget _buildSideNavigationBar(MenuNavBarProvider state) {
     final localeStr = Language.of(context);
     return NavigationRail(
-      selectedIndex: _currentIndex,
-      onDestinationSelected: (index) => _onItemTapped(index),
+      selectedIndex: state.currentIndex,
+      onDestinationSelected: (index) => state.updateIndex(index),
       labelType: NavigationRailLabelType.all,
       groupAlignment: 1.0,
       destinations: <NavigationRailDestination>[

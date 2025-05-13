@@ -280,18 +280,20 @@ Map<String, String?> analyzeSms(String contents) {
   String? phone;
   String? message;
   final substring = contents.substring(6);
-  for (final i in substring.split(':')){
-    if (phone == null) {
-      phone = i;
-    } else {
-      message = i;
+  final Uri uri = Uri.parse('smsto:$substring');
+  final uriPhone = uri.path;
+  final uriMessage = uri.queryParameters['body'];
+  if (uriMessage == null) {
+    for (final i in substring.split(':')){
+      if (phone == null) {
+        phone = i;
+      } else {
+        message = i;
+      }
     }
   }
-  final Uri uri = Uri.parse('smsto:$substring');
-  phone = phone ?? uri.path;
-  message = message ?? uri.queryParameters['body'];
   return {
-    'phone': phone,
-    'message': message,
+    'phone': phone ?? uriPhone,
+    'message': uriMessage ?? message,
   };
 }

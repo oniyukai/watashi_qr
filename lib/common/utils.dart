@@ -37,7 +37,7 @@ class Utils {
     await mobileScannerController.start(
       cameraDirection: context.readSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back
     );
-    mobileScannerController.setZoomScale(
+    await mobileScannerController.setZoomScale(
       prefs.getDouble(PreferenceKey.scannerZoomLevel.name) ?? 0.0
     );
   }
