@@ -184,7 +184,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   sms(Icons.sms_outlined),
   phone(Icons.call),
   location(Icons.location_on),
-  agend(Icons.event),
+  event(Icons.event),
   wifi(Icons.wifi),
   product(MaterialCommunityIcons.barcode),
   industrial(MaterialCommunityIcons.barcode);
@@ -199,8 +199,8 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
     mail: localeStr.qrCodeTypeNameMail,
     sms: localeStr.qrCodeTypeNameSms,
     phone: localeStr.qrCodeTypeNamePhone,
-    location: localeStr.qrCodeTypeNameGeographicCoordinates,
-    agend: localeStr.qrCodeTypeNameAgenda,
+    location: localeStr.qrCodeTypeNameLocation,
+    event: localeStr.qrCodeTypeNameEvent,
     wifi: localeStr.qrCodeTypeNameWifi,
     product: localeStr.barCodeTypeProduct,
     industrial: localeStr.barCodeTypeIndustrial,
@@ -224,7 +224,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
         } else if (upperContents.startsWith('GEO:')) {
           return location;
         } else if (upperContents.startsWith('BEGIN:VEVENT\n')) {
-          return agend;
+          return event;
         } else if (upperContents.startsWith('WIFI:')) {
           return wifi;
         } else if (isURL(contents, {

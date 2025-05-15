@@ -62,8 +62,8 @@ class ZhHans extends Language {
     K.qrCodeTypeNameMail: '邮件',
     K.qrCodeTypeNameSms: '短信',
     K.qrCodeTypeNamePhone: '电话号码',
-    K.qrCodeTypeNameGeographicCoordinates: '地理坐标',
-    K.qrCodeTypeNameAgenda: '日程',
+    K.qrCodeTypeNameLocation: '地理坐标',
+    K.qrCodeTypeNameEvent: '日程',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: '应用程序',
     // Product Type

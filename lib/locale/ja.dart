@@ -62,8 +62,8 @@ class Ja extends Language {
     K.qrCodeTypeNameMail: 'メール',
     K.qrCodeTypeNameSms: 'SMS',
     K.qrCodeTypeNamePhone: '電話番号',
-    K.qrCodeTypeNameGeographicCoordinates: '地理座標',
-    K.qrCodeTypeNameAgenda: '予定',
+    K.qrCodeTypeNameLocation: '地理座標',
+    K.qrCodeTypeNameEvent: '予定',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: 'アプリ',
     // Product Type

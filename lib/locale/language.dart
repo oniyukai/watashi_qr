@@ -70,8 +70,8 @@ abstract class Language {
   String get qrCodeTypeNameMail => _translate(K.qrCodeTypeNameMail);
   String get qrCodeTypeNameSms => _translate(K.qrCodeTypeNameSms);
   String get qrCodeTypeNamePhone => _translate(K.qrCodeTypeNamePhone);
-  String get qrCodeTypeNameGeographicCoordinates => _translate(K.qrCodeTypeNameGeographicCoordinates);
-  String get qrCodeTypeNameAgenda => _translate(K.qrCodeTypeNameAgenda);
+  String get qrCodeTypeNameLocation => _translate(K.qrCodeTypeNameLocation);
+  String get qrCodeTypeNameEvent => _translate(K.qrCodeTypeNameEvent);
   String get qrCodeTypeNameWifi => _translate(K.qrCodeTypeNameWifi);
   String get qrCodeTypeNameApps => _translate(K.qrCodeTypeNameApps);
   // Product Type
@@ -409,8 +409,8 @@ abstract class Language {
   // No translatable    Don't translate!
   static const String
       appName = 'Watashi QR',
-      appVersion = '1.1.1',
-      appVersionTag = 'v1.0_25.05.05',
+      appVersion = '1.1.2',
+      appVersionTag = 'v1.0_25.05.16',
       pngLabel = 'PNG',
       jpgLabel = 'JPG',
       svgLabel = 'SVG',

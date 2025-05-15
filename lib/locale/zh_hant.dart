@@ -62,8 +62,8 @@ class ZhHant extends Language {
     K.qrCodeTypeNameMail: '郵件',
     K.qrCodeTypeNameSms: '簡訊',
     K.qrCodeTypeNamePhone: '電話號碼',
-    K.qrCodeTypeNameGeographicCoordinates: '地理座標',
-    K.qrCodeTypeNameAgenda: '日程',
+    K.qrCodeTypeNameLocation: '地理座標',
+    K.qrCodeTypeNameEvent: '日程',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: '應用程式',
     // Product Type

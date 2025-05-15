@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -118,55 +117,46 @@ class HiveService {
   }
 
   static Future<void> shareHistoriesToJson(Language localeStr) async {
-    try {
-      final List<HistoryItem> historiesList = getReversedList();
-      if (historiesList.isEmpty) {
-        Utils.showToast(localeStr.labelHistoryEmpty);
-        return;
-      }
-      final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
-      final String jsonString = jsonEncode(jsonList);
-      final Directory tempDir = await getTemporaryDirectory();
-      final DateTime now = DateTime.now();
-      final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
-      final String filePath = '${tempDir.path}/qr_$formattedDateTime.json';
-      final File file = File(filePath);
-      await file.writeAsString(jsonString);
-      await Utils.share(ShareParams(files: [XFile(filePath)]));
-    } catch (e) {
-      Utils.showToast(e.toString());
+    if (_histories.values.isEmpty) {
+      return Utils.showToast(localeStr.labelHistoryEmpty);
     }
+    final Directory tempDir = await getTemporaryDirectory();
+    final File? file = await _getHistoriesJsonFile(tempDir.path);
+    if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
   static Future<void> exportHistoriesToJson(Language localeStr) async {
+    if (_histories.values.isEmpty) {
+      return Utils.showToast(localeStr.labelHistoryEmpty);
+    }
+    final Directory? directory = await getDownloadsDirectory();
+    final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
+    if (directoryPath == null) {
+      return Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
+    }
+    final File? file = await _getHistoriesJsonFile(directoryPath);
+    if (file != null) {
+      Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n${file.path}');
+    } else {
+      Utils.showToast(localeStr.snackBarMessageFileExportError);
+    }
+  }
+
+  static Future<File?> _getHistoriesJsonFile(String directory) async {
     try {
       final List<HistoryItem> historiesList = getReversedList();
-      if (historiesList.isEmpty) {
-        Utils.showToast(localeStr.labelHistoryEmpty);
-        return;
-      }
-      final DateTime now = DateTime.now();
-      final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-      final Directory? directory = await getExternalStorageDirectory();
-      late String initialDirectory;
-      if (directory != null) initialDirectory = directory.path;
-      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDirectory);
-      if (directoryPath == null) {
-        Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
-        return;
-      }
-      final String filePath = '$directoryPath/qr_$formattedDateTime.json';
+      if (historiesList.isEmpty) return null;
       final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
       final String jsonString = jsonEncode(jsonList);
+      final DateTime now = DateTime.now();
+      final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
+      final String filePath = '$directory/qr_$formattedDateTime.json';
       final File file = File(filePath);
       await file.writeAsString(jsonString);
-      Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n$filePath', true);
+      return file;
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileExportError}\n$e', true);
+      Utils.showToast(e.toString(), true);
+      return null;
     }
   }
 

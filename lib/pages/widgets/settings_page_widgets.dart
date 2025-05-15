@@ -97,7 +97,7 @@ class ListTilePicker extends StatelessWidget {
       leading: SizedBox(width: 48, child: Icon(icon)),
       title: Text(str),
       subtitle: Text(optionMap[selectedOption] ?? selectedOption),
-      onTap: () => genericAlertDialog(
+      onTap: () => genericDialog(
         context: context,
         titleStr: dialogTitleStr ?? str,
         content: Scrollbar(
@@ -127,7 +127,7 @@ class ListTilePicker extends StatelessWidget {
 }
 
 
-void genericAlertDialog({
+void genericDialog({
   required BuildContext context,
   required String titleStr,
   required Widget content,
@@ -149,6 +149,51 @@ void genericAlertDialog({
           ),
           if (actions != null) ...actions,
         ],
+      );
+    },
+  );
+}
+
+
+void genericBottomSheet({
+  required BuildContext context,
+  Widget? title,
+  Widget? content,
+  bool noCancelButton = false,
+  List<Widget>? actions,
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (BuildContext context) {
+      return SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            children: [
+              if (title != null) title,
+              if (title != null) const SizedBox(height: 16),
+              if (content != null) content,
+              if (content != null) const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  if (!noCancelButton) ElevatedButton(
+                    child: Text(Language.of(context).cancelLabel),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  if (actions != null) ...actions,
+                ],
+              ),
+              if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),
+            ],
+          ),
+        ),
       );
     },
   );

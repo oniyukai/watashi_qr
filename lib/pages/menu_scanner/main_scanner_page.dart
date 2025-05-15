@@ -225,36 +225,6 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
   Widget build(BuildContext context) {
     final isPortrait = Utils.isPortrait(context);
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(MaterialCommunityIcons.arrow_expand),
-          onPressed: _resetScanWindow,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
-            onPressed: () => setState(() {
-              _isFlashOn = !_isFlashOn;
-              _toggleFlash();
-            }),
-          ),
-          IconButton(
-            icon: const Icon(Icons.photo),
-            onPressed: () async {
-              _isDetectDisable = true;
-              await Utils.mobileScannerController.stop();
-              Utils.unlockCurrentOrientation();
-              await context.routeTo(ScanImagePage);
-              Utils.lockCurrentOrientation(context);
-              Utils.mobileScannerControllerStart(context);
-              setState(() {
-                _isFlashOn = false;
-              });
-              _isDetectDisable = false;
-            },
-          ),
-        ],
-      ),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -293,7 +263,7 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
                   child: MobileScanner(  // todo: updata mobile_scanner to v7.x.x with breaking changes
                     controller: Utils.mobileScannerController,
                     scanWindow: scanWindow,
-                    errorBuilder: (context, error, child) => ScannerError(error: error),
+                    errorBuilder: (context, error, child) => _ScannerError(error: error),
                     onDetect: (capture) => _mobileScannerOnDetect(capture),
                   ),
                 ),
@@ -301,6 +271,51 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
             },
           ),
           _buildScannerOverlay(),
+          SafeArea(
+            child: Align(
+              alignment: isPortrait ? Alignment.topCenter : Alignment.centerRight,
+              child: Card(
+                margin: const EdgeInsets.all(16.0),
+                child: Flex(
+                  direction: isPortrait ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(MaterialCommunityIcons.arrow_expand),
+                      onPressed: _resetScanWindow,
+                    ),
+                    Flex(
+                      direction: isPortrait ? Axis.horizontal : Axis.vertical,
+                      children: [
+                        IconButton(
+                          icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+                          onPressed: () => setState(() {
+                            _isFlashOn = !_isFlashOn;
+                            _toggleFlash();
+                          }),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.photo),
+                          onPressed: () async {
+                            _isDetectDisable = true;
+                            await Utils.mobileScannerController.stop();
+                            Utils.unlockCurrentOrientation();
+                            await context.routeTo(ScanImagePage);
+                            Utils.lockCurrentOrientation(context);
+                            Utils.mobileScannerControllerStart(context);
+                            setState(() {
+                              _isFlashOn = false;
+                            });
+                            _isDetectDisable = false;
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )
+            ),
+          ),
           Align(
             alignment: isPortrait ? Alignment.bottomCenter : Alignment.centerLeft,
             child: Padding(
@@ -469,8 +484,8 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
                   _initialPosition = details.globalPosition;
                 },
                 onPanUpdate: (details) {
-                  double widthDelta = (details.globalPosition.dx - _initialPosition.dx) * 2;
-                  double heightDelta = (details.globalPosition.dy - _initialPosition.dy) * 2;
+                  final double widthDelta = (details.globalPosition.dx - _initialPosition.dx) * 2;
+                  final double heightDelta = (details.globalPosition.dy - _initialPosition.dy) * 2;
 
                   setState(() {
                     _scanWindowWidth = (_initialWidth + widthDelta).clamp(_minScanWindowSize, _maxScanWindowSize);
@@ -498,8 +513,8 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
   }
 }
 
-class ScannerError extends StatelessWidget {
-  const ScannerError({super.key, required this.error});
+class _ScannerError extends StatelessWidget {
+  const _ScannerError({required this.error});
   final MobileScannerException error;
 
   @override

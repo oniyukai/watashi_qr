@@ -49,11 +49,11 @@ class _ItemViewState extends State<ItemView> {
 
   @override
   void dispose() {
-    updateHistoryItem();
+    _updateHistoryItem();
     super.dispose();
   }
 
-  void updateHistoryItem() {
+  void _updateHistoryItem() {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
@@ -93,7 +93,6 @@ class _ItemViewState extends State<ItemView> {
               ),
               const SizedBox(height: 8),
               Card(
-                clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
                     ListTile(
@@ -146,7 +145,6 @@ class _ItemViewState extends State<ItemView> {
               ),
               const SizedBox(height: 8),
               Card(
-                clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   leading: isFormatSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
@@ -189,28 +187,21 @@ class _ItemViewState extends State<ItemView> {
               const SizedBox(height: 8),
               Text('  ${localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 4),
-              Builder(builder: (_) {
+              Builder(builder: (BuildContext context) {
                 final List<Widget> rows = [];
-                final actionCards = _getActionGridList(localeStr);
-                for (var i = 0; i < actionCards.length; i += 3) {
-                  final end = i + 3 > actionCards.length ? actionCards.length : i + 3;
+                final actionGrids = _getActionGridList(localeStr);
+                for (int i = 0; i < actionGrids.length; i += 3) {
+                  final end = (i + 3 > actionGrids.length) ? actionGrids.length : i + 3;
                   final List<Widget> rowChildren = [];
-                  for (int j = 0; j < end - i; j++) {
-                    rowChildren.add(Expanded(child: actionCards.sublist(i, end)[j]));
-                    if (j < end - i - 1) {
-                      rowChildren.add(const SizedBox(width: 8.0));
-                    }
-                  }
-                  while (rowChildren.length < 5) {
-                    rowChildren.add(const Expanded(child:SizedBox.shrink()));
-                    if (rowChildren.length < 5) {
-                      rowChildren.add(const SizedBox(width: 8.0));
-                    }
+                  while (rowChildren.length < 3) {
+                    rowChildren.add( (rowChildren.length < end - i)
+                        ? Expanded(child: actionGrids[i + rowChildren.length])
+                        : const Expanded(child:SizedBox.shrink())
+                    );
                   }
                   rows.add(IntrinsicHeight(
                     child: Row(children: rowChildren),
                   ));
-                  rows.add(const SizedBox(height: 8));
                 }
                 return Column(children: rows);
               }),
@@ -307,67 +298,38 @@ class _ItemViewState extends State<ItemView> {
     ];
   }
 
-  void _showModifyContentsSheet(Language localeStr){
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(localeStr.actionModifyBarcode),
-                    Text(HistoryFormat.localeStrFromName(_historyItem.format, localeStr)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: BarcodeTextField(
-                    format: _historyItem.getFormat,
-                    name: 'modifyContents',
-                    formKey: _formKey,
-                    initialValue: _historyItem.contents,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      child: Text(localeStr.cancelLabel),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    ElevatedButton(
-                      child: Text(localeStr.actionModifyBarcode),
-                      onPressed: () {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          final value = _formKey.currentState?.value['modifyContents'];
-                          _historyItem.contents = value;
-                          _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, value).name;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  void _showModifyContentsSheet(Language localeStr) => genericBottomSheet(
+    context: context,
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(localeStr.actionModifyBarcode),
+        Text(HistoryFormat.localeStrFromName(_historyItem.format, localeStr)),
+      ],
+    ),
+    content: FormBuilder(
+      key:_formKey,
+      child: BarcodeTextField(
+        format: _historyItem.getFormat,
+        name: 'modifyContents',
+        formKey: _formKey,
+        initialValue: _historyItem.contents,
+      ),
+    ),
+    actions: [
+      ElevatedButton(
+        child: Text(localeStr.actionModifyBarcode),
+        onPressed: () {
+          if (_formKey.currentState?.saveAndValidate() ?? false) {
+            final value = _formKey.currentState?.value['modifyContents'];
+            _historyItem.contents = value;
+            _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, value).name;
+            Navigator.pop(context);
+          }
+        },
+      ),
+    ]
+  );
 
   void _actionWebSearch(){
     final String selectedSearchEngine = context.readSettings.selectedSearchEngine;
@@ -375,88 +337,56 @@ class _ItemViewState extends State<ItemView> {
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
-  void _actionCustomSearch(Language localeStr) {
-    final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-    genericAlertDialog(
-      context: context,
-      titleStr: localeStr.customSearchUrls,
-      noCancelButton: true,
-      content: Scrollbar(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: customSearchUrls.map((searchUrl) => ListTileItem(
-              title: searchUrl.split(Language.separationObject)[0],
-              description: searchUrl.split(Language.separationObject)[1],
-              onTap: () {
-                Utils.searchInBrowser(searchUrl.split(Language.separationObject)[1], _historyItem.contents);
-                Navigator.pop(context);
-              }
-            )).toList(),
-          ),
+  void _actionCustomSearch(Language localeStr) => genericDialog(
+    context: context,
+    titleStr: localeStr.customSearchUrls,
+    noCancelButton: true,
+    content: Scrollbar(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: context.readSettings.customSearchUrls.map((searchUrl) => ListTileItem(
+            title: searchUrl.split(Language.separationObject)[0],
+            description: searchUrl.split(Language.separationObject)[1],
+            onTap: () {
+              Utils.searchInBrowser(searchUrl.split(Language.separationObject)[1], _historyItem.contents);
+              Navigator.pop(context);
+            }
+          )).toList(),
         ),
       ),
-    );
-  }
+    ),
+  );
 
-  void _actionModifyNotes(Language localeStr) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Column(
-              children: [
-                Text(localeStr.actionModifyNotes),
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: FormBuilderTextField(
-                    name: 'modifyNotes',
-                    initialValue: _historyItem.notes,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.format_size),
-                      labelText: localeStr.barcodeTextCompositionLabel,
-                    ),
-                    keyboardType: TextInputType.text,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      child: Text(localeStr.cancelLabel),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    ElevatedButton(
-                      child: Text(localeStr.actionModifyNotes),
-                      onPressed: () {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          final String value = _formKey.currentState?.value['modifyNotes'];
-                          _historyItem.notes = value;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  void _actionModifyNotes(Language localeStr) => genericBottomSheet(
+    context: context,
+    title: Text(localeStr.actionModifyNotes),
+    content: FormBuilder(
+      key: _formKey,
+      child: FormBuilderTextField(
+        name: 'modifyNotes',
+        initialValue: _historyItem.notes,
+        maxLines: null,
+        decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.format_size),
+          labelText: localeStr.barcodeTextCompositionLabel,
+        ),
+        keyboardType: TextInputType.text,
+      ),
+    ),
+    actions: [
+      ElevatedButton(
+        child: Text(localeStr.actionModifyNotes),
+        onPressed: () {
+          if (_formKey.currentState?.saveAndValidate() ?? false) {
+            final String value = _formKey.currentState?.value['modifyNotes'];
+            _historyItem.notes = value;
+            Navigator.pop(context);
+          }
+        },
+      ),
+    ]
+  );
 
   Future<void> _actionShareVcfFile(String contents) async {
     final directory = await getTemporaryDirectory();

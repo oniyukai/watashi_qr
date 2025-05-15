@@ -61,8 +61,8 @@ class En extends Language {
     K.qrCodeTypeNameMail: 'Mail',
     K.qrCodeTypeNameSms: 'SMS',
     K.qrCodeTypeNamePhone: 'Phone number',
-    K.qrCodeTypeNameGeographicCoordinates: 'Location',
-    K.qrCodeTypeNameAgenda: 'Agenda',
+    K.qrCodeTypeNameLocation: 'Location',
+    K.qrCodeTypeNameEvent: 'Event',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: 'Application',
     // Product Type

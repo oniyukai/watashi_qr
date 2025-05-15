@@ -98,11 +98,9 @@ class _QrcodeFormState extends State<QrcodeForm> {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
-        Utils.showToast(localeStr.cancelLabel);
-        return;
+        return Utils.showToast(localeStr.cancelLabel);
       } else if (!result.files.single.path!.endsWith('.vcf')) {
-        Utils.showToast('Error: Not .vcf file');
-        return;
+        return Utils.showToast('Error: Not .vcf file');
       }
 
       final File file = File(result.files.single.path!);
@@ -174,7 +172,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
         height = height.isNotEmpty ? ',$height' : '';
         request = request.isNotEmpty ? '?q=$request' : '';
         return 'geo:${valueMap['latitude']},${valueMap['longitude']}$height$request';
-      case HistoryType.agend:
+      case HistoryType.event:
         final String summary = valueMap['summary'] ?? '';
         String location = valueMap['location'] ?? '';
         String description = valueMap['description'] ?? '';
@@ -627,7 +625,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             ),
           ],
         );
-      case HistoryType.agend:
+      case HistoryType.event:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

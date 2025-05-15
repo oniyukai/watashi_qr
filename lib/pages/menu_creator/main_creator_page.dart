@@ -30,7 +30,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
     HistoryType.sms,
     HistoryType.phone,
     HistoryType.location,
-    HistoryType.agend,
+    HistoryType.event,
     HistoryType.wifi,
   };
 

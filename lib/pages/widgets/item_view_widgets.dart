@@ -20,7 +20,6 @@ class AnalyzedContentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
-
     switch (type) {
       case HistoryType.contact:
         String name = '';
@@ -59,7 +58,7 @@ class AnalyzedContentItem extends StatelessWidget {
             notes += i.substring(5);
           }
         }
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixContactNameLabel: name,
           localeStr.matrixContactOrganisationLabel: organisation,
           localeStr.matrixContactJobTitleLabel: jobTitle,
@@ -75,7 +74,7 @@ class AnalyzedContentItem extends StatelessWidget {
         final String? subject = analyzed['subject'];
         final String? message = analyzed['message'];
         if ((email ?? subject ?? message) == null) break;
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixEmailRecipientLabel: email,
           localeStr.matrixSubjectLabel: subject,
           localeStr.matrixBodyLabel: message,
@@ -85,12 +84,12 @@ class AnalyzedContentItem extends StatelessWidget {
         final String? phone = analyzed['phone'];
         final String? message = analyzed['message'];
         if ((phone ?? message) == null) break;
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixPhoneTelNumberLabel: phone,
           localeStr.matrixBodyLabel: message,
         });
       case HistoryType.phone:
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixPhoneTelNumberLabel: contents.substring(4),
         });
       case HistoryType.location:
@@ -111,13 +110,13 @@ class AnalyzedContentItem extends StatelessWidget {
         }
         if (temp.length >= 2) request = temp.last.substring(2);
         if ((latitude ?? longitude ?? height ?? request) == null) break;
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixLocalisationLatitudeLabel: latitude,
           localeStr.matrixLocalisationLongitudeLabel: longitude,
           localeStr.matrixLocalisationAltitudeLabel: height,
           localeStr.matrixLocalisationQueryLabel: request,
         });
-      case HistoryType.agend:
+      case HistoryType.event:
         String? summary;
         String? startDate;
         String? endDate;
@@ -141,7 +140,7 @@ class AnalyzedContentItem extends StatelessWidget {
             description = i.substring(12);
           }
         }
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixAgendaNameEventLabel: summary,
           localeStr.matrixAgendaStartDateEventLabel: startDate,
           localeStr.matrixAgendaEndDateEventLabel: endDate,
@@ -167,7 +166,7 @@ class AnalyzedContentItem extends StatelessWidget {
           }
         }
         if ((ssid ?? password ?? security ?? hide) == null) break;
-        return AnalyzedContentColumn(map: {
+        return _AnalyzedContentColumn(map: {
           localeStr.matrixWifiSsidLabel: ssid,
           localeStr.matrixWifiPasswordLabel: password,
           localeStr.matrixWifiEncryptionLabel: security,
@@ -184,9 +183,9 @@ class AnalyzedContentItem extends StatelessWidget {
 }
 
 
-class AnalyzedContentColumn extends StatelessWidget {
+class _AnalyzedContentColumn extends StatelessWidget {
   final Map<String, String?> map;
-  const AnalyzedContentColumn({super.key, required this.map});
+  const _AnalyzedContentColumn({required this.map});
 
   @override
   Widget build(BuildContext context) {
@@ -227,8 +226,6 @@ class PressButtonGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.all(0),
-      clipBehavior: Clip.antiAlias,
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         onTap: onTap,

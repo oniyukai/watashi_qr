@@ -68,18 +68,13 @@ ThemeData appTheme (
       thumbColor: WidgetStateProperty.all(colorScheme.primary.withValues(alpha:0.5)),
       radius: Radius.circular(10.0),
     ),
-    navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: colorScheme.surfaceContainerHighest,
-      indicatorColor: colorScheme.primary.withValues(alpha:0.25),
-    ),
-    navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: colorScheme.surfaceContainerHighest,
-      indicatorColor: colorScheme.primary.withValues(alpha:0.25),
-    ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
+    ),
+    cardTheme: const CardThemeData(
+      clipBehavior: Clip.antiAlias,
     ),
   );
 }

@@ -59,23 +59,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic){
         return Consumer<SettingsProvider>(
-            builder: (context, settings, child) {
-              return MaterialApp(
+          builder: (context, settings, child) {
+            return MaterialApp(
 
-                title: Language.appName,
-                theme: appTheme(context, settings.selectedTheme, settings.selectedColor, lightDynamic, darkDynamic),
-                debugShowCheckedModeBanner: false,
+              title: Language.appName,
+              theme: appTheme(context, settings.selectedTheme, settings.selectedColor, lightDynamic, darkDynamic),
+              debugShowCheckedModeBanner: false,
 
-                locale: LocaleOption.localeFromName(settings.selectedLanguage),
-                localizationsDelegates: LocaleOption.localizationsDelegates,
-                supportedLocales: LocaleOption.supportedLocales,
+              locale: LocaleOption.localeFromName(settings.selectedLanguage),
+              localizationsDelegates: LocaleOption.localizationsDelegates,
+              supportedLocales: LocaleOption.supportedLocales,
 
-                routes: MyRouter.ROUTES,
-                navigatorKey: MyRouter.navigatorKey,
-                onGenerateRoute: MyRouter.onGenerateRoute,
+              routes: MyRouter.ROUTES,
+              navigatorKey: MyRouter.navigatorKey,
+              onGenerateRoute: MyRouter.onGenerateRoute,
 
-              );
-            }
+            );
+          }
         );
       },
     );

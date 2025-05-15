@@ -65,8 +65,7 @@ class _ScanImagePageState extends State<ScanImagePage> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? file =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file != null) {
       setState(() {
         _imageFile = file;
@@ -143,30 +142,16 @@ class _ScanImagePageState extends State<ScanImagePage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return (_imageFile != null && _imageBytes != null)
-                      ? Crop(
-                    controller: _cropController,
-                    image: _imageBytes!,
-                    initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
-                    onCropped: (image) => _analyzeCroppedImage(image),
-                    onHistoryChanged: (_) => _cropController.crop(),
-                    baseColor: Colors.transparent,
-                    key: ValueKey(constraints.maxWidth),
-                  )
-                      : const SizedBox.shrink();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: (_imageFile != null && _imageBytes != null) ? Crop(
+        controller: _cropController,
+        image: _imageBytes!,
+        initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
+        onCropped: (image) => _analyzeCroppedImage(image),
+        onHistoryChanged: (_) => _cropController.crop(),
+        baseColor: Colors.transparent,
+        key: ValueKey(Utils.isPortrait(context)),
+        interactive: true,
+      ) : null,
     );
   }
 }

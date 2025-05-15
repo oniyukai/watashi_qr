@@ -36,41 +36,39 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () {
-              genericAlertDialog(
-                context: context,
-                titleStr: localeStr.deleteLabel,
-                content: Text(
-                  isSelectionMode
-                    ? localeStr.popupMessageConfirmationDeleteSelectedItemsHistory
-                    : localeStr.popupMessageConfirmationDeleteHistory
-                ),
-                actions: [
-                  TextButton(
-                    child: Text(localeStr.deleteLabel),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      if (isSelectionMode) {
-                        final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-                        customSearchUrls.removeWhere((searchUrl) {
-                          for (final title in selectedObjects) {
-                            if (searchUrl.startsWith('$title${Language.separationObject}')) {
-                              return true;
-                            }
+            onPressed: () => genericDialog(
+              context: context,
+              titleStr: localeStr.deleteLabel,
+              content: Text(
+                isSelectionMode
+                  ? localeStr.popupMessageConfirmationDeleteSelectedItemsHistory
+                  : localeStr.popupMessageConfirmationDeleteHistory
+              ),
+              actions: [
+                TextButton(
+                  child: Text(localeStr.deleteLabel),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (isSelectionMode) {
+                      final List<String> customSearchUrls = context.readSettings.customSearchUrls;
+                      customSearchUrls.removeWhere((searchUrl) {
+                        for (final title in selectedObjects) {
+                          if (searchUrl.startsWith('$title${Language.separationObject}')) {
+                            return true;
                           }
-                          return false;
-                        });
-                        context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
-                        exitSelectionMode();
-                      } else {
-                        context.readSettings.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
-                      }
-                      Utils.showToast(localeStr.customUrlDeleted);
-                    },
-                  ),
-                ]
-              );
-            },
+                        }
+                        return false;
+                      });
+                      context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
+                      exitSelectionMode();
+                    } else {
+                      context.readSettings.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
+                    }
+                    Utils.showToast(localeStr.customUrlDeleted);
+                  },
+                ),
+              ]
+            ),
           ),
         ],
       ),
@@ -93,7 +91,6 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
                   final String url = parts[1];
                   return Card(
                     elevation: 0,
-                    clipBehavior: Clip.antiAlias,
                     child: ListTileItem(
                       title: title,
                       description: url,

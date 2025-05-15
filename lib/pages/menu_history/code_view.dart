@@ -15,7 +15,6 @@ import 'dart:math';
 import 'package:barcode_image/barcode_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CodeView extends StatefulWidget with RouterBridge<HistoryItem> {
@@ -67,7 +66,6 @@ class _CodeViewState extends State<CodeView> {
             children: [
               Card(
                 color: Colors.white,
-                clipBehavior: Clip.antiAlias,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                   child: LayoutBuilder(
@@ -125,17 +123,10 @@ class _CodeViewState extends State<CodeView> {
     required Language localeStr
   }) async {
     try {
-      final status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
-      final Directory? directory = await getExternalStorageDirectory();
-      late String initialDirectory;
-      if (directory != null) initialDirectory = directory.path;
-      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDirectory);
+      final Directory? directory = await getDownloadsDirectory();
+      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
       if (directoryPath == null) {
-        Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
-        return;
+        return Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
       }
       final String filePath = '$directoryPath/barcode.$option';
       final file = File(filePath);

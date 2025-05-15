@@ -48,7 +48,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
           if (isSelectionMode) ...[
             IconButton(
               icon: const Icon(Icons.delete_forever),
-              onPressed: () => genericAlertDialog(
+              onPressed: () => genericDialog(
                 context: context,
                 titleStr: localeStr.deleteLabel,
                 content: Text(localeStr.popupMessageConfirmationDeleteSelectedItemsHistory),
@@ -102,7 +102,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),
-              onPressed: () => genericAlertDialog(
+              onPressed: () => genericDialog(
                 context: context,
                 titleStr: localeStr.deleteLabel,
                 content: Text(localeStr.popupMessageConfirmationDeleteHistory),
