@@ -2,6 +2,7 @@ import 'package:barcode/barcode.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
@@ -44,13 +45,11 @@ class HistoryItem extends HiveObject {
     required this.notes,
   });
 
-  HistoryFormat? get getFormat => HistoryFormat.values.asNameMap()[format];
+  HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
   IconData get getFormatIconData => getFormat?.iconData ?? Icons.help_center_outlined;
 
-  HistoryType? get getType => HistoryType.values.asNameMap()[type];
+  HistoryType? get getType => HistoryType.values.fromName(type);
   IconData get getTypeIconData => getType?.iconData ?? Icons.help_center;
-
-  HistoryErrorLevel? get getErrorLevel => HistoryErrorLevel.values.asNameMap()[errorLevel];
 
   Map<String, dynamic> toJson() {
     return {
@@ -144,7 +143,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39: localeStr.barcodeCode39Label,
     codebar: localeStr.barcodeCodabarLabel,
     itf: localeStr.barcodeItfLabel,
-  }[values.asNameMap()[n]] ?? '"$n"';
+  }[values.fromName(n)] ?? '"$n"';
 
   String composition(Language localeStr) => <HistoryFormat, String>{
     qrCode: localeStr.barcodeTextCompositionLabel,
@@ -204,7 +203,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
     wifi: localeStr.qrCodeTypeNameWifi,
     product: localeStr.barCodeTypeProduct,
     industrial: localeStr.barCodeTypeIndustrial,
-  }[values.asNameMap()[n]] ?? '?$n';
+  }[values.fromName(n)] ?? '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     final String upperContents = contents.toUpperCase();
@@ -259,12 +258,13 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   L(BarcodeQRCorrectionLevel.low),
   M(BarcodeQRCorrectionLevel.medium),
   Q(BarcodeQRCorrectionLevel.quartile),
-  H(BarcodeQRCorrectionLevel.low),
+  H(BarcodeQRCorrectionLevel.high),
   none;
 
   final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
   const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
 
+  static HistoryErrorLevel? fromName(String n) => values.fromName(n);
   static String? localeStrFromName(String n, Language localeStr) => optionMap(localeStr)[n];
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{

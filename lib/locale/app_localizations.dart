@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'en.dart';
 import 'ja.dart';
@@ -37,7 +38,7 @@ enum LocaleOption {
   final Locale? locale;
   const LocaleOption([this.locale]);
 
-  static Locale localeFromName(String n) => values.asNameMap()[n]?.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+  static Locale localeFromName(String n) => values.fromName(n)?.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     sys.name: localeStr.preferencesDefault,

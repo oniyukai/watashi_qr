@@ -273,70 +273,72 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
           _buildScannerOverlay(),
           SafeArea(
             child: Align(
-              alignment: isPortrait ? Alignment.topCenter : Alignment.centerRight,
+              alignment: isPortrait ? Alignment.topLeft : Alignment.topRight,
+              child: Card(
+                margin: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  icon: const Icon(MaterialCommunityIcons.arrow_expand),
+                  onPressed: _resetScanWindow,
+                ),
+              ),
+            )
+          ),
+          SafeArea(
+            child: Align(
+              alignment: isPortrait ? Alignment.topRight : Alignment.bottomRight,
               child: Card(
                 margin: const EdgeInsets.all(16.0),
                 child: Flex(
                   direction: isPortrait ? Axis.horizontal : Axis.vertical,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(MaterialCommunityIcons.arrow_expand),
-                      onPressed: _resetScanWindow,
+                      icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+                      onPressed: () => setState(() {
+                        _isFlashOn = !_isFlashOn;
+                        _toggleFlash();
+                      }),
                     ),
-                    Flex(
-                      direction: isPortrait ? Axis.horizontal : Axis.vertical,
-                      children: [
-                        IconButton(
-                          icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
-                          onPressed: () => setState(() {
-                            _isFlashOn = !_isFlashOn;
-                            _toggleFlash();
-                          }),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.photo),
-                          onPressed: () async {
-                            _isDetectDisable = true;
-                            await Utils.mobileScannerController.stop();
-                            Utils.unlockCurrentOrientation();
-                            await context.routeTo(ScanImagePage);
-                            Utils.lockCurrentOrientation(context);
-                            Utils.mobileScannerControllerStart(context);
-                            setState(() {
-                              _isFlashOn = false;
-                            });
-                            _isDetectDisable = false;
-                          },
-                        ),
-                      ],
+                    IconButton(
+                      splashRadius: 16,
+                      icon: const Icon(Icons.photo),
+                      onPressed: () async {
+                        _isDetectDisable = true;
+                        await Utils.mobileScannerController.stop();
+                        Utils.unlockCurrentOrientation();
+                        await context.routeTo(ScanImagePage);
+                        Utils.lockCurrentOrientation(context);
+                        Utils.mobileScannerControllerStart(context);
+                        setState(() {
+                          _isFlashOn = false;
+                        });
+                        _isDetectDisable = false;
+                      },
                     ),
                   ],
                 ),
-              )
-            ),
+              ),
+            )
           ),
           Align(
             alignment: isPortrait ? Alignment.bottomCenter : Alignment.centerLeft,
-            child: Padding(
+            child: Container(
               padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                height: isPortrait ? 64 : null,
-                width: isPortrait ? null : 64,
-                child: RotatedBox(
-                  quarterTurns: isPortrait ? 0 : 3,
-                  child: Slider(
-                    value: _zoomLevel,
-                    min: 0.0,
-                    max: 1.0,
-                    onChanged: (double value) {
-                      setState(() {
-                        _zoomLevel = value;
-                        Utils.mobileScannerController.setZoomScale(value);
-                      });
-                    },
-                    onChangeEnd: (double value) => _saveZoomLevel(value),
-                  ),
+              width: isPortrait ? null : 100,
+              height: isPortrait ? 100 : null,
+              child: RotatedBox(
+                quarterTurns: isPortrait ? 0 : 3,
+                child: Slider(
+                  value: _zoomLevel,
+                  min: 0.0,
+                  max: 1.0,
+                  onChanged: (double value) {
+                    setState(() {
+                      _zoomLevel = value;
+                      Utils.mobileScannerController.setZoomScale(value);
+                    });
+                  },
+                  onChangeEnd: (double value) => _saveZoomLevel(value),
                 ),
               ),
             ),

@@ -41,7 +41,7 @@ enum SearchEngine {
   final String url;
   const SearchEngine(this.url);
 
-  static String urlByName(String n) => values.asNameMap()[n]?.url ?? google.url;
+  static String urlByName(String n) => values.fromName(n)?.url ?? google.url;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     google.name: Language.googleLabel,

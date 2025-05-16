@@ -11,6 +11,10 @@ import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:core';
 
+extension EnumFromName<T extends Enum> on Iterable<T> {
+  T? fromName(String n) => asNameMap()[n];
+}
+
 class Utils {
   const Utils._();
 

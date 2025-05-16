@@ -32,7 +32,8 @@ class _CodeViewState extends State<CodeView> {
     final localeStr = Language.of(context);
     final isPortrait = Utils.isPortrait(context);
     final validatorMsg = barcodeValidator(historyItem.contents, historyItem.getFormat, localeStr);
-    final BarcodeQRCorrectionLevel? level = historyItem.getErrorLevel?.barcodeQRCorrectionLevel;
+    final HistoryErrorLevel? level = HistoryErrorLevel.fromName(historyItem.errorLevel)
+        ?? HistoryErrorLevel.fromName(context.readSettings.selectedQRErrorLevel);
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryFormat.localeStrFromName(historyItem.format, localeStr)),
@@ -119,7 +120,7 @@ class _CodeViewState extends State<CodeView> {
     required String option,
     required String contents,
     required HistoryFormat? format,
-    required BarcodeQRCorrectionLevel? level,
+    required HistoryErrorLevel? level,
     required Language localeStr
   }) async {
     try {
@@ -152,7 +153,7 @@ class _CodeViewState extends State<CodeView> {
   Future<void> _shareImage({
     required String contents,
     required HistoryFormat? format,
-    required BarcodeQRCorrectionLevel? level,
+    required HistoryErrorLevel? level,
   }) async {
     try {
       final Directory tempDir = await getTemporaryDirectory();
@@ -166,7 +167,7 @@ class _CodeViewState extends State<CodeView> {
     }
   }
 
-  img.Image _getBarcodeImage(String contents, HistoryFormat? format, BarcodeQRCorrectionLevel? level){
+  img.Image _getBarcodeImage(String contents, HistoryFormat? format, HistoryErrorLevel? level){
     final barcodeImage = img.Image(width: 1024, height: _getHeight(format, 1024.0).toInt());
     img.fill(barcodeImage, color: img.ColorRgb8(255, 255, 255));
     drawBarcode(barcodeImage, _getBarcode(format, level), contents, font: img.arial48);
@@ -176,7 +177,7 @@ class _CodeViewState extends State<CodeView> {
   String _getBarcodeSvg({
     required String contents,
     required HistoryFormat? format,
-    required BarcodeQRCorrectionLevel? level,
+    required HistoryErrorLevel? level,
     double length = 1024,
   }) {
     final Barcode barcode = _getBarcode(format, level);
@@ -206,9 +207,8 @@ class _CodeViewState extends State<CodeView> {
     }
   }
 
-  Barcode _getBarcode(HistoryFormat? format, BarcodeQRCorrectionLevel? level){
-    level = level ?? HistoryErrorLevel.L.barcodeQRCorrectionLevel!;
-
+  Barcode _getBarcode(HistoryFormat? format, HistoryErrorLevel? historyErrorLevel){
+    final level = historyErrorLevel?.barcodeQRCorrectionLevel ?? BarcodeQRCorrectionLevel.low;
     return (format == null || format == HistoryFormat.qrCode)
         ? Barcode.qrCode(errorCorrectLevel: level)
         : format.barcodeFunc();
