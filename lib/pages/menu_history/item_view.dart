@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -15,6 +16,7 @@ import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/pages/widgets/item_view_widgets.dart';
 import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'dart:io';
 
 class ItemView extends StatefulWidget with RouterBridge<HistoryItem> {
   const ItemView({super.key});
@@ -47,11 +49,11 @@ class _ItemViewState extends State<ItemView> {
 
   @override
   void dispose() {
-    updateHistoryItem();
+    _updateHistoryItem();
     super.dispose();
   }
 
-  void updateHistoryItem() {
+  void _updateHistoryItem() {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
@@ -69,7 +71,7 @@ class _ItemViewState extends State<ItemView> {
     final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format, localeStr);
-    final isFormatNameSupported = !(formatNameStr.startsWith('"') && formatNameStr.endsWith('"'));
+    final isFormatSupported = _historyItem.getFormat != null;
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryType.localeStrFromName(_historyItem.type, localeStr)),
@@ -91,7 +93,6 @@ class _ItemViewState extends State<ItemView> {
               ),
               const SizedBox(height: 8),
               Card(
-                clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
                     ListTile(
@@ -144,11 +145,10 @@ class _ItemViewState extends State<ItemView> {
               ),
               const SizedBox(height: 8),
               Card(
-                clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  leading: isFormatNameSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                  onTap: isFormatNameSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
+                  leading: isFormatSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
+                  onTap: isFormatSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -187,28 +187,21 @@ class _ItemViewState extends State<ItemView> {
               const SizedBox(height: 8),
               Text('  ${localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 4),
-              Builder(builder: (_) {
+              Builder(builder: (BuildContext context) {
                 final List<Widget> rows = [];
-                final actionCards = _getActionGridList(localeStr);
-                for (var i = 0; i < actionCards.length; i += 3) {
-                  final end = i + 3 > actionCards.length ? actionCards.length : i + 3;
+                final actionGrids = _getActionGridList(localeStr);
+                for (int i = 0; i < actionGrids.length; i += 3) {
+                  final end = (i + 3 > actionGrids.length) ? actionGrids.length : i + 3;
                   final List<Widget> rowChildren = [];
-                  for (int j = 0; j < end - i; j++) {
-                    rowChildren.add(Expanded(child: actionCards.sublist(i, end)[j]));
-                    if (j < end - i - 1) {
-                      rowChildren.add(const SizedBox(width: 8.0));
-                    }
-                  }
-                  while (rowChildren.length < 5) {
-                    rowChildren.add(const Expanded(child:SizedBox.shrink()));
-                    if (rowChildren.length < 5) {
-                      rowChildren.add(const SizedBox(width: 8.0));
-                    }
+                  while (rowChildren.length < 3) {
+                    rowChildren.add( (rowChildren.length < end - i)
+                        ? Expanded(child: actionGrids[i + rowChildren.length])
+                        : const Expanded(child:SizedBox.shrink())
+                    );
                   }
                   rows.add(IntrinsicHeight(
                     child: Row(children: rowChildren),
                   ));
-                  rows.add(const SizedBox(height: 8));
                 }
                 return Column(children: rows);
               }),
@@ -221,15 +214,15 @@ class _ItemViewState extends State<ItemView> {
   }
 
   List<PressButtonGrid> _getActionGridList(Language localeStr) {
-    final String type = _historyItem.type;
+    final type = _historyItem.getType;
     final bool willExist = _isWillExist ?? _isExistInhistories;
     return <PressButtonGrid>[
-      type != HistoryType.website.name ?
-      PressButtonGrid(
+      if (type != HistoryType.website) PressButtonGrid(
           icon: Icons.search,
           description: localeStr.actionWebSearchLabel,
           onTap: () => _actionWebSearch()
-      ) : PressButtonGrid(
+      ),
+      if (type == HistoryType.website) PressButtonGrid(
         icon: Icons.open_in_browser,
         description: localeStr.actionOpenLink,
         onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
@@ -237,51 +230,57 @@ class _ItemViewState extends State<ItemView> {
       if (context.readSettings.customSearchUrls.isNotEmpty) PressButtonGrid(
         icon: Icons.search,
         description: localeStr.customSearchUrls,
-        onTap: () => _showCustomSearchDialog(localeStr),
+        onTap: () => _actionCustomSearch(localeStr),
       ),
       PressButtonGrid(
         icon: Icons.edit_note,
         description: localeStr.actionModifyNotes,
         onTap: () {
-          _showModifyNotesSheet(localeStr);
+          _actionModifyNotes(localeStr);
           setState(() {});
         },
       ),
-      // if (type == 'CONTACT' || type == 'MAIL' || type == 'PHONE' || type == 'SMS') {
-      //   'icon': Icons.contacts_outlined,
-      //   'description': localeStr.actionAddToContacts,
-      //   'onTap': () {}, // TODO CONTACT按鈕功能
-      // },
-      // if (type == 'MAIL') {
-      //   'icon': Icons.mail_outline,
-      //   'description': localeStr.actionSendMailLabel,
-      //   'onTap': () {}, // TODO MAIL按鈕功能
-      // },
-      // if (type == 'PHONE' || type == 'SMS') {
-      //   'icon': Icons.sms_outlined,
-      //   'description': localeStr.actionSendSmsLabel,
-      //   'onTap': () {}, // TODO SMS按鈕功能
-      // },
-      // if (type == 'PHONE' || type == 'SMS') {
-      //     'icon': Icons.call,
-      //     'description': localeStr.actionCallPhoneLabel,
-      //     'onTap': () {}, // TODO PHONE按鈕功能
-      //   },
-      // if (type == 'LOCATION') {
-      //     'icon': Icons.location_on,
-      //     'description': localeStr.actionShowLocation,
-      //     'onTap': () {}, // TODO LOCATION按鈕功能
-      //   },
-      // if (type == 'AGEND') {
-      //     'icon': Icons.event,
-      //     'description': localeStr.actionAddToCalendar,
-      //     'onTap': () {}, // TODO AGEND按鈕功能
-      //   },
-      // if (type == 'WIFI') {
-      //   'icon': Icons.wifi,
-      //   'description': localeStr.qrCodeTypeNameWifi,
-      //   'onTap': () {}, // TODO WIFI按鈕功能
-      // },
+      // if (const {HistoryType.contact, HistoryType.mail, HistoryType.phone, HistoryType.sms}
+      //     .contains(type)) PressButtonGrid(
+      //   icon: Icons.contacts_outlined,
+      //   description: localeStr.actionAddToContacts,
+      //   onTap: () => _actionAddToContacts(_historyItem.contents, type!), // todo
+      // ),
+      if (type == HistoryType.contact) PressButtonGrid(
+        icon: Icons.share,
+        description: localeStr.actionShareVcfFile,
+        onTap: () => _actionShareVcfFile(_historyItem.contents),
+      ),
+      if (type == HistoryType.mail) PressButtonGrid(
+        icon: Icons.mail_outline,
+        description: localeStr.actionSendMailLabel,
+        onTap: () => _actionSendMail(_historyItem.contents),
+      ),
+      if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
+        icon: Icons.sms_outlined,
+        description: localeStr.actionSendSmsLabel,
+        onTap: () => _actionSendSms(_historyItem.contents, type!),
+      ),
+      if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
+        icon: Icons.call,
+        description: localeStr.actionCallPhoneLabel,
+        onTap: () => _actionCallPhone(_historyItem.contents, type!),
+      ),
+      if (type == HistoryType.location) PressButtonGrid(
+        icon: Icons.location_on,
+        description: localeStr.actionShowLocation,
+        onTap: () => _actionShowLocation(_historyItem.contents),
+      ),
+      // if (type == HistoryType.agend) PressButtonGrid(
+      //   icon: Icons.event,
+      //   description: localeStr.actionAddToCalendar,
+      //   onTap: () => _actionShareAgend(_historyItem.contents), // todo
+      // ),
+      // if (type == HistoryType.wifi) PressButtonGrid(
+      //   icon: Icons.wifi,
+      //   description: localeStr.qrCodeTypeNameWifi,
+      //   onTap: () {}, // Notodo: WIFI按鈕(決定不加入)
+      // ),
       PressButtonGrid(
         icon: willExist ? Icons.delete_forever : Icons.add,
         description: willExist
@@ -299,67 +298,38 @@ class _ItemViewState extends State<ItemView> {
     ];
   }
 
-  void _showModifyContentsSheet(Language localeStr){
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(localeStr.actionModifyBarcode),
-                    Text(HistoryFormat.localeStrFromName(_historyItem.format, localeStr)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: BarcodeTextField(
-                    format: _historyItem.getFormat,
-                    name: 'modifyContents',
-                    formKey: _formKey,
-                    initialValue: _historyItem.contents,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      child: Text(localeStr.cancelLabel),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    ElevatedButton(
-                      child: Text(localeStr.actionModifyBarcode),
-                      onPressed: () {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          final value = _formKey.currentState?.value['modifyContents'];
-                          _historyItem.contents = value;
-                          _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, value).name;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  void _showModifyContentsSheet(Language localeStr) => genericBottomSheet(
+    context: context,
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(localeStr.actionModifyBarcode),
+        Text(HistoryFormat.localeStrFromName(_historyItem.format, localeStr)),
+      ],
+    ),
+    content: FormBuilder(
+      key:_formKey,
+      child: BarcodeTextField(
+        format: _historyItem.getFormat,
+        name: 'modifyContents',
+        formKey: _formKey,
+        initialValue: _historyItem.contents,
+      ),
+    ),
+    actions: [
+      ElevatedButton(
+        child: Text(localeStr.actionModifyBarcode),
+        onPressed: () {
+          if (_formKey.currentState?.saveAndValidate() ?? false) {
+            final value = _formKey.currentState?.value['modifyContents'];
+            _historyItem.contents = value;
+            _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, value).name;
+            Navigator.pop(context);
+          }
+        },
+      ),
+    ]
+  );
 
   void _actionWebSearch(){
     final String selectedSearchEngine = context.readSettings.selectedSearchEngine;
@@ -367,91 +337,111 @@ class _ItemViewState extends State<ItemView> {
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
-  void _showCustomSearchDialog(Language localeStr) {
-    final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-    genericAlertDialog(
-      context: context,
-      titleStr: localeStr.customSearchUrls,
-      noCancelButton: true,
-      content: Scrollbar(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: customSearchUrls.map((searchUrl) => ListTileItem(
-              title: searchUrl.split(Language.separationObject)[0],
-              description: searchUrl.split(Language.separationObject)[1],
-              onTap: () {
-                Utils.searchInBrowser(searchUrl.split(Language.separationObject)[1], _historyItem.contents);
-                Navigator.pop(context);
-              }
-            )).toList(),
-          ),
+  void _actionCustomSearch(Language localeStr) => genericDialog(
+    context: context,
+    titleStr: localeStr.customSearchUrls,
+    noCancelButton: true,
+    content: Scrollbar(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: context.readSettings.customSearchUrls.map((searchUrl) => ListTileItem(
+            title: searchUrl.split(Language.separationObject)[0],
+            description: searchUrl.split(Language.separationObject)[1],
+            onTap: () {
+              Utils.searchInBrowser(searchUrl.split(Language.separationObject)[1], _historyItem.contents);
+              Navigator.pop(context);
+            }
+          )).toList(),
         ),
       ),
-    );
+    ),
+  );
+
+  void _actionModifyNotes(Language localeStr) => genericBottomSheet(
+    context: context,
+    title: Text(localeStr.actionModifyNotes),
+    content: FormBuilder(
+      key: _formKey,
+      child: FormBuilderTextField(
+        name: 'modifyNotes',
+        initialValue: _historyItem.notes,
+        maxLines: null,
+        decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.format_size),
+          labelText: localeStr.barcodeTextCompositionLabel,
+        ),
+        keyboardType: TextInputType.text,
+      ),
+    ),
+    actions: [
+      ElevatedButton(
+        child: Text(localeStr.actionModifyNotes),
+        onPressed: () {
+          if (_formKey.currentState?.saveAndValidate() ?? false) {
+            final String value = _formKey.currentState?.value['modifyNotes'];
+            _historyItem.notes = value;
+            Navigator.pop(context);
+          }
+        },
+      ),
+    ]
+  );
+
+  Future<void> _actionShareVcfFile(String contents) async {
+    final directory = await getTemporaryDirectory();
+    final file = File('${directory.path}/contact.vcf');
+    await file.writeAsString(contents);
+    await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
-  void _showModifyNotesSheet(Language localeStr){
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 16,
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Column(
-              children: [
-                Text(localeStr.actionModifyNotes),
-                const SizedBox(height: 16),
-                FormBuilder(
-                  key:_formKey,
-                  child: FormBuilderTextField(
-                    name: 'modifyNotes',
-                    initialValue: _historyItem.notes,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.format_size),
-                      labelText: localeStr.barcodeTextCompositionLabel,
-                    ),
-                    keyboardType: TextInputType.text,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton(
-                      child: Text(localeStr.cancelLabel),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    ElevatedButton(
-                      child: Text(localeStr.actionModifyNotes),
-                      onPressed: () {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          final String value = _formKey.currentState?.value['modifyNotes'];
-                          _historyItem.notes = value;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
+  void _actionSendMail(String contents) {
+    final analyzed = analyzeMail(contents);
+    final String? email = analyzed['email'];
+    final String? subject = analyzed['subject'];
+    final String? message = analyzed['message'];
+    final Uri uri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {
+        'subject': subject,
+        'body': message,
       },
     );
+    if ((email ?? subject ?? message) != null) Utils.openUrlInBrowser(uri.toString());
   }
 
+  void _actionSendSms(String contents, HistoryType type) {
+    String? phone;
+    String? message;
+    if (type == HistoryType.sms) {
+      final analyzed = analyzeSms(contents);
+      phone = analyzed['phone'];
+      message = analyzed['message'];
+    } else if (type == HistoryType.phone) {
+      phone = contents.substring(4);
+    }
+    if (phone == null) return;
+    final Uri uri = Uri(
+      scheme: 'smsto',
+      path: phone,
+      queryParameters: (message != null)
+          ? {'body': message}
+          : null,
+    );
+    Utils.openUrlInBrowser(uri.toString());
+  }
 
+  void _actionCallPhone(String contents, HistoryType type) {
+    String? phone;
+    if (type == HistoryType.sms) {
+      final analyzed = analyzeSms(contents);
+      phone = analyzed['phone'];
+    } else if (type == HistoryType.phone) {
+      phone = contents.substring(4);
+    }
+    if (phone != null) Utils.openUrlInBrowser('tel:$phone');
+  }
 
-
-
+  void _actionShowLocation(String contents) => Utils.openUrlInBrowser('geo:${contents.substring(4)}');
 }

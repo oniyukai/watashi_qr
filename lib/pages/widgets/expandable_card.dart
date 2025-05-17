@@ -66,7 +66,6 @@ class _ExpandableCardState extends State<ExpandableCard>
   @override
   Widget build(BuildContext context) {
     return Card(
-      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           ListTile(

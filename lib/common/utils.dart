@@ -11,6 +11,10 @@ import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:core';
 
+extension EnumFromName<T extends Enum> on Iterable<T> {
+  T? fromName(String n) => asNameMap()[n];
+}
+
 class Utils {
   const Utils._();
 
@@ -37,7 +41,7 @@ class Utils {
     await mobileScannerController.start(
       cameraDirection: context.readSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back
     );
-    mobileScannerController.setZoomScale(
+    await mobileScannerController.setZoomScale(
       prefs.getDouble(PreferenceKey.scannerZoomLevel.name) ?? 0.0
     );
   }
@@ -69,13 +73,11 @@ class Utils {
   }
 
   //  一個簡易的Toast訊息提示
-  static void showToast(String contentStr, [int? time]) {
+  static void showToast(String msg, [bool longTime = false]) {
     Fluttertoast.showToast(
-      msg: contentStr,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: time ?? 2,
-      fontSize: 16.0, // 文字大小
+      msg: msg,
+      toastLength: longTime ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT,
+      timeInSecForIosWeb: longTime ? 4 : 2,
     );
   }
 
@@ -83,10 +85,10 @@ class Utils {
   static Future<void> openUrlInBrowser(String urlstr) async {
     final Uri url = Uri.parse(urlstr);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $urlstr');
+      showToast('Could not launch $urlstr');
     }
   }
-  static Future<void> searchInBrowser(String searchUrl, String keyWord) async {
+  static void searchInBrowser(String searchUrl, String keyWord) {
     openUrlInBrowser(searchUrl.replaceAll('{code}', Uri.encodeComponent(keyWord)));
   }
 

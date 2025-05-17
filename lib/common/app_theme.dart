@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 
 enum ThemeOption {
@@ -44,9 +45,9 @@ ThemeData appTheme (
     ColorScheme? lightDynamic,
     ColorScheme? darkDynamic
     ){
-  final Brightness brightness = ThemeOption.values.byName(selectedTheme).brightness
+  final Brightness brightness = ThemeOption.values.fromName(selectedTheme)?.brightness
       ?? View.of(context).platformDispatcher.platformBrightness;
-  final MaterialColor seedColor = ColorOption.values.byName(selectedColor).color
+  final MaterialColor seedColor = ColorOption.values.fromName(selectedColor)?.color
       ?? Colors.blue; // <--sys顏色不支援時會用到
   late final ColorScheme colorScheme;
 
@@ -68,18 +69,13 @@ ThemeData appTheme (
       thumbColor: WidgetStateProperty.all(colorScheme.primary.withValues(alpha:0.5)),
       radius: Radius.circular(10.0),
     ),
-    navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: colorScheme.surfaceContainerHighest,
-      indicatorColor: colorScheme.primary.withValues(alpha:0.25),
-    ),
-    navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: colorScheme.surfaceContainerHighest,
-      indicatorColor: colorScheme.primary.withValues(alpha:0.25),
-    ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
+    ),
+    cardTheme: const CardThemeData(
+      clipBehavior: Clip.antiAlias,
     ),
   );
 }

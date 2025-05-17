@@ -31,8 +31,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
   final List<String> _contactPhoneType = <String>['cell', 'cell', 'cell']; // only for the _CONTACT form
 
   void _sendForm(String contents, HistoryType historyType) {
-    if (contents.length > 4296) {
-      Utils.showToast('Error: contents.length > 4296');
+    if (contents.length > 2953) {
+      Utils.showToast('${Language.of(context).errorBarcodeWrongLengthMessage}< 2953');
       return;
     }
     final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
@@ -94,22 +94,20 @@ class _QrcodeFormState extends State<QrcodeForm> {
     );
   }
 
-  Future<void> importContactFromVcard(Language localeStr) async {
+  Future<void> _importContactFromVcard(Language localeStr) async {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
-        Utils.showToast(localeStr.cancelLabel);
-        return;
+        return Utils.showToast(localeStr.cancelLabel);
       } else if (!result.files.single.path!.endsWith('.vcf')) {
-        Utils.showToast('Error: Not .vcf file');
-        return;
+        return Utils.showToast('Error: Not .vcf file');
       }
 
       final File file = File(result.files.single.path!);
       final String vCardString = await file.readAsString();
       _sendForm(vCardString, HistoryType.contact);
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', 16);
+      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', true);
     }
   }
 
@@ -174,7 +172,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
         height = height.isNotEmpty ? ',$height' : '';
         request = request.isNotEmpty ? '?q=$request' : '';
         return 'geo:${valueMap['latitude']},${valueMap['longitude']}$height$request';
-      case HistoryType.agend:
+      case HistoryType.event:
         final String summary = valueMap['summary'] ?? '';
         String location = valueMap['location'] ?? '';
         String description = valueMap['description'] ?? '';
@@ -249,6 +247,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
           keyboardType: TextInputType.url,
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+            FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
             FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
           ]),
           onEditingComplete: () {
@@ -262,14 +261,13 @@ class _QrcodeFormState extends State<QrcodeForm> {
             final menuFieldWidth = constraints.maxWidth * 0.35 - 6;
             return Column(
               children: [
-                // // todo: 從手機選擇聯絡人功能
                 // ElevatedButton(
                 //   child: Text(localeStr.qrCodeTypeNameGenerateFromContact),
-                //   onPressed: ()=>(),
+                //   onPressed: () => _importContactFromContact(localeStr), // todo
                 // ),
                 ElevatedButton(
-                  onPressed: () => importContactFromVcard(localeStr),
                   child: Text(localeStr.qrCodeImportContactFromVcard),
+                  onPressed: () => _importContactFromVcard(localeStr),
                 ),
                 const SizedBox(height: 16),
                 FormBuilderTextField(
@@ -627,7 +625,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             ),
           ],
         );
-      case HistoryType.agend:
+      case HistoryType.event:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

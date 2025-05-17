@@ -62,8 +62,8 @@ class Ja extends Language {
     K.qrCodeTypeNameMail: 'メール',
     K.qrCodeTypeNameSms: 'SMS',
     K.qrCodeTypeNamePhone: '電話番号',
-    K.qrCodeTypeNameGeographicCoordinates: '地理座標',
-    K.qrCodeTypeNameAgenda: '予定',
+    K.qrCodeTypeNameLocation: '地理座標',
+    K.qrCodeTypeNameEvent: '予定',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: 'アプリ',
     // Product Type
@@ -198,7 +198,7 @@ class Ja extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: 'この機能を使用するには、許可を受け入れる必要があります。',
     K.snackBarMessageSaveBitmapOk: '画像を保存しました',
-    K.snackBarMessageSaveBitmapError: '画像を保存できませんでした…\nメモリ不足ですか？',
+    K.snackBarMessageSaveBitmapError: '画像を保存できませんでした…',
     K.snackBarMessageShareBitmapError: '共有構成中にエラーが発生しました。',
     // Actions
     K.actionsLabel: 'アクション',
@@ -235,8 +235,8 @@ class Ja extends Language {
     K.errorBarcodeWrongKeyMessage: '最後の桁（チェックディジット）は次のようである必要があります: ',
     K.errorBarcodeEncodingIso88591ErrorMessage: 'このバーコードタイプでは特殊文字はサポートされていません。',
     K.errorBarcodeEncodingUsAsciiErrorMessage: 'このバーコードタイプでは特殊文字はサポートされていません。',
-    K.errorBarcode93RegexErrorMessage: '"Code 93"バーコードタイプは、26の大文字、10桁（0〜9）、および8つの特殊文字« -, ., space, *, \$, /, +, % »をコード化できます。 小文字およびその他の特殊文字は、このバーコードタイプではコード化できません。',
-    K.errorBarcode39RegexErrorMessage: '"Code 39"バーコードタイプは、26の大文字、10桁（0〜9）、および7つの特殊文字« -, ., space, \$, /, +, % »をコード化できます。 小文字およびその他の特殊文字は、このバーコードタイプではコード化できませ ん。',
+    K.errorBarcode93RegexErrorMessage: '"Code 93"バーコードタイプは、26の大文字、10桁（0〜9）、および7つの特殊文字« -, ., space, \$, /, +, % »をコード化できます。 小文字およびその他の特殊文字は、このバーコードタイプではコード化できません。',
+    K.errorBarcode39RegexErrorMessage: '"Code 39"バーコードタイプは、26の大文字、10桁（0〜9）、および7つの特殊文字« -, ., space, \$, /, +, % »をコード化できます。 小文字およびその他の特殊文字は、このバーコードタイプではコード化できません。',
     K.errorBarcodeCodabarRegexErrorMessage: '"Codabar"バーコードタイプは、10桁（0〜9）と6つの特殊文字« -, \$, :, /, ., + »をコード化できます。 文字列の始まりと終わりを指定するために、最初と最後のバーコード文字として文字A、B、C、またはD を含めることもできます。',
     K.errorBarcodeItfErrorMessage: '"ITF"バーコードタイプには、偶数の文字が含まれている必要があります。',
     K.errorBarcodeUpcENotStartWith0ErrorMessage: '"UPC-E"バーコードタイプは0で始まる必要があります。',

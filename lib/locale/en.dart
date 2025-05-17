@@ -61,8 +61,8 @@ class En extends Language {
     K.qrCodeTypeNameMail: 'Mail',
     K.qrCodeTypeNameSms: 'SMS',
     K.qrCodeTypeNamePhone: 'Phone number',
-    K.qrCodeTypeNameGeographicCoordinates: 'Location',
-    K.qrCodeTypeNameAgenda: 'Agenda',
+    K.qrCodeTypeNameLocation: 'Location',
+    K.qrCodeTypeNameEvent: 'Event',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: 'Application',
     // Product Type
@@ -197,7 +197,7 @@ class En extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: 'You must accept permission to use this functionality.',
     K.snackBarMessageSaveBitmapOk: 'Image has been saved',
-    K.snackBarMessageSaveBitmapError: 'Image has not been saved…\nInsufficient memory?',
+    K.snackBarMessageSaveBitmapError: 'Image has not been saved…',
     K.snackBarMessageShareBitmapError: 'An error occurred during share configuration.',
     // Actions
     K.actionsLabel: 'Actions',
@@ -234,7 +234,7 @@ class En extends Language {
     K.errorBarcodeWrongKeyMessage: 'Last Digit (check digit) should be: ',
     K.errorBarcodeEncodingIso88591ErrorMessage: 'Special characters are not supported for this barcode type.',
     K.errorBarcodeEncodingUsAsciiErrorMessage: 'Special characters are not supported for this barcode type.',
-    K.errorBarcode93RegexErrorMessage: '"Code 93" barcode type can codify the 26 uppercase letters, the 10 digits (0 to 9) as well as the 8 special characters « -, ., space, *, \$, /, +, % ». Lowercase letters and other special characters can not be codify by this barcode type.',
+    K.errorBarcode93RegexErrorMessage: '"Code 93" barcode type can codify the 26 uppercase letters, the 10 digits (0 to 9) as well as the 7 special characters « -, ., space, \$, /, +, % ». Lowercase letters and other special characters can not be codify by this barcode type.',
     K.errorBarcode39RegexErrorMessage: '"Code 39" barcode type can codify the 26 uppercase letters, the 10 digits (0 to 9) as well as the 7 special characters « -, ., space, \$, /, +, % ». Lowercase letters and other special characters can not be codify by this barcode type.',
     K.errorBarcodeCodabarRegexErrorMessage: '"Codabar" barcode type can codify the 10 digits (0 to 9) as well as the 6 special characters « -, \$, :, /, ., + ». It can also contain characters A, B, C or D for the first and the last barcode character to specify the beginning and the end of the string.',
     K.errorBarcodeItfErrorMessage: '"ITF" barcode type must contain an even number of characters.',

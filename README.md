@@ -1,14 +1,10 @@
-<center>
+<p align="center"><img alt="" src="assets/appicon.png" width="64"><p>
 
-  <img alt="" src="assets/appicon.png" width="64">
+<h2 align="center">Watashi QR</h2>
 
-  ## Watashi QR
+<h4 align="center">An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
 
-  <h4>An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
-
-  [![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
-
-</center>
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Formats
 
@@ -22,7 +18,7 @@ Different barcode formats are supported:
 - [x] Simply point the camera of your smartphone at the barcode and you will receive the information immediately. You can also scan the barcode from a picture in your smartphone.
 - [x] Scanning frame with adjustable width and length.
 - [x] Support continuous scanning, automatic website opening, front and rear camera selection.
-- [ ] With a simple scan, you can read a business card, add a new contact, add a new event to your calendar, open a URL or even connect to Wi-Fi.
+- [ ] With a simple scan, you can read business cards, open URLs, (todo: add a contact, add an event to the calendar).
 - [x] Generate your own barcodes.
 - [x] Keep track of all scanned barcodes with the history tool.
 - [x] History favorites and item notes.

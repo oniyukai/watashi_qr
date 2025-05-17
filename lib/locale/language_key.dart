@@ -73,8 +73,8 @@ enum LanguageKey {
   qrCodeTypeNameMail,
   qrCodeTypeNameSms,
   qrCodeTypeNamePhone,
-  qrCodeTypeNameGeographicCoordinates,
-  qrCodeTypeNameAgenda,
+  qrCodeTypeNameLocation,
+  qrCodeTypeNameEvent,
   qrCodeTypeNameWifi,
   qrCodeTypeNameApps,
   // Product Type

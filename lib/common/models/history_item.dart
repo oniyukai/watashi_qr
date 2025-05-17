@@ -2,9 +2,10 @@ import 'package:barcode/barcode.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 part 'history_item.g.dart';
 
 @HiveType(typeId: 0)
@@ -44,13 +45,11 @@ class HistoryItem extends HiveObject {
     required this.notes,
   });
 
-  HistoryFormat? get getFormat => HistoryFormat.values.asNameMap()[format];
+  HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
   IconData get getFormatIconData => getFormat?.iconData ?? Icons.help_center_outlined;
 
-  HistoryType? get getType => HistoryType.values.asNameMap()[type];
+  HistoryType? get getType => HistoryType.values.fromName(type);
   IconData get getTypeIconData => getType?.iconData ?? Icons.help_center;
-
-  HistoryErrorLevel? get getErrorLevel => HistoryErrorLevel.values.asNameMap()[errorLevel];
 
   Map<String, dynamic> toJson() {
     return {
@@ -98,23 +97,37 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   final IconData iconData;
   const HistoryFormat(this.iconData);
 
-  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) {
-    return const <BarcodeFormat, HistoryFormat>{
-      BarcodeFormat.qrCode: qrCode,
-      BarcodeFormat.dataMatrix: dataMatrix,
-      BarcodeFormat.aztec: aztec,
-      BarcodeFormat.pdf417: pdf417,
-      BarcodeFormat.ean13: ean13,
-      BarcodeFormat.ean8: ean8,
-      BarcodeFormat.upcA: upcA,
-      BarcodeFormat.upcE: upcE,
-      BarcodeFormat.code128: code128,
-      BarcodeFormat.code93: code93,
-      BarcodeFormat.code39: code39,
-      BarcodeFormat.codebar: codebar,
-      BarcodeFormat.itf: itf,
-    }[barcodeFormat];
-  }
+  Barcode Function() get barcodeFunc => switch (this) {
+    qrCode => Barcode.qrCode,
+    aztec => Barcode.aztec,
+    dataMatrix=> Barcode.dataMatrix,
+    pdf417 => Barcode.pdf417,
+    ean13 => Barcode.ean13,
+    ean8 => Barcode.ean8,
+    upcA => Barcode.upcA,
+    upcE => Barcode.upcE,
+    code128 => Barcode.code128,
+    code93 => Barcode.code93,
+    code39 => Barcode.code39,
+    codebar => Barcode.codabar,
+    itf => Barcode.itf,
+  };
+
+  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) => const <BarcodeFormat, HistoryFormat>{
+    BarcodeFormat.qrCode: qrCode,
+    BarcodeFormat.dataMatrix: dataMatrix,
+    BarcodeFormat.aztec: aztec,
+    BarcodeFormat.pdf417: pdf417,
+    BarcodeFormat.ean13: ean13,
+    BarcodeFormat.ean8: ean8,
+    BarcodeFormat.upcA: upcA,
+    BarcodeFormat.upcE: upcE,
+    BarcodeFormat.code128: code128,
+    BarcodeFormat.code93: code93,
+    BarcodeFormat.code39: code39,
+    BarcodeFormat.codebar: codebar,
+    BarcodeFormat.itf: itf,
+  }[barcodeFormat];
 
   static String localeStrFromName(String n, Language localeStr) => <HistoryFormat, String>{
     qrCode: localeStr.barcodeQrCodeLabel,
@@ -130,9 +143,9 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39: localeStr.barcodeCode39Label,
     codebar: localeStr.barcodeCodabarLabel,
     itf: localeStr.barcodeItfLabel,
-  }[values.asNameMap()[n]] ?? '"$n"';
+  }[values.fromName(n)] ?? '"$n"';
 
-  static String composition(HistoryFormat? format, Language localeStr) => <HistoryFormat, String>{
+  String composition(Language localeStr) => <HistoryFormat, String>{
     qrCode: localeStr.barcodeTextCompositionLabel,
     dataMatrix: localeStr.barcodeTextNoSpecialCompositionLabel,
     aztec: localeStr.barcodeTextNoSpecialCompositionLabel,
@@ -146,9 +159,9 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39: localeStr.barcodeTextUpperNoSpecialCompositionLabel,
     codebar: localeStr.barcodeDigitsCompositionLabel,
     itf: localeStr.barcodeEvenDigitsCompositionLabel,
-  }[format] ?? localeStr.barcodeTextCompositionLabel;
+  }[this] ?? localeStr.barcodeTextCompositionLabel;
 
-  static String? description(HistoryFormat? format, Language localeStr) => <HistoryFormat, String>{
+  String? description(Language localeStr) => <HistoryFormat, String>{
     ean13: localeStr.barcodeEan13DescriptionLabel,
     ean8: localeStr.barcodeEan8DescriptionLabel,
     upcA: localeStr.barcodeUpcADescriptionLabel,
@@ -158,7 +171,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39: localeStr.barcodeCode39DescriptionLabel,
     codebar: localeStr.barcodeCodabarDescriptionLabel,
     itf: localeStr.barcodeItfDescriptionLabel,
-  }[format];
+  }[this];
 }
 
 
@@ -170,7 +183,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   sms(Icons.sms_outlined),
   phone(Icons.call),
   location(Icons.location_on),
-  agend(Icons.event),
+  event(Icons.event),
   wifi(Icons.wifi),
   product(MaterialCommunityIcons.barcode),
   industrial(MaterialCommunityIcons.barcode);
@@ -185,12 +198,12 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
     mail: localeStr.qrCodeTypeNameMail,
     sms: localeStr.qrCodeTypeNameSms,
     phone: localeStr.qrCodeTypeNamePhone,
-    location: localeStr.qrCodeTypeNameGeographicCoordinates,
-    agend: localeStr.qrCodeTypeNameAgenda,
+    location: localeStr.qrCodeTypeNameLocation,
+    event: localeStr.qrCodeTypeNameEvent,
     wifi: localeStr.qrCodeTypeNameWifi,
     product: localeStr.barCodeTypeProduct,
     industrial: localeStr.barCodeTypeIndustrial,
-  }[values.asNameMap()[n]] ?? '?$n';
+  }[values.fromName(n)] ?? '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     final String upperContents = contents.toUpperCase();
@@ -199,9 +212,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
       case HistoryFormat.dataMatrix:
       case HistoryFormat.aztec:
       case HistoryFormat.pdf417:
-        if (isURL(contents)) {
-          return website;
-        } else if (upperContents.startsWith('BEGIN:VCARD\n')) {
+        if (upperContents.startsWith('BEGIN:VCARD\n')) {
           return contact;
         } else if (upperContents.startsWith('MAILTO:') || upperContents.startsWith('MATMSG:')) {
           return mail;
@@ -212,9 +223,16 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
         } else if (upperContents.startsWith('GEO:')) {
           return location;
         } else if (upperContents.startsWith('BEGIN:VEVENT\n')) {
-          return agend;
+          return event;
         } else if (upperContents.startsWith('WIFI:')) {
           return wifi;
+        } else if (isURL(contents, {
+          'protocols': ['http', 'https'],
+          'require_tld': true,
+          'require_protocol': true,
+          'allow_underscores': false,
+        })) {
+          return website;
         } else {
           return text;
         }
@@ -240,18 +258,14 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   L(BarcodeQRCorrectionLevel.low),
   M(BarcodeQRCorrectionLevel.medium),
   Q(BarcodeQRCorrectionLevel.quartile),
-  H(BarcodeQRCorrectionLevel.low),
+  H(BarcodeQRCorrectionLevel.high),
   none;
 
   final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
   const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
 
-  static String? localeStrFromName(String n, Language localeStr) => <HistoryErrorLevel, String>{
-    L: localeStr.qrCodeErrorCorrectionLevelNameLow,
-    M: localeStr.qrCodeErrorCorrectionLevelNameMedium,
-    Q: localeStr.qrCodeErrorCorrectionLevelNameQuartile,
-    H: localeStr.qrCodeErrorCorrectionLevelNameHigh,
-  }[values.asNameMap()[n]];
+  static HistoryErrorLevel? fromName(String n) => values.fromName(n);
+  static String? localeStrFromName(String n, Language localeStr) => optionMap(localeStr)[n];
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     L.name: localeStr.qrCodeErrorCorrectionLevelNameLow,

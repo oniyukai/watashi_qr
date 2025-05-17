@@ -105,9 +105,9 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                       ),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                        FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
                         FormBuilderValidators.contains('{code}', errorText: localeStr.customSearchUrlsErrorUrl),
                         FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
+                        FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
                       ]),
                       keyboardType: TextInputType.url,
                     ),

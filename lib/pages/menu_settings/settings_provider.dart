@@ -41,7 +41,7 @@ enum SearchEngine {
   final String url;
   const SearchEngine(this.url);
 
-  static String urlByName(String n) => values.asNameMap()[n]?.url ?? google.url;
+  static String urlByName(String n) => values.fromName(n)?.url ?? google.url;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     google.name: Language.googleLabel,
@@ -91,10 +91,10 @@ class SettingsProvider extends ChangeNotifier {
   List<String> get customSearchUrls => _customSearchUrls ?? <String>[];
 
   SettingsProvider() {
-    loadSettings();
+    _loadSettings();
   }
 
-  Future<void> loadSettings() async {
+  Future<void> _loadSettings() async {
     _selectedColor = _prefs.getString(PreferenceKey.selectedColor.name);
     _selectedTheme = _prefs.getString(PreferenceKey.selectedTheme.name);
     _selectedLanguage = _prefs.getString(PreferenceKey.selectedLanguage.name);
@@ -125,11 +125,11 @@ class SettingsProvider extends ChangeNotifier {
     } else if (value is List<String>) {
       await _prefs.setStringList(key.name, value);
     }
-    await loadSettings();
+    await _loadSettings();
   }
 }
 
 extension Context on BuildContext {
   SettingsProvider get readSettings => Provider.of<SettingsProvider>(this, listen: false); //same mean: read<SettingsProvider>();
-  SettingsProvider get watchSettings => Provider.of<SettingsProvider>(this, listen: true); //same mean: watch<SettingsProvider>();
+  // SettingsProvider get watchSettings => Provider.of<SettingsProvider>(this, listen: true); //same mean: watch<SettingsProvider>();
 }

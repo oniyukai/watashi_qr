@@ -62,8 +62,8 @@ class ZhHant extends Language {
     K.qrCodeTypeNameMail: '郵件',
     K.qrCodeTypeNameSms: '簡訊',
     K.qrCodeTypeNamePhone: '電話號碼',
-    K.qrCodeTypeNameGeographicCoordinates: '地理座標',
-    K.qrCodeTypeNameAgenda: '日程',
+    K.qrCodeTypeNameLocation: '地理座標',
+    K.qrCodeTypeNameEvent: '日程',
     K.qrCodeTypeNameWifi: 'Wi-Fi',
     K.qrCodeTypeNameApps: '應用程式',
     // Product Type
@@ -198,7 +198,7 @@ class ZhHant extends Language {
     // Snackbar Feddbacks
     K.snackBarMessagePermissionRefused: '你必須接受許可以使用此功能。',
     K.snackBarMessageSaveBitmapOk: '圖片已儲存',
-    K.snackBarMessageSaveBitmapError: '圖片未被儲存…\n可能是儲存空間不足？',
+    K.snackBarMessageSaveBitmapError: '圖片未被儲存…',
     K.snackBarMessageShareBitmapError: '分享組態時發生錯誤。',
     // Actions
     K.actionsLabel: '功能',
@@ -235,8 +235,8 @@ class ZhHant extends Language {
     K.errorBarcodeWrongKeyMessage: '最後一位數 (驗證鍵) 應該是: ',
     K.errorBarcodeEncodingIso88591ErrorMessage: '此條碼類型不支援特殊字元。',
     K.errorBarcodeEncodingUsAsciiErrorMessage: '此條碼類型不支援特殊字元。',
-    K.errorBarcode93RegexErrorMessage: '"Code 93" 條碼類型可編碼 26 個大寫字母，10 個數字 (0–9) 以及8個特殊字元 « -, ., space, *, \$, /, +, % »。此條碼類型不能編碼小寫字母與其他特殊字元。',
-    K.errorBarcode39RegexErrorMessage: '"Code 39" 條碼類型可編碼 26 大寫字母，10 個數字 (0–9) 以及7個特殊字元 « -, ., space, \$, /, +, % »。此條碼類型不能編碼小寫字母與其他特殊字元。',
+    K.errorBarcode93RegexErrorMessage: '"Code 93" 條碼類型可編碼 26 個大寫字母，10 個數字 (0–9) 以及7個特殊字元 « -, ., space, \$, /, +, % »。此條碼類型不能編碼小寫字母與其他特殊字元。',
+    K.errorBarcode39RegexErrorMessage: '"Code 39" 條碼類型可編碼 26 個大寫字母，10 個數字 (0–9) 以及7個特殊字元 « -, ., space, \$, /, +, % »。此條碼類型不能編碼小寫字母與其他特殊字元。',
     K.errorBarcodeCodabarRegexErrorMessage: '"Codabar" 條碼類型可編碼10個數字 (0–9) 以及6個特殊字元 « -, \$, :, /, ., + »。它也可包含字元 A, B, C 或 D 作為第一個與最後一個條碼字元，以指定字串的開頭和結尾。',
     K.errorBarcodeItfErrorMessage: '"ITF" 條碼類型必須包含偶數個字元。',
     K.errorBarcodeUpcENotStartWith0ErrorMessage: '"UPC-E" 條碼類型開頭必須是 0。',

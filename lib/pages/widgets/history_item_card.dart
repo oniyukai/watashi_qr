@@ -24,7 +24,6 @@ class HistoryItemCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       elevation: 0,
-      clipBehavior: Clip.antiAlias,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         selected: selected,
