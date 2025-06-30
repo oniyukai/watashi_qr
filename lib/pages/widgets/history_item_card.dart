@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/pages/widgets/my_icon.dart';
 
 class HistoryItemCard extends StatelessWidget {
   final HistoryItem historyItem;
@@ -43,9 +44,9 @@ class HistoryItemCard extends StatelessWidget {
                   : colorScheme.primary
           ),
           child: Center(
-            child: Icon(
-                historyItem.getTypeIconData,
-                color: colorScheme.onPrimary
+            child: MyIcon(
+              historyItem.getTypeIconData,
+              color: colorScheme.onPrimary,
             ),
           ),
         ),
@@ -72,10 +73,10 @@ class HistoryItemCard extends StatelessWidget {
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(width: 2.0),
-                Icon(
-                    historyItem.getFormatIconData,
-                    size: 16.0,
-                    color: theme.hintColor
+                MyIcon(
+                  historyItem.getFormatIconData,
+                  size: 16.0,
+                  color: theme.hintColor,
                 ),
               ],
             ),

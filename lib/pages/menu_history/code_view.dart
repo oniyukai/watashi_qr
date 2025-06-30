@@ -40,7 +40,11 @@ class _CodeViewState extends State<CodeView> {
         actions: (validatorMsg == null) ? [
           CustomMenuButton(
             icon: const Icon(Icons.save),
-            labelList: [Language.pngLabel, Language.jpgLabel, Language.svgLabel],
+            optionMap: const {
+              Language.pngLabel: null,
+              Language.jpgLabel: null,
+              Language.svgLabel: null
+            },
             onSelectedEnd: (int option) => _exportImage(
               option: const <String>[Language.pngLabel, Language.jpgLabel, Language.svgLabel][option],
               contents: historyItem.contents,
@@ -94,7 +98,7 @@ class _CodeViewState extends State<CodeView> {
                   children: [
                     ExpandableCard(
                       title: HistoryType.localeStrFromName(historyItem.type, localeStr),
-                      icon: historyItem.getTypeIconData,
+                      myIconData: historyItem.getTypeIconData,
                       initialExpanded: true,
                       expandedChild: SelectableText(historyItem.contents),
                     ),

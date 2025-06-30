@@ -79,7 +79,10 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
               },
             ),
             CustomMenuButton(
-              labelList: [localeStr.menuItemHistoryAddFavorite, localeStr.menuItemHistoryRemoveFavorite],
+              optionMap: {
+                localeStr.menuItemHistoryAddFavorite: null,
+                localeStr.menuItemHistoryRemoveFavorite: null,
+              },
               onSelectedEnd: (int option) {
                 for (final key in selectedObjects){
                   final HistoryItem? item = HiveService.getItem(key);
@@ -93,12 +96,11 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
           ] else ...[
             CustomMenuButton(
               icon: const Icon(Icons.swap_vert),
-              labelList: [localeStr.shareJsonLabel, localeStr.exportJsonLabel, localeStr.importJsonLabel],
-              onSelectedList: [
-                () => HiveService.shareHistoriesToJson(localeStr),
-                () => HiveService.exportHistoriesToJson(localeStr),
-                () => HiveService.importHistoriesFromJson(localeStr),
-              ],
+              optionMap: {
+                localeStr.shareJsonLabel: () => HiveService.shareHistoriesToJson(localeStr),
+                localeStr.exportJsonLabel: () => HiveService.exportHistoriesToJson(localeStr),
+                localeStr.importJsonLabel: () => HiveService.importHistoriesFromJson(localeStr),
+              },
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),

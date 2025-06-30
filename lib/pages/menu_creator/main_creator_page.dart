@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/models/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -12,6 +11,7 @@ import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:flutter/services.dart';
 import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/widgets/my_icon.dart';
 
 class MainCreatorPage extends StatefulWidget {
   const MainCreatorPage({super.key});
@@ -88,17 +88,17 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
               const SizedBox(height: 16),
               ExpandableCard(
                 title: localeStr.titleQrCodeCreator,
-                icon: Icons.qr_code,
+                myIconData: HistoryFormat.qrCode.myIconData,
                 expandedChild: Column(
                   children: [
                     ListTileItem(
                       title: localeStr.createQrFromClipboard,
-                      icon: Icons.content_copy,
+                      myIconData: MyIconData(Icons.content_copy),
                       onTap: () => _createQrFromClipboard(localeStr),
                     ),
                     ..._historyTypes.map((type) => ListTileItem(
                       title: HistoryType.localeStrFromName(type.name, localeStr),
-                      icon: type.iconData,
+                      myIconData: type.myIconData,
                       onTap: () => context.routeOf<QrcodeForm>()
                           .arguments(type)
                           .to(),
@@ -110,11 +110,11 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
               const SizedBox(height: 16),
               ExpandableCard(
                 title: localeStr.titleBarCodeCreator,
-                icon: MaterialCommunityIcons.barcode,
+                myIconData: MyIconData.barcode,
                 expandedChild: Column(
                   children: _historyFormats.map((format) => ListTileItem(
                     title: HistoryFormat.localeStrFromName(format.name, localeStr),
-                    icon: format.iconData,
+                    myIconData: format.myIconData,
                     description: format.composition(localeStr),
                     onTap: () => context.routeOf<BarcodeForm>()
                         .arguments(format)

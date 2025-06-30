@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
+import 'package:watashi_qr/pages/widgets/my_icon.dart';
 part 'history_item.g.dart';
 
 @HiveType(typeId: 0)
@@ -46,10 +46,10 @@ class HistoryItem extends HiveObject {
   });
 
   HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
-  IconData get getFormatIconData => getFormat?.iconData ?? Icons.help_center_outlined;
+  MyIconData get getFormatIconData => getFormat?.myIconData ?? MyIconData(Icons.help_center_outlined);
 
   HistoryType? get getType => HistoryType.values.fromName(type);
-  IconData get getTypeIconData => getType?.iconData ?? Icons.help_center;
+  MyIconData get getTypeIconData => getType?.myIconData ?? MyIconData(Icons.help_center);
 
   Map<String, dynamic> toJson() {
     return {
@@ -80,22 +80,22 @@ class HistoryItem extends HiveObject {
 
 
 enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
-  qrCode(Icons.qr_code),
-  dataMatrix(MaterialCommunityIcons.data_matrix),
-  aztec(IconData(22238)),
-  pdf417(MaterialCommunityIcons.barcode), // TODO: No corresponding icon has been found yet
-  ean13(MaterialCommunityIcons.barcode),
-  ean8(MaterialCommunityIcons.barcode),
-  upcA(MaterialCommunityIcons.barcode),
-  upcE(MaterialCommunityIcons.barcode),
-  code128(MaterialCommunityIcons.barcode),
-  code93(MaterialCommunityIcons.barcode),
-  code39(MaterialCommunityIcons.barcode),
-  codebar(MaterialCommunityIcons.barcode),
-  itf(MaterialCommunityIcons.barcode);
+  qrCode(MyIconData(Icons.qr_code)),
+  dataMatrix(MyIconData.dataMatrix),
+  aztec(MyIconData.aztec),
+  pdf417(MyIconData.pdf417),
+  ean13(MyIconData.barcode),
+  ean8(MyIconData.barcode),
+  upcA(MyIconData.barcode),
+  upcE(MyIconData.barcode),
+  code128(MyIconData.barcode),
+  code93(MyIconData.barcode),
+  code39(MyIconData.barcode),
+  codebar(MyIconData.barcode),
+  itf(MyIconData.barcode);
 
-  final IconData iconData;
-  const HistoryFormat(this.iconData);
+  final MyIconData myIconData;
+  const HistoryFormat(this.myIconData);
 
   Barcode Function() get barcodeFunc => switch (this) {
     qrCode => Barcode.qrCode,
@@ -176,20 +176,20 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
 
 
 enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
-  text(Icons.format_size),
-  website(Icons.web),
-  contact(Icons.contacts_outlined),
-  mail(Icons.mail_outline),
-  sms(Icons.sms_outlined),
-  phone(Icons.call),
-  location(Icons.location_on),
-  event(Icons.event),
-  wifi(Icons.wifi),
-  product(MaterialCommunityIcons.barcode),
-  industrial(MaterialCommunityIcons.barcode);
+  text(MyIconData(Icons.format_size)),
+  website(MyIconData(Icons.web)),
+  contact(MyIconData(Icons.contacts_outlined)),
+  mail(MyIconData(Icons.mail_outline)),
+  sms(MyIconData(Icons.sms_outlined)),
+  phone(MyIconData(Icons.call)),
+  location(MyIconData(Icons.location_on)),
+  event(MyIconData(Icons.event)),
+  wifi(MyIconData(Icons.wifi)),
+  product(MyIconData(Icons.sell_outlined)),
+  industrial(MyIconData(Icons.build_circle_outlined));
 
-  final IconData iconData;
-  const HistoryType(this.iconData);
+  final MyIconData myIconData;
+  const HistoryType(this.myIconData);
 
   static String localeStrFromName(String n, Language localeStr) => <HistoryType, String>{
     text: localeStr.qrCodeTypeNameText,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/pages/widgets/my_icon.dart';
 
 class ExpandableCard extends StatefulWidget {
   final String title;
-  final IconData icon;
+  final MyIconData? myIconData;
   final bool? initialExpanded;
   final Widget? collapsedChild;
   final Widget? expandedChild;
@@ -10,7 +11,7 @@ class ExpandableCard extends StatefulWidget {
   const ExpandableCard({
     super.key,
     required this.title,
-    required this.icon,
+    this.myIconData,
     this.initialExpanded = false,
     this.collapsedChild,
     this.expandedChild,
@@ -70,7 +71,7 @@ class _ExpandableCardState extends State<ExpandableCard>
         children: [
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-            leading: Icon(widget.icon),
+            leading: MyIcon(widget.myIconData),
             title: Text(widget.title),
             trailing: RotationTransition(
               turns: _arrowAnimation,

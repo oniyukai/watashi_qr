@@ -80,7 +80,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
             children: [
               ListTileItem(
                 title: HistoryType.localeStrFromName(historyType.name, localeStr),
-                icon: historyType.iconData,
+                myIconData: historyType.myIconData,
               ),
               const SizedBox(height: 16),
               FormBuilder(

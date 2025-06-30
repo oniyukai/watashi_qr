@@ -15,6 +15,7 @@ import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
 import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
 import 'package:watashi_qr/pages/widgets/expandable_card.dart';
 import 'package:watashi_qr/pages/widgets/item_view_widgets.dart';
+import 'package:watashi_qr/pages/widgets/my_icon.dart';
 import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
 import 'dart:io';
 
@@ -83,7 +84,7 @@ class _ItemViewState extends State<ItemView> {
             children: [
               ExpandableCard(
                 title: localeStr.barCodeContentLabel,
-                icon: _historyItem.getTypeIconData,
+                myIconData: _historyItem.getTypeIconData,
                 initialExpanded: true,
                 expandedChild: AnalyzedContentItem(
                   contents: _historyItem.contents,
@@ -98,7 +99,7 @@ class _ItemViewState extends State<ItemView> {
                     ListTile(
                       minTileHeight: 0,
                       contentPadding: const EdgeInsets.only(left: 16, top: 8),
-                      leading: Icon(_historyItem.getFormatIconData),
+                      leading: MyIcon(_historyItem.getFormatIconData),
                       title: Text(localeStr.aboutBarcodeInformationLabel),
                     ),
                     ListTile(

@@ -224,8 +224,8 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     final isPortrait = Utils.isPortrait(context);
-    return Scaffold(
-      body: Stack(
+    return SafeArea(
+      child: Stack(
         fit: StackFit.expand,
         children: [
           LayoutBuilder(
@@ -271,54 +271,50 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
             },
           ),
           _buildScannerOverlay(),
-          SafeArea(
-            child: Align(
-              alignment: isPortrait ? Alignment.topLeft : Alignment.topRight,
-              child: Card(
-                margin: const EdgeInsets.all(16.0),
-                child: IconButton(
-                  icon: const Icon(MaterialCommunityIcons.arrow_expand),
-                  onPressed: _resetScanWindow,
-                ),
+          Align(
+            alignment: isPortrait ? Alignment.topLeft : Alignment.topRight,
+            child: Card(
+              margin: const EdgeInsets.all(16.0),
+              child: IconButton(
+                icon: const Icon(MaterialCommunityIcons.arrow_expand),
+                onPressed: _resetScanWindow,
               ),
-            )
+            ),
           ),
-          SafeArea(
-            child: Align(
-              alignment: isPortrait ? Alignment.topRight : Alignment.bottomRight,
-              child: Card(
-                margin: const EdgeInsets.all(16.0),
-                child: Flex(
-                  direction: isPortrait ? Axis.horizontal : Axis.vertical,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
-                      onPressed: () => setState(() {
-                        _isFlashOn = !_isFlashOn;
-                        _toggleFlash();
-                      }),
-                    ),
-                    IconButton(
-                      splashRadius: 16,
-                      icon: const Icon(Icons.photo),
-                      onPressed: () async {
-                        _isDetectDisable = true;
-                        await Utils.mobileScannerController.stop();
-                        Utils.unlockCurrentOrientation();
-                        await context.routeTo(ScanImagePage);
-                        Utils.lockCurrentOrientation(context);
-                        Utils.mobileScannerControllerStart(context);
-                        setState(() {
-                          _isFlashOn = false;
-                        });
-                        _isDetectDisable = false;
-                      },
-                    ),
-                  ],
-                ),
+          Align(
+            alignment: isPortrait ? Alignment.topRight : Alignment.bottomRight,
+            child: Card(
+              margin: const EdgeInsets.all(16.0),
+              child: Flex(
+                direction: isPortrait ? Axis.horizontal : Axis.vertical,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
+                    onPressed: () => setState(() {
+                      _isFlashOn = !_isFlashOn;
+                      _toggleFlash();
+                    }),
+                  ),
+                  IconButton(
+                    splashRadius: 16,
+                    icon: const Icon(Icons.photo),
+                    onPressed: () async {
+                      _isDetectDisable = true;
+                      await Utils.mobileScannerController.stop();
+                      Utils.unlockCurrentOrientation();
+                      await context.routeTo(ScanImagePage);
+                      Utils.lockCurrentOrientation(context);
+                      Utils.mobileScannerControllerStart(context);
+                      setState(() {
+                        _isFlashOn = false;
+                      });
+                      _isDetectDisable = false;
+                    },
+                  ),
+                ],
               ),
-            )
+            ),
           ),
           Align(
             alignment: isPortrait ? Alignment.bottomCenter : Alignment.centerLeft,

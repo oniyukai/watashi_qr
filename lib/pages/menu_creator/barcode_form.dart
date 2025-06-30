@@ -61,7 +61,7 @@ class _BarcodeFormState extends State<BarcodeForm> {
             children: [
               ListTileItem(
                 title: HistoryFormat.localeStrFromName(format.name, localeStr),
-                icon: format.iconData,
+                myIconData: format.myIconData,
               ),
               const SizedBox(height: 16),
               FormBuilder(

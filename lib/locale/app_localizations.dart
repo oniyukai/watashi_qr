@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/en.dart';
+import 'package:watashi_qr/locale/ja.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'en.dart';
-import 'ja.dart';
-import 'zh_hans.dart';
-import 'zh_hant.dart';
+import 'package:watashi_qr/locale/zh_hans.dart';
+import 'package:watashi_qr/locale/zh_hant.dart';
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
 
