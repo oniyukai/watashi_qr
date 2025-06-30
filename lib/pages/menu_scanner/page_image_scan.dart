@@ -5,22 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_history/item_view.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 
-class ScanImagePage extends StatefulWidget with RouterBridge<XFile> {
-  const ScanImagePage({super.key});
+class PageImageScan extends StatefulWidget with RouterBridge<XFile> {
+  const PageImageScan({super.key});
 
   @override
-  State<ScanImagePage> createState() => _ScanImagePageState();
+  State<PageImageScan> createState() => _PageImageScanState();
 }
 
-class _ScanImagePageState extends State<ScanImagePage> {
+class _PageImageScanState extends State<PageImageScan> {
   XFile? _imageFile;
   BarcodeCapture? _barcodeCapture;
   final CropController _cropController = CropController();
@@ -125,7 +127,7 @@ class _ScanImagePageState extends State<ScanImagePage> {
       notes: '',
     );
     if (isScanAddHistory) HiveService.addItem(item, context:context);
-    await context.routeOf<ItemView>().arguments(item).to();
+    await context.routeOf<PageItemView>().arguments(item).to();
     Navigator.pop(context);
   }
 

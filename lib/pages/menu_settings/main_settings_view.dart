@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
-import 'package:watashi_qr/pages/menu_settings/customurls_page.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_widgets.dart';
 
-class MainSettingsPage extends StatefulWidget {
-  const MainSettingsPage({super.key});
+class MainSettingsView extends StatefulWidget {
+  const MainSettingsView({super.key});
 
   @override
-  State<MainSettingsPage> createState() => _MainSettingsPage();
+  State<MainSettingsView> createState() => _MainSettingsPage();
 }
 
-class _MainSettingsPage extends State<MainSettingsPage> {
+class _MainSettingsPage extends State<MainSettingsView> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -161,14 +161,14 @@ class _MainSettingsPage extends State<MainSettingsPage> {
                 ListTileText(
                   str: localeStr.customSearchUrls,
                   trailing: trailingIcon,
-                  onTap:() => context.routeTo(CustomurlsPage),
+                  onTap:() => context.routeTo(PageCustomurlsView),
                 ),
 
                 ListTileText(str: localeStr.preferencesAboutTitle, isSection: true),
                 ListTileText(
                   str: Language.appName,
                   trailing: trailingIcon,
-                  onTap:() => context.routeTo(AppAboutPage)
+                  onTap:() => context.routeTo(PageAboutView)
                 ),
               ],
             )

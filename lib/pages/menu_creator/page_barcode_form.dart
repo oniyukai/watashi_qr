@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_history/code_view.dart';
-import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
+import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
+import 'package:watashi_qr/pages/widget/barcode_field.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-class BarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
-  const BarcodeForm({super.key});
+class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
+  const PageBarcodeForm({super.key});
 
   @override
-  State<BarcodeForm> createState() => _BarcodeFormState();
+  State<PageBarcodeForm> createState() => _PageBarcodeFormState();
 }
 
-class _BarcodeFormState extends State<BarcodeForm> {
+class _PageBarcodeFormState extends State<PageBarcodeForm> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   @override
@@ -26,7 +28,7 @@ class _BarcodeFormState extends State<BarcodeForm> {
     final format = widget.argumentOf(context);
     final localeStr = Language.of(context);
     final theme = Theme.of(context);
-    if (format == null) return AppAboutPage();
+    if (format == null) return PageAboutView();
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleBarCodeCreator),
@@ -48,7 +50,7 @@ class _BarcodeFormState extends State<BarcodeForm> {
                   notes: '',
                 );
                 if (isCreateAddHistory) HiveService.addItem(item, context:context);
-                context.routeOf<CodeView>().arguments(item).to();
+                context.routeOf<PageCodeView>().arguments(item).to();
               }
             },
           )
@@ -59,14 +61,14 @@ class _BarcodeFormState extends State<BarcodeForm> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
-              ListTileItem(
+              ItemTile(
                 title: HistoryFormat.localeStrFromName(format.name, localeStr),
                 myIconData: format.myIconData,
               ),
               const SizedBox(height: 16),
               FormBuilder(
                 key:_formKey,
-                child: BarcodeTextField(
+                child: BarcodeField(
                   format: format,
                   name: 'name',
                   formKey: _formKey,

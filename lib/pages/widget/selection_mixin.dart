@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-mixin SelectionModule<T extends StatefulWidget, E> on State<T> {
+mixin SelectionMixin<T extends StatefulWidget, E> on State<T> {
   bool _isSelectionMode = false;
   final Set<E> _selectedObjects = <E>{};
   bool get isSelectionMode => _isSelectionMode;

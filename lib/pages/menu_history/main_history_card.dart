@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/widgets/my_icon.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 
-class HistoryItemCard extends StatelessWidget {
+class MainHistoryCard extends StatelessWidget {
   final HistoryItem historyItem;
   final bool selected;
   final Function() onTap;
   final Function() onLongPress;
 
-  const HistoryItemCard({
+  const MainHistoryCard({
     super.key,
     required this.historyItem,
     required this.selected,

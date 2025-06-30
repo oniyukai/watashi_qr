@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_creator/barcode_form.dart';
-import 'package:watashi_qr/pages/menu_creator/qrcode_form.dart';
-import 'package:watashi_qr/pages/menu_history/code_view.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
-import 'package:watashi_qr/pages/widgets/expandable_card.dart';
+import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
+import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
+import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
+import 'package:watashi_qr/pages/widget/expandable_card.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:flutter/services.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:watashi_qr/pages/widgets/my_icon.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 
-class MainCreatorPage extends StatefulWidget {
-  const MainCreatorPage({super.key});
+class MainCreatorView extends StatefulWidget {
+  const MainCreatorView({super.key});
 
   @override
-  State<MainCreatorPage> createState() => _MainCreatorPageState();
+  State<MainCreatorView> createState() => _MainCreatorViewState();
 }
 
-class _MainCreatorPageState extends State<MainCreatorPage> {
+class _MainCreatorViewState extends State<MainCreatorView> {
   final ScrollController _scrollController = ScrollController();
   final Set<HistoryType> _historyTypes = const <HistoryType>{
     HistoryType.text,
@@ -70,7 +72,7 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
         notes: '',
       );
       if (isCreateAddHistory) HiveService.addItem(item, context:context);
-      context.routeOf<CodeView>().arguments(item).to();
+      context.routeOf<PageCodeView>().arguments(item).to();
     }
   }
 
@@ -91,15 +93,15 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                 myIconData: HistoryFormat.qrCode.myIconData,
                 expandedChild: Column(
                   children: [
-                    ListTileItem(
+                    ItemTile(
                       title: localeStr.createQrFromClipboard,
                       myIconData: MyIconData(Icons.content_copy),
                       onTap: () => _createQrFromClipboard(localeStr),
                     ),
-                    ..._historyTypes.map((type) => ListTileItem(
+                    ..._historyTypes.map((type) => ItemTile(
                       title: HistoryType.localeStrFromName(type.name, localeStr),
                       myIconData: type.myIconData,
-                      onTap: () => context.routeOf<QrcodeForm>()
+                      onTap: () => context.routeOf<PageQrcodeForm>()
                           .arguments(type)
                           .to(),
                       )
@@ -112,11 +114,11 @@ class _MainCreatorPageState extends State<MainCreatorPage> {
                 title: localeStr.titleBarCodeCreator,
                 myIconData: MyIconData.barcode,
                 expandedChild: Column(
-                  children: _historyFormats.map((format) => ListTileItem(
+                  children: _historyFormats.map((format) => ItemTile(
                     title: HistoryFormat.localeStrFromName(format.name, localeStr),
                     myIconData: format.myIconData,
                     description: format.composition(localeStr),
-                    onTap: () => context.routeOf<BarcodeForm>()
+                    onTap: () => context.routeOf<PageBarcodeForm>()
                         .arguments(format)
                         .to(),
                   )).toList(),

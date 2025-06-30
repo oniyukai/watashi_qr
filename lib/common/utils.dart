@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:core';
@@ -18,7 +18,6 @@ extension EnumFromName<T extends Enum> on Iterable<T> {
 class Utils {
   const Utils._();
 
-  // static int getNowUnixTime() => DateTime.now().millisecondsSinceEpoch;
   static int get nowUnixTime => DateTime.now().millisecondsSinceEpoch;
 
   // 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串

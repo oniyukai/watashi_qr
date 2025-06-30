@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/pages/widgets/my_icon.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 
-class ListTileItem extends StatelessWidget {
+class ItemTile extends StatelessWidget {
   final String title;
   final MyIconData? myIconData;
   final String? description;
@@ -10,7 +10,7 @@ class ListTileItem extends StatelessWidget {
   final Function()? onTap;
   final Function()? onLongPress;
 
-  const ListTileItem({
+  const ItemTile({
     super.key,
     required this.title,
     this.myIconData,

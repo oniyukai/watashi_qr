@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_settings/customurls_form.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
+import 'package:watashi_qr/pages/widget/functions.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/pages/widgets/selection_module.dart';
-import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
-class CustomurlsPage extends StatefulWidget {
-  const CustomurlsPage({super.key});
+class PageCustomurlsView extends StatefulWidget {
+  const PageCustomurlsView({super.key});
 
   @override
-  State<CustomurlsPage> createState() => _CustomurlsPageState();
+  State<PageCustomurlsView> createState() => _PageCustomurlsViewState();
 }
 
-class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<CustomurlsPage, String>  {
+class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, String>  {
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
@@ -30,13 +30,13 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => context.routeOf<CustomurlsForm>()
+            onPressed: () => context.routeOf<PageCustomurlsForm>()
               .arguments('')
               .to(),
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () => genericDialog(
+            onPressed: () => showMyDialog(
               context: context,
               titleStr: localeStr.deleteLabel,
               content: Text(
@@ -91,7 +91,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
                   final String url = parts[1];
                   return Card(
                     elevation: 0,
-                    child: ListTileItem(
+                    child: ItemTile(
                       title: title,
                       description: url,
                       selected: selectedObjects.contains(title),
@@ -99,7 +99,7 @@ class _CustomurlsPageState extends State<CustomurlsPage> with SelectionModule<Cu
                         if (isSelectionMode) {
                           toggleSelection(title);
                         } else {
-                          context.routeOf<CustomurlsForm>()
+                          context.routeOf<PageCustomurlsForm>()
                               .arguments(searchUrl)
                               .to();
                         }

@@ -4,22 +4,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:watashi_qr/common/hive_service.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
-import 'package:watashi_qr/pages/widgets/custom_menu_button.dart';
-import 'package:watashi_qr/pages/widgets/history_item_card.dart';
+import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/pages/widget/functions.dart';
+import 'package:watashi_qr/pages/widget/my_menu_button.dart';
+import 'package:watashi_qr/pages/menu_history/main_history_card.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_history/item_view.dart';
-import 'package:watashi_qr/pages/widgets/selection_module.dart';
-import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
-class MainHistoryPage extends StatefulWidget {
-  const MainHistoryPage({super.key});
+class MainHistoryView extends StatefulWidget {
+  const MainHistoryView({super.key});
 
   @override
-  State<MainHistoryPage> createState() => _MainHistoryPageState();
+  State<MainHistoryView> createState() => _MainHistoryViewState();
 }
 
-class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<MainHistoryPage, dynamic> {
+class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<MainHistoryView, dynamic> {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
           if (isSelectionMode) ...[
             IconButton(
               icon: const Icon(Icons.delete_forever),
-              onPressed: () => genericDialog(
+              onPressed: () => showMyDialog(
                 context: context,
                 titleStr: localeStr.deleteLabel,
                 content: Text(localeStr.popupMessageConfirmationDeleteSelectedItemsHistory),
@@ -78,7 +78,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
                 exitSelectionMode();
               },
             ),
-            CustomMenuButton(
+            MyMenuButton(
               optionMap: {
                 localeStr.menuItemHistoryAddFavorite: null,
                 localeStr.menuItemHistoryRemoveFavorite: null,
@@ -94,7 +94,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
               },
             ),
           ] else ...[
-            CustomMenuButton(
+            MyMenuButton(
               icon: const Icon(Icons.swap_vert),
               optionMap: {
                 localeStr.shareJsonLabel: () => HiveService.shareHistoriesToJson(localeStr),
@@ -104,7 +104,7 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),
-              onPressed: () => genericDialog(
+              onPressed: () => showMyDialog(
                 context: context,
                 titleStr: localeStr.deleteLabel,
                 content: Text(localeStr.popupMessageConfirmationDeleteHistory),
@@ -141,14 +141,14 @@ class _MainHistoryPageState extends State<MainHistoryPage> with SelectionModule<
               itemBuilder: (context, index) {
                 final item = historiesList[index];
                 final key = item.key;
-                return HistoryItemCard(
+                return MainHistoryCard(
                   historyItem: item,
                   selected: selectedObjects.contains(key),
                   onTap: () {
                     if (isSelectionMode) {
                       toggleSelection(key);
                     } else {
-                      context.routeOf<ItemView>().arguments(item).to();
+                      context.routeOf<PageItemView>().arguments(item).to();
                     }
                   },
                   onLongPress: () => enterSelectionMode(key),

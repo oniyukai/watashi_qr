@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:flutter/services.dart';
 
 class AnalyzedContentItem extends StatelessWidget {
@@ -192,7 +193,7 @@ class _AnalyzedContentColumn extends StatelessWidget {
     return Column(
       children: map.entries.map((entry) {
         if (entry.value != null && entry.value!.isNotEmpty) {
-          return ListTileItem(
+          return ItemTile(
             title: entry.value!,
             description: entry.key,
             trailing: IconButton(

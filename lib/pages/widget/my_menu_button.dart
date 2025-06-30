@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class CustomMenuButton extends StatelessWidget {
+class MyMenuButton extends StatelessWidget {
 
   final Widget? icon;
   final Map<String, Function?> optionMap;
   final Function? onSelectedEnd;
 
-  const CustomMenuButton({
+  const MyMenuButton({
     super.key,
     this.icon,
     required this.optionMap,

@@ -7,24 +7,26 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
-import 'package:watashi_qr/pages/menu_history/item_view.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:flutter/services.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_navigation_bar.dart';
-import 'package:watashi_qr/pages/menu_scanner/scan_image_page.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_nav_bar.dart';
+import 'package:watashi_qr/pages/menu_scanner/page_image_scan.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 
-class MainScannerPage extends StatefulWidget {
-  const MainScannerPage({super.key});
+class MainScannerView extends StatefulWidget {
+  const MainScannerView({super.key});
 
   @override
-  State<MainScannerPage> createState() => _MainScannerPageState();
+  State<MainScannerView> createState() => _MainScannerViewState();
 }
 
-class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingObserver {
+class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingObserver {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final SharedPreferences _prefs = Utils.prefs;
   final _prefScanWindowWidthPortraitKey = PreferenceKey.scannerWindowWidthPortrait.name;
@@ -214,7 +216,7 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
       Utils.lockCurrentOrientation(context);
     } else {
       Utils.unlockCurrentOrientation();
-      await context.routeOf<ItemView>().arguments(item).to();
+      await context.routeOf<PageItemView>().arguments(item).to();
       Utils.lockCurrentOrientation(context);
     }
     _isDetectDisable = false;
@@ -303,7 +305,7 @@ class _MainScannerPageState extends State<MainScannerPage> with WidgetsBindingOb
                       _isDetectDisable = true;
                       await Utils.mobileScannerController.stop();
                       Utils.unlockCurrentOrientation();
-                      await context.routeTo(ScanImagePage);
+                      await context.routeTo(PageImageScan);
                       Utils.lockCurrentOrientation(context);
                       Utils.mobileScannerControllerStart(context);
                       setState(() {

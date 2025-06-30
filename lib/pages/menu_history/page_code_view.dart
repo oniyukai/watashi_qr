@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
+import 'package:watashi_qr/entity/history_type.dart';
+import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
-import 'package:watashi_qr/pages/widgets/custom_menu_button.dart';
-import 'package:watashi_qr/pages/widgets/expandable_card.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/pages/widget/barcode_field.dart';
+import 'package:watashi_qr/pages/widget/my_menu_button.dart';
+import 'package:watashi_qr/pages/widget/expandable_card.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'dart:math';
@@ -17,18 +19,18 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CodeView extends StatefulWidget with RouterBridge<HistoryItem> {
-  const CodeView({super.key});
+class PageCodeView extends StatefulWidget with RouterBridge<HistoryItem> {
+  const PageCodeView({super.key});
 
   @override
-  State<CodeView> createState() => _CodeViewState();
+  State<PageCodeView> createState() => _PageCodeViewState();
 }
 
-class _CodeViewState extends State<CodeView> {
+class _PageCodeViewState extends State<PageCodeView> {
   @override
   Widget build(BuildContext context) {
     final historyItem = widget.argumentOf(context);
-    if (historyItem == null) return AppAboutPage();
+    if (historyItem == null) return PageAboutView();
     final localeStr = Language.of(context);
     final isPortrait = Utils.isPortrait(context);
     final validatorMsg = barcodeValidator(historyItem.contents, historyItem.getFormat, localeStr);
@@ -38,7 +40,7 @@ class _CodeViewState extends State<CodeView> {
       appBar: AppBar(
         title: Text(HistoryFormat.localeStrFromName(historyItem.format, localeStr)),
         actions: (validatorMsg == null) ? [
-          CustomMenuButton(
+          MyMenuButton(
             icon: const Icon(Icons.save),
             optionMap: const {
               Language.pngLabel: null,

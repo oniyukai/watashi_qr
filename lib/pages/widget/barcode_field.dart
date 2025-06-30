@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:barcode/barcode.dart';
 
-class BarcodeTextField extends StatelessWidget {
+class BarcodeField extends StatelessWidget {
   final HistoryFormat? format;
   final String name;
   final GlobalKey<FormBuilderState> formKey;
   final String? initialValue;
 
-  const BarcodeTextField({
+  const BarcodeField({
     super.key,
     required this.format,
     required this.name,

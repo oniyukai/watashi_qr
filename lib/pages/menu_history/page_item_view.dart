@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_history/code_view.dart';
+import 'package:watashi_qr/entity/history_type.dart';
+import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
+import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
-import 'package:watashi_qr/pages/widgets/expandable_card.dart';
-import 'package:watashi_qr/pages/widgets/item_view_widgets.dart';
-import 'package:watashi_qr/pages/widgets/my_icon.dart';
-import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/pages/widget/functions.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
+import 'package:watashi_qr/pages/widget/expandable_card.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 import 'dart:io';
 
-class ItemView extends StatefulWidget with RouterBridge<HistoryItem> {
-  const ItemView({super.key});
+class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
+  const PageItemView({super.key});
 
   @override
-  State<ItemView> createState() => _ItemViewState();
+  State<PageItemView> createState() => _PageItemViewState();
 }
 
-class _ItemViewState extends State<ItemView> {
+class _PageItemViewState extends State<PageItemView> {
   final _formKey = GlobalKey<FormBuilderState>();
   late HistoryItem _historyItem;
   late bool _isExistInhistories;
@@ -149,7 +151,7 @@ class _ItemViewState extends State<ItemView> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   leading: isFormatSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                  onTap: isFormatSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
+                  onTap: isFormatSupported ? ()=>context.routeOf<PageCodeView>().arguments(_historyItem).to() : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -299,7 +301,7 @@ class _ItemViewState extends State<ItemView> {
     ];
   }
 
-  void _showModifyContentsSheet(Language localeStr) => genericBottomSheet(
+  void _showModifyContentsSheet(Language localeStr) => showMyBottomSheet(
     context: context,
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -310,7 +312,7 @@ class _ItemViewState extends State<ItemView> {
     ),
     content: FormBuilder(
       key:_formKey,
-      child: BarcodeTextField(
+      child: BarcodeField(
         format: _historyItem.getFormat,
         name: 'modifyContents',
         formKey: _formKey,
@@ -338,7 +340,7 @@ class _ItemViewState extends State<ItemView> {
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
-  void _actionCustomSearch(Language localeStr) => genericDialog(
+  void _actionCustomSearch(Language localeStr) => showMyDialog(
     context: context,
     titleStr: localeStr.customSearchUrls,
     noCancelButton: true,
@@ -346,7 +348,7 @@ class _ItemViewState extends State<ItemView> {
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: context.readSettings.customSearchUrls.map((searchUrl) => ListTileItem(
+          children: context.readSettings.customSearchUrls.map((searchUrl) => ItemTile(
             title: searchUrl.split(Language.separationObject)[0],
             description: searchUrl.split(Language.separationObject)[1],
             onTap: () {
@@ -359,7 +361,7 @@ class _ItemViewState extends State<ItemView> {
     ),
   );
 
-  void _actionModifyNotes(Language localeStr) => genericBottomSheet(
+  void _actionModifyNotes(Language localeStr) => showMyBottomSheet(
     context: context,
     title: Text(localeStr.actionModifyNotes),
     content: FormBuilder(
