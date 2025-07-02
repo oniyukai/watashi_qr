@@ -15,98 +15,64 @@ import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 
-class PageImageScan extends StatefulWidget with RouterBridge<XFile> {
+class PageImageScan extends StatefulWidget with RouterBridge<PageImageScanArgs> {
   const PageImageScan({super.key});
 
   @override
   State<PageImageScan> createState() => _PageImageScanState();
 }
 
-class _PageImageScanState extends State<PageImageScan> {
-  XFile? _imageFile;
-  BarcodeCapture? _barcodeCapture;
-  final CropController _cropController = CropController();
-  bool _isScanning = false;
-  Uint8List? _imageBytes;
+class PageImageScanArgs {
+  final MobileScannerController controller;
+  final XFile? xFile;
+  PageImageScanArgs({required this.controller, this.xFile});
+}
 
+class _PageImageScanState extends State<PageImageScan> {
+  final CropController _cropController = CropController();
+  Uint8List? _imageBytes;
+  BarcodeCapture? _barcodeCapture;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
       _loadImage();
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future<void> _loadImage() async {
-    final XFile? argument = widget.argumentOf(context);
+    XFile? xFile = widget.argumentOf(context)?.xFile
+        ?? await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    if (argument != null) {
-      setState(() {
-        _imageFile = argument;
-      });
-    } else {
-      setState(() {
-      });
-      await _pickImage();
-    }
-
-    if (_imageFile != null) {
-      final bytes = await File(_imageFile!.path).readAsBytes();
+    if (xFile != null) {
+      final bytes = await xFile.readAsBytes();
       setState(() {
         _imageBytes = bytes;
       });
-      _cropController.image = bytes;
+      _cropController.image = bytes;  // <-- don't setState this
     } else {
       Navigator.pop(context);
     }
   }
 
-  Future<void> _pickImage() async {
-    final XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (file != null) {
-      setState(() {
-        _imageFile = file;
-        _barcodeCapture = null;
-      });
-    }
-  }
+  Future<void> _onCropped(CropResult croppedData) async {
+    if (croppedData is CropSuccess) {
+      final MobileScannerController? controller = widget.argumentOf(context)?.controller;
+      final Uint8List croppedImage = croppedData.croppedImage;
 
-  Future<void> _analyzeCroppedImage(CropResult croppedData) async {
-    setState(() {
-      _isScanning = true;
-    });
-    try {
-      if (croppedData is CropSuccess) {
-        final Uint8List croppedImage = croppedData.croppedImage;
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/temp_image.png');
+      await tempFile.writeAsBytes(croppedImage);
 
-        // Save the cropped image to a temporary file
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/temp_image.png');
-        await tempFile.writeAsBytes(croppedImage);
+      final BarcodeCapture? barcodeCapture = await controller?.analyzeImage(tempFile.path);
 
-        // Analyze the cropped image using mobile_scanner
-        final BarcodeCapture? barcodeCapture =
-        await Utils.mobileScannerController.analyzeImage(tempFile.path);
-
-        if (mounted) {
-          setState(() {
-            _barcodeCapture = barcodeCapture;
-          });
-        }
-      } else if (croppedData is CropFailure) {
-        Utils.showToast('${croppedData.cause}');
+      if (mounted) {
+        setState(() {
+          _barcodeCapture = barcodeCapture;
+        });
       }
-    } catch (e) {
-      Utils.showToast(e.toString());
-    } finally {
-      setState(() {
-        _isScanning = false;
-      });
+    } else if (croppedData is CropFailure) {
+      Utils.showToast('${croppedData.cause}');
     }
   }
 
@@ -114,6 +80,7 @@ class _PageImageScanState extends State<PageImageScan> {
     final barcodeFormat = _barcodeCapture?.barcodes.first.format;
     final String? contents = _barcodeCapture?.barcodes.first.rawValue;
     if (barcodeFormat==null || contents==null || contents.isEmpty) return;
+
     final format = HistoryFormat.fromScannerFormat(barcodeFormat);
     final bool isScanAddHistory = context.readSettings.isScanAddHistory;
     final HistoryItem item = HistoryItem(
@@ -138,22 +105,23 @@ class _PageImageScanState extends State<PageImageScan> {
       appBar: AppBar(
         title: Text(localeStr.titleScan),
         actions: [
-          if (_barcodeCapture?.barcodes.isNotEmpty == true && !_isScanning) IconButton(
+          if (_barcodeCapture?.barcodes.isNotEmpty == true) IconButton(
             icon: const Icon(Icons.check),
             onPressed: checkAndGoView,
           ),
         ],
       ),
-      body: (_imageFile != null && _imageBytes != null) ? Crop(
+      body: (_imageBytes == null) ? null
+          : Crop(
         controller: _cropController,
         image: _imageBytes!,
         initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
-        onCropped: (image) => _analyzeCroppedImage(image),
+        onCropped: _onCropped,
         onHistoryChanged: (_) => _cropController.crop(),
         baseColor: Colors.transparent,
         key: ValueKey(Utils.isPortrait(context)),
         interactive: true,
-      ) : null,
+      ),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,21 +27,8 @@ class Utils {
   }
 
   static late SharedPreferences prefs;
-  static late MobileScannerController mobileScannerController;
   static Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
-    mobileScannerController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.unrestricted,
-      autoStart: false,
-    );
-  }
-  static Future<void> mobileScannerControllerStart(BuildContext context) async {
-    await mobileScannerController.start(
-      cameraDirection: context.readSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back
-    );
-    await mobileScannerController.setZoomScale(
-      prefs.getDouble(PreferenceKey.scannerZoomLevel.name) ?? 0.0
-    );
   }
 
   // true:為直屏狀態 false:為橫屏狀態
