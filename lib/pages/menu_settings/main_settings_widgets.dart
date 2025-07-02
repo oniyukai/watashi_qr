@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/pages/widget/functions.dart';
 
 class ListTileText extends StatelessWidget {
-  final String str;
-  final bool isSection;
-  final Widget? trailing;
-  final Function? onTap;
-
   const ListTileText({
     super.key,
     required this.str,
@@ -14,6 +9,11 @@ class ListTileText extends StatelessWidget {
     this.trailing,
     this.onTap,
   });
+
+  final String str;
+  final bool isSection;
+  final Widget? trailing;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class ListTileText extends StatelessWidget {
       ),
       textColor: isSection ? colorScheme.primary : null,
       trailing: trailing,
-      onTap: (onTap==null) ? null : ()=>onTap!(),
+      onTap: onTap,
     );
   }
 }
@@ -41,8 +41,8 @@ class ListTileText extends StatelessWidget {
 class ListTileSwitch extends StatelessWidget {
   final String str;
   final bool initialValue;
-  final Function onToggle;
-  final IconData? icon;
+  final void Function(bool value) onToggle;
+  final IconData? iconData;
   final bool enabled;
 
   const ListTileSwitch({
@@ -50,14 +50,14 @@ class ListTileSwitch extends StatelessWidget {
     required this.str,
     required this.initialValue,
     required this.onToggle,
-    this.icon,
+    this.iconData,
     this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: SizedBox(width: 48, child: Icon(icon)),
+      leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(str),
       enabled: enabled,
       onTap: ()=>onToggle(!initialValue),
@@ -75,16 +75,16 @@ class ListTileSwitch extends StatelessWidget {
 
 class ListTilePicker extends StatelessWidget {
   final String str;
-  final IconData? icon;
+  final IconData? iconData;
   final String? dialogTitleStr;
   final String selectedOption;
   final Map<String, String> optionMap;  // 只能是String key是因為SharedPreferences並不支援所有類與enum
-  final Function onChanged;
+  final void Function(String value) onChanged;
 
   const ListTilePicker({
     super.key,
     required this.str,
-    this.icon,
+    this.iconData,
     this.dialogTitleStr,
     required this.selectedOption,
     required this.optionMap,
@@ -94,7 +94,7 @@ class ListTilePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: SizedBox(width: 48, child: Icon(icon)),
+      leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(str),
       subtitle: Text(optionMap[selectedOption] ?? selectedOption),
       onTap: () => showMyDialog(

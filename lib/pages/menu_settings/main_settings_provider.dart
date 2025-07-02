@@ -38,8 +38,8 @@ enum SearchEngine {
   bing(Language.bingUrl),
   wikipedia(Language.wikipediaUrl);
 
-  final String url;
   const SearchEngine(this.url);
+  final String url;
 
   static String urlByName(String n) => values.fromName(n)?.url ?? google.url;
 

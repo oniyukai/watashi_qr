@@ -6,11 +6,6 @@ import 'package:string_validator/string_validator.dart';
 import 'package:barcode/barcode.dart';
 
 class BarcodeField extends StatelessWidget {
-  final HistoryFormat? format;
-  final String name;
-  final GlobalKey<FormBuilderState> formKey;
-  final String? initialValue;
-
   const BarcodeField({
     super.key,
     required this.format,
@@ -18,6 +13,11 @@ class BarcodeField extends StatelessWidget {
     required this.formKey,
     this.initialValue,
   });
+
+  final HistoryFormat? format;
+  final String name;
+  final GlobalKey<FormBuilderState> formKey;
+  final String? initialValue;
 
   @override
   Widget build(BuildContext context) {

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 
 class MyMenuButton extends StatelessWidget {
-
-  final Widget? icon;
-  final Map<String, Function?> optionMap;
-  final Function? onSelectedEnd;
-
   const MyMenuButton({
     super.key,
     this.icon,
     required this.optionMap,
     this.onSelectedEnd,
   });
+
+  final Widget? icon;
+  final Map<String, void Function()?> optionMap;
+  final void Function(int value)? onSelectedEnd;
 
   @override
   Widget build(BuildContext context) {

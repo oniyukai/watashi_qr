@@ -7,16 +7,16 @@ import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:flutter/services.dart';
 
 class AnalyzedContentItem extends StatelessWidget {
-  final String contents;
-  final HistoryType? type;
-  final HistoryFormat? format;
-
   const AnalyzedContentItem({
     super.key,
     required this.contents,
     required this.type,
     required this.format,
   });
+
+  final String contents;
+  final HistoryType? type;
+  final HistoryFormat? format;
 
   @override
   Widget build(BuildContext context) {
@@ -212,13 +212,13 @@ class _AnalyzedContentColumn extends StatelessWidget {
 
 
 class PressButtonGrid extends StatelessWidget {
-  final IconData icon;
+  final IconData iconData;
   final String description;
-  final Function()? onTap;
+  final void Function()? onTap;
 
   const PressButtonGrid({
     super.key,
-    required this.icon,
+    required this.iconData,
     required this.description,
     required this.onTap,
   });
@@ -230,7 +230,7 @@ class PressButtonGrid extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         onTap: onTap,
-        title: Icon(icon),
+        title: Icon(iconData),
         subtitle: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(

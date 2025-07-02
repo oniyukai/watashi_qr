@@ -58,7 +58,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ListTileText(str: localeStr.preferencesScanTitle, isSection: true),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanAutoOpenWebsiteLabel,
-                  icon: Icons.open_in_browser,
+                  iconData: Icons.open_in_browser,
                   initialValue: settings.isAutoOpenWebsite,
                   enabled: !settings.isContinuousScan,
                   onToggle: (bool value) {
@@ -67,7 +67,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanContinuousScanLabel,
-                  icon: Icons.fast_forward,
+                  iconData: Icons.fast_forward,
                   initialValue: settings.isContinuousScan,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isContinuousScan, value);
@@ -75,7 +75,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanVibrateLabel,
-                  icon: Icons.vibration,
+                  iconData: Icons.vibration,
                   initialValue: settings.isVibrateOnScan,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isVibrateOnScan, value);
@@ -83,7 +83,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanBipLabel,
-                  icon: Icons.volume_up,
+                  iconData: Icons.volume_up,
                   initialValue: settings.isBipOnScan,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isBipOnScan, value);
@@ -91,7 +91,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanScreenRotationLabel,
-                  icon: Icons.screen_rotation,
+                  iconData: Icons.screen_rotation,
                   initialValue: settings.isScreenRotation,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isScreenRotation, value);
@@ -99,7 +99,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanBarcodeCopiedLabel,
-                  icon: Icons.content_copy,
+                  iconData: Icons.content_copy,
                   initialValue: settings.isBarcodeCopied,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isBarcodeCopied, value);
@@ -107,7 +107,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanUseFrontcameraLabel,
-                  icon: Icons.flip_camera_android,
+                  iconData: Icons.camera_front,
                   initialValue: settings.isUseFrontcamera,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isUseFrontcamera, value);
@@ -128,7 +128,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ListTileText(str: localeStr.titleHistory, isSection: true),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchScanAddBarcodeToTheHistoryLabel,
-                  icon: Icons.qr_code_scanner,
+                  iconData: Icons.qr_code_scanner,
                   initialValue: settings.isScanAddHistory,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isScanAddHistory, value);
@@ -136,7 +136,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel,
-                  icon: Icons.edit,
+                  iconData: Icons.edit,
                   initialValue: settings.isCreateAddHistory,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isCreateAddHistory, value);
@@ -144,7 +144,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 ),
                 ListTileSwitch(
                   str: localeStr.preferencesSwitchHistorySaveDuplicatesLabel,
-                  icon: Icons.filter_2,
+                  iconData: Icons.filter_2,
                   initialValue: settings.isSaveDuplicates,
                   onToggle: (bool value) {
                     settings.updateSetting(PreferenceKey.isSaveDuplicates, value);

@@ -20,8 +20,8 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   codebar(MyIconData.barcode),
   itf(MyIconData.barcode);
 
-  final MyIconData myIconData;
   const HistoryFormat(this.myIconData);
+  final MyIconData myIconData;
 
   Barcode Function() get barcodeFunc => switch (this) {
     qrCode => Barcode.qrCode,

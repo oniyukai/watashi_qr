@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MyIconData {
+  const MyIconData(
+    this.iconData, {
+    this.svgString,
+  });
+
+  final IconData? iconData;
+  final String? svgString;
 
   static const MyIconData
         barcode = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,37 +32,10 @@ class MyIconData {
       pdf417 = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3 3H5V21H3V3ZM7 3H7V7H7V11H7V15H9V15H9V11H11V11H11V9H11V7H13V7H13V9H15V9H15V7H17V7H17V3H15V3H15V5H13V5H13V3H11V3H11V5H9V5H9V3H7V3ZM15 9H15V11H15V13H13V13H13V11H11V11H11V13H11V15H9V15H9V17H7V17H7V21H9V21H11V21H11V19H11V17H13V17H13V21H15V21H15V19H17V19H17V15H17V11H17V9H15V9ZM19 3H21V21H19V3Z" fill="white"/>
 </svg>''');
-
-  final IconData? iconData;
-  final String? svgString;
-
-  const MyIconData(
-    this.iconData, {
-    this.svgString,
-  });
 }
 
 
 class MyIcon extends StatelessWidget {
-
-  /// 包含IconData 或 SVG字串 的類別
-  final MyIconData? myIconData;
-
-  /// 顏色，同時應用於 SVG 和 Icon。
-  final Color? color;
-
-  /// Icon 的大小。
-  final double? size;
-
-  /// Icon 的語意標籤，用於輔助功能。
-  final String? semanticLabel;
-
-  /// Icon 的方向。
-  final TextDirection? textDirection;
-
-  /// 陰影效果
-  final List<Shadow>? shadows;
-
   const MyIcon(
     this.myIconData, {
     super.key,
@@ -65,6 +45,13 @@ class MyIcon extends StatelessWidget {
     this.textDirection,
     this.shadows,
   });
+
+  final MyIconData? myIconData;
+  final Color? color;
+  final double? size;
+  final String? semanticLabel;
+  final TextDirection? textDirection;
+  final List<Shadow>? shadows;
 
   @override
   Widget build(BuildContext context) {

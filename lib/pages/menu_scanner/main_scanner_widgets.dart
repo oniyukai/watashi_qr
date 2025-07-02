@@ -24,11 +24,11 @@ class ScannerErrorWidget extends StatelessWidget {
 
 class MyScanWindowOverlay extends StatefulWidget {
   const MyScanWindowOverlay({
+    super.key,
     required this.controller,
     required this.scanWindow,
     required this.onPanUpdate,
     required this.onPanEnd,
-    super.key
   });
 
   final MobileScannerController controller;

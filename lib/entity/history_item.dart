@@ -86,8 +86,8 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   H(BarcodeQRCorrectionLevel.high),
   none;
 
-  final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
   const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
+  final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
 
   static HistoryErrorLevel? fromName(String n) => values.fromName(n);
   static String? localeStrFromName(String n, Language localeStr) => optionMap(localeStr)[n];

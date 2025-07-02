@@ -2,14 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class ItemTile extends StatelessWidget {
-  final String title;
-  final MyIconData? myIconData;
-  final String? description;
-  final bool? selected;
-  final Widget? trailing;
-  final Function()? onTap;
-  final Function()? onLongPress;
-
   const ItemTile({
     super.key,
     required this.title,
@@ -20,6 +12,14 @@ class ItemTile extends StatelessWidget {
     this.onTap,
     this.onLongPress,
   });
+
+  final String title;
+  final MyIconData? myIconData;
+  final String? description;
+  final bool? selected;
+  final Widget? trailing;
+  final void Function()? onTap;
+  final void Function()? onLongPress;
 
   @override
   Widget build(BuildContext context) {

@@ -221,22 +221,22 @@ class _PageItemViewState extends State<PageItemView> {
     final bool willExist = _isWillExist ?? _isExistInhistories;
     return <PressButtonGrid>[
       if (type != HistoryType.website) PressButtonGrid(
-          icon: Icons.search,
+          iconData: Icons.search,
           description: localeStr.actionWebSearchLabel,
-          onTap: () => _actionWebSearch()
+          onTap: _actionWebSearch,
       ),
       if (type == HistoryType.website) PressButtonGrid(
-        icon: Icons.open_in_browser,
+        iconData: Icons.open_in_browser,
         description: localeStr.actionOpenLink,
         onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
       ),
       if (context.readSettings.customSearchUrls.isNotEmpty) PressButtonGrid(
-        icon: Icons.search,
+        iconData: Icons.search,
         description: localeStr.customSearchUrls,
         onTap: () => _actionCustomSearch(localeStr),
       ),
       PressButtonGrid(
-        icon: Icons.edit_note,
+        iconData: Icons.edit_note,
         description: localeStr.actionModifyNotes,
         onTap: () {
           _actionModifyNotes(localeStr);
@@ -247,37 +247,37 @@ class _PageItemViewState extends State<PageItemView> {
       //     .contains(type)) PressButtonGrid(
       //   icon: Icons.contacts_outlined,
       //   description: localeStr.actionAddToContacts,
-      //   onTap: () => _actionAddToContacts(_historyItem.contents, type!), // todo
+      //   onTap: () => _actionAddToContacts(type!), // todo
       // ),
       if (type == HistoryType.contact) PressButtonGrid(
-        icon: Icons.share,
+        iconData: Icons.share,
         description: localeStr.actionShareVcfFile,
-        onTap: () => _actionShareVcfFile(_historyItem.contents),
+        onTap: _actionShareVcfFile,
       ),
       if (type == HistoryType.mail) PressButtonGrid(
-        icon: Icons.mail_outline,
+        iconData: Icons.mail_outline,
         description: localeStr.actionSendMailLabel,
-        onTap: () => _actionSendMail(_historyItem.contents),
+        onTap: _actionSendMail,
       ),
       if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
-        icon: Icons.sms_outlined,
+        iconData: Icons.sms_outlined,
         description: localeStr.actionSendSmsLabel,
-        onTap: () => _actionSendSms(_historyItem.contents, type!),
+        onTap: () => _actionSendSms(type!),
       ),
       if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
-        icon: Icons.call,
+        iconData: Icons.call,
         description: localeStr.actionCallPhoneLabel,
-        onTap: () => _actionCallPhone(_historyItem.contents, type!),
+        onTap: () => _actionCallPhone(type!),
       ),
       if (type == HistoryType.location) PressButtonGrid(
-        icon: Icons.location_on,
+        iconData: Icons.location_on,
         description: localeStr.actionShowLocation,
-        onTap: () => _actionShowLocation(_historyItem.contents),
+        onTap: _actionShowLocation,
       ),
       // if (type == HistoryType.agend) PressButtonGrid(
       //   icon: Icons.event,
       //   description: localeStr.actionAddToCalendar,
-      //   onTap: () => _actionShareAgend(_historyItem.contents), // todo
+      //   onTap: _actionShareAgend, // todo
       // ),
       // if (type == HistoryType.wifi) PressButtonGrid(
       //   icon: Icons.wifi,
@@ -285,7 +285,7 @@ class _PageItemViewState extends State<PageItemView> {
       //   onTap: () {}, // Notodo: WIFI按鈕(決定不加入)
       // ),
       PressButtonGrid(
-        icon: willExist ? Icons.delete_forever : Icons.add,
+        iconData: willExist ? Icons.delete_forever : Icons.add,
         description: willExist
             ? localeStr.menuItemHistoryDeleteFromHistory
             : localeStr.menuItemHistoryAddInHistory,
@@ -391,15 +391,15 @@ class _PageItemViewState extends State<PageItemView> {
     ]
   );
 
-  Future<void> _actionShareVcfFile(String contents) async {
+  Future<void> _actionShareVcfFile() async {
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/contact.vcf');
-    await file.writeAsString(contents);
+    await file.writeAsString(_historyItem.contents);
     await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
-  void _actionSendMail(String contents) {
-    final analyzed = analyzeMail(contents);
+  void _actionSendMail() {
+    final analyzed = analyzeMail(_historyItem.contents);
     final String? email = analyzed['email'];
     final String? subject = analyzed['subject'];
     final String? message = analyzed['message'];
@@ -414,15 +414,15 @@ class _PageItemViewState extends State<PageItemView> {
     if ((email ?? subject ?? message) != null) Utils.openUrlInBrowser(uri.toString());
   }
 
-  void _actionSendSms(String contents, HistoryType type) {
+  void _actionSendSms(HistoryType type) {
     String? phone;
     String? message;
     if (type == HistoryType.sms) {
-      final analyzed = analyzeSms(contents);
+      final analyzed = analyzeSms(_historyItem.contents);
       phone = analyzed['phone'];
       message = analyzed['message'];
     } else if (type == HistoryType.phone) {
-      phone = contents.substring(4);
+      phone = _historyItem.contents.substring(4);
     }
     if (phone == null) return;
     final Uri uri = Uri(
@@ -435,16 +435,16 @@ class _PageItemViewState extends State<PageItemView> {
     Utils.openUrlInBrowser(uri.toString());
   }
 
-  void _actionCallPhone(String contents, HistoryType type) {
+  void _actionCallPhone(HistoryType type) {
     String? phone;
     if (type == HistoryType.sms) {
-      final analyzed = analyzeSms(contents);
+      final analyzed = analyzeSms(_historyItem.contents);
       phone = analyzed['phone'];
     } else if (type == HistoryType.phone) {
-      phone = contents.substring(4);
+      phone = _historyItem.contents.substring(4);
     }
     if (phone != null) Utils.openUrlInBrowser('tel:$phone');
   }
 
-  void _actionShowLocation(String contents) => Utils.openUrlInBrowser('geo:${contents.substring(4)}');
+  void _actionShowLocation() => Utils.openUrlInBrowser('geo:${_historyItem.contents.substring(4)}');
 }

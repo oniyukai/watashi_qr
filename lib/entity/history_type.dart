@@ -18,8 +18,8 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   product(MyIconData(Icons.sell_outlined)),
   industrial(MyIconData(Icons.build_circle_outlined));
 
-  final MyIconData myIconData;
   const HistoryType(this.myIconData);
+  final MyIconData myIconData;
 
   static String localeStrFromName(String n, Language localeStr) => <HistoryType, String>{
     text: localeStr.qrCodeTypeNameText,

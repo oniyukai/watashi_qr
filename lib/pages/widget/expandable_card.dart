@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class ExpandableCard extends StatefulWidget {
-  final String title;
-  final MyIconData? myIconData;
-  final bool? initialExpanded;
-  final Widget? collapsedChild;
-  final Widget? expandedChild;
-
   const ExpandableCard({
     super.key,
     required this.title,
@@ -16,6 +10,12 @@ class ExpandableCard extends StatefulWidget {
     this.collapsedChild,
     this.expandedChild,
   });
+
+  final String title;
+  final MyIconData? myIconData;
+  final bool? initialExpanded;
+  final Widget? collapsedChild;
+  final Widget? expandedChild;
 
   @override
   State<ExpandableCard> createState() => _ExpandableCardState();
