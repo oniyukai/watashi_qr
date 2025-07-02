@@ -41,7 +41,6 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   late double _defaultScanWindowSize;
   late double _zoomLevel;
   Rect _scanWindow = Rect.zero;
-  bool _isFlashOn = false;
   bool _isDetectDisable = false;
 
   @override
@@ -61,34 +60,15 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.375;
+    _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.4;
     _loadPrefsValues();
-    if (context.watch<MenuNavBarProvider>().currentIndex == 0 && !_isDetectDisable) {
+
+    if (context.watch<MenuNavBarProvider>().onScanner && !_isDetectDisable) {
       Utils.lockCurrentOrientation(context);
-      _startScan(context);
+      _startScan();
     } else {
       _scannerController.stop();
       Utils.unlockCurrentOrientation();
-      setState(() => _isFlashOn = false);
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    switch (state) {
-      case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-        setState(() => _isFlashOn = false);
-        break;
-      case AppLifecycleState.resumed:
-        if (context.read<MenuNavBarProvider>().currentIndex == 0
-            && !_isDetectDisable) {
-          _scannerController.setZoomScale(_zoomLevel);
-        }
-        break;
-      case AppLifecycleState.inactive:
     }
   }
 
@@ -104,50 +84,48 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
         ?? _defaultScanWindowSize;
     _zoomLevel = _prefs.getDouble(_prefScanZoomLevelKey) ?? 0.0; // 0.0為預設值
     _scanWindow = Rect.fromCenter(
-        center: _scanWindow.center,
-        width: width,
-        height: height
+      center: _scanWindow.center,
+      width: width,
+      height: height,
     );
   }
 
-  Future<void> _startScan(BuildContext context) async {
-    await _scannerController.start(
-        cameraDirection: context.readSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back
-    );
-    await _scannerController.setZoomScale(
-        _prefs.getDouble(PreferenceKey.scannerZoomLevel.name) ?? 0.0
-    );
+  Future<void> _startScan() async {
+    final cameraFacing = context.readSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back;
+    await _scannerController.start(cameraDirection: cameraFacing);
+    await _scannerController.setZoomScale(_zoomLevel);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed &&
+        context.read<MenuNavBarProvider>().onScanner && !_isDetectDisable
+    ) {
+      _scannerController.setZoomScale(_zoomLevel);
+    }
   }
 
   Future<void> _scannerOnDetect(BarcodeCapture capture) async {
     if (_isDetectDisable) return;
     _isDetectDisable = true;
-    await _scannerController.stop();
-    setState(() => _isFlashOn = false);
+    final bool isContinuousScan = context.readSettings.isContinuousScan;
+    final bool isVibrateOnScan = context.readSettings.isVibrateOnScan;
+    final bool isBipOnScan = context.readSettings.isBipOnScan;
+    final bool isBarcodeCopied = context.readSettings.isBarcodeCopied;
+    final bool isScanAddHistory = context.readSettings.isScanAddHistory;
+    final bool isAutoOpenWebsite = context.readSettings.isAutoOpenWebsite;
+
     final barcodeFormat = capture.barcodes.first.format;
     final String? contents = capture.barcodes.first.rawValue;
     if (contents==null || contents.isEmpty) {
       Utils.showToast(Language.of(context).scanErrorLabel);
       _isDetectDisable = false;
-      _startScan(context);
       return;
     }
-
-    // 自動打開網站
-    final bool isAutoOpenWebsite = context.readSettings.isAutoOpenWebsite;
-    // 連續掃描
-    final bool isContinuousScan = context.readSettings.isContinuousScan;
-    // 掃描震動
-    final bool isVibrateOnScan = context.readSettings.isVibrateOnScan;
     if (isVibrateOnScan) Utils.deviceVibrate();
-    // 播放音效
-    final bool isBipOnScan = context.readSettings.isBipOnScan;
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
-    // 複製到剪貼簿
-    final bool isBarcodeCopied = context.readSettings.isBarcodeCopied;
     if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: contents));
-
-    final bool isScanAddHistory = context.readSettings.isScanAddHistory;
     final format = HistoryFormat.fromScannerFormat(barcodeFormat);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
@@ -160,20 +138,15 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       notes: '',
     );
     if (isScanAddHistory) HiveService.addItem(item, context:context);
-
     if (isContinuousScan) {
       Utils.showToast(item.contents);
+      await Future<void>.delayed(const Duration(milliseconds: 800));
     } else if (isAutoOpenWebsite && item.type == HistoryType.website.name) {
-      Utils.unlockCurrentOrientation();
       await Utils.openUrlInBrowser(item.contents);
-      Utils.lockCurrentOrientation(context);
     } else {
-      Utils.unlockCurrentOrientation();
       await context.routeOf<PageItemView>().arguments(item).to();
-      Utils.lockCurrentOrientation(context);
     }
     _isDetectDisable = false;
-    _startScan(context);
   }
 
   void _updateScanWindow(double width, double height) {
@@ -205,28 +178,12 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     await _saveScanWindow();
   }
 
-  void _toggleFlash(){
-    try {
-      _scannerController.toggleTorch();
-      setState(() => _isFlashOn = !_isFlashOn);
-    } catch (e) {
-      Utils.showToast('_toggleFlash: $e');
-    }
-  }
-
   Future<void> _goScanImage() async {
     _isDetectDisable = true;
-    await _scannerController.stop();
-    Utils.unlockCurrentOrientation();
     await context.routeOf<PageImageScan>()
         .arguments((PageImageScanArgs(controller: _scannerController)))
         .to();
-    Utils.lockCurrentOrientation(context);
-    _startScan(context);
-    setState(() {
-      _isFlashOn = false;
-      _isDetectDisable = false;
-    });
+    _isDetectDisable = false;
   }
 
   Future<void> _setZoomLevel(double zoomLevel) async {
@@ -241,44 +198,46 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     final isPortrait = Utils.isPortrait(context);
-
     return SafeArea(
       child: Stack(
         fit: StackFit.expand,
         children: [
           LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              final screenCenter = Size(constraints.maxWidth, constraints.maxHeight).center(Offset.zero);
-              _scanWindow = Rect.fromCenter( // todo debug: 轉向時中心xy沒轉向
-                center: screenCenter,
+              _scanWindow = Rect.fromCenter(
+                center: Size(constraints.maxWidth, constraints.maxHeight).center(Offset.zero),
                 width: _scanWindow.width,
                 height: _scanWindow.height,
               );
-              return const SizedBox.shrink();
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  Transform.scale(
+                    scaleX: context.readSettings.isUseFrontcamera ? -1 : 1,
+                    child: MobileScanner(
+                      scanWindow: _scanWindow,
+                      controller: _scannerController,
+                      errorBuilder: (context, error) => ScannerErrorWidget(error: error),
+                      onDetect: _scannerOnDetect,
+                    ),
+                  ),
+                  Transform.scale( //todo debug: 字體水平相反
+                    scaleX: context.readSettings.isUseFrontcamera ? -1 : 1,
+                    child: BarcodeOverlay( //todo debug: 套件該組件並沒有處理完轉向問題
+                      controller: _scannerController,
+                      boxFit: BoxFit.cover,
+                      color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),
+                    ),
+                  ),
+                  MyScanWindowOverlay(
+                    controller: _scannerController,
+                    scanWindow: _scanWindow,
+                    onPanUpdate: _updateScanWindow,
+                    onPanEnd: _saveScanWindow,
+                  ),
+                ],
+              );
             },
-          ),
-          Transform.scale(
-            scaleX: context.readSettings.isUseFrontcamera ? -1 : 1,
-            child: MobileScanner(
-              scanWindow: _scanWindow,
-              controller: _scannerController,
-              errorBuilder: (context, error) => ScannerErrorWidget(error: error),
-              onDetect: _scannerOnDetect,
-            ),
-          ),
-          Transform.scale(
-            scaleX: context.readSettings.isUseFrontcamera ? -1 : 1,
-            child: BarcodeOverlay(
-              controller: _scannerController,
-              boxFit: BoxFit.cover,
-              color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),
-            ),
-          ),
-          MyScanWindowOverlay(
-            controller: _scannerController,
-            scanWindow: _scanWindow,
-            onPanUpdate: _updateScanWindow,
-            onPanEnd: _saveScanWindow,
           ),
           Align(
             alignment: isPortrait ? Alignment.topLeft : Alignment.topRight,
@@ -298,10 +257,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                 direction: isPortrait ? Axis.horizontal : Axis.vertical,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: Icon(_isFlashOn ? Icons.flash_on : Icons.flash_off),
-                    onPressed: context.readSettings.isUseFrontcamera ? null : _toggleFlash,
-                  ),
+                  FlashlightButton(controller: _scannerController),
                   IconButton(
                     splashRadius: 16,
                     icon: const Icon(Icons.photo),

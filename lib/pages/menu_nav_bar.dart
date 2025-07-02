@@ -17,6 +17,7 @@ class MenuNavBar extends StatefulWidget {
 class MenuNavBarProvider extends ChangeNotifier {
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
+  bool get onScanner => _currentIndex == 0;
 
   void updateIndex(int index) {
     _currentIndex = index;

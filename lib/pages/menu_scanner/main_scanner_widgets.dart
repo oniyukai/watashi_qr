@@ -22,6 +22,36 @@ class ScannerErrorWidget extends StatelessWidget {
 }
 
 
+class FlashlightButton extends StatelessWidget {
+  const FlashlightButton({required this.controller, super.key});
+  final MobileScannerController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, state, child) {
+        final IconData iconData = switch (state.torchState) {
+          TorchState.auto => Icons.flash_auto,
+          TorchState.on => Icons.flash_on,
+          _ => Icons.flash_off,
+        };
+        final void Function()? onPressed = (
+            !state.isInitialized ||
+            !state.isRunning ||
+            state.torchState == TorchState.unavailable
+        ) ? null : controller.toggleTorch;
+
+        return IconButton(
+          icon: Icon(iconData),
+          onPressed: onPressed,
+        );
+      },
+    );
+  }
+}
+
+
 class MyScanWindowOverlay extends StatefulWidget {
   const MyScanWindowOverlay({
     super.key,
@@ -67,8 +97,8 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
             final double screenHeight = constraints.maxHeight;
             final double scanWindowWidth = widget.scanWindow.width;
             final double scanWindowHeight = widget.scanWindow.height;
-            final double minScanWindowSize = min(screenWidth, screenHeight) * 0.2;
-            final double maxScanWindowSize = min(screenWidth, screenHeight) * 0.8;
+            final double minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.175;
+            final double maxScanWindowSize = min(screenWidth, screenHeight) * 0.85;
             final Color overlayColor = Colors.black54; // 遮罩顏色
             final Color cornerColor = Theme.of(context).colorScheme.primary; // 角落顏色
             final double cornerSize = 32.0; // 角落大小
