@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
@@ -26,7 +25,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
     final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-    if (argument == null) return PageAboutView();
+    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     if (argument != '') {
       final List<String> parts = argument.split(Language.separationObject);
       _title = parts[0];
@@ -115,8 +114,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 )
               ),
               const SizedBox(height: 16),
-              Text('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
-                softWrap: true,
+              SelectableText('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
                 style: theme.textTheme.bodyMedium
               ),
               const SizedBox(height: 16),

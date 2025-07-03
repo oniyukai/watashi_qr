@@ -77,18 +77,16 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.scanWindow.isEmpty || widget.scanWindow.isInfinite) {
-      return const SizedBox();
-    }
-
     return ValueListenableBuilder(
       valueListenable: widget.controller,
       builder: (context, value, child) {
-        if (!value.isInitialized ||
+        if (widget.scanWindow.isEmpty ||
+            widget.scanWindow.isInfinite ||
+            !value.isInitialized ||
             !value.isRunning ||
             value.error != null ||
             value.size.isEmpty) {
-          return const SizedBox();
+          return const SizedBox.shrink();
         }
 
         return LayoutBuilder(

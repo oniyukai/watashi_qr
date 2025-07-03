@@ -58,13 +58,14 @@ class _PageImageScanState extends State<PageImageScan> {
   Future<void> _onCropped(CropResult croppedData) async {
     if (croppedData is CropSuccess) {
       final MobileScannerController? controller = widget.argumentOf(context)?.controller;
+      if (controller == null) throw 'widget.argumentOf(context) connot be null.';
       final Uint8List croppedImage = croppedData.croppedImage;
 
       final tempDir = await getTemporaryDirectory();
       final tempFile = File('${tempDir.path}/temp_image.png');
       await tempFile.writeAsBytes(croppedImage);
 
-      final BarcodeCapture? barcodeCapture = await controller?.analyzeImage(tempFile.path);
+      final BarcodeCapture? barcodeCapture = await controller.analyzeImage(tempFile.path);
 
       if (mounted) {
         setState(() {

@@ -6,7 +6,6 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
-import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
@@ -28,7 +27,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
     final format = widget.argumentOf(context);
     final localeStr = Language.of(context);
     final theme = Theme.of(context);
-    if (format == null) return PageAboutView();
+    if (format == null) throw 'widget.argumentOf(context) connot be null.';
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleBarCodeCreator),

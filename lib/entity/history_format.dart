@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
@@ -7,7 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 
 enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   qrCode(MyIconData(Icons.qr_code)),
-  dataMatrix(MyIconData.dataMatrix),
+  dataMatrix(MyIconData(MaterialCommunityIcons.data_matrix)),
   aztec(MyIconData.aztec),
   pdf417(MyIconData.pdf417),
   ean13(MyIconData.barcode),

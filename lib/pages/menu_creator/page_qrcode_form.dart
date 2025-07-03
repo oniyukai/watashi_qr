@@ -10,7 +10,6 @@ import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
-import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:string_validator/string_validator.dart';
@@ -57,7 +56,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   Widget build(BuildContext context) {
     final historyType = widget.argumentOf(context);
     final localeStr = Language.of(context);
-    if (historyType == null) return PageAboutView();
+    if (historyType == null) throw 'widget.argumentOf(context) connot be null.';
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleBarCodeCreator),
@@ -87,7 +86,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               const SizedBox(height: 16),
               FormBuilder(
                 key:_formKey,
-                child: _formFromType(historyType, localeStr),
+                child: _formFromType(historyType),
               ),
             ],
           ),
@@ -96,7 +95,8 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
     );
   }
 
-  Future<void> _importContactFromVcard(Language localeStr) async {
+  Future<void> _importContactFromVcard() async {
+    final localeStr = Language.of(context);
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
@@ -236,7 +236,8 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
     return 'null';
   }
 
-  Widget _formFromType(HistoryType historyType, Language localeStr) {
+  Widget _formFromType(HistoryType historyType) {
+    final localeStr = Language.of(context);
     switch(historyType) {
       case HistoryType.website:
         return FormBuilderTextField(
@@ -264,12 +265,12 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             return Column(
               children: [
                 // ElevatedButton(
+                //   onPressed: () => _importContactFromContact(), // todo
                 //   child: Text(localeStr.qrCodeTypeNameGenerateFromContact),
-                //   onPressed: () => _importContactFromContact(localeStr), // todo
                 // ),
                 ElevatedButton(
+                  onPressed: _importContactFromVcard,
                   child: Text(localeStr.qrCodeImportContactFromVcard),
-                  onPressed: () => _importContactFromVcard(localeStr),
                 ),
                 const SizedBox(height: 16),
                 FormBuilderTextField(

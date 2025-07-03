@@ -51,7 +51,8 @@ class _MainCreatorViewState extends State<MainCreatorView> {
     HistoryFormat.itf,
   };
 
-  Future<void> _createQrFromClipboard(Language localeStr) async {
+  Future<void> _createQrFromClipboard() async {
+    final localeStr = Language.of(context);
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String? contents = clipboardData?.text;
     if (contents == null || contents.isEmpty) {
@@ -96,7 +97,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                     ItemTile(
                       title: localeStr.createQrFromClipboard,
                       myIconData: MyIconData(Icons.content_copy),
-                      onTap: () => _createQrFromClipboard(localeStr),
+                      onTap: _createQrFromClipboard,
                     ),
                     ..._historyTypes.map((type) => ItemTile(
                       title: HistoryType.localeStrFromName(type.name, localeStr),
