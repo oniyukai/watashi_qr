@@ -1,5 +1,5 @@
+import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/locale/language_key.dart';
-import 'language.dart';
 
 typedef K = LanguageKey;
 

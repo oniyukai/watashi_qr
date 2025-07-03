@@ -1,4 +1,3 @@
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:core';
@@ -18,7 +17,6 @@ extension EnumFromName<T extends Enum> on Iterable<T> {
 class Utils {
   const Utils._();
 
-  // static int getNowUnixTime() => DateTime.now().millisecondsSinceEpoch;
   static int get nowUnixTime => DateTime.now().millisecondsSinceEpoch;
 
   // 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
@@ -29,21 +27,8 @@ class Utils {
   }
 
   static late SharedPreferences prefs;
-  static late MobileScannerController mobileScannerController;
   static Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
-    mobileScannerController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.unrestricted,
-      autoStart: false,
-    );
-  }
-  static Future<void> mobileScannerControllerStart(BuildContext context) async {
-    await mobileScannerController.start(
-      cameraDirection: context.readSettings.isUseFrontcamera ? CameraFacing.front : CameraFacing.back
-    );
-    await mobileScannerController.setZoomScale(
-      prefs.getDouble(PreferenceKey.scannerZoomLevel.name) ?? 0.0
-    );
   }
 
   // true:為直屏狀態 false:為橫屏狀態

@@ -1,45 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_history/code_view.dart';
+import 'package:watashi_qr/entity/history_type.dart';
+import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
+import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
-import 'package:watashi_qr/pages/widgets/expandable_card.dart';
-import 'package:watashi_qr/pages/widgets/item_view_widgets.dart';
-import 'package:watashi_qr/pages/widgets/settings_page_widgets.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/pages/widget/functions.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
+import 'package:watashi_qr/pages/widget/expandable_card.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 import 'dart:io';
 
-class ItemView extends StatefulWidget with RouterBridge<HistoryItem> {
-  const ItemView({super.key});
+class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
+  const PageItemView({super.key});
 
   @override
-  State<ItemView> createState() => _ItemViewState();
+  State<PageItemView> createState() => _PageItemViewState();
 }
 
-class _ItemViewState extends State<ItemView> {
+class _PageItemViewState extends State<PageItemView> {
   final _formKey = GlobalKey<FormBuilderState>();
   late HistoryItem _historyItem;
   late bool _isExistInhistories;
-  late bool _isSaveDuplicates;
+  late Language _localeStr;
   bool? _isWillExist;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _localeStr = Language.of(context);
     final argument = widget.argumentOf(context);
-    if (argument == null) return;
+    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     _historyItem = argument;
     _isExistInhistories = HiveService.containsTime(_historyItem.unixTime);
-    _isSaveDuplicates = context.readSettings.isSaveDuplicates;
   }
 
   @override
@@ -57,7 +60,7 @@ class _ItemViewState extends State<ItemView> {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
-        HiveService.addItem(_historyItem, isDuplicatedEnabled: _isSaveDuplicates);
+        HiveService.addItem(_historyItem, isDuplicatedEnabled: context.readSettings.isSaveDuplicates);
       } else {
         HiveService.deleteItem(_historyItem.key);
       }
@@ -68,13 +71,12 @@ class _ItemViewState extends State<ItemView> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format, localeStr);
+    final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format, _localeStr);
     final isFormatSupported = _historyItem.getFormat != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(HistoryType.localeStrFromName(_historyItem.type, localeStr)),
+        title: Text(HistoryType.localeStrFromName(_historyItem.type, _localeStr)),
       ),
       body: SafeArea(
         child: Scrollbar(
@@ -82,8 +84,8 @@ class _ItemViewState extends State<ItemView> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
               ExpandableCard(
-                title: localeStr.barCodeContentLabel,
-                icon: _historyItem.getTypeIconData,
+                title: _localeStr.barCodeContentLabel,
+                myIconData: _historyItem.getTypeIconData,
                 initialExpanded: true,
                 expandedChild: AnalyzedContentItem(
                   contents: _historyItem.contents,
@@ -98,8 +100,8 @@ class _ItemViewState extends State<ItemView> {
                     ListTile(
                       minTileHeight: 0,
                       contentPadding: const EdgeInsets.only(left: 16, top: 8),
-                      leading: Icon(_historyItem.getFormatIconData),
-                      title: Text(localeStr.aboutBarcodeInformationLabel),
+                      leading: MyIcon(_historyItem.getFormatIconData),
+                      title: Text(_localeStr.aboutBarcodeInformationLabel),
                     ),
                     ListTile(
                       minVerticalPadding: 0,
@@ -110,21 +112,21 @@ class _ItemViewState extends State<ItemView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              SelectableText('${localeStr.aboutBarcodeFormatLabel}$formatNameStr'),
+                              SelectableText('${_localeStr.aboutBarcodeFormatLabel}$formatNameStr'),
                               SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
                             ],
                           ),
-                          SelectableText('${localeStr.aboutBarcodeOriginLabel}${
-                              _historyItem.origin == HistoryOrigin.S.name ? localeStr.titleScan : localeStr.titleGenerate
+                          SelectableText('${_localeStr.aboutBarcodeOriginLabel}${
+                              _historyItem.origin == HistoryOrigin.S.name ? _localeStr.titleScan : _localeStr.titleGenerate
                           }'),
                           if (_historyItem.errorLevel != HistoryErrorLevel.none.name)
-                            SelectableText('${localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                                HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel, localeStr)
+                            SelectableText('${_localeStr.qrCodeErrorCorrectionLevelLabel}: ${
+                              HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel, _localeStr)
                             }'),
                           if (_historyItem.notes.isNotEmpty) Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SelectableText('${localeStr.matrixContactNotesLabel}: '),
+                              SelectableText('${_localeStr.matrixContactNotesLabel}: '),
                               Expanded(
                                 child: SelectableText(
                                   _historyItem.notes,
@@ -148,7 +150,7 @@ class _ItemViewState extends State<ItemView> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   leading: isFormatSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                  onTap: isFormatSupported ? ()=>context.routeOf<CodeView>().arguments(_historyItem).to() : null,
+                  onTap: isFormatSupported ? ()=>context.routeOf<PageCodeView>().arguments(_historyItem).to() : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -168,8 +170,8 @@ class _ItemViewState extends State<ItemView> {
                       const SizedBox(width: 16),
                       InkWell(
                         borderRadius: BorderRadius.circular(12.0),
+                        onTap: _showModifyContentsSheet,
                         child: const Icon(Icons.edit),
-                        onTap: () => _showModifyContentsSheet(localeStr),
                       ),
                       const SizedBox(width: 16),
                       InkWell(
@@ -177,7 +179,7 @@ class _ItemViewState extends State<ItemView> {
                         child: const Icon(Icons.copy),
                         onTap: () {
                           Clipboard.setData(ClipboardData(text: _historyItem.contents));
-                          Utils.showToast(localeStr.barcodeCopiedLabel);
+                          Utils.showToast(_localeStr.barcodeCopiedLabel);
                         },
                       ),
                     ],
@@ -185,11 +187,11 @@ class _ItemViewState extends State<ItemView> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text('  ${localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
+              Text('  ${_localeStr.actionsLabel}', style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 4),
               Builder(builder: (BuildContext context) {
                 final List<Widget> rows = [];
-                final actionGrids = _getActionGridList(localeStr);
+                final actionGrids = _getActionGridList();
                 for (int i = 0; i < actionGrids.length; i += 3) {
                   final end = (i + 3 > actionGrids.length) ? actionGrids.length : i + 3;
                   final List<Widget> rowChildren = [];
@@ -213,68 +215,65 @@ class _ItemViewState extends State<ItemView> {
     );
   }
 
-  List<PressButtonGrid> _getActionGridList(Language localeStr) {
+  List<PressButtonGrid> _getActionGridList() {
     final type = _historyItem.getType;
     final bool willExist = _isWillExist ?? _isExistInhistories;
     return <PressButtonGrid>[
       if (type != HistoryType.website) PressButtonGrid(
-          icon: Icons.search,
-          description: localeStr.actionWebSearchLabel,
-          onTap: () => _actionWebSearch()
+          iconData: Icons.search,
+          description: _localeStr.actionWebSearchLabel,
+          onTap: _actionWebSearch,
       ),
       if (type == HistoryType.website) PressButtonGrid(
-        icon: Icons.open_in_browser,
-        description: localeStr.actionOpenLink,
+        iconData: Icons.open_in_browser,
+        description: _localeStr.actionOpenLink,
         onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
       ),
       if (context.readSettings.customSearchUrls.isNotEmpty) PressButtonGrid(
-        icon: Icons.search,
-        description: localeStr.customSearchUrls,
-        onTap: () => _actionCustomSearch(localeStr),
+        iconData: Icons.search,
+        description: _localeStr.customSearchUrls,
+        onTap: _actionCustomSearch,
       ),
       PressButtonGrid(
-        icon: Icons.edit_note,
-        description: localeStr.actionModifyNotes,
-        onTap: () {
-          _actionModifyNotes(localeStr);
-          setState(() {});
-        },
+        iconData: Icons.edit_note,
+        description: _localeStr.actionModifyNotes,
+        onTap: _actionModifyNotes,
       ),
       // if (const {HistoryType.contact, HistoryType.mail, HistoryType.phone, HistoryType.sms}
       //     .contains(type)) PressButtonGrid(
       //   icon: Icons.contacts_outlined,
       //   description: localeStr.actionAddToContacts,
-      //   onTap: () => _actionAddToContacts(_historyItem.contents, type!), // todo
+      //   onTap: () => _actionAddToContacts(type!), // todo
       // ),
       if (type == HistoryType.contact) PressButtonGrid(
-        icon: Icons.share,
-        description: localeStr.actionShareVcfFile,
-        onTap: () => _actionShareVcfFile(_historyItem.contents),
+        iconData: Icons.share,
+        description: _localeStr.actionShareVcfFile,
+        onTap: _actionShareVcfFile,
       ),
       if (type == HistoryType.mail) PressButtonGrid(
-        icon: Icons.mail_outline,
-        description: localeStr.actionSendMailLabel,
-        onTap: () => _actionSendMail(_historyItem.contents),
+        iconData: Icons.mail_outline,
+        description: _localeStr.actionSendMailLabel,
+        onTap: _actionSendMail,
       ),
       if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
-        icon: Icons.sms_outlined,
-        description: localeStr.actionSendSmsLabel,
-        onTap: () => _actionSendSms(_historyItem.contents, type!),
+        iconData: Icons.sms_outlined,
+        description: _localeStr.actionSendSmsLabel,
+        onTap: () => _actionSendSms(type!),
       ),
       if (type == HistoryType.phone || type == HistoryType.sms) PressButtonGrid(
-        icon: Icons.call,
-        description: localeStr.actionCallPhoneLabel,
-        onTap: () => _actionCallPhone(_historyItem.contents, type!),
+        iconData: Icons.call,
+        description: _localeStr.actionCallPhoneLabel,
+        onTap: () => _actionCallPhone(type!),
       ),
       if (type == HistoryType.location) PressButtonGrid(
-        icon: Icons.location_on,
-        description: localeStr.actionShowLocation,
-        onTap: () => _actionShowLocation(_historyItem.contents),
+        iconData: Icons.location_on,
+        description: _localeStr.actionShowLocation,
+        onTap: _actionShowLocation,
       ),
       // if (type == HistoryType.agend) PressButtonGrid(
       //   icon: Icons.event,
       //   description: localeStr.actionAddToCalendar,
-      //   onTap: () => _actionShareAgend(_historyItem.contents), // todo
+      //   onTap: _actionShareAgend, // todo
       // ),
       // if (type == HistoryType.wifi) PressButtonGrid(
       //   icon: Icons.wifi,
@@ -282,14 +281,14 @@ class _ItemViewState extends State<ItemView> {
       //   onTap: () {}, // Notodo: WIFI按鈕(決定不加入)
       // ),
       PressButtonGrid(
-        icon: willExist ? Icons.delete_forever : Icons.add,
+        iconData: willExist ? Icons.delete_forever : Icons.add,
         description: willExist
-            ? localeStr.menuItemHistoryDeleteFromHistory
-            : localeStr.menuItemHistoryAddInHistory,
+            ? _localeStr.menuItemHistoryDeleteFromHistory
+            : _localeStr.menuItemHistoryAddInHistory,
         onTap: () {
           Utils.showToast(willExist
-              ? localeStr.menuItemHistoryRemovedFromHistory
-              : localeStr.menuItemHistoryAddedInHistory);
+              ? _localeStr.menuItemHistoryRemovedFromHistory
+              : _localeStr.menuItemHistoryAddedInHistory);
           setState(() {
             _isWillExist = !willExist;
           });
@@ -298,18 +297,18 @@ class _ItemViewState extends State<ItemView> {
     ];
   }
 
-  void _showModifyContentsSheet(Language localeStr) => genericBottomSheet(
+  void _showModifyContentsSheet() => showMyBottomSheet(
     context: context,
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(localeStr.actionModifyBarcode),
-        Text(HistoryFormat.localeStrFromName(_historyItem.format, localeStr)),
+        Text(_localeStr.actionModifyBarcode),
+        Text(HistoryFormat.localeStrFromName(_historyItem.format, _localeStr)),
       ],
     ),
     content: FormBuilder(
       key:_formKey,
-      child: BarcodeTextField(
+      child: BarcodeField(
         format: _historyItem.getFormat,
         name: 'modifyContents',
         formKey: _formKey,
@@ -318,7 +317,7 @@ class _ItemViewState extends State<ItemView> {
     ),
     actions: [
       ElevatedButton(
-        child: Text(localeStr.actionModifyBarcode),
+        child: Text(_localeStr.actionModifyBarcode),
         onPressed: () {
           if (_formKey.currentState?.saveAndValidate() ?? false) {
             final value = _formKey.currentState?.value['modifyContents'];
@@ -337,15 +336,15 @@ class _ItemViewState extends State<ItemView> {
     Utils.searchInBrowser(searchEngine, _historyItem.contents);
   }
 
-  void _actionCustomSearch(Language localeStr) => genericDialog(
+  void _actionCustomSearch() => showMyDialog(
     context: context,
-    titleStr: localeStr.customSearchUrls,
+    titleStr: _localeStr.customSearchUrls,
     noCancelButton: true,
     content: Scrollbar(
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: context.readSettings.customSearchUrls.map((searchUrl) => ListTileItem(
+          children: context.readSettings.customSearchUrls.map((searchUrl) => ItemTile(
             title: searchUrl.split(Language.separationObject)[0],
             description: searchUrl.split(Language.separationObject)[1],
             onTap: () {
@@ -358,9 +357,9 @@ class _ItemViewState extends State<ItemView> {
     ),
   );
 
-  void _actionModifyNotes(Language localeStr) => genericBottomSheet(
+  void _actionModifyNotes() => showMyBottomSheet(
     context: context,
-    title: Text(localeStr.actionModifyNotes),
+    title: Text(_localeStr.actionModifyNotes),
     content: FormBuilder(
       key: _formKey,
       child: FormBuilderTextField(
@@ -369,14 +368,14 @@ class _ItemViewState extends State<ItemView> {
         maxLines: null,
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.format_size),
-          labelText: localeStr.barcodeTextCompositionLabel,
+          labelText: _localeStr.barcodeTextCompositionLabel,
         ),
         keyboardType: TextInputType.text,
       ),
     ),
     actions: [
       ElevatedButton(
-        child: Text(localeStr.actionModifyNotes),
+        child: Text(_localeStr.actionModifyNotes),
         onPressed: () {
           if (_formKey.currentState?.saveAndValidate() ?? false) {
             final String value = _formKey.currentState?.value['modifyNotes'];
@@ -388,15 +387,15 @@ class _ItemViewState extends State<ItemView> {
     ]
   );
 
-  Future<void> _actionShareVcfFile(String contents) async {
+  Future<void> _actionShareVcfFile() async {
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/contact.vcf');
-    await file.writeAsString(contents);
+    await file.writeAsString(_historyItem.contents);
     await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
-  void _actionSendMail(String contents) {
-    final analyzed = analyzeMail(contents);
+  void _actionSendMail() {
+    final analyzed = analyzeMail(_historyItem.contents);
     final String? email = analyzed['email'];
     final String? subject = analyzed['subject'];
     final String? message = analyzed['message'];
@@ -411,15 +410,15 @@ class _ItemViewState extends State<ItemView> {
     if ((email ?? subject ?? message) != null) Utils.openUrlInBrowser(uri.toString());
   }
 
-  void _actionSendSms(String contents, HistoryType type) {
+  void _actionSendSms(HistoryType type) {
     String? phone;
     String? message;
     if (type == HistoryType.sms) {
-      final analyzed = analyzeSms(contents);
+      final analyzed = analyzeSms(_historyItem.contents);
       phone = analyzed['phone'];
       message = analyzed['message'];
     } else if (type == HistoryType.phone) {
-      phone = contents.substring(4);
+      phone = _historyItem.contents.substring(4);
     }
     if (phone == null) return;
     final Uri uri = Uri(
@@ -432,16 +431,16 @@ class _ItemViewState extends State<ItemView> {
     Utils.openUrlInBrowser(uri.toString());
   }
 
-  void _actionCallPhone(String contents, HistoryType type) {
+  void _actionCallPhone(HistoryType type) {
     String? phone;
     if (type == HistoryType.sms) {
-      final analyzed = analyzeSms(contents);
+      final analyzed = analyzeSms(_historyItem.contents);
       phone = analyzed['phone'];
     } else if (type == HistoryType.phone) {
-      phone = contents.substring(4);
+      phone = _historyItem.contents.substring(4);
     }
     if (phone != null) Utils.openUrlInBrowser('tel:$phone');
   }
 
-  void _actionShowLocation(String contents) => Utils.openUrlInBrowser('geo:${contents.substring(4)}');
+  void _actionShowLocation() => Utils.openUrlInBrowser('geo:${_historyItem.contents.substring(4)}');
 }

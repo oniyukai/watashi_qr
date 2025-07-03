@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/utils.dart';
 
-class AppAboutPage extends StatefulWidget {
-  const AppAboutPage({super.key});
+class PageAboutView extends StatefulWidget {
+  const PageAboutView({super.key});
 
   @override
-  State<AppAboutPage> createState() => _AppAboutPageState();
+  State<PageAboutView> createState() => _PageAboutViewState();
 }
 
-class _AppAboutPageState extends State<AppAboutPage> {
+class _PageAboutViewState extends State<PageAboutView> {
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);

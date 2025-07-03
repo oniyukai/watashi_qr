@@ -7,8 +7,8 @@ enum ThemeOption {
   light(Brightness.light),
   dark(Brightness.dark);
 
-  final Brightness? brightness;
   const ThemeOption([this.brightness]);
+  final Brightness? brightness;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     sys.name: localeStr.preferencesSwitchSystemThemeLabel,
@@ -25,8 +25,8 @@ enum ColorOption {
   red(Colors.red),
   purple(Colors.purple);
 
-  final MaterialColor? color;
   const ColorOption([this.color]);
+  final MaterialColor? color;
 
   static Map<String, String> optionMap(Language localeStr) => <String, String>{
     sys.name: localeStr.preferencesColorMaterialYou,

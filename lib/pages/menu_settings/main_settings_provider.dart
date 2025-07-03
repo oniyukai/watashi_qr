@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/locale/language.dart';
@@ -38,8 +38,8 @@ enum SearchEngine {
   bing(Language.bingUrl),
   wikipedia(Language.wikipediaUrl);
 
-  final String url;
   const SearchEngine(this.url);
+  final String url;
 
   static String urlByName(String n) => values.fromName(n)?.url ?? google.url;
 

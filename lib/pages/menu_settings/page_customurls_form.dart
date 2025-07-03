@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-class CustomurlsForm extends StatefulWidget with RouterBridge<String> {
-  const CustomurlsForm({super.key});
+class PageCustomurlsForm extends StatefulWidget with RouterBridge<String> {
+  const PageCustomurlsForm({super.key});
 
   @override
-  State<CustomurlsForm> createState() => _CustomurlsFormState();
+  State<PageCustomurlsForm> createState() => _PageCustomurlsFormState();
 }
 
-class _CustomurlsFormState extends State<CustomurlsForm> {
+class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   final _formKey = GlobalKey<FormBuilderState>();
   String _title = '';
   String _url = '';
@@ -26,7 +25,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
     final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-    if (argument == null) return AppAboutPage();
+    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     if (argument != '') {
       final List<String> parts = argument.split(Language.separationObject);
       _title = parts[0];
@@ -115,8 +114,7 @@ class _CustomurlsFormState extends State<CustomurlsForm> {
                 )
               ),
               const SizedBox(height: 16),
-              Text('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
-                softWrap: true,
+              SelectableText('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
                 style: theme.textTheme.bodyMedium
               ),
               const SizedBox(height: 16),

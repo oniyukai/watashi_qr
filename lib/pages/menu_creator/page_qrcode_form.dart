@@ -3,29 +3,30 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:watashi_qr/common/hive_service.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/pages/menu_history/code_view.dart';
-import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
-import 'package:watashi_qr/pages/menu_settings/settings_provider.dart';
+import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:watashi_qr/pages/widgets/barcode_text_field.dart';
-import 'package:watashi_qr/pages/widgets/list_tile_item.dart';
+import 'package:watashi_qr/pages/widget/barcode_field.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
 
-class QrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
-  const QrcodeForm({super.key});
+class PageQrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
+  const PageQrcodeForm({super.key});
 
   @override
-  State<QrcodeForm> createState() => _QrcodeFormState();
+  State<PageQrcodeForm> createState() => _PageQrcodeFormState();
 }
 
-class _QrcodeFormState extends State<QrcodeForm> {
+class _PageQrcodeFormState extends State<PageQrcodeForm> {
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _agendAllday = false; // only for the AGEND form
+  bool _eventAllday = false; // only for the EVENT form
   String _wifiSecurityType = 'SAE'; // only for the WIFI form
   final List<String> _contactMailType = <String>['home', 'home', 'home']; // only for the _CONTACT form
   final List<String> _contactPhoneType = <String>['cell', 'cell', 'cell']; // only for the _CONTACT form
@@ -48,14 +49,14 @@ class _QrcodeFormState extends State<QrcodeForm> {
       notes: '',
     );
     if (isCreateAddHistory) HiveService.addItem(item, context:context);
-    context.routeOf<CodeView>().arguments(item).to();
+    context.routeOf<PageCodeView>().arguments(item).to();
   }
 
   @override
   Widget build(BuildContext context) {
     final historyType = widget.argumentOf(context);
     final localeStr = Language.of(context);
-    if (historyType == null) return AppAboutPage();
+    if (historyType == null) throw 'widget.argumentOf(context) connot be null.';
     return Scaffold(
       appBar: AppBar(
         title: Text(localeStr.titleBarCodeCreator),
@@ -78,14 +79,14 @@ class _QrcodeFormState extends State<QrcodeForm> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
-              ListTileItem(
+              ItemTile(
                 title: HistoryType.localeStrFromName(historyType.name, localeStr),
-                icon: historyType.iconData,
+                myIconData: historyType.myIconData,
               ),
               const SizedBox(height: 16),
               FormBuilder(
                 key:_formKey,
-                child: _formFromType(historyType, localeStr),
+                child: _formFromType(historyType),
               ),
             ],
           ),
@@ -94,7 +95,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
     );
   }
 
-  Future<void> _importContactFromVcard(Language localeStr) async {
+  Future<void> _importContactFromVcard() async {
+    final localeStr = Language.of(context);
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
@@ -234,7 +236,8 @@ class _QrcodeFormState extends State<QrcodeForm> {
     return 'null';
   }
 
-  Widget _formFromType(HistoryType historyType, Language localeStr) {
+  Widget _formFromType(HistoryType historyType) {
+    final localeStr = Language.of(context);
     switch(historyType) {
       case HistoryType.website:
         return FormBuilderTextField(
@@ -262,12 +265,12 @@ class _QrcodeFormState extends State<QrcodeForm> {
             return Column(
               children: [
                 // ElevatedButton(
+                //   onPressed: () => _importContactFromContact(), // todo
                 //   child: Text(localeStr.qrCodeTypeNameGenerateFromContact),
-                //   onPressed: () => _importContactFromContact(localeStr), // todo
                 // ),
                 ElevatedButton(
+                  onPressed: _importContactFromVcard,
                   child: Text(localeStr.qrCodeImportContactFromVcard),
-                  onPressed: () => _importContactFromVcard(localeStr),
                 ),
                 const SizedBox(height: 16),
                 FormBuilderTextField(
@@ -349,7 +352,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                                 DropdownMenuEntry(value: 'other', label: localeStr.spinnerTypeOther),
                               ],
                               onSelected: (value) {
-                                setState(() {
+                                setState(() { //這不一定要setState
                                   _contactMailType[entry.key] = value ?? _contactMailType[entry.key];
                                 });
                               }
@@ -395,7 +398,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                                 DropdownMenuEntry(value: 'other', label: localeStr.spinnerTypeOther),
                               ],
                               onSelected: (value) {
-                                setState(() {
+                                setState(() { //這不一定要setState
                                   _contactPhoneType[entry.key] = value ?? _contactPhoneType[entry.key];
                                 });
                               }
@@ -650,7 +653,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
               title: Text(localeStr.checkBoxEventAllOfDay),
               onChanged: (value) {
                 setState(() {
-                  _agendAllday = value ?? false;
+                  _eventAllday = value ?? false;
                 });
               },
             ),
@@ -672,7 +675,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Visibility(
-                    visible: !_agendAllday,
+                    visible: !_eventAllday,
                     child: FormBuilderDateTimePicker(
                       name: 'begintime',
                       decoration: const InputDecoration(
@@ -706,7 +709,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Visibility(
-                    visible: !_agendAllday,
+                    visible: !_eventAllday,
                     child: FormBuilderDateTimePicker(
                       name: 'endtime',
                       decoration: const InputDecoration(
@@ -803,7 +806,7 @@ class _QrcodeFormState extends State<QrcodeForm> {
           ],
         );
       case HistoryType.text:
-        return BarcodeTextField(
+        return BarcodeField(
             format: HistoryFormat.qrCode,
             name: 'text',
             formKey: _formKey

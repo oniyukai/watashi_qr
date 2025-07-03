@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:watashi_qr/pages/menu_creator/main_creator_page.dart';
-import 'package:watashi_qr/pages/menu_history/main_history_page.dart';
-import 'package:watashi_qr/pages/menu_scanner/main_scanner_page.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_page.dart';
+import 'package:watashi_qr/pages/menu_creator/main_creator_view.dart';
+import 'package:watashi_qr/pages/menu_history/main_history_view.dart';
+import 'package:watashi_qr/pages/menu_scanner/main_scanner_view.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_view.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/utils.dart';
 
-class MenuNavigationBar extends StatefulWidget {
-  const MenuNavigationBar({super.key});
+class MenuNavBar extends StatefulWidget {
+  const MenuNavBar({super.key});
 
   @override
-  State<MenuNavigationBar> createState() => _MenuNavigationBarState();
+  State<MenuNavBar> createState() => _MenuNavBarState();
 }
 
 class MenuNavBarProvider extends ChangeNotifier {
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
+  bool get onScanner => _currentIndex == 0;
 
   void updateIndex(int index) {
     _currentIndex = index;
@@ -24,13 +25,13 @@ class MenuNavBarProvider extends ChangeNotifier {
   }
 }
 
-class _MenuNavigationBarState extends State<MenuNavigationBar> {
+class _MenuNavBarState extends State<MenuNavBar> {
 
   final List<Widget> _pages = const <Widget>[
-    MainScannerPage(),
-    MainCreatorPage(),
-    MainHistoryPage(),
-    MainSettingsPage(),
+    MainScannerView(),
+    MainCreatorView(),
+    MainHistoryView(),
+    MainSettingsView(),
   ];
 
   @override

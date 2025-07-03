@@ -18,7 +18,7 @@ Different barcode formats are supported:
 - [x] Simply point the camera of your smartphone at the barcode and you will receive the information immediately. You can also scan the barcode from a picture in your smartphone.
 - [x] Scanning frame with adjustable width and length.
 - [x] Support continuous scanning, automatic website opening, front and rear camera selection.
-- [ ] With a simple scan, you can read business cards, open URLs, (todo: add a contact, add an event to the calendar).
+- [x] With a simple scan, you can read business cards, open URLs, (todo: add a contact, add an event to the calendar).
 - [x] Generate your own barcodes.
 - [x] Keep track of all scanned barcodes with the history tool.
 - [x] History favorites and item notes.

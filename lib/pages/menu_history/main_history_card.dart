@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/common/models/history_item.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 
-class HistoryItemCard extends StatelessWidget {
-  final HistoryItem historyItem;
-  final bool selected;
-  final Function() onTap;
-  final Function() onLongPress;
-
-  const HistoryItemCard({
+class MainHistoryCard extends StatelessWidget {
+  const MainHistoryCard({
     super.key,
     required this.historyItem,
     required this.selected,
     required this.onTap,
     required this.onLongPress,
   });
+
+  final HistoryItem historyItem;
+  final bool selected;
+  final void Function() onTap;
+  final void Function() onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +46,9 @@ class HistoryItemCard extends StatelessWidget {
                   : colorScheme.primary
           ),
           child: Center(
-            child: Icon(
-                historyItem.getTypeIconData,
-                color: colorScheme.onPrimary
+            child: MyIcon(
+              historyItem.getTypeIconData,
+              color: colorScheme.onPrimary,
             ),
           ),
         ),
@@ -72,10 +75,10 @@ class HistoryItemCard extends StatelessWidget {
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(width: 2.0),
-                Icon(
-                    historyItem.getFormatIconData,
-                    size: 16.0,
-                    color: theme.hintColor
+                MyIcon(
+                  historyItem.getFormatIconData,
+                  size: 16.0,
+                  color: theme.hintColor,
                 ),
               ],
             ),

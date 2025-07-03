@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 
-class ListTileItem extends StatelessWidget {
-  final String title;
-  final IconData? icon;
-  final String? description;
-  final bool? selected;
-  final Widget? trailing;
-  final Function()? onTap;
-  final Function()? onLongPress;
-
-  const ListTileItem({
+class ItemTile extends StatelessWidget {
+  const ItemTile({
     super.key,
     required this.title,
-    this.icon,
+    this.myIconData,
     this.description,
     this.selected,
     this.trailing,
     this.onTap,
     this.onLongPress,
   });
+
+  final String title;
+  final MyIconData? myIconData;
+  final String? description;
+  final bool? selected;
+  final Widget? trailing;
+  final void Function()? onTap;
+  final void Function()? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +35,19 @@ class ListTileItem extends StatelessWidget {
       selectedTileColor: theme.colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: onLongPress,
-      leading: (icon != null) ? Container(
+      leading: (myIconData != null) ? Container(
         width: 40.0,
         height: 40.0,
         decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colorScheme.primary
+          shape: BoxShape.circle,
+          color: colorScheme.primary
         ),
         child: Center(
-            child: Icon(icon, color: colorScheme.onPrimary)
+          child: MyIcon(
+            myIconData,
+            color: colorScheme.onPrimary,
+          ),
+          // child: Icon(iconData, color: colorScheme.onPrimary)
         ),
       ) : null,
       title: Text(

@@ -1,31 +1,31 @@
 // router v2 by xbaistack
 import 'package:flutter/cupertino.dart';
-import 'package:watashi_qr/pages/menu_creator/barcode_form.dart';
-import 'package:watashi_qr/pages/menu_creator/qrcode_form.dart';
-import 'package:watashi_qr/pages/menu_history/code_view.dart';
-import 'package:watashi_qr/pages/menu_history/item_view.dart';
-import 'package:watashi_qr/pages/menu_scanner/scan_image_page.dart';
-import 'package:watashi_qr/pages/menu_settings/appabout_page.dart';
-import 'package:watashi_qr/pages/menu_settings/customurls_form.dart';
-import 'package:watashi_qr/pages/menu_settings/customurls_page.dart';
+import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
+import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
+import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_scanner/page_image_scan.dart';
+import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/pages/menu_navigation_bar.dart';
+import 'package:watashi_qr/pages/menu_nav_bar.dart';
 
-const Type _HOME_ = MenuNavigationBar;
+const Type _HOME_ = MenuNavBar;
 final Map<String, WidgetBuilder> _ROUTES_ = Utils.typeNameMap({
-  _HOME_: (_) => MenuNavigationBar(),
+  _HOME_: (_) => MenuNavBar(),
   //menu_scanner
-  ScanImagePage: (_) => ScanImagePage(),
+  PageImageScan: (_) => PageImageScan(),
   //menu_creator
-  QrcodeForm: (_) => QrcodeForm(),
-  BarcodeForm: (_) => BarcodeForm(),
+  PageQrcodeForm: (_) => PageQrcodeForm(),
+  PageBarcodeForm: (_) => PageBarcodeForm(),
   //menu_history
-  ItemView: (_) => ItemView(),
-  CodeView: (_) => CodeView(),
+  PageItemView: (_) => PageItemView(),
+  PageCodeView: (_) => PageCodeView(),
   //menu_settings
-  CustomurlsPage: (_) => CustomurlsPage(),
-  AppAboutPage: (_) => AppAboutPage(),
-  CustomurlsForm: (_) => CustomurlsForm(),
+  PageCustomurlsView: (_) => PageCustomurlsView(),
+  PageAboutView: (_) => PageAboutView(),
+  PageCustomurlsForm: (_) => PageCustomurlsForm(),
 });
 
 /// 路由集中管理器
