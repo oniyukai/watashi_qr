@@ -352,7 +352,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                                 DropdownMenuEntry(value: 'other', label: localeStr.spinnerTypeOther),
                               ],
                               onSelected: (value) {
-                                setState(() {
+                                setState(() { //這不一定要setState
                                   _contactMailType[entry.key] = value ?? _contactMailType[entry.key];
                                 });
                               }
@@ -398,7 +398,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                                 DropdownMenuEntry(value: 'other', label: localeStr.spinnerTypeOther),
                               ],
                               onSelected: (value) {
-                                setState(() {
+                                setState(() { //這不一定要setState
                                   _contactPhoneType[entry.key] = value ?? _contactPhoneType[entry.key];
                                 });
                               }

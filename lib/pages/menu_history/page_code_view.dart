@@ -87,7 +87,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                       length = min(length, (!isPortrait ? constraints.maxWidth : constraints.maxHeight)/1.618);
                       return Center(
                         child: (validatorMsg == null)
-                            ? _getSvgPicture(length)
+                            ? _getSvgPicture(length) //todo debug: 不如預期地能夠限制長邊比例
                             : Text(validatorMsg, style: TextStyle(color: Colors.grey)
                         ),
                       );

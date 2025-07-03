@@ -409,8 +409,8 @@ abstract class Language {
   // No translatable    Don't translate!
   static const String
       appName = 'Watashi QR',
-      appVersion = '1.1.2',
-      appVersionTag = 'v1.0_25.05.16',
+      appVersion = '1.1.3',
+      appVersionTag = 'v1.0_25.07.04',
       pngLabel = 'PNG',
       jpgLabel = 'JPG',
       svgLabel = 'SVG',
