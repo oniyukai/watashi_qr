@@ -115,7 +115,6 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                       Navigator.of(context).pop();
                       HiveService.clearHistories();
                       Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
-                      // setState( (){} );
                     },
                   ),
                 ]

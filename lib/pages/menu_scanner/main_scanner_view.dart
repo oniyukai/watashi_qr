@@ -140,12 +140,12 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     if (isScanAddHistory) HiveService.addItem(item, context:context);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
-      await Future<void>.delayed(const Duration(milliseconds: 800));
     } else if (isAutoOpenWebsite && item.type == HistoryType.website.name) {
       await Utils.openUrlInBrowser(item.contents);
     } else {
       await context.routeOf<PageItemView>().arguments(item).to();
     }
+    await Future<void>.delayed(const Duration(milliseconds: 800));
     _isDetectDisable = false;
   }
 
