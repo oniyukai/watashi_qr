@@ -6,7 +6,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
@@ -137,7 +137,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) HiveService.addItem(item, context:context);
+    if (isScanAddHistory) DatabaseServices.addItem(item, context:context);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
     } else if (isAutoOpenWebsite && item.type == HistoryType.website.name) {

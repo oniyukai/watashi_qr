@@ -1,55 +1,58 @@
-import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/objectbox.g.dart';
 import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:intl/intl.dart';
 
-class HiveService {
-  const HiveService._();
+class DatabaseServices {
 
-  static late Box<HistoryItem> _histories;
+  static late Store _store;
+  static late final Box<HistoryItem> _historyItemBox;
 
   static Future<void> hiveInit() async {
-    await Hive.initFlutter('${(await getApplicationSupportDirectory()).path}/hive');
-    Hive.registerAdapter(HistoryItemAdapter());
-    _histories = await Hive.openBox<HistoryItem>('histories');
-  }
-  static Future<void> hiveClose() async {
-    await Hive.close();
+    final dir = await getApplicationSupportDirectory();
+    _store = await openStore(directory: p.join(dir.path, 'objectbox'));
+    _historyItemBox = _store.box<HistoryItem>();
   }
 
-  static ValueListenable<Box<HistoryItem>> get getListenable => _histories.listenable();
+  static void dispose() => _store.close();
 
-  static Future<int> addItem(
+  static Stream<List<HistoryItem>> get historyItemStream =>
+      _historyItemBox.query()
+          .order(HistoryItem_.unixTime, flags: Order.descending)
+          .watch(triggerImmediately: true)
+          .map((query) => query.find());
+
+  static int addItem(
       HistoryItem item, {
-        BuildContext? context,
-        bool? isDuplicatedEnabled,
-      }
-  ) async {
+      BuildContext? context,
+      bool? isDuplicatedEnabled,})
+  {
+    assert(item.id == 0);
     bool isHistoryDuplicatedEnabled = (context==null)
       ? true : context.readSettings.isSaveDuplicates;
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
-    if (isHistoryDuplicatedEnabled == true) return await _histories.add(item);
+    if (isHistoryDuplicatedEnabled == true) return _historyItemBox.put(item);
 
     final List<HistoryItem> historiesList = getReversedList(sortF: true);
     final int latestDuplicateIndex = historiesList.indexWhere((e) =>
       (e.format==item.format) && (e.contents==item.contents)
     );
     if (latestDuplicateIndex==-1) {
-      return await _histories.add(item);
+      return _historyItemBox.put(item);
     } else {
       item.isFavorite = historiesList[latestDuplicateIndex].isFavorite;
       item.notes = historiesList[latestDuplicateIndex].notes;
-      deleteItem(historiesList[latestDuplicateIndex].key);
-      return await _histories.add(item);
+      deleteItem(historiesList[latestDuplicateIndex].id);
+      return _historyItemBox.put(item);
     }
   }
 
@@ -57,7 +60,7 @@ class HiveService {
     bool sortF = false,
     List<HistoryItem>? list }) {
     final List<HistoryItem> historiesList = (list == null)
-        ? _histories.values.toList().reversed.toList()
+        ? _historyItemBox.getAll()
         : <HistoryItem>[...list];
     historiesList.sort((a, b) {
       if (sortF && a.isFavorite && !b.isFavorite) {
@@ -74,13 +77,11 @@ class HiveService {
     return historiesList;
   }
 
-  static HistoryItem? getItem(dynamic key) {
-    return _histories.get(key);
-  }
+  static HistoryItem? getItem(int id) => _historyItemBox.get(id);
 
-  static List<HistoryItem> getItems(Iterable<dynamic> keys) {
+  static List<HistoryItem> getItems(Iterable<int> ids) {
     final List<HistoryItem> historiesList = <HistoryItem>[];
-    for (final key in keys) {
+    for (final key in ids) {
       final value = getItem(key);
       if (value != null) historiesList.add(value);
     }
@@ -88,36 +89,20 @@ class HiveService {
   }
 
   static bool containsTime(int unixTime) {
-    final List<int> unixTimeList = _histories.values.map((value) => value.unixTime).toList();
+    final List<int> unixTimeList = _historyItemBox.getAll().map((value) => value.unixTime).toList();
     return (unixTimeList.contains(unixTime)) ? true : false;
   }
 
-  static Future<void> updateItem(dynamic key, HistoryItem item) async {
-    await _histories.put(key, item);
-  }
+  static void updateItem(int id, HistoryItem item) => _historyItemBox.put(item);
 
-  static Future<void> deleteItem(dynamic key) async {
-    await _histories.delete(key);
-  }
+  static void deleteItem(int id) => _historyItemBox.remove(id);
 
-  static Future<void> deleteItems(Iterable<dynamic> keys) async {
-    await _histories.deleteAll(keys);
-  }
+  static int deleteItems(List<int> ids) => _historyItemBox.removeMany(ids);
 
-  static Future<int> clearHistories() async {
-    return await _histories.clear();
-  }
-
-  static Future<void> sortHistories() async {
-    final List<HistoryItem> historyItemList = _histories.values.toList();
-    historyItemList.sort((a, b) => a.unixTime.compareTo(b.unixTime));
-    await clearHistories();
-    await _histories.addAll(historyItemList);
-    Utils.showToast('Histories Sorting has been rearranged!');
-  }
+  static int clearHistories() => _historyItemBox.removeAll();
 
   static Future<void> shareHistoriesToJson(Language localeStr) async {
-    if (_histories.values.isEmpty) {
+    if (_historyItemBox.isEmpty()) {
       return Utils.showToast(localeStr.labelHistoryEmpty);
     }
     final Directory tempDir = await getTemporaryDirectory();
@@ -126,7 +111,7 @@ class HiveService {
   }
 
   static Future<void> exportHistoriesToJson(Language localeStr) async {
-    if (_histories.values.isEmpty) {
+    if (_historyItemBox.isEmpty()) {
       return Utils.showToast(localeStr.labelHistoryEmpty);
     }
     final Directory? directory = await getDownloadsDirectory();
@@ -177,17 +162,19 @@ class HiveService {
       int added = 0;
       int replaced = 0;
 
-      final Map<int, dynamic> timeKeyMap = _histories.toMap().map((key, value) {
-        return MapEntry(value.unixTime, key);
-      }); // timeKeyMap的key, value要是相反的，使用要注意
+      final Map<int, int> timeKeyMap = Map.fromIterable(
+          _historyItemBox.getAll(),
+          key: (item)=>item.unixTime,
+          value: (item)=>item.id
+      ); // timeKeyMap的key, value要是相反的，使用要注意
 
       for (final item in jsonData) {
         final HistoryItem historyItem = HistoryItem.fromJson(item);
         if (timeKeyMap.keys.contains(historyItem.unixTime)) {
-          await updateItem(timeKeyMap[historyItem.unixTime], historyItem);
+          updateItem(timeKeyMap[historyItem.unixTime]!, historyItem);
           replaced++;
         } else {
-          final int historyItemKey = await addItem(historyItem);
+          final int historyItemKey = addItem(historyItem);
           added++;
           timeKeyMap[historyItem.unixTime] = historyItemKey;
         }
@@ -196,7 +183,6 @@ class HiveService {
       String endTip = localeStr.snackBarMessageFileImportSuccess;
       endTip += '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
       Utils.showToast(endTip, true);
-      sortHistories();
     } catch (e) {
       Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', true);
     }

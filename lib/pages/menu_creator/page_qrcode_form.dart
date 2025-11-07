@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -48,7 +48,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
       isFavorite: false,
       notes: '',
     );
-    if (isCreateAddHistory) HiveService.addItem(item, context:context);
+    if (isCreateAddHistory) DatabaseServices.addItem(item, context:context);
     context.routeOf<PageCodeView>().arguments(item).to();
   }
 

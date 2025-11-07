@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -42,7 +42,7 @@ class _PageItemViewState extends State<PageItemView> {
     final argument = widget.argumentOf(context);
     if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     _historyItem = argument;
-    _isExistInhistories = HiveService.containsTime(_historyItem.unixTime);
+    _isExistInhistories = DatabaseServices.containsTime(_historyItem.unixTime);
   }
 
   @override
@@ -60,12 +60,12 @@ class _PageItemViewState extends State<PageItemView> {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
-        HiveService.addItem(_historyItem, isDuplicatedEnabled: context.readSettings.isSaveDuplicates);
+        DatabaseServices.addItem(_historyItem, isDuplicatedEnabled: context.readSettings.isSaveDuplicates);
       } else {
-        HiveService.deleteItem(_historyItem.key);
+        DatabaseServices.deleteItem(_historyItem.id);
       }
     } else if (_isExistInhistories) {
-      HiveService.updateItem(_historyItem.key, _historyItem);
+      DatabaseServices.updateItem(_historyItem.id, _historyItem);
     }
   }
 

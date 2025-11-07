@@ -4,7 +4,7 @@ import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -94,7 +94,7 @@ class _PageImageScanState extends State<PageImageScan> {
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) HiveService.addItem(item, context:context);
+    if (isScanAddHistory) DatabaseServices.addItem(item, context:context);
     await context.routeOf<PageItemView>().arguments(item).to();
     Navigator.pop(context);
   }

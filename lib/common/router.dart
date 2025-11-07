@@ -1,4 +1,4 @@
-// router v2 by xbaistack
+// This “router.dart” is not covered by License because it is a package from another source.
 import 'package:flutter/cupertino.dart';
 import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
@@ -11,9 +11,9 @@ import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
 
-const Type _HOME_ = MenuNavBar;
-final Map<String, WidgetBuilder> _ROUTES_ = Utils.typeNameMap({
-  _HOME_: (_) => MenuNavBar(),
+const Type _$HOME_ = MenuNavBar;
+final Map<String, WidgetBuilder> _$ROUTES_ = Utils.typeNameMap({
+  _$HOME_: (_) => MenuNavBar(),
   //menu_scanner
   PageImageScan: (_) => PageImageScan(),
   //menu_creator
@@ -33,7 +33,6 @@ final Map<String, WidgetBuilder> _ROUTES_ = Utils.typeNameMap({
 final class MyRouter {
   MyRouter._();
 
-  // 這是YUKAI新增的
   static final navigatorKey = GlobalKey<NavigatorState>();
   static BuildContext get context => navigatorKey.currentContext!;
   static NavigatorState get navigator => navigatorKey.currentState!;
@@ -47,9 +46,9 @@ final class MyRouter {
   static final MyRouter _instance = MyRouter._();
 
   /// 路由默认主页
-  static final String INDEX = Utils.typeName(_HOME_);
+  static final String $INDEX = Utils.typeName(_$HOME_);
 
-  static final ROUTES = _ROUTES_;
+  static final $ROUTES = _$ROUTES_;
 
   /// 重置临时变量
   void _resetVariables() {
@@ -92,7 +91,7 @@ final class MyRouter {
     assert(hasName(name), "Route \"$RT\" is not registered.");
     _instance._context = context;
     _instance._routeName = name;
-    var builder = _ROUTES_[name]!;
+    var builder = _$ROUTES_[name]!;
     return builder.call(context) as RT;
   }
 
@@ -119,7 +118,7 @@ final class MyRouter {
   ///
   /// * @param [routeName] 定义的路由类型名
   /// * @return [bool] 检测结果
-  static bool hasName(String routeName) => _ROUTES_.containsKey(routeName);
+  static bool hasName(String routeName) => _$ROUTES_.containsKey(routeName);
 
   /// 用干构建页面未知路由，当面路由找不到时会进入到此方法中。
   /// 参数 [settings] 路由的配置参数。
@@ -134,7 +133,7 @@ final class MyRouter {
   ///* @param [settings] 路由配置参数
   /// * @return [CupertinoPageRoute] 页面略由对象
   static CupertinoPageRoute onGenerateRoute<T>(RouteSettings settings) {
-    final builder = _ROUTES_[settings.name] ?? _ROUTES_[INDEX]!;
+    final builder = _$ROUTES_[settings.name] ?? _$ROUTES_[$INDEX]!;
     return CupertinoPageRoute<T>(builder: builder, settings: settings);
   }
 
@@ -163,5 +162,3 @@ extension Context on BuildContext {
     return MyRouter.of<RT>(this);
   }
 }
-
-// Thank you to the Bilibili anchor “小白栈记”(xbaistack) movie router

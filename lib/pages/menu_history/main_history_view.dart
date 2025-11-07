@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/entity/history_item.dart';
@@ -19,8 +18,9 @@ class MainHistoryView extends StatefulWidget {
   State<MainHistoryView> createState() => _MainHistoryViewState();
 }
 
-class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<MainHistoryView, dynamic> {
+class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<MainHistoryView, int> {
   final ScrollController _scrollController = ScrollController();
+  final List<HistoryItem> _historyItems = [];
   @override
   Widget build(BuildContext context) {
     final localeStr = Language.of(context);
@@ -36,14 +36,9 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
             onPressed: exitSelectionMode,
           )
           : null,
-        title: ValueListenableBuilder(
-          valueListenable: HiveService.getListenable,
-          builder: (context, Box box, _) {
-            return isSelectionMode
-              ? Text('${selectedObjects.length}/${box.length}')
-              : Text('${box.length}');
-          }
-        ),
+        title: isSelectionMode
+            ? Text('${selectedObjects.length}/${_historyItems.length}')
+            : Text('${_historyItems.length}'),
         actions: [
           if (isSelectionMode) ...[
             IconButton(
@@ -57,7 +52,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                     child: Text(localeStr.deleteLabel),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      HiveService.deleteItems(selectedObjects);
+                      DatabaseServices.deleteItems(selectedObjects.toList());
                       Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
                       exitSelectionMode();
                     },
@@ -68,9 +63,9 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
             IconButton(
               icon: const Icon(Icons.content_copy),
               onPressed: () {
-                final List<HistoryItem> items = HiveService.getReversedList(
+                final List<HistoryItem> items = DatabaseServices.getReversedList(
                   sortF: true,
-                  list: HiveService.getItems(selectedObjects),
+                  list: DatabaseServices.getItems(selectedObjects),
                 );
                 final String combinedText = items.map((item) => item.contents).join('\n');
                 Clipboard.setData(ClipboardData(text: combinedText));
@@ -85,10 +80,10 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               },
               onSelectedEnd: (int option) {
                 for (final key in selectedObjects){
-                  final HistoryItem? item = HiveService.getItem(key);
+                  final HistoryItem? item = DatabaseServices.getItem(key);
                   if (item == null) continue;
                   item.isFavorite = (option == 0);
-                  HiveService.updateItem(key, item);
+                  DatabaseServices.updateItem(key, item);
                 }
                 exitSelectionMode();
               },
@@ -97,9 +92,9 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
             MyMenuButton(
               icon: const Icon(Icons.swap_vert),
               optionMap: {
-                localeStr.shareJsonLabel: () => HiveService.shareHistoriesToJson(localeStr),
-                localeStr.exportJsonLabel: () => HiveService.exportHistoriesToJson(localeStr),
-                localeStr.importJsonLabel: () => HiveService.importHistoriesFromJson(localeStr),
+                localeStr.shareJsonLabel: () => DatabaseServices.shareHistoriesToJson(localeStr),
+                localeStr.exportJsonLabel: () => DatabaseServices.exportHistoriesToJson(localeStr),
+                localeStr.importJsonLabel: () => DatabaseServices.importHistoriesFromJson(localeStr),
               },
             ),
             IconButton(
@@ -113,7 +108,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                     child: Text(localeStr.deleteLabel),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      HiveService.clearHistories();
+                      DatabaseServices.clearHistories();
                       Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
                     },
                   ),
@@ -124,39 +119,49 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
         ],
       ),
 
-      body: SafeArea(child: Scrollbar(
-        controller: _scrollController,
-        child: ValueListenableBuilder(
-          valueListenable: HiveService.getListenable,
-          builder: (context, Box box, _) {
-            final List<HistoryItem> historiesList = HiveService.getReversedList(sortF: true);
-            if (historiesList.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
-            return ListView.builder(
-              addAutomaticKeepAlives: false,
-              addRepaintBoundaries: false,
-              padding: const EdgeInsets.all(4.0),
-              controller: _scrollController,
-              itemCount: historiesList.length,
-              itemBuilder: (context, index) {
-                final item = historiesList[index];
-                final key = item.key;
-                return MainHistoryCard(
-                  historyItem: item,
-                  selected: selectedObjects.contains(key),
-                  onTap: () {
-                    if (isSelectionMode) {
-                      toggleSelection(key);
-                    } else {
-                      context.routeOf<PageItemView>().arguments(item).to();
-                    }
-                  },
-                  onLongPress: () => enterSelectionMode(key),
-                );
-              },
-            );
-          }
-        ),
-      ))
+      body: SafeArea(
+        child: Scrollbar(
+          controller: _scrollController,
+          child: StreamBuilder<List<HistoryItem>>(
+              stream: DatabaseServices.historyItemStream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text(snapshot.error.toString()));
+              } else if (!snapshot.hasData || snapshot.data == null) {
+                return Center(child: Text('snapshot.hasData:${snapshot.hasData}\nsnapshot.data:snapshot.data'));
+              }
+              _historyItems.clear();
+              _historyItems.addAll(snapshot.data!);
+              if (_historyItems.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
+              return ListView.builder(
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: false,
+                padding: const EdgeInsets.all(4.0),
+                controller: _scrollController,
+                itemCount: _historyItems.length,
+                itemBuilder: (context, index) {
+                  final item = _historyItems[index];
+                  final id = item.id;
+                  return MainHistoryCard(
+                    historyItem: item,
+                    selected: selectedObjects.contains(id),
+                    onTap: () {
+                      if (isSelectionMode) {
+                        toggleSelection(id);
+                      } else {
+                        context.routeOf<PageItemView>().arguments(item).to();
+                      }
+                    },
+                    onLongPress: () => enterSelectionMode(id),
+                  );
+                },
+              );
+            }
+          ),
+        )
+      )
     );
   }
 }

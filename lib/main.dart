@@ -8,11 +8,11 @@ import 'package:watashi_qr/pages/menu_nav_bar.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HiveService.hiveInit();
+  await DatabaseServices.hiveInit();
   await Utils.init();
   runApp(
     MultiProvider(
@@ -35,23 +35,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    DatabaseServices.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.detached) {
-      HiveService.hiveClose();
-    }
   }
 
   @override
@@ -70,7 +56,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               localizationsDelegates: LocaleOption.localizationsDelegates,
               supportedLocales: LocaleOption.supportedLocales,
 
-              routes: MyRouter.ROUTES,
+              routes: MyRouter.$ROUTES,
               navigatorKey: MyRouter.navigatorKey,
               onGenerateRoute: MyRouter.onGenerateRoute,
 

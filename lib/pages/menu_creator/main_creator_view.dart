@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -72,7 +72,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
         isFavorite: false,
         notes: '',
       );
-      if (isCreateAddHistory) HiveService.addItem(item, context:context);
+      if (isCreateAddHistory) DatabaseServices.addItem(item, context:context);
       context.routeOf<PageCodeView>().arguments(item).to();
     }
   }
