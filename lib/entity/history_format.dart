@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 import 'package:barcode/barcode.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
@@ -22,6 +22,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   itf(MyIconData.barcode);
 
   const HistoryFormat(this.myIconData);
+
   final MyIconData myIconData;
 
   Barcode Function() get barcodeFunc => switch (this) {
@@ -56,47 +57,47 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     BarcodeFormat.itf: itf,
   }[barcodeFormat];
 
-  static String localeStrFromName(String n, Language localeStr) => <HistoryFormat, String>{
-    qrCode: localeStr.barcodeQrCodeLabel,
-    dataMatrix: localeStr.barcodeDataMatrixLabel,
-    aztec: localeStr.barcodeAztecLabel,
-    pdf417: localeStr.barcodePdf417Label,
-    ean13: localeStr.barcodeEan13Label,
-    ean8: localeStr.barcodeEan8Label,
-    upcA: localeStr.barcodeUpcALabel,
-    upcE: localeStr.barcodeUpcELabel,
-    code128: localeStr.barcodeCode128Label,
-    code93: localeStr.barcodeCode93Label,
-    code39: localeStr.barcodeCode39Label,
-    codebar: localeStr.barcodeCodabarLabel,
-    itf: localeStr.barcodeItfLabel,
+  static String localeStrFromName(String n) => <HistoryFormat, String>{
+    qrCode: AppLocale.barcodeQrCodeLabel.s,
+    dataMatrix: AppLocale.barcodeDataMatrixLabel.s,
+    aztec: AppLocale.barcodeAztecLabel.s,
+    pdf417: AppLocale.barcodePdf417Label.s,
+    ean13: AppLocale.barcodeEan13Label.s,
+    ean8: AppLocale.barcodeEan8Label.s,
+    upcA: AppLocale.barcodeUpcALabel.s,
+    upcE: AppLocale.barcodeUpcELabel.s,
+    code128: AppLocale.barcodeCode128Label.s,
+    code93: AppLocale.barcodeCode93Label.s,
+    code39: AppLocale.barcodeCode39Label.s,
+    codebar: AppLocale.barcodeCodabarLabel.s,
+    itf: AppLocale.barcodeItfLabel.s,
   }[values.fromName(n)] ?? '"$n"';
 
-  String composition(Language localeStr) => <HistoryFormat, String>{
-    qrCode: localeStr.barcodeTextCompositionLabel,
-    dataMatrix: localeStr.barcodeTextNoSpecialCompositionLabel,
-    aztec: localeStr.barcodeTextNoSpecialCompositionLabel,
-    pdf417: localeStr.barcodeTextCompositionLabel,
-    ean13: localeStr.barcode12Digits1CheckCompositionLabel,
-    ean8: localeStr.barcode7Digits1CheckCompositionLabel,
-    upcA: localeStr.barcode11Digits1CheckCompositionLabel,
-    upcE: localeStr.barcode7Digits1CheckCompositionLabel,
-    code128: localeStr.barcodeTextNoSpecialCompositionLabel,
-    code93: localeStr.barcodeTextUpperNoSpecialCompositionLabel,
-    code39: localeStr.barcodeTextUpperNoSpecialCompositionLabel,
-    codebar: localeStr.barcodeDigitsCompositionLabel,
-    itf: localeStr.barcodeEvenDigitsCompositionLabel,
-  }[this] ?? localeStr.barcodeTextCompositionLabel;
+  String get composition => <HistoryFormat, String>{
+    qrCode: AppLocale.barcodeTextCompositionLabel.s,
+    dataMatrix: AppLocale.barcodeTextNoSpecialCompositionLabel.s,
+    aztec: AppLocale.barcodeTextNoSpecialCompositionLabel.s,
+    pdf417: AppLocale.barcodeTextCompositionLabel.s,
+    ean13: AppLocale.barcode12Digits1CheckCompositionLabel.s,
+    ean8: AppLocale.barcode7Digits1CheckCompositionLabel.s,
+    upcA: AppLocale.barcode11Digits1CheckCompositionLabel.s,
+    upcE: AppLocale.barcode7Digits1CheckCompositionLabel.s,
+    code128: AppLocale.barcodeTextNoSpecialCompositionLabel.s,
+    code93: AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
+    code39: AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
+    codebar: AppLocale.barcodeDigitsCompositionLabel.s,
+    itf: AppLocale.barcodeEvenDigitsCompositionLabel.s,
+  }[this] ?? AppLocale.barcodeTextCompositionLabel.s;
 
-  String? description(Language localeStr) => <HistoryFormat, String>{
-    ean13: localeStr.barcodeEan13DescriptionLabel,
-    ean8: localeStr.barcodeEan8DescriptionLabel,
-    upcA: localeStr.barcodeUpcADescriptionLabel,
-    upcE: localeStr.barcodeUpcEDescriptionLabel,
-    code128: localeStr.barcodeCode128DescriptionLabel,
-    code93: localeStr.barcodeCode93DescriptionLabel,
-    code39: localeStr.barcodeCode39DescriptionLabel,
-    codebar: localeStr.barcodeCodabarDescriptionLabel,
-    itf: localeStr.barcodeItfDescriptionLabel,
+  String? get description => <HistoryFormat, String>{
+    ean13: AppLocale.barcodeEan13DescriptionLabel.s,
+    ean8: AppLocale.barcodeEan8DescriptionLabel.s,
+    upcA: AppLocale.barcodeUpcADescriptionLabel.s,
+    upcE: AppLocale.barcodeUpcEDescriptionLabel.s,
+    code128: AppLocale.barcodeCode128DescriptionLabel.s,
+    code93: AppLocale.barcodeCode93DescriptionLabel.s,
+    code39: AppLocale.barcodeCode39DescriptionLabel.s,
+    codebar: AppLocale.barcodeCodabarDescriptionLabel.s,
+    itf: AppLocale.barcodeItfDescriptionLabel.s,
   }[this];
 }

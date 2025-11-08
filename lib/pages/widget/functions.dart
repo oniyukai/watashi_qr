@@ -1,6 +1,5 @@
-
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
 void showMyDialog({
   required BuildContext context,
@@ -20,7 +19,7 @@ void showMyDialog({
         actions: <Widget>[
           if (!noCancelButton) TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(Language.of(context).cancelLabel),
+            child: Text(AppLocale.cancelLabel.s),
           ),
           if (actions != null) ...actions,
         ],
@@ -59,7 +58,7 @@ void showMyBottomSheet({
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   if (!noCancelButton) ElevatedButton(
-                    child: Text(Language.of(context).cancelLabel),
+                    child: Text(AppLocale.cancelLabel.s),
                     onPressed: () => Navigator.pop(context),
                   ),
                   if (actions != null) ...actions,

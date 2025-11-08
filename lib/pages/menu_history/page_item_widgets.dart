@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:flutter/services.dart';
 
@@ -20,7 +20,6 @@ class AnalyzedContentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     switch (type) {
       case HistoryType.contact:
         String name = '';
@@ -60,14 +59,14 @@ class AnalyzedContentItem extends StatelessWidget {
           }
         }
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixContactNameLabel: name,
-          localeStr.matrixContactOrganisationLabel: organisation,
-          localeStr.matrixContactJobTitleLabel: jobTitle,
-          localeStr.matrixUriUrlLabel: website,
-          localeStr.matrixContactMailLabel: mail,
-          localeStr.matrixContactPhoneLabel: phone,
-          localeStr.matrixContactAddressLabel: address,
-          localeStr.matrixContactNotesLabel: notes,
+          AppLocale.matrixContactNameLabel.s: name,
+          AppLocale.matrixContactOrganisationLabel.s: organisation,
+          AppLocale.matrixContactJobTitleLabel.s: jobTitle,
+          AppLocale.matrixUriUrlLabel.s: website,
+          AppLocale.matrixContactMailLabel.s: mail,
+          AppLocale.matrixContactPhoneLabel.s: phone,
+          AppLocale.matrixContactAddressLabel.s: address,
+          AppLocale.matrixContactNotesLabel.s: notes,
         });
       case HistoryType.mail:
         final analyzed = analyzeMail(contents);
@@ -76,9 +75,9 @@ class AnalyzedContentItem extends StatelessWidget {
         final String? message = analyzed['message'];
         if ((email ?? subject ?? message) == null) break;
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixEmailRecipientLabel: email,
-          localeStr.matrixSubjectLabel: subject,
-          localeStr.matrixBodyLabel: message,
+          AppLocale.matrixEmailRecipientLabel.s: email,
+          AppLocale.matrixSubjectLabel.s: subject,
+          AppLocale.matrixBodyLabel.s: message,
         });
       case HistoryType.sms:
         final analyzed = analyzeSms(contents);
@@ -86,12 +85,12 @@ class AnalyzedContentItem extends StatelessWidget {
         final String? message = analyzed['message'];
         if ((phone ?? message) == null) break;
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixPhoneTelNumberLabel: phone,
-          localeStr.matrixBodyLabel: message,
+          AppLocale.matrixPhoneTelNumberLabel.s: phone,
+          AppLocale.matrixBodyLabel.s: message,
         });
       case HistoryType.phone:
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixPhoneTelNumberLabel: contents.substring(4),
+          AppLocale.matrixPhoneTelNumberLabel.s: contents.substring(4),
         });
       case HistoryType.location:
         String? latitude;
@@ -112,10 +111,10 @@ class AnalyzedContentItem extends StatelessWidget {
         if (temp.length >= 2) request = temp.last.substring(2);
         if ((latitude ?? longitude ?? height ?? request) == null) break;
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixLocalisationLatitudeLabel: latitude,
-          localeStr.matrixLocalisationLongitudeLabel: longitude,
-          localeStr.matrixLocalisationAltitudeLabel: height,
-          localeStr.matrixLocalisationQueryLabel: request,
+          AppLocale.matrixLocalisationLatitudeLabel.s: latitude,
+          AppLocale.matrixLocalisationLongitudeLabel.s: longitude,
+          AppLocale.matrixLocalisationAltitudeLabel.s: height,
+          AppLocale.matrixLocalisationQueryLabel.s: request,
         });
       case HistoryType.event:
         String? summary;
@@ -142,11 +141,11 @@ class AnalyzedContentItem extends StatelessWidget {
           }
         }
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixAgendaNameEventLabel: summary,
-          localeStr.matrixAgendaStartDateEventLabel: startDate,
-          localeStr.matrixAgendaEndDateEventLabel: endDate,
-          localeStr.matrixAgendaPlaceEventLabel: location,
-          localeStr.matrixAgendaDescriptionEventLabel: description,
+          AppLocale.matrixAgendaNameEventLabel.s: summary,
+          AppLocale.matrixAgendaStartDateEventLabel.s: startDate,
+          AppLocale.matrixAgendaEndDateEventLabel.s: endDate,
+          AppLocale.matrixAgendaPlaceEventLabel.s: location,
+          AppLocale.matrixAgendaDescriptionEventLabel.s: description,
         });
       case HistoryType.wifi:
         String? ssid;
@@ -168,10 +167,10 @@ class AnalyzedContentItem extends StatelessWidget {
         }
         if ((ssid ?? password ?? security ?? hide) == null) break;
         return _AnalyzedContentColumn(map: {
-          localeStr.matrixWifiSsidLabel: ssid,
-          localeStr.matrixWifiPasswordLabel: password,
-          localeStr.matrixWifiEncryptionLabel: security,
-          localeStr.matrixWifiIsHiddenLabel: hide,
+          AppLocale.matrixWifiSsidLabel.s: ssid,
+          AppLocale.matrixWifiPasswordLabel.s: password,
+          AppLocale.matrixWifiEncryptionLabel.s: security,
+          AppLocale.matrixWifiIsHiddenLabel.s: hide,
         });
       case HistoryType.text:
       case HistoryType.website:

@@ -4,7 +4,7 @@ import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
@@ -12,7 +12,7 @@ import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/pages/widget/expandable_card.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:flutter/services.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class MainCreatorView extends StatefulWidget {
@@ -52,16 +52,15 @@ class _MainCreatorViewState extends State<MainCreatorView> {
   };
 
   Future<void> _createQrFromClipboard() async {
-    final localeStr = Language.of(context);
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String? contents = clipboardData?.text;
     if (contents == null || contents.isEmpty) {
-      Utils.showToast('${localeStr.clipboardEmpty}\n${localeStr.qrCodeTextGeneratorHintTextInputEditText}');
+      Utils.showToast('${AppLocale.clipboardEmpty.s}\n${AppLocale.qrCodeTextGeneratorHintTextInputEditText.s}');
     } else if (contents.length > 2953) {
-      Utils.showToast('${localeStr.errorBarcodeWrongLengthMessage}< 2953');
+      Utils.showToast('${AppLocale.errorBarcodeWrongLengthMessage.s}< 2953');
     } else {
-      final String selectedQRErrorLevel = context.readSettings.selectedQRErrorLevel;
-      final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
+      final String selectedQRErrorLevel = context.readPrefs.get<HistoryErrorLevel>(PrefsEnum.selectedQRErrorLevel).name;
+      final bool isCreateAddHistory = context.readPrefs.get(PrefsEnum.isCreateAddHistory);
       final HistoryItem item = HistoryItem(
         unixTime: Utils.nowUnixTime,
         contents: contents,
@@ -79,7 +78,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
+    AppLocale.load(context);
     return Scaffold(
       body: SafeArea(
         child: Scrollbar(
@@ -90,17 +89,17 @@ class _MainCreatorViewState extends State<MainCreatorView> {
             children: [
               const SizedBox(height: 16),
               ExpandableCard(
-                title: localeStr.titleQrCodeCreator,
+                title: AppLocale.titleQrCodeCreator.s,
                 myIconData: HistoryFormat.qrCode.myIconData,
                 expandedChild: Column(
                   children: [
                     ItemTile(
-                      title: localeStr.createQrFromClipboard,
+                      title: AppLocale.createQrFromClipboard.s,
                       myIconData: MyIconData(Icons.content_copy),
                       onTap: _createQrFromClipboard,
                     ),
                     ..._historyTypes.map((type) => ItemTile(
-                      title: HistoryType.localeStrFromName(type.name, localeStr),
+                      title: HistoryType.localeStrFromName(type.name),
                       myIconData: type.myIconData,
                       onTap: () => context.routeOf<PageQrcodeForm>()
                           .arguments(type)
@@ -112,13 +111,13 @@ class _MainCreatorViewState extends State<MainCreatorView> {
               ),
               const SizedBox(height: 16),
               ExpandableCard(
-                title: localeStr.titleBarCodeCreator,
+                title: AppLocale.titleBarCodeCreator.s,
                 myIconData: MyIconData.barcode,
                 expandedChild: Column(
                   children: _historyFormats.map((format) => ItemTile(
-                    title: HistoryFormat.localeStrFromName(format.name, localeStr),
+                    title: HistoryFormat.localeStrFromName(format.name),
                     myIconData: format.myIconData,
-                    description: format.composition(localeStr),
+                    description: format.composition,
                     onTap: () => context.routeOf<PageBarcodeForm>()
                         .arguments(format)
                         .to(),
@@ -127,7 +126,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
               ),
               const SizedBox(height: 16),
               // Center( // todo?: 有緣或許有分享到該程式的功能
-              //   child: Text(localeStr.shareToThisAppLabel,
+              //   child: Text(AppLocale.shareToThisAppLabel.s,
               //       softWrap: true,
               //       style: theme.textTheme.bodyMedium
               //   ),

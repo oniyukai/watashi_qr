@@ -4,10 +4,10 @@ import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/functions.dart';
 import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_card.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
@@ -23,7 +23,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
   final List<HistoryItem> _historyItems = [];
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
+    AppLocale.load(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -45,15 +45,15 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               icon: const Icon(Icons.delete_forever),
               onPressed: () => showMyDialog(
                 context: context,
-                titleStr: localeStr.deleteLabel,
-                content: Text(localeStr.popupMessageConfirmationDeleteSelectedItemsHistory),
+                titleStr: AppLocale.deleteLabel.s,
+                content: Text(AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s),
                 actions: [
                   TextButton(
-                    child: Text(localeStr.deleteLabel),
+                    child: Text(AppLocale.deleteLabel.s),
                     onPressed: () {
                       Navigator.of(context).pop();
                       DatabaseServices.deleteItems(selectedObjects.toList());
-                      Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
+                      Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
                       exitSelectionMode();
                     },
                   ),
@@ -69,14 +69,14 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                 );
                 final String combinedText = items.map((item) => item.contents).join('\n');
                 Clipboard.setData(ClipboardData(text: combinedText));
-                Utils.showToast(localeStr.barcodeCopiedLabel);
+                Utils.showToast(AppLocale.barcodeCopiedLabel.s);
                 exitSelectionMode();
               },
             ),
             MyMenuButton(
               optionMap: {
-                localeStr.menuItemHistoryAddFavorite: null,
-                localeStr.menuItemHistoryRemoveFavorite: null,
+                AppLocale.menuItemHistoryAddFavorite.s: null,
+                AppLocale.menuItemHistoryRemoveFavorite.s: null,
               },
               onSelectedEnd: (int option) {
                 for (final key in selectedObjects){
@@ -92,24 +92,24 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
             MyMenuButton(
               icon: const Icon(Icons.swap_vert),
               optionMap: {
-                localeStr.shareJsonLabel: () => DatabaseServices.shareHistoriesToJson(localeStr),
-                localeStr.exportJsonLabel: () => DatabaseServices.exportHistoriesToJson(localeStr),
-                localeStr.importJsonLabel: () => DatabaseServices.importHistoriesFromJson(localeStr),
+                AppLocale.shareJsonLabel.s: () => DatabaseServices.shareHistoriesToJson(),
+                AppLocale.exportJsonLabel.s: () => DatabaseServices.exportHistoriesToJson(),
+                AppLocale.importJsonLabel.s: () => DatabaseServices.importHistoriesFromJson(),
               },
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),
               onPressed: () => showMyDialog(
                 context: context,
-                titleStr: localeStr.deleteLabel,
-                content: Text(localeStr.popupMessageConfirmationDeleteHistory),
+                titleStr: AppLocale.deleteLabel.s,
+                content: Text(AppLocale.popupMessageConfirmationDeleteHistory.s),
                 actions: [
                   TextButton(
-                    child: Text(localeStr.deleteLabel),
+                    child: Text(AppLocale.deleteLabel.s),
                     onPressed: () {
                       Navigator.of(context).pop();
                       DatabaseServices.clearHistories();
-                      Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
+                      Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
                     },
                   ),
                 ]
@@ -134,7 +134,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               }
               _historyItems.clear();
               _historyItems.addAll(snapshot.data!);
-              if (_historyItems.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
+              if (_historyItems.isEmpty) return Center(child: Text(AppLocale.labelHistoryEmpty.s));
               return ListView.builder(
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: false,

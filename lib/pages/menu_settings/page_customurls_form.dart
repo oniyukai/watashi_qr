@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class PageCustomurlsForm extends StatefulWidget with RouterBridge<String> {
@@ -21,13 +21,12 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     final theme = Theme.of(context);
     final argument = widget.argumentOf(context);
-    final List<String> customSearchUrls = context.readSettings.customSearchUrls;
+    final List<String> customSearchUrls = context.readPrefs.get(PrefsEnum.customSearchUrls);
     if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     if (argument != '') {
-      final List<String> parts = argument.split(Language.separationObject);
+      final List<String> parts = argument.split(StaticString.separationObject);
       _title = parts[0];
       _url = parts[1];
       _isAddorModify = false;
@@ -37,8 +36,8 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
       appBar: AppBar(
         title: Text(
           (argument == '')
-            ? localeStr.customSearchUrlsAddUrl
-            : localeStr.customSearchUrlsModifyUrl
+            ? AppLocale.customSearchUrlsAddUrl.s
+            : AppLocale.customSearchUrlsModifyUrl.s
         ),
         actions: [
           IconButton(
@@ -49,21 +48,21 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 formTitle = formTitle.replaceAll('<>', ' ');
                 final formUrl = _formKey.currentState?.value['formUrl'];
                 if (_isDuplicatedTitle(formTitle, customSearchUrls)) {
-                  Utils.showToast(localeStr.customSearchUrlsisDuplicated);
+                  Utils.showToast(AppLocale.customSearchUrlsisDuplicated.s);
                   return;
                 }
                 if (_isAddorModify) {
-                  customSearchUrls.add('$formTitle${Language.separationObject}$formUrl');
-                  Utils.showToast(localeStr.customUrlAdded);
+                  customSearchUrls.add('$formTitle${StaticString.separationObject}$formUrl');
+                  Utils.showToast(AppLocale.customUrlAdded.s);
                 } else {
                   for (int i = 0; i<customSearchUrls.length; i++) {
-                    if (customSearchUrls[i].startsWith('$_title${Language.separationObject}')) {
-                      customSearchUrls[i] = '$formTitle${Language.separationObject}$formUrl';
+                    if (customSearchUrls[i].startsWith('$_title${StaticString.separationObject}')) {
+                      customSearchUrls[i] = '$formTitle${StaticString.separationObject}$formUrl';
                     }
                   }
-                  Utils.showToast(localeStr.customUrlUpdated);
+                  Utils.showToast(AppLocale.customUrlUpdated.s);
                 }
-                context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
+                context.readPrefs.update(PrefsEnum.customSearchUrls, customSearchUrls);
                 Navigator.pop(context);
               }
             },
@@ -86,10 +85,10 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       maxLines: null,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
-                        labelText: localeStr.matrixContactNameLabel,
+                        labelText: AppLocale.matrixContactNameLabel.s,
                       ),
                       validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                        FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
                       ]),
                       keyboardType: TextInputType.text,
                     ),
@@ -100,13 +99,13 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       maxLines: null,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
-                        labelText: localeStr.matrixUriUrlLabel,
+                        labelText: AppLocale.matrixUriUrlLabel.s,
                       ),
                       validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                        FormBuilderValidators.contains('{code}', errorText: localeStr.customSearchUrlsErrorUrl),
-                        FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
-                        FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
+                        FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+                        FormBuilderValidators.contains('{code}', errorText: AppLocale.customSearchUrlsErrorUrl.s),
+                        FormBuilderValidators.startsWith('http', errorText: AppLocale.errorBarcodeQrUrlFormatMessage.s),
+                        FormBuilderValidators.url(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
                       ]),
                       keyboardType: TextInputType.url,
                     ),
@@ -114,7 +113,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 )
               ),
               const SizedBox(height: 16),
-              SelectableText('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
+              SelectableText('${AppLocale.customSearchUrlsAddInfo.s}\n\n${AppLocale.examples.s} ${StaticString.googleUrl}',
                 style: theme.textTheme.bodyMedium
               ),
               const SizedBox(height: 16),
@@ -128,7 +127,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   bool _isDuplicatedTitle(String formTitle, List<String> customSearchUrls) {
     if (_title == formTitle) return false;
     for (int i = 0; i<customSearchUrls.length; i++) {
-      if (customSearchUrls[i].startsWith('$formTitle${Language.separationObject}')) {
+      if (customSearchUrls[i].startsWith('$formTitle${StaticString.separationObject}')) {
         return true;
       }
     }

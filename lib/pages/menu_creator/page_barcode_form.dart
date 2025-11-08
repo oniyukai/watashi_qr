@@ -4,9 +4,9 @@ import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
@@ -25,19 +25,18 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
   @override
   Widget build(BuildContext context) {
     final format = widget.argumentOf(context);
-    final localeStr = Language.of(context);
     final theme = Theme.of(context);
     if (format == null) throw 'widget.argumentOf(context) connot be null.';
     return Scaffold(
       appBar: AppBar(
-        title: Text(localeStr.titleBarCodeCreator),
+        title: Text(AppLocale.titleBarCodeCreator.s),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
             onPressed: () {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 final value = _formKey.currentState?.value['name'];
-                final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
+                final bool isCreateAddHistory = context.readPrefs.get(PrefsEnum.isCreateAddHistory);
                 final HistoryItem item = HistoryItem(
                   unixTime: Utils.nowUnixTime,
                   contents: value,
@@ -61,7 +60,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
               ItemTile(
-                title: HistoryFormat.localeStrFromName(format.name, localeStr),
+                title: HistoryFormat.localeStrFromName(format.name),
                 myIconData: format.myIconData,
               ),
               const SizedBox(height: 16),
@@ -74,7 +73,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(format.description(localeStr) ?? '',
+              Text(format.description ?? '',
                   softWrap: true,
                   style: theme.textTheme.bodyMedium
               ),

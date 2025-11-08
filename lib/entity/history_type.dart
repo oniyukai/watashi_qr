@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
@@ -21,18 +21,18 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   const HistoryType(this.myIconData);
   final MyIconData myIconData;
 
-  static String localeStrFromName(String n, Language localeStr) => <HistoryType, String>{
-    text: localeStr.qrCodeTypeNameText,
-    website: localeStr.qrCodeTypeNameWebSite,
-    contact: localeStr.qrCodeTypeNameContact,
-    mail: localeStr.qrCodeTypeNameMail,
-    sms: localeStr.qrCodeTypeNameSms,
-    phone: localeStr.qrCodeTypeNamePhone,
-    location: localeStr.qrCodeTypeNameLocation,
-    event: localeStr.qrCodeTypeNameEvent,
-    wifi: localeStr.qrCodeTypeNameWifi,
-    product: localeStr.barCodeTypeProduct,
-    industrial: localeStr.barCodeTypeIndustrial,
+  static String localeStrFromName(String n) => <HistoryType, String>{
+    text: AppLocale.qrCodeTypeNameText.s,
+    website: AppLocale.qrCodeTypeNameWebSite.s,
+    contact: AppLocale.qrCodeTypeNameContact.s,
+    mail: AppLocale.qrCodeTypeNameMail.s,
+    sms: AppLocale.qrCodeTypeNameSms.s,
+    phone: AppLocale.qrCodeTypeNamePhone.s,
+    location: AppLocale.qrCodeTypeNameLocation.s,
+    event: AppLocale.qrCodeTypeNameEvent.s,
+    wifi: AppLocale.qrCodeTypeNameWifi.s,
+    product: AppLocale.barCodeTypeProduct.s,
+    industrial: AppLocale.barCodeTypeIndustrial.s,
   }[values.fromName(n)] ?? '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {

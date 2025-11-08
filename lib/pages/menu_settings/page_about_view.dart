@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
 class PageAboutView extends StatefulWidget {
   const PageAboutView({super.key});
@@ -12,7 +12,6 @@ class PageAboutView extends StatefulWidget {
 class _PageAboutViewState extends State<PageAboutView> {
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     final theme = Theme.of(context);
     final trailingIcon = Icon((Directionality.of(context) == TextDirection.ltr)
       ? Icons.chevron_right
@@ -21,7 +20,7 @@ class _PageAboutViewState extends State<PageAboutView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(localeStr.preferencesAboutTitle),
+        title: Text(AppLocale.preferencesAboutTitle.s),
       ),
       body: SafeArea(
         child: Scrollbar(
@@ -36,7 +35,7 @@ class _PageAboutViewState extends State<PageAboutView> {
               ),
               const SizedBox(height: 16),
               Text(
-                Language.appName,
+                StaticString.appName,
                 style: theme.textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
@@ -46,19 +45,19 @@ class _PageAboutViewState extends State<PageAboutView> {
                 textAlign: TextAlign.center,
               ),
               ListTile(
-                title: Text(localeStr.preferencesApplicationVersionLabel),
-                subtitle: Text(Language.appVersion),
+                title: Text(AppLocale.preferencesApplicationVersionLabel.s),
+                subtitle: Text(StaticString.appVersion),
               ),
               ListTile(
                 title: const Text('Version Tag'),
-                subtitle: Text(Language.appVersionTag),
+                subtitle: Text(StaticString.appVersionTag),
               ),
               ListTile(
-                title: Text(localeStr.preferencesAboutOpenSourceLibrariesLabel),
+                title: Text(AppLocale.preferencesAboutOpenSourceLibrariesLabel.s),
                 trailing: trailingIcon,
                 onTap: () => showLicensePage(
                   context: context,
-                  applicationName: localeStr.preferencesAboutOpenSourceLibrariesLabel,
+                  applicationName: AppLocale.preferencesAboutOpenSourceLibrariesLabel.s,
                 ),
               ),
               ListTile(
@@ -68,10 +67,10 @@ class _PageAboutViewState extends State<PageAboutView> {
                 onTap: () => Utils.openUrlInBrowser('https://www.gnu.org/licenses/gpl-3.0.html'),
               ),
               ListTile(
-                title: Text(localeStr.preferencesSourceCodeLabel),
-                subtitle: Text(Language.sourceCodeLink),
+                title: Text(AppLocale.preferencesSourceCodeLabel.s),
+                subtitle: Text(StaticString.sourceCodeLink),
                 trailing: trailingIcon,
-                onTap: () => Utils.openUrlInBrowser(Language.sourceCodeLink),
+                onTap: () => Utils.openUrlInBrowser(StaticString.sourceCodeLink),
               ),
             ],
           )

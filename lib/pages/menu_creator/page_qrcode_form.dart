@@ -7,10 +7,10 @@ import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/router.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -33,11 +33,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
 
   void _sendForm(String contents, HistoryType historyType) {
     if (contents.length > 2953) {
-      Utils.showToast('${Language.of(context).errorBarcodeWrongLengthMessage}< 2953');
+      Utils.showToast('${AppLocale.errorBarcodeWrongLengthMessage.s}< 2953');
       return;
     }
-    final bool isCreateAddHistory = context.readSettings.isCreateAddHistory;
-    final String selectedQRErrorLevel = context.readSettings.selectedQRErrorLevel;
+    final bool isCreateAddHistory = context.readPrefs.get(PrefsEnum.isCreateAddHistory);
+    final String selectedQRErrorLevel = context.readPrefs.get<HistoryErrorLevel>(PrefsEnum.selectedQRErrorLevel).name;
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
@@ -55,11 +55,10 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   @override
   Widget build(BuildContext context) {
     final historyType = widget.argumentOf(context);
-    final localeStr = Language.of(context);
     if (historyType == null) throw 'widget.argumentOf(context) connot be null.';
     return Scaffold(
       appBar: AppBar(
-        title: Text(localeStr.titleBarCodeCreator),
+        title: Text(AppLocale.titleBarCodeCreator.s),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -80,7 +79,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
               ItemTile(
-                title: HistoryType.localeStrFromName(historyType.name, localeStr),
+                title: HistoryType.localeStrFromName(historyType.name),
                 myIconData: historyType.myIconData,
               ),
               const SizedBox(height: 16),
@@ -96,11 +95,10 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   }
 
   Future<void> _importContactFromVcard() async {
-    final localeStr = Language.of(context);
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
-        return Utils.showToast(localeStr.cancelLabel);
+        return Utils.showToast(AppLocale.cancelLabel.s);
       } else if (!result.files.single.path!.endsWith('.vcf')) {
         return Utils.showToast('Error: Not .vcf file');
       }
@@ -109,7 +107,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
       final String vCardString = await file.readAsString();
       _sendForm(vCardString, HistoryType.contact);
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', true);
+      Utils.showToast('${AppLocale.snackBarMessageFileImportError.s}\n$e', true);
     }
   }
 
@@ -237,7 +235,6 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   }
 
   Widget _formFromType(HistoryType historyType) {
-    final localeStr = Language.of(context);
     switch(historyType) {
       case HistoryType.website:
         return FormBuilderTextField(
@@ -245,13 +242,13 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
           maxLines: null,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.web),
-            labelText: localeStr.qrCodeTextGeneratorHintUrlInputEditText,
+            labelText: AppLocale.qrCodeTextGeneratorHintUrlInputEditText.s,
           ),
           keyboardType: TextInputType.url,
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-            FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
-            FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
+            FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+            FormBuilderValidators.startsWith('http', errorText: AppLocale.errorBarcodeQrUrlFormatMessage.s),
+            FormBuilderValidators.url(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
           ]),
           onEditingComplete: () {
             _formKey.currentState?.fields['website']?.validate();
@@ -266,18 +263,18 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               children: [
                 // ElevatedButton(
                 //   onPressed: () => _importContactFromContact(), // todo
-                //   child: Text(localeStr.qrCodeTypeNameGenerateFromContact),
+                //   child: Text(AppLocale.qrCodeTypeNameGenerateFromContact.s),
                 // ),
                 ElevatedButton(
                   onPressed: _importContactFromVcard,
-                  child: Text(localeStr.qrCodeImportContactFromVcard),
+                  child: Text(AppLocale.qrCodeImportContactFromVcard.s),
                 ),
                 const SizedBox(height: 16),
                 FormBuilderTextField(
                   name: 'name',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintName,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintName.s,
                   ),
                   keyboardType: TextInputType.name,
                 ),
@@ -286,7 +283,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'firstname',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintFirstName,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintFirstName.s,
                   ),
                   keyboardType: TextInputType.name,
                 ),
@@ -295,7 +292,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'organisation',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.matrixContactOrganisationLabel,
+                    labelText: AppLocale.matrixContactOrganisationLabel.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -304,7 +301,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'jobtitle',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.matrixContactJobTitleLabel,
+                    labelText: AppLocale.matrixContactJobTitleLabel.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -314,15 +311,15 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   maxLines: 1,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.web),
-                    labelText: localeStr.qrCodeTextInputEditTextHintWebSite,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintWebSite.s,
                   ),
                   keyboardType: TextInputType.url,
                 ),
                 const SizedBox(height: 8),
                 ...<int, String>{
-                  0: localeStr.qrCodeTextInputEditTextHintMail1,
-                  1: localeStr.qrCodeTextInputEditTextHintMail2,
-                  2: localeStr.qrCodeTextInputEditTextHintMail3,
+                  0: AppLocale.qrCodeTextInputEditTextHintMail1.s,
+                  1: AppLocale.qrCodeTextInputEditTextHintMail2.s,
+                  2: AppLocale.qrCodeTextInputEditTextHintMail3.s,
                 }.entries.map((entry) => Column(
                   children: [
                     Row(
@@ -347,9 +344,9 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                               expandedInsets: EdgeInsets.zero,
                               inputDecorationTheme: const InputDecorationTheme(),
                               dropdownMenuEntries: [
-                                DropdownMenuEntry(value: 'home', label: localeStr.spinnerTypeHome),
-                                DropdownMenuEntry(value: 'work', label: localeStr.spinnerTypeWork),
-                                DropdownMenuEntry(value: 'other', label: localeStr.spinnerTypeOther),
+                                DropdownMenuEntry(value: 'home', label: AppLocale.spinnerTypeHome.s),
+                                DropdownMenuEntry(value: 'work', label: AppLocale.spinnerTypeWork.s),
+                                DropdownMenuEntry(value: 'other', label: AppLocale.spinnerTypeOther.s),
                               ],
                               onSelected: (value) {
                                 setState(() { //這不一定要setState
@@ -364,9 +361,9 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   ],
                 )),
                 ...<int, String>{
-                  0: localeStr.qrCodeTextInputEditTextHintPhone1,
-                  1: localeStr.qrCodeTextInputEditTextHintPhone2,
-                  2: localeStr.qrCodeTextInputEditTextHintPhone3,
+                  0: AppLocale.qrCodeTextInputEditTextHintPhone1.s,
+                  1: AppLocale.qrCodeTextInputEditTextHintPhone2.s,
+                  2: AppLocale.qrCodeTextInputEditTextHintPhone3.s,
                 }.entries.map((entry) => Column(
                   children: [
                     Row(
@@ -391,11 +388,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                               expandedInsets: EdgeInsets.zero,
                               inputDecorationTheme: const InputDecorationTheme(),
                               dropdownMenuEntries: [
-                                DropdownMenuEntry(value: 'cell', label: localeStr.spinnerTypeMobile),
-                                DropdownMenuEntry(value: 'home', label: localeStr.spinnerTypeHome),
-                                DropdownMenuEntry(value: 'work', label: localeStr.spinnerTypeWork),
-                                DropdownMenuEntry(value: 'fax', label: localeStr.spinnerTypeFax),
-                                DropdownMenuEntry(value: 'other', label: localeStr.spinnerTypeOther),
+                                DropdownMenuEntry(value: 'cell', label: AppLocale.spinnerTypeMobile.s),
+                                DropdownMenuEntry(value: 'home', label: AppLocale.spinnerTypeHome.s),
+                                DropdownMenuEntry(value: 'work', label: AppLocale.spinnerTypeWork.s),
+                                DropdownMenuEntry(value: 'fax', label: AppLocale.spinnerTypeFax.s),
+                                DropdownMenuEntry(value: 'other', label: AppLocale.spinnerTypeOther.s),
                               ],
                               onSelected: (value) {
                                 setState(() { //這不一定要setState
@@ -413,7 +410,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'streetaddress',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintStreetAddress,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintStreetAddress.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -422,7 +419,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'city',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintCity,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintCity.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -431,7 +428,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'region',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintRegion,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintRegion.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -440,7 +437,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'postalcode',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintPostalCode,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintPostalCode.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -449,7 +446,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'country',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintCountry,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintCountry.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -458,7 +455,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   name: 'notes',
                   maxLines: 1,
                   decoration: InputDecoration(
-                    labelText: localeStr.qrCodeTextInputEditTextHintNotes,
+                    labelText: AppLocale.qrCodeTextInputEditTextHintNotes.s,
                   ),
                   keyboardType: TextInputType.text,
                 ),
@@ -475,12 +472,12 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.mail_outline),
-                labelText: localeStr.qrCodeTextInputEditTextHintEmail,
+                labelText: AppLocale.qrCodeTextInputEditTextHintEmail.s,
               ),
               keyboardType: TextInputType.emailAddress,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                FormBuilderValidators.email(errorText: localeStr.errorBarcodeNoneCharacterMessage),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+                FormBuilderValidators.email(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['email']?.validate();
@@ -492,7 +489,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
-                labelText: localeStr.qrCodeTextInputEditTextHintEmailSubject,
+                labelText: AppLocale.qrCodeTextInputEditTextHintEmailSubject.s,
               ),
               keyboardType: TextInputType.text,
             ),
@@ -502,7 +499,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: null,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
-                labelText: localeStr.qrCodeTextInputEditTextHintMessage,
+                labelText: AppLocale.qrCodeTextInputEditTextHintMessage.s,
               ),
               keyboardType: TextInputType.multiline,
             ),
@@ -516,12 +513,12 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.call),
-                labelText: localeStr.qrCodeTextGeneratorHintPhoneInputEditText,
+                labelText: AppLocale.qrCodeTextGeneratorHintPhoneInputEditText.s,
               ),
               keyboardType: TextInputType.phone,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                FormBuilderValidators.phoneNumber(errorText: localeStr.errorBarcodeQrPhoneNumberMissingMessage),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+                FormBuilderValidators.phoneNumber(errorText: AppLocale.errorBarcodeQrPhoneNumberMissingMessage.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['phone']?.validate();
@@ -533,11 +530,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: null,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
-                labelText: localeStr.qrCodeTextInputEditTextHintMessage,
+                labelText: AppLocale.qrCodeTextInputEditTextHintMessage.s,
               ),
               keyboardType: TextInputType.multiline,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['message']?.validate();
@@ -551,12 +548,12 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
           maxLines: 1,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.call),
-            labelText: localeStr.qrCodeTextGeneratorHintPhoneInputEditText,
+            labelText: AppLocale.qrCodeTextGeneratorHintPhoneInputEditText.s,
           ),
           keyboardType: TextInputType.phone,
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-            FormBuilderValidators.phoneNumber(errorText: localeStr.errorBarcodeQrPhoneNumberMissingMessage),
+            FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+            FormBuilderValidators.phoneNumber(errorText: AppLocale.errorBarcodeQrPhoneNumberMissingMessage.s),
           ]),
           onEditingComplete: () {
             _formKey.currentState?.fields['phone']?.validate();
@@ -569,13 +566,13 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               name: 'latitude',
               maxLines: 1,
               decoration: InputDecoration(
-                labelText: localeStr.qrCodeTextInputEditTextHintLocalisationLatitude,
+                labelText: AppLocale.qrCodeTextInputEditTextHintLocalisationLatitude.s,
               ),
               keyboardType: TextInputType.number,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                FormBuilderValidators.numeric(errorText: localeStr.errorBarcodeNoneCharacterMessage),
-                FormBuilderValidators.between(-90,90, errorText: localeStr.errorBarcodeNoneCharacterMessage),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+                FormBuilderValidators.numeric(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
+                FormBuilderValidators.between(-90,90, errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['latitude']?.validate();
@@ -586,13 +583,13 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               name: 'longitude',
               maxLines: 1,
               decoration: InputDecoration(
-                labelText: localeStr.qrCodeTextInputEditTextHintLocalisationLongitude,
+                labelText: AppLocale.qrCodeTextInputEditTextHintLocalisationLongitude.s,
               ),
               keyboardType: TextInputType.number,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                FormBuilderValidators.numeric(errorText: localeStr.errorBarcodeNoneCharacterMessage),
-                FormBuilderValidators.between(-180, 180, errorText: localeStr.errorBarcodeNoneCharacterMessage),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+                FormBuilderValidators.numeric(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
+                FormBuilderValidators.between(-180, 180, errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['longitude']?.validate();
@@ -603,14 +600,14 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               name: 'height',
               maxLines: 1,
               decoration: InputDecoration(
-                labelText: localeStr.qrCodeTextInputEditTextHintLocalisationHeight,
+                labelText: AppLocale.qrCodeTextInputEditTextHintLocalisationHeight.s,
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value==null || value.isEmpty || value.isFloat){
                   return null;
                 } else {
-                  return localeStr.errorBarcodeNoneCharacterMessage;
+                  return AppLocale.errorBarcodeNoneCharacterMessage.s;
                 }
               },
               onEditingComplete: () {
@@ -622,7 +619,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               name: 'request',
               maxLines: 1,
               decoration: InputDecoration(
-                labelText: localeStr.qrCodeTextInputEditTextHintLocalisationRequest,
+                labelText: AppLocale.qrCodeTextInputEditTextHintLocalisationRequest.s,
               ),
               keyboardType: TextInputType.text,
             ),
@@ -637,11 +634,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
-                labelText: localeStr.qrCodeTextInputEditTextHintAgendaEventName,
+                labelText: AppLocale.qrCodeTextInputEditTextHintAgendaEventName.s,
               ),
               keyboardType: TextInputType.text,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['summary']?.validate();
@@ -650,14 +647,14 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             FormBuilderCheckbox(
               name: 'allday',
               initialValue: false,
-              title: Text(localeStr.checkBoxEventAllOfDay),
+              title: Text(AppLocale.checkBoxEventAllOfDay.s),
               onChanged: (value) {
                 setState(() {
                   _eventAllday = value ?? false;
                 });
               },
             ),
-            Text('  ${localeStr.beginLabel}', style: TextStyle(color: Colors.grey)),
+            Text('  ${AppLocale.beginLabel.s}', style: TextStyle(color: Colors.grey)),
             Row(
               children: [
                 Expanded(
@@ -691,7 +688,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               ],
             ),
             const SizedBox(height: 16),
-            Text('  ${localeStr.endLabel}', style: TextStyle(color: Colors.grey)),
+            Text('  ${AppLocale.endLabel.s}', style: TextStyle(color: Colors.grey)),
             Row(
               children: [
                 Expanded(
@@ -731,7 +728,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.location_on),
-                labelText: localeStr.qrCodeTextInputEditTextHintAgendaPlace,
+                labelText: AppLocale.qrCodeTextInputEditTextHintAgendaPlace.s,
               ),
               keyboardType: TextInputType.text,
             ),
@@ -741,7 +738,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
-                labelText: localeStr.qrCodeTextInputEditTextHintAgendaDescription,
+                labelText: AppLocale.qrCodeTextInputEditTextHintAgendaDescription.s,
               ),
               keyboardType: TextInputType.text,
             ),
@@ -755,11 +752,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.format_size),
-                labelText: localeStr.qrCodeTextInputEditTextHintWifiSsid,
+                labelText: AppLocale.qrCodeTextInputEditTextHintWifiSsid.s,
               ),
               keyboardType: TextInputType.text,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['ssid']?.validate();
@@ -771,10 +768,10 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               expandedInsets: EdgeInsets.zero,
               inputDecorationTheme: const InputDecorationTheme(),
               dropdownMenuEntries: [
-                DropdownMenuEntry(value: 'WEP', label: localeStr.spinnerWifiEncryptionWep),
-                DropdownMenuEntry(value: 'WPA', label: localeStr.spinnerWifiEncryptionWpa),
-                DropdownMenuEntry(value: 'SAE', label: localeStr.spinnerWifiEncryptionSae),
-                DropdownMenuEntry(value: 'nopass', label: localeStr.spinnerWifiEncryptionNone),
+                DropdownMenuEntry(value: 'WEP', label: AppLocale.spinnerWifiEncryptionWep.s),
+                DropdownMenuEntry(value: 'WPA', label: AppLocale.spinnerWifiEncryptionWpa.s),
+                DropdownMenuEntry(value: 'SAE', label: AppLocale.spinnerWifiEncryptionSae.s),
+                DropdownMenuEntry(value: 'nopass', label: AppLocale.spinnerWifiEncryptionNone.s),
               ],
               onSelected: (value) {
                 setState(() {
@@ -788,11 +785,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               maxLines: 1,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.password),
-                labelText: localeStr.qrCodeTextInputEditTextHintWifiPassword,
+                labelText: AppLocale.qrCodeTextInputEditTextHintWifiPassword.s,
               ),
               keyboardType: TextInputType.visiblePassword,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
+                FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
               ]),
               onEditingComplete: () {
                 _formKey.currentState?.fields['password']?.validate();
@@ -801,7 +798,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             FormBuilderCheckbox(
               name: 'hide',
               initialValue: false,
-              title: Text(localeStr.qrCodeTextInputEditTextHintWifiHide),
+              title: Text(AppLocale.qrCodeTextInputEditTextHintWifiHide.s),
             ),
           ],
         );

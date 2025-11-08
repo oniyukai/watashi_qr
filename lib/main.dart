@@ -3,22 +3,21 @@ import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/database_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PrefsProvider.init();
   await DatabaseServices.hiveInit();
-  await Utils.init();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MenuNavBarProvider()),
-        ChangeNotifierProvider(create: (context) => SettingsProvider()),
+        ChangeNotifierProvider(create: (context) => PrefsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -44,15 +43,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic){
-        return Consumer<SettingsProvider>(
-          builder: (context, settings, child) {
+        return Consumer<PrefsProvider>(
+          builder: (context, prefs, child) {
             return MaterialApp(
 
-              title: Language.appName,
-              theme: appTheme(context, settings.selectedTheme, settings.selectedColor, lightDynamic, darkDynamic),
+              title: StaticString.appName,
+              theme: appTheme(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
-              locale: LocaleOption.localeFromName(settings.selectedLanguage),
+              locale: prefs.get<LocaleOption>(PrefsEnum.selectedLanguage).locale,
               localizationsDelegates: LocaleOption.localizationsDelegates,
               supportedLocales: LocaleOption.supportedLocales,
 

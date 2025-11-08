@@ -5,8 +5,8 @@ import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/widget/expandable_card.dart';
@@ -29,39 +29,37 @@ class _PageCodeViewState extends State<PageCodeView> {
   late HistoryItem _historyItem;
   late HistoryFormat? _historyFormat;
   late HistoryErrorLevel? _historyErrorLevel;
-  late Language _localeStr;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final argument = widget.argumentOf(context);
-    _localeStr = Language.of(context);
     if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     _historyItem = argument;
     _historyFormat = _historyItem.getFormat;
     _historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
     if (_historyErrorLevel == HistoryErrorLevel.none || _historyErrorLevel == null) {
-      _historyErrorLevel = HistoryErrorLevel.fromName(context.readSettings.selectedQRErrorLevel);
+      _historyErrorLevel = context.readPrefs.get(PrefsEnum.selectedQRErrorLevel);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isPortrait = Utils.isPortrait(context);
-    final validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat, _localeStr);
+    final validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
     return Scaffold(
       appBar: AppBar(
-        title: Text(HistoryFormat.localeStrFromName(_historyItem.format, _localeStr)),
+        title: Text(HistoryFormat.localeStrFromName(_historyItem.format)),
         actions: (validatorMsg == null) ? [
           MyMenuButton(
             icon: const Icon(Icons.save),
             optionMap: const {
-              Language.pngLabel: null,
-              Language.jpgLabel: null,
-              Language.svgLabel: null
+              StaticString.pngLabel: null,
+              StaticString.jpgLabel: null,
+              StaticString.svgLabel: null
             },
             onSelectedEnd: (int option) => _exportImage(const <String>[
-              Language.pngLabel, Language.jpgLabel, Language.svgLabel
+              StaticString.pngLabel, StaticString.jpgLabel, StaticString.svgLabel
             ][option]),
           ),
           IconButton(
@@ -100,17 +98,17 @@ class _PageCodeViewState extends State<PageCodeView> {
                 child: ListView(
                   children: [
                     ExpandableCard(
-                      title: HistoryType.localeStrFromName(_historyItem.type, _localeStr),
+                      title: HistoryType.localeStrFromName(_historyItem.type),
                       myIconData: _historyItem.getTypeIconData,
                       initialExpanded: true,
                       expandedChild: SelectableText(_historyItem.contents),
                     ),
                     const SizedBox(height: 8),
                     if (_historyFormat == HistoryFormat.qrCode || _historyFormat == null)
-                      Center(child: Text('${_localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                        HistoryErrorLevel.localeStrFromName(_historyErrorLevel?.name, _localeStr)
+                      Center(child: Text('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: ${
+                        HistoryErrorLevel.localeStrFromName(_historyErrorLevel?.name)
                       }')),
-                    Text(_historyFormat?.description(_localeStr) ?? ''),
+                    Text(_historyFormat?.description ?? ''),
                     const SizedBox(height: 16),
                   ],
                 )
@@ -135,22 +133,22 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory? directory = await getDownloadsDirectory();
       final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
       if (directoryPath == null) {
-        return Utils.showToast('${_localeStr.cancelLabel}\nUnable to get storage directory.');
+        return Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
       }
       final String filePath = '$directoryPath/barcode.$option';
       final file = File(filePath);
 
-      if (option == Language.svgLabel) {
+      if (option == StaticString.svgLabel) {
         final String svg = _getBarcodeSvg();
         await file.writeAsString(svg);
       } else {
         final barcodeImage = _getBarcodeImage();
-        file.writeAsBytesSync(option==Language.pngLabel ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
+        file.writeAsBytesSync(option==StaticString.pngLabel ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
       }
 
-      Utils.showToast(_localeStr.snackBarMessageSaveBitmapOk);
+      Utils.showToast(AppLocale.snackBarMessageSaveBitmapOk.s);
     } catch (e) {
-      Utils.showToast('${_localeStr.snackBarMessageSaveBitmapError}\n$e', true);
+      Utils.showToast('${AppLocale.snackBarMessageSaveBitmapError.s}\n$e', true);
     }
   }
 

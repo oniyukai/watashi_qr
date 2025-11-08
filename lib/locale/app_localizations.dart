@@ -1,51 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/locale/en.dart';
-import 'package:watashi_qr/locale/ja.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/locale/zh_hans.dart';
-import 'package:watashi_qr/locale/zh_hant.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/locale/map_en.dart';
+import 'package:watashi_qr/locale/map_ja.dart';
+import 'package:watashi_qr/locale/map_zh_hans.dart';
+import 'package:watashi_qr/locale/map_zh_hant.dart';
 
-class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
-
+class AppLocalizationsDelegate extends LocalizationsDelegate<LocaleInstance> {
   const AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) => const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => const <String>{'en', 'ja', 'zh'}.contains(locale.languageCode);
 
   @override
-  Future<Language> load(Locale locale) async {
-    return switch (locale.languageCode) {
-      'en' => En(),
-      'ja' => Ja(),
-      'zh' => (locale.scriptCode == 'Hans') ? ZhHans() : ZhHant(),
-      _ => En(),
-    };
+  Future<LocaleInstance> load(Locale locale) async {
+    final List<LocaleInstance> mapList = switch (locale.languageCode) {
+      'en' => LocaleOption.en,
+      'ja' => LocaleOption.ja,
+      'zh' => locale.scriptCode == 'Hans' ? LocaleOption.zhHans : LocaleOption.zhHant,
+      _ => LocaleOption.zhHant,
+    }.mapList!;
+    final LocaleInstance mergedMap = {};
+    for (final enumValue in AppLocale.values) {
+      for (final map in mapList) {
+        final value = map[enumValue];
+        if (value != null) {
+          mergedMap[enumValue] = value;
+          break;
+        }
+      }
+    }
+    return mergedMap;
   }
 
   @override
-  bool shouldReload(covariant LocalizationsDelegate<Language> old) => false;
+  bool shouldReload(covariant LocalizationsDelegate<LocaleInstance> old) => false;
 }
 
 enum LocaleOption {
   sys,
-  en(Locale('en')),
-  ja(Locale('ja')),
-  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans')),
-  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
+  en(Locale('en'), [mapEn, mapZhHant]),
+  ja(Locale('ja'), [mapJa, mapZhHant]),
+  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'), [mapZhHans, mapZhHant]),
+  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'), [mapZhHant]);
 
-  final Locale? locale;
-  const LocaleOption([this.locale]);
+  final Locale? _locale;
+  final List<LocaleInstance>? mapList;
 
-  static Locale localeFromName(String n) => values.fromName(n)?.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+  const LocaleOption([this._locale, this.mapList]);
 
-  static Map<String, String> optionMap(Language localeStr) => <String, String>{
-    sys.name: localeStr.preferencesDefault,
-    en.name: Language.localeLanguageEn,
-    ja.name: Language.localeLanguageJa,
-    zhHans.name: Language.localeLanguageZhHans,
-    zhHant.name: Language.localeLanguageZhHant,
+  Locale get locale => _locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+
+  static Map<LocaleOption, String> get optionMap => <LocaleOption, String>{
+    sys: AppLocale.preferencesDefault.s,
+    en: StaticString.localeLanguageEn,
+    ja: StaticString.localeLanguageJa,
+    zhHans: StaticString.localeLanguageZhHans,
+    zhHant: StaticString.localeLanguageZhHant,
   };
 
   static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
@@ -54,8 +65,8 @@ enum LocaleOption {
   ];
 
   static Iterable<Locale> supportedLocales = LocaleOption.values
-      .where((option) => option.locale != null)
-      .map((option) => option.locale!);
+      .where((option) => option._locale != null)
+      .map((option) => option._locale!);
 }
 
 // 如果要修改語言設定的代碼大致只需要本頁即可

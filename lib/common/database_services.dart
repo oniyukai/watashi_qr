@@ -8,8 +8,8 @@ import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/objectbox.g.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:intl/intl.dart';
 
 class DatabaseServices {
@@ -38,7 +38,7 @@ class DatabaseServices {
   {
     assert(item.id == 0);
     bool isHistoryDuplicatedEnabled = (context==null)
-      ? true : context.readSettings.isSaveDuplicates;
+      ? true : context.readPrefs.get(PrefsEnum.isSaveDuplicates);
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
     if (isHistoryDuplicatedEnabled == true) return _historyItemBox.put(item);
 
@@ -93,7 +93,7 @@ class DatabaseServices {
     return (unixTimeList.contains(unixTime)) ? true : false;
   }
 
-  static void updateItem(int id, HistoryItem item) => _historyItemBox.put(item);
+  static void updateItem(int id, HistoryItem item) => _historyItemBox.put(item..id=id);
 
   static void deleteItem(int id) => _historyItemBox.remove(id);
 
@@ -101,29 +101,29 @@ class DatabaseServices {
 
   static int clearHistories() => _historyItemBox.removeAll();
 
-  static Future<void> shareHistoriesToJson(Language localeStr) async {
+  static Future<void> shareHistoriesToJson() async {
     if (_historyItemBox.isEmpty()) {
-      return Utils.showToast(localeStr.labelHistoryEmpty);
+      return Utils.showToast(AppLocale.labelHistoryEmpty.s);
     }
     final Directory tempDir = await getTemporaryDirectory();
     final File? file = await _getHistoriesJsonFile(tempDir.path);
     if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
-  static Future<void> exportHistoriesToJson(Language localeStr) async {
+  static Future<void> exportHistoriesToJson() async {
     if (_historyItemBox.isEmpty()) {
-      return Utils.showToast(localeStr.labelHistoryEmpty);
+      return Utils.showToast(AppLocale.labelHistoryEmpty.s);
     }
     final Directory? directory = await getDownloadsDirectory();
     final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
-      return Utils.showToast('${localeStr.cancelLabel}\nUnable to get storage directory.');
+      return Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
     }
     final File? file = await _getHistoriesJsonFile(directoryPath);
     if (file != null) {
-      Utils.showToast('${localeStr.snackBarMessageFileExportSuccess}\n${file.path}');
+      Utils.showToast('${AppLocale.snackBarMessageFileExportSuccess.s}\n${file.path}');
     } else {
-      Utils.showToast(localeStr.snackBarMessageFileExportError);
+      Utils.showToast(AppLocale.snackBarMessageFileExportError.s);
     }
   }
 
@@ -145,11 +145,11 @@ class DatabaseServices {
     }
   }
 
-  static Future<void> importHistoriesFromJson(Language localeStr) async {
+  static Future<void> importHistoriesFromJson() async {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
-        Utils.showToast(localeStr.cancelLabel);
+        Utils.showToast(AppLocale.cancelLabel.s);
         return;
       } else if (!result.files.single.path!.endsWith('.json')) {
         Utils.showToast('Error: Not .json file');
@@ -180,11 +180,11 @@ class DatabaseServices {
         }
       }
 
-      String endTip = localeStr.snackBarMessageFileImportSuccess;
+      String endTip = AppLocale.snackBarMessageFileImportSuccess.s;
       endTip += '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
       Utils.showToast(endTip, true);
     } catch (e) {
-      Utils.showToast('${localeStr.snackBarMessageFileImportError}\n$e', true);
+      Utils.showToast('${AppLocale.snackBarMessageFileImportError.s}\n$e', true);
     }
   }
 }

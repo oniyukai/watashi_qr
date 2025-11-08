@@ -11,9 +11,9 @@ import 'package:watashi_qr/common/router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 
 class PageImageScan extends StatefulWidget with RouterBridge<PageImageScanArgs> {
   const PageImageScan({super.key});
@@ -83,7 +83,7 @@ class _PageImageScanState extends State<PageImageScan> {
     if (barcodeFormat==null || contents==null || contents.isEmpty) return;
 
     final format = HistoryFormat.fromScannerFormat(barcodeFormat);
-    final bool isScanAddHistory = context.readSettings.isScanAddHistory;
+    final bool isScanAddHistory = context.readPrefs.get(PrefsEnum.isScanAddHistory);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
@@ -101,10 +101,9 @@ class _PageImageScanState extends State<PageImageScan> {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(localeStr.titleScan),
+        title: Text(AppLocale.titleScan.s),
         actions: [
           if (_barcodeCapture?.barcodes.isNotEmpty == true) IconButton(
             icon: const Icon(Icons.check),

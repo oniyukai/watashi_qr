@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
@@ -22,7 +21,6 @@ class MainHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     return Card(
@@ -71,7 +69,7 @@ class MainHistoryCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 2.0),
                 Text(
-                  HistoryFormat.localeStrFromName(historyItem.format, localeStr),
+                  HistoryFormat.localeStrFromName(historyItem.format),
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(width: 2.0),
@@ -86,7 +84,7 @@ class MainHistoryCard extends StatelessWidget {
         ),
         subtitle: Row(
           children: [
-            Text(HistoryType.localeStrFromName(historyItem.type, localeStr),
+            Text(HistoryType.localeStrFromName(historyItem.type),
               style: theme.textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
             ),

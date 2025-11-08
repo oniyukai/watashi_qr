@@ -1,23 +1,57 @@
-// extension KeyTools on LanguageKey {
-//   static String labelGenerator(String func, String typeDef) {
-//     String s = '';
-//     for (final item in LanguageKey.values) {
-//       s += 'String get ${item.name} => $func($typeDef.${item.name});\n';
-//     }
-//     return s;
-//   }
-//
-//   static String templateGenerator(Map<LanguageKey, String> map, String typeDef) {
-//     String s = '';
-//     for (final item in LanguageKey.values) {
-//       final text = map[item] != null ? "'${map[item]}'" : null;
-//       s += '$typeDef.${item.name}: $text,\n';
-//     }
-//     return s;
-//   }
-// }
+import 'package:flutter/material.dart';
 
-enum LanguageKey {
+typedef LocaleInstance = Map<AppLocale, String?>;
+typedef K = AppLocale;
+
+extension StaticString on AppLocale {
+  static const String
+      appName = 'Watashi QR',
+      appVersion = '1.1.3',
+      appVersionTag = 'v1.0_25.07.04',
+      pngLabel = 'PNG',
+      jpgLabel = 'JPG',
+      svgLabel = 'SVG',
+      // Animations
+      // Default font
+      // External Services Label
+      googleLabel = 'Google',
+      bingLabel = 'Bing',
+      wikipediaLabel = 'Wikipedia',
+      googleUrl = 'https://www.google.com/search?q={code}',
+      bingUrl = 'https://www.bing.com/search?q={code}',
+      wikipediaUrl = 'https://wikipedia.org/w/index.php?search={code}',
+      // Preferences Settings Keys
+      separationObject = '<Separation.Object>',
+      // Preferences Entry Values
+      // About Library Third
+      // Activity KTX
+      // Preference KTX
+      // Lifecycle Livedata KTX
+      // AppCompat
+      // ConstraintLayout
+      // RecyclerView
+      // Material Components for Android
+      // CameraX
+      // Room
+      // Retrofit
+      // Gson
+      // Coil
+      // Koin
+      // Zxing
+      // Android Image Cropper
+      // ez-vcard
+      // Color Picker
+      // Link
+      sourceCodeLink = 'https://github.com/oniyukai/watashi_qr',
+      // Local Language text
+      localeLanguageEn = 'English',
+      localeLanguageJa = '日本語',
+      localeLanguageZhHans = '简体中文',
+      localeLanguageZhHant = '繁體中文'
+  ;
+}
+
+enum AppLocale {
   // Permission Denied
   cameraPermissionDenied,
   // AlertDialog
@@ -407,4 +441,12 @@ enum LanguageKey {
   // About BDD
   // About Library Third
   // Countries
+  ;
+  String get s => _instance?[this] ?? '<$name>';
+
+  static LocaleInstance? _instance;
+
+  static void load(BuildContext context) {
+    _instance = Localizations.of<LocaleInstance>(context, LocaleInstance)!;
+  }
 }

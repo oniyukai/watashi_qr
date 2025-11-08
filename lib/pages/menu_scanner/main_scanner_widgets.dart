@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
 class ScannerErrorWidget extends StatelessWidget {
   const ScannerErrorWidget({required this.error, super.key});
@@ -11,7 +11,7 @@ class ScannerErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String errorMessage = switch (error.errorCode) {
-      MobileScannerErrorCode.permissionDenied => Language.of(context).cameraPermissionDenied,
+      MobileScannerErrorCode.permissionDenied => AppLocale.cameraPermissionDenied.s,
       _ => error.errorCode.message,
     };
 

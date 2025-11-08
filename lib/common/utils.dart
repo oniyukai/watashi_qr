@@ -1,17 +1,16 @@
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:core';
 
 extension EnumFromName<T extends Enum> on Iterable<T> {
-  T? fromName(String n) => asNameMap()[n];
+  T? fromName(String? n) => asNameMap()[n];
 }
 
 class Utils {
@@ -24,11 +23,6 @@ class Utils {
     final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime).toLocal();
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
-  }
-
-  static late SharedPreferences prefs;
-  static Future<void> init() async {
-    prefs = await SharedPreferences.getInstance();
   }
 
   // true:為直屏狀態 false:為橫屏狀態
@@ -87,7 +81,7 @@ class Utils {
 
   // 看設定要不要鎖定螢幕轉向
   static Future<void> lockCurrentOrientation(BuildContext context) async {
-    final bool isScreenRotationEnabled = context.readSettings.isScreenRotation;
+    final bool isScreenRotationEnabled = context.readPrefs.get(PrefsEnum.isScreenRotation);
     if (isScreenRotationEnabled) {
       if (isPortrait(context)) {
         await SystemChrome.setPreferredOrientations( const <DeviceOrientation>[

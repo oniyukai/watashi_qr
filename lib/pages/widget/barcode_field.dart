@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:barcode/barcode.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
 class BarcodeField extends StatelessWidget {
   const BarcodeField({
@@ -21,7 +21,6 @@ class BarcodeField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
     final isNumbers = format?.isNumbers ?? false;
     return FormBuilderTextField(
       name: name,
@@ -29,11 +28,11 @@ class BarcodeField extends StatelessWidget {
       initialValue: initialValue,
       decoration: InputDecoration(
         prefixIcon: Icon(isNumbers ? Icons.pin_outlined : Icons.format_size),
-        labelText: format?.composition(localeStr) ?? localeStr.barcodeTextCompositionLabel,
+        labelText: format?.composition ?? AppLocale.barcodeTextCompositionLabel.s,
         errorMaxLines: 8,
       ),
       keyboardType: isNumbers ? TextInputType.number : null,
-      validator: (value) => barcodeValidator(value, format, localeStr),
+      validator: (value) => barcodeValidator(value, format),
       onEditingComplete: () {
         formKey.currentState?.fields[name]?.validate();
       },
@@ -78,12 +77,12 @@ extension _HistoryFormatForValid on HistoryFormat {
     HistoryFormat.upcE: 8,
   }[this];
 
-  String? encodingErrorMessage(Language localeStr) => <HistoryFormat, String>{
-    HistoryFormat.aztec: localeStr.errorBarcodeEncodingIso88591ErrorMessage,
-    HistoryFormat.dataMatrix: localeStr.errorBarcodeEncodingIso88591ErrorMessage,
-    HistoryFormat.code128: localeStr.errorBarcodeEncodingUsAsciiErrorMessage,
-    HistoryFormat.code93: localeStr.errorBarcode93RegexErrorMessage,
-    HistoryFormat.code39: localeStr.errorBarcode39RegexErrorMessage,
+  String? get encodingErrorMessage => <HistoryFormat, String>{
+    HistoryFormat.aztec: AppLocale.errorBarcodeEncodingIso88591ErrorMessage.s,
+    HistoryFormat.dataMatrix: AppLocale.errorBarcodeEncodingIso88591ErrorMessage.s,
+    HistoryFormat.code128: AppLocale.errorBarcodeEncodingUsAsciiErrorMessage.s,
+    HistoryFormat.code93: AppLocale.errorBarcode93RegexErrorMessage.s,
+    HistoryFormat.code39: AppLocale.errorBarcode39RegexErrorMessage.s,
   }[this];
 
   bool get hasCheckDigit => const <HistoryFormat>{
@@ -94,9 +93,9 @@ extension _HistoryFormatForValid on HistoryFormat {
   }.contains(this);
 }
 
-String? barcodeValidator(String? value, HistoryFormat? format, Language localeStr){
+String? barcodeValidator(String? value, HistoryFormat? format){
   if (value==null || value.replaceAll('\n', '').replaceAll(' ', '').isEmpty) {
-    return localeStr.errorEmptyFields;
+    return AppLocale.errorEmptyFields.s;
   } else if (format == null) {
     return null;
   }
@@ -104,23 +103,23 @@ String? barcodeValidator(String? value, HistoryFormat? format, Language localeSt
   final bool isNumbers = format.isNumbers;
   final int? maxLength = format.maxLength;
   final int? hardLength = format.hardLength;
-  final String? encodingErrorMessage = format.encodingErrorMessage(localeStr);
+  final String? encodingErrorMessage = format.encodingErrorMessage;
   final barcodeFunc = format.barcodeFunc;
 
   if (isNumbers && !value.isNumeric) {
-    return localeStr.errorBarcodeNotANumberMessage;
+    return AppLocale.errorBarcodeNotANumberMessage.s;
   }
   if (format == HistoryFormat.upcE && value[0] != '0') {
-    return localeStr.errorBarcodeUpcENotStartWith0ErrorMessage;
+    return AppLocale.errorBarcodeUpcENotStartWith0ErrorMessage.s;
   }
   if (format == HistoryFormat.itf && (value.length % 2) != 0) {
-    return localeStr.errorBarcodeItfErrorMessage;
+    return AppLocale.errorBarcodeItfErrorMessage.s;
   }
   if (maxLength != null && value.length > maxLength) {
-    return '${localeStr.errorBarcodeWrongLengthMessage}< $maxLength';
+    return '${AppLocale.errorBarcodeWrongLengthMessage.s}< $maxLength';
   }
   if (hardLength != null && value.length != hardLength) {
-    return '${localeStr.errorBarcodeWrongLengthMessage}$hardLength';
+    return '${AppLocale.errorBarcodeWrongLengthMessage.s}$hardLength';
   }
   if (encodingErrorMessage != null && !barcodeFunc().isValid(value)) {
     return encodingErrorMessage;
@@ -128,11 +127,11 @@ String? barcodeValidator(String? value, HistoryFormat? format, Language localeSt
   if (format.hasCheckDigit) {
     final String checkDigit = _trytoFindCheck(value, format.barcodeFunc);
     if (value[value.length - 1] != checkDigit) {
-      return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
+      return '${AppLocale.errorBarcodeWrongKeyMessage.s}$checkDigit';
     }
   }
   if (format == HistoryFormat.code128 && !value.isAscii) {
-    return localeStr.errorBarcodeEncodingUsAsciiErrorMessage;
+    return AppLocale.errorBarcodeEncodingUsAsciiErrorMessage.s;
   }
   return null;
 }
