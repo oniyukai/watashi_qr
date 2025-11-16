@@ -53,11 +53,11 @@ class _PageCodeViewState extends State<PageCodeView> {
         actions: (validatorMsg == null) ? [
           MyMenuButton(
             icon: const Icon(Icons.save),
-            optionMap: const {
-              StaticString.pngLabel: null,
-              StaticString.jpgLabel: null,
-              StaticString.svgLabel: null
-            },
+            items: [
+              MyMenuItem(text: StaticString.pngLabel),
+              MyMenuItem(text: StaticString.jpgLabel),
+              MyMenuItem(text: StaticString.svgLabel),
+            ],
             onSelectedEnd: (int option) => _exportImage(const <String>[
               StaticString.pngLabel, StaticString.jpgLabel, StaticString.svgLabel
             ][option]),

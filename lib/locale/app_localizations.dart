@@ -39,10 +39,10 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<LocaleInstance> {
 
 enum LocaleOption {
   sys,
-  en(Locale('en'), [mapEn, mapZhHant]),
-  ja(Locale('ja'), [mapJa, mapZhHant]),
-  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'), [mapZhHans, mapZhHant]),
-  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'), [mapZhHant]);
+  en(Locale('en'), [mapEn]),
+  ja(Locale('ja'), [mapJa, mapEn]),
+  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'), [mapZhHans, mapZhHant, mapEn]),
+  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'), [mapZhHant, mapEn]);
 
   final Locale? _locale;
   final List<LocaleInstance>? mapList;

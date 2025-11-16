@@ -92,6 +92,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    if (!_scannerController.value.isInitialized) return;
     if (state == AppLifecycleState.resumed &&
         context.read<MenuNavBarProvider>().onScanner && !_isDetectDisable
     ) {
@@ -133,12 +134,13 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     if (isScanAddHistory) DatabaseServices.addItem(item, context:context);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
+      await Future<void>.delayed(const Duration(milliseconds: 800));
     } else if (isAutoOpenWebsite && item.type == HistoryType.website.name) {
       await Utils.openUrlInBrowser(item.contents);
+      await Future<void>.delayed(const Duration(milliseconds: 1600));
     } else {
       await context.routeOf<PageItemView>().arguments(item).to();
     }
-    await Future<void>.delayed(const Duration(milliseconds: 800));
     _isDetectDisable = false;
   }
 

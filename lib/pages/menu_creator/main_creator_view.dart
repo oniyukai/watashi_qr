@@ -77,6 +77,12 @@ class _MainCreatorViewState extends State<MainCreatorView> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     AppLocale.load(context);
     return Scaffold(

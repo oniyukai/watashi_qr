@@ -22,6 +22,12 @@ class _MainSettingsPage extends State<MainSettingsView> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     AppLocale.load(context);
     final trailingIcon = Icon((Directionality.of(context) == TextDirection.ltr)

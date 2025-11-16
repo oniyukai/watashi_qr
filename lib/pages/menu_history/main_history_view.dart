@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:watashi_qr/common/database_services.dart';
@@ -20,7 +21,38 @@ class MainHistoryView extends StatefulWidget {
 
 class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<MainHistoryView, int> {
   final ScrollController _scrollController = ScrollController();
-  final List<HistoryItem> _historyItems = [];
+  late final StreamSubscription<List<HistoryItem>> _historySubscription;
+  List<HistoryItem> _historyItems = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _historySubscription = DatabaseServices.historyItemStream.listen(
+      (data) {
+        setState(() {
+          _historyItems = data;
+          _isLoading = false;
+          _errorMessage = null;
+        });
+      },
+      onError: (e) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _historySubscription.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     AppLocale.load(context);
@@ -63,10 +95,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
             IconButton(
               icon: const Icon(Icons.content_copy),
               onPressed: () {
-                final List<HistoryItem> items = DatabaseServices.getReversedList(
-                  sortF: true,
-                  list: DatabaseServices.getItems(selectedObjects),
-                );
+                final List<HistoryItem> items = DatabaseServices.getReversedList(selectedObjects.toList());
                 final String combinedText = items.map((item) => item.contents).join('\n');
                 Clipboard.setData(ClipboardData(text: combinedText));
                 Utils.showToast(AppLocale.barcodeCopiedLabel.s);
@@ -74,28 +103,36 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               },
             ),
             MyMenuButton(
-              optionMap: {
-                AppLocale.menuItemHistoryAddFavorite.s: null,
-                AppLocale.menuItemHistoryRemoveFavorite.s: null,
-              },
+              items: [
+                MyMenuItem(text: AppLocale.menuItemHistoryAddFavorite.s),
+                MyMenuItem(text: AppLocale.menuItemHistoryRemoveFavorite.s),
+              ],
               onSelectedEnd: (int option) {
-                for (final key in selectedObjects){
-                  final HistoryItem? item = DatabaseServices.getItem(key);
-                  if (item == null) continue;
+                final selectedItems = DatabaseServices.getReversedList(selectedObjects.toList());
+                for (final item in selectedItems) {
                   item.isFavorite = (option == 0);
-                  DatabaseServices.updateItem(key, item);
                 }
+                DatabaseServices.updateItems(selectedItems);
                 exitSelectionMode();
               },
             ),
           ] else ...[
             MyMenuButton(
               icon: const Icon(Icons.swap_vert),
-              optionMap: {
-                AppLocale.shareJsonLabel.s: () => DatabaseServices.shareHistoriesToJson(),
-                AppLocale.exportJsonLabel.s: () => DatabaseServices.exportHistoriesToJson(),
-                AppLocale.importJsonLabel.s: () => DatabaseServices.importHistoriesFromJson(),
-              },
+              items: [
+                MyMenuItem(
+                  text: AppLocale.shareJsonLabel.s,
+                  onTap: () => DatabaseServices.shareHistoriesToJson(),
+                ),
+                MyMenuItem(
+                  text: AppLocale.exportJsonLabel.s,
+                  onTap: () => DatabaseServices.exportHistoriesToJson(),
+                ),
+                MyMenuItem(
+                  text: AppLocale.importJsonLabel.s,
+                  onTap: () => DatabaseServices.importHistoriesFromJson(),
+                ),
+              ],
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),
@@ -122,19 +159,15 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
       body: SafeArea(
         child: Scrollbar(
           controller: _scrollController,
-          child: StreamBuilder<List<HistoryItem>>(
-              stream: DatabaseServices.historyItemStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+          child: Builder(
+            builder: (context) {
+              if (_isLoading) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error.toString()));
-              } else if (!snapshot.hasData || snapshot.data == null) {
-                return Center(child: Text('snapshot.hasData:${snapshot.hasData}\nsnapshot.data:snapshot.data'));
+              } else if (_errorMessage != null) {
+                return Center(child: Text(_errorMessage!));
+              } else if (_historyItems.isEmpty) {
+                return Center(child: Text(AppLocale.labelHistoryEmpty.s));
               }
-              _historyItems.clear();
-              _historyItems.addAll(snapshot.data!);
-              if (_historyItems.isEmpty) return Center(child: Text(AppLocale.labelHistoryEmpty.s));
               return ListView.builder(
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: false,

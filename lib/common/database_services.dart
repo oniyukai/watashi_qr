@@ -13,6 +13,7 @@ import 'package:watashi_qr/common/prefs.dart';
 import 'package:intl/intl.dart';
 
 class DatabaseServices {
+  const DatabaseServices._();
 
   static late Store _store;
   static late final Box<HistoryItem> _historyItemBox;
@@ -27,6 +28,7 @@ class DatabaseServices {
 
   static Stream<List<HistoryItem>> get historyItemStream =>
       _historyItemBox.query()
+          .order(HistoryItem_.isFavorite, flags: Order.descending)
           .order(HistoryItem_.unixTime, flags: Order.descending)
           .watch(triggerImmediately: true)
           .map((query) => query.find());
@@ -41,8 +43,7 @@ class DatabaseServices {
       ? true : context.readPrefs.get(PrefsEnum.isSaveDuplicates);
     isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
     if (isHistoryDuplicatedEnabled == true) return _historyItemBox.put(item);
-
-    final List<HistoryItem> historiesList = getReversedList(sortF: true);
+    final List<HistoryItem> historiesList = getReversedList();
     final int latestDuplicateIndex = historiesList.indexWhere((e) =>
       (e.format==item.format) && (e.contents==item.contents)
     );
@@ -56,46 +57,29 @@ class DatabaseServices {
     }
   }
 
-  static List<HistoryItem> getReversedList({
-    bool sortF = false,
-    List<HistoryItem>? list }) {
-    final List<HistoryItem> historiesList = (list == null)
-        ? _historyItemBox.getAll()
-        : <HistoryItem>[...list];
-    historiesList.sort((a, b) {
-      if (sortF && a.isFavorite && !b.isFavorite) {
-        return -1;
-      } else if (sortF && !a.isFavorite && b.isFavorite) {
-        return 1;
-      } else if (a.unixTime > b.unixTime) {
-        return -1;
-      } else if (a.unixTime < b.unixTime) {
-        return 1;
-      }
-      return 0;
-    });
-    return historiesList;
+  static List<HistoryItem> getReversedList([List<int>? ids]) {
+    final query = _historyItemBox
+        .query(ids != null ? HistoryItem_.id.oneOf(ids) : null)
+        .order(HistoryItem_.isFavorite, flags: Order.descending)
+        .order(HistoryItem_.unixTime, flags: Order.descending)
+        .build();
+    final result = query.find();
+    query.close();
+    return result;
   }
 
   static HistoryItem? getItem(int id) => _historyItemBox.get(id);
 
-  static List<HistoryItem> getItems(Iterable<int> ids) {
-    final List<HistoryItem> historiesList = <HistoryItem>[];
-    for (final key in ids) {
-      final value = getItem(key);
-      if (value != null) historiesList.add(value);
-    }
-    return historiesList;
-  }
-
-  static bool containsTime(int unixTime) {
+  static bool containsTime(int unixTime) { // todo: 換個方式 這效率不好
     final List<int> unixTimeList = _historyItemBox.getAll().map((value) => value.unixTime).toList();
     return (unixTimeList.contains(unixTime)) ? true : false;
   }
 
-  static void updateItem(int id, HistoryItem item) => _historyItemBox.put(item..id=id);
+  static int updateItem(HistoryItem item) => _historyItemBox.put(item);
 
-  static void deleteItem(int id) => _historyItemBox.remove(id);
+  static List<int> updateItems(List<HistoryItem> items) => _historyItemBox.putMany(items);
+
+  static bool deleteItem(int id) => _historyItemBox.remove(id);
 
   static int deleteItems(List<int> ids) => _historyItemBox.removeMany(ids);
 
@@ -162,16 +146,15 @@ class DatabaseServices {
       int added = 0;
       int replaced = 0;
 
-      final Map<int, int> timeKeyMap = Map.fromIterable(
-          _historyItemBox.getAll(),
-          key: (item)=>item.unixTime,
-          value: (item)=>item.id
-      ); // timeKeyMap的key, value要是相反的，使用要注意
+      final Map<int, int> timeKeyMap = {
+        for (final item in _historyItemBox.getAll())
+          item.unixTime: item.id,
+      }; // timeKeyMap的key, value要是相反的，使用要注意
 
       for (final item in jsonData) {
         final HistoryItem historyItem = HistoryItem.fromJson(item);
         if (timeKeyMap.keys.contains(historyItem.unixTime)) {
-          updateItem(timeKeyMap[historyItem.unixTime]!, historyItem);
+          updateItem(historyItem..id = timeKeyMap[historyItem.unixTime]!);
           replaced++;
         } else {
           final int historyItemKey = addItem(historyItem);

@@ -63,7 +63,7 @@ class _PageItemViewState extends State<PageItemView> {
         DatabaseServices.deleteItem(_historyItem.id);
       }
     } else if (_isExistInhistories) {
-      DatabaseServices.updateItem(_historyItem.id, _historyItem);
+      DatabaseServices.updateItem(_historyItem);
     }
   }
 
