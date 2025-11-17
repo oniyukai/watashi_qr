@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/common/database_services.dart';
@@ -62,7 +63,7 @@ class _PageImageScanState extends State<PageImageScan> {
       final Uint8List croppedImage = croppedData.croppedImage;
 
       final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/temp_image.png');
+      final tempFile = File(p.join(tempDir.path, 'temp_image.png'));
       await tempFile.writeAsBytes(croppedImage);
 
       final BarcodeCapture? barcodeCapture = await controller.analyzeImage(tempFile.path);
@@ -94,7 +95,7 @@ class _PageImageScanState extends State<PageImageScan> {
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) DatabaseServices.addItem(item, context:context);
+    if (isScanAddHistory) DatabaseServices.addItem(item, context);
     await context.routeOf<PageItemView>().arguments(item).to();
     Navigator.pop(context);
   }

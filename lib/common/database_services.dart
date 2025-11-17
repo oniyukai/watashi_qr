@@ -26,58 +26,47 @@ class DatabaseServices {
 
   static void dispose() => _store.close();
 
-  static Stream<List<HistoryItem>> get historyItemStream =>
-      _historyItemBox.query()
-          .order(HistoryItem_.isFavorite, flags: Order.descending)
-          .order(HistoryItem_.unixTime, flags: Order.descending)
+  static Stream<List<HistoryItem>> get historyItemsStream =>
+      _applyOrder(_historyItemBox.query())
           .watch(triggerImmediately: true)
           .map((query) => query.find());
 
-  static int addItem(
-      HistoryItem item, {
-      BuildContext? context,
-      bool? isDuplicatedEnabled,})
-  {
+  static int addItem(HistoryItem item, BuildContext context) {
     assert(item.id == 0);
-    bool isHistoryDuplicatedEnabled = (context==null)
-      ? true : context.readPrefs.get(PrefsEnum.isSaveDuplicates);
-    isHistoryDuplicatedEnabled = isDuplicatedEnabled ?? isHistoryDuplicatedEnabled;
-    if (isHistoryDuplicatedEnabled == true) return _historyItemBox.put(item);
-    final List<HistoryItem> historiesList = getReversedList();
-    final int latestDuplicateIndex = historiesList.indexWhere((e) =>
-      (e.format==item.format) && (e.contents==item.contents)
-    );
-    if (latestDuplicateIndex==-1) {
-      return _historyItemBox.put(item);
-    } else {
-      item.isFavorite = historiesList[latestDuplicateIndex].isFavorite;
-      item.notes = historiesList[latestDuplicateIndex].notes;
-      deleteItem(historiesList[latestDuplicateIndex].id);
-      return _historyItemBox.put(item);
-    }
+    if (context.readPrefs.get(PrefsEnum.isSaveDuplicates)) return _historyItemBox.put(item, mode: PutMode.insert);
+    final query = _applyOrder(_historyItemBox
+        .query(HistoryItem_.format.equals(item.format).and(HistoryItem_.contents.equals(item.contents)))
+    ).build();
+    final result = query.find();
+    query.close();
+    if (result.isEmpty) return _historyItemBox.put(item, mode: PutMode.insert);
+    final latestDuplicate = result.first;
+    item
+      ..isFavorite = latestDuplicate.isFavorite
+      ..notes = latestDuplicate.notes;
+    deleteItem(latestDuplicate.id);
+    return _historyItemBox.put(item, mode: PutMode.insert);
   }
 
-  static List<HistoryItem> getReversedList([List<int>? ids]) {
-    final query = _historyItemBox
+  // static HistoryItem? getItem(int id) => _historyItemBox.get(id);
+
+  static List<HistoryItem> getItems([List<int>? ids]) {
+    final query = _applyOrder(_historyItemBox
         .query(ids != null ? HistoryItem_.id.oneOf(ids) : null)
-        .order(HistoryItem_.isFavorite, flags: Order.descending)
-        .order(HistoryItem_.unixTime, flags: Order.descending)
-        .build();
+    ).build();
     final result = query.find();
     query.close();
     return result;
   }
 
-  static HistoryItem? getItem(int id) => _historyItemBox.get(id);
+  static QueryBuilder<HistoryItem> _applyOrder(QueryBuilder<HistoryItem> queryBuilder) =>
+      queryBuilder
+          .order(HistoryItem_.isFavorite, flags: Order.descending)
+          .order(HistoryItem_.unixTime, flags: Order.descending);
 
-  static bool containsTime(int unixTime) { // todo: 換個方式 這效率不好
-    final List<int> unixTimeList = _historyItemBox.getAll().map((value) => value.unixTime).toList();
-    return (unixTimeList.contains(unixTime)) ? true : false;
-  }
+  static int updateItem(HistoryItem item) => _historyItemBox.put(item, mode: PutMode.update);
 
-  static int updateItem(HistoryItem item) => _historyItemBox.put(item);
-
-  static List<int> updateItems(List<HistoryItem> items) => _historyItemBox.putMany(items);
+  static List<int> updateItems(List<HistoryItem> items) => _historyItemBox.putMany(items, mode: PutMode.update);
 
   static bool deleteItem(int id) => _historyItemBox.remove(id);
 
@@ -86,18 +75,14 @@ class DatabaseServices {
   static int clearHistories() => _historyItemBox.removeAll();
 
   static Future<void> shareHistoriesToJson() async {
-    if (_historyItemBox.isEmpty()) {
-      return Utils.showToast(AppLocale.labelHistoryEmpty.s);
-    }
+    if (_historyItemBox.isEmpty()) return Utils.showToast(AppLocale.labelHistoryEmpty.s);
     final Directory tempDir = await getTemporaryDirectory();
     final File? file = await _getHistoriesJsonFile(tempDir.path);
     if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
   static Future<void> exportHistoriesToJson() async {
-    if (_historyItemBox.isEmpty()) {
-      return Utils.showToast(AppLocale.labelHistoryEmpty.s);
-    }
+    if (_historyItemBox.isEmpty()) return Utils.showToast(AppLocale.labelHistoryEmpty.s);
     final Directory? directory = await getDownloadsDirectory();
     final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
@@ -113,13 +98,11 @@ class DatabaseServices {
 
   static Future<File?> _getHistoriesJsonFile(String directory) async {
     try {
-      final List<HistoryItem> historiesList = getReversedList();
-      if (historiesList.isEmpty) return null;
-      final List<Map<String, dynamic>> jsonList = historiesList.map((item) => item.toJson()).toList();
-      final String jsonString = jsonEncode(jsonList);
+      if (_historyItemBox.isEmpty()) return null;
+      final String jsonString = jsonEncode(getItems());
       final DateTime now = DateTime.now();
       final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
-      final String filePath = '$directory/qr_$formattedDateTime.json';
+      final String filePath = p.join(directory, 'qr_$formattedDateTime.json');
       final File file = File(filePath);
       await file.writeAsString(jsonString);
       return file;
@@ -146,25 +129,31 @@ class DatabaseServices {
       int added = 0;
       int replaced = 0;
 
-      final Map<int, int> timeKeyMap = {
-        for (final item in _historyItemBox.getAll())
-          item.unixTime: item.id,
-      }; // timeKeyMap的key, value要是相反的，使用要注意
-
-      for (final item in jsonData) {
-        final HistoryItem historyItem = HistoryItem.fromJson(item);
-        if (timeKeyMap.keys.contains(historyItem.unixTime)) {
-          updateItem(historyItem..id = timeKeyMap[historyItem.unixTime]!);
-          replaced++;
+      final Map<int, HistoryItem> itemsToProcess = {};
+      for (final itemJson in jsonData) {
+        final HistoryItem historyItem = HistoryItem.fromJson(itemJson);
+        itemsToProcess[historyItem.unixTime] = historyItem;
+      }
+      final query = _historyItemBox
+          .query(HistoryItem_.unixTime.oneOf(itemsToProcess.keys.toList()))
+          .build();
+      final Map<int, int> existingTimeKeyMap = {
+        for (final queryItem in query.find())
+          queryItem.unixTime: queryItem.id,
+      };
+      query.close();
+      for (final item in itemsToProcess.values) {
+        final searchId = existingTimeKeyMap[item.unixTime];
+        if (searchId != null) {
+          item.id = searchId;
+          replaced += 1;
         } else {
-          final int historyItemKey = addItem(historyItem);
-          added++;
-          timeKeyMap[historyItem.unixTime] = historyItemKey;
+          added += 1;
         }
       }
-
-      String endTip = AppLocale.snackBarMessageFileImportSuccess.s;
-      endTip += '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
+      _historyItemBox.putMany(itemsToProcess.values.toList());
+      final String endTip = '${AppLocale.snackBarMessageFileImportSuccess.s}'
+          '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
       Utils.showToast(endTip, true);
     } catch (e) {
       Utils.showToast('${AppLocale.snackBarMessageFileImportError.s}\n$e', true);

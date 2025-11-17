@@ -131,7 +131,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) DatabaseServices.addItem(item, context:context);
+    if (isScanAddHistory) DatabaseServices.addItem(item, context);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
       await Future<void>.delayed(const Duration(milliseconds: 800));

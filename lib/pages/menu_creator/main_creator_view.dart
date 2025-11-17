@@ -71,7 +71,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
         isFavorite: false,
         notes: '',
       );
-      if (isCreateAddHistory) DatabaseServices.addItem(item, context:context);
+      if (isCreateAddHistory) DatabaseServices.addItem(item, context);
       context.routeOf<PageCodeView>().arguments(item).to();
     }
   }
@@ -110,7 +110,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                       onTap: () => context.routeOf<PageQrcodeForm>()
                           .arguments(type)
                           .to(),
-                      )
+                      ),
                     ),
                   ],
                 ),

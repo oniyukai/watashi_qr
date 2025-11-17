@@ -47,11 +47,11 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
                   isFavorite: false,
                   notes: '',
                 );
-                if (isCreateAddHistory) DatabaseServices.addItem(item, context:context);
+                if (isCreateAddHistory) DatabaseServices.addItem(item, context);
                 context.routeOf<PageCodeView>().arguments(item).to();
               }
             },
-          )
+          ),
         ],
       ),
       body: SafeArea(
@@ -80,8 +80,8 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
               const SizedBox(height: 16),
             ],
           ),
-        )
-      )
+        ),
+      ),
     );
   }
 }

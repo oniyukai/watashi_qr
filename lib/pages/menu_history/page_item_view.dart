@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/entity/history_format.dart';
@@ -40,7 +41,7 @@ class _PageItemViewState extends State<PageItemView> {
     final argument = widget.argumentOf(context);
     if (argument == null) throw 'widget.argumentOf(context) connot be null.';
     _historyItem = argument;
-    _isExistInhistories = DatabaseServices.containsTime(_historyItem.unixTime);
+    _isExistInhistories = _historyItem.id > 0;
   }
 
   @override
@@ -58,7 +59,7 @@ class _PageItemViewState extends State<PageItemView> {
     _isWillExist ??= _isExistInhistories;
     if (_isExistInhistories != _isWillExist){
       if (_isWillExist == true){
-        DatabaseServices.addItem(_historyItem, isDuplicatedEnabled: context.readPrefs.get(PrefsEnum.isSaveDuplicates));
+        DatabaseServices.addItem(_historyItem, context);
       } else {
         DatabaseServices.deleteItem(_historyItem.id);
       }
@@ -118,9 +119,8 @@ class _PageItemViewState extends State<PageItemView> {
                               _historyItem.origin == HistoryOrigin.S.name ? AppLocale.titleScan.s : AppLocale.titleGenerate.s
                           }'),
                           if (_historyItem.errorLevel != HistoryErrorLevel.none.name)
-                            SelectableText('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: ${
-                              HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel)
-                            }'),
+                            SelectableText('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
+                                '${HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel)}'),
                           if (_historyItem.notes.isNotEmpty) Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -139,7 +139,7 @@ class _PageItemViewState extends State<PageItemView> {
                           ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -325,7 +325,7 @@ class _PageItemViewState extends State<PageItemView> {
           }
         },
       ),
-    ]
+    ],
   );
 
   void _actionWebSearch(){
@@ -347,7 +347,7 @@ class _PageItemViewState extends State<PageItemView> {
             onTap: () {
               Utils.searchInBrowser(searchUrl.split(StaticString.separationObject)[1], _historyItem.contents);
               Navigator.pop(context);
-            }
+            },
           )).toList(),
         ),
       ),
@@ -381,12 +381,12 @@ class _PageItemViewState extends State<PageItemView> {
           }
         },
       ),
-    ]
+    ],
   );
 
   Future<void> _actionShareVcfFile() async {
     final directory = await getTemporaryDirectory();
-    final file = File('${directory.path}/contact.vcf');
+    final file = File(p.join(directory.path, 'contact.vcf'));
     await file.writeAsString(_historyItem.contents);
     await Utils.share(ShareParams(files: [XFile(file.path)]));
   }

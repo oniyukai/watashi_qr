@@ -29,7 +29,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
   @override
   void initState() {
     super.initState();
-    _historySubscription = DatabaseServices.historyItemStream.listen(
+    _historySubscription = DatabaseServices.historyItemsStream.listen(
       (data) {
         setState(() {
           _historyItems = data;
@@ -89,13 +89,13 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                       exitSelectionMode();
                     },
                   ),
-                ]
+                ],
               ),
             ),
             IconButton(
               icon: const Icon(Icons.content_copy),
               onPressed: () {
-                final List<HistoryItem> items = DatabaseServices.getReversedList(selectedObjects.toList());
+                final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
                 final String combinedText = items.map((item) => item.contents).join('\n');
                 Clipboard.setData(ClipboardData(text: combinedText));
                 Utils.showToast(AppLocale.barcodeCopiedLabel.s);
@@ -108,7 +108,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                 MyMenuItem(text: AppLocale.menuItemHistoryRemoveFavorite.s),
               ],
               onSelectedEnd: (int option) {
-                final selectedItems = DatabaseServices.getReversedList(selectedObjects.toList());
+                final selectedItems = DatabaseServices.getItems(selectedObjects.toList());
                 for (final item in selectedItems) {
                   item.isFavorite = (option == 0);
                 }
@@ -149,7 +149,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                       Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
                     },
                   ),
-                ]
+                ],
               ),
             ),
           ],
@@ -191,10 +191,10 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                   );
                 },
               );
-            }
+            },
           ),
-        )
-      )
+        ),
+      ),
     );
   }
 }

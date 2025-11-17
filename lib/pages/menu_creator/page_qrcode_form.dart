@@ -48,7 +48,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
       isFavorite: false,
       notes: '',
     );
-    if (isCreateAddHistory) DatabaseServices.addItem(item, context:context);
+    if (isCreateAddHistory) DatabaseServices.addItem(item, context);
     context.routeOf<PageCodeView>().arguments(item).to();
   }
 
@@ -89,8 +89,8 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               ),
             ],
           ),
-        )
-      )
+        ),
+      ),
     );
   }
 
@@ -340,19 +340,19 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                         SizedBox(
                           width: menuFieldWidth,
                           child: DropdownMenu(
-                              initialSelection: _contactMailType[entry.key],
-                              expandedInsets: EdgeInsets.zero,
-                              inputDecorationTheme: const InputDecorationTheme(),
-                              dropdownMenuEntries: [
-                                DropdownMenuEntry(value: 'home', label: AppLocale.spinnerTypeHome.s),
-                                DropdownMenuEntry(value: 'work', label: AppLocale.spinnerTypeWork.s),
-                                DropdownMenuEntry(value: 'other', label: AppLocale.spinnerTypeOther.s),
-                              ],
-                              onSelected: (value) {
-                                setState(() { //這不一定要setState
-                                  _contactMailType[entry.key] = value ?? _contactMailType[entry.key];
-                                });
-                              }
+                            initialSelection: _contactMailType[entry.key],
+                            expandedInsets: EdgeInsets.zero,
+                            inputDecorationTheme: const InputDecorationTheme(),
+                            dropdownMenuEntries: [
+                              DropdownMenuEntry(value: 'home', label: AppLocale.spinnerTypeHome.s),
+                              DropdownMenuEntry(value: 'work', label: AppLocale.spinnerTypeWork.s),
+                              DropdownMenuEntry(value: 'other', label: AppLocale.spinnerTypeOther.s),
+                            ],
+                            onSelected: (value) {
+                              setState(() { //這不一定要setState
+                                _contactMailType[entry.key] = value ?? _contactMailType[entry.key];
+                              });
+                            },
                           ),
                         )
                       ],
@@ -384,21 +384,21 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                         SizedBox(
                           width: menuFieldWidth,
                           child: DropdownMenu(
-                              initialSelection: _contactPhoneType[entry.key],
-                              expandedInsets: EdgeInsets.zero,
-                              inputDecorationTheme: const InputDecorationTheme(),
-                              dropdownMenuEntries: [
-                                DropdownMenuEntry(value: 'cell', label: AppLocale.spinnerTypeMobile.s),
-                                DropdownMenuEntry(value: 'home', label: AppLocale.spinnerTypeHome.s),
-                                DropdownMenuEntry(value: 'work', label: AppLocale.spinnerTypeWork.s),
-                                DropdownMenuEntry(value: 'fax', label: AppLocale.spinnerTypeFax.s),
-                                DropdownMenuEntry(value: 'other', label: AppLocale.spinnerTypeOther.s),
-                              ],
-                              onSelected: (value) {
-                                setState(() { //這不一定要setState
-                                  _contactPhoneType[entry.key] = value ?? _contactPhoneType[entry.key];
-                                });
-                              }
+                            initialSelection: _contactPhoneType[entry.key],
+                            expandedInsets: EdgeInsets.zero,
+                            inputDecorationTheme: const InputDecorationTheme(),
+                            dropdownMenuEntries: [
+                              DropdownMenuEntry(value: 'cell', label: AppLocale.spinnerTypeMobile.s),
+                              DropdownMenuEntry(value: 'home', label: AppLocale.spinnerTypeHome.s),
+                              DropdownMenuEntry(value: 'work', label: AppLocale.spinnerTypeWork.s),
+                              DropdownMenuEntry(value: 'fax', label: AppLocale.spinnerTypeFax.s),
+                              DropdownMenuEntry(value: 'other', label: AppLocale.spinnerTypeOther.s),
+                            ],
+                            onSelected: (value) {
+                              setState(() { //這不一定要setState
+                                _contactPhoneType[entry.key] = value ?? _contactPhoneType[entry.key];
+                              });
+                            },
                           ),
                         )
                       ],
@@ -539,7 +539,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               onEditingComplete: () {
                 _formKey.currentState?.fields['message']?.validate();
               },
-            )
+            ),
           ],
         );
       case HistoryType.phone:
@@ -716,7 +716,6 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                       initialValue: DateTime.now(),
                       inputType: InputType.time,
                       format: DateFormat('HH:mm'),
-
                     ),
                   ),
                 ),
@@ -777,7 +776,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                 setState(() {
                   _wifiSecurityType = value ?? _wifiSecurityType;
                 });
-              }
+              },
             ),
             const SizedBox(height: 16),
             if (_wifiSecurityType != 'nopass') FormBuilderTextField(

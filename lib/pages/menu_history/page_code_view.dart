@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
+import 'package:path/path.dart' as p;
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -34,7 +35,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final argument = widget.argumentOf(context);
-    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
+    if (argument == null) throw 'widget.argumentOf(context) cannot be null.';
     _historyItem = argument;
     _historyFormat = _historyItem.getFormat;
     _historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
@@ -91,7 +92,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                       );
                     },
                   ),
-                )
+                ),
               ),
               isPortrait ? const SizedBox(height: 24) : const SizedBox(width: 24),
               Expanded(
@@ -105,13 +106,12 @@ class _PageCodeViewState extends State<PageCodeView> {
                     ),
                     const SizedBox(height: 8),
                     if (_historyFormat == HistoryFormat.qrCode || _historyFormat == null)
-                      Center(child: Text('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: ${
-                        HistoryErrorLevel.localeStrFromName(_historyErrorLevel?.name)
-                      }')),
+                      Center(child: Text('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
+                          '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel?.name)}')),
                     Text(_historyFormat?.description ?? ''),
                     const SizedBox(height: 16),
                   ],
-                )
+                ),
               ),
             ],
           ),
@@ -135,7 +135,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       if (directoryPath == null) {
         return Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
       }
-      final String filePath = '$directoryPath/barcode.$option';
+      final String filePath = p.join(directoryPath, 'barcode.$option');
       final file = File(filePath);
 
       if (option == StaticString.svgLabel) {
@@ -155,7 +155,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   Future<void> _shareImage() async {
     try {
       final Directory tempDir = await getTemporaryDirectory();
-      final String filePath = '${tempDir.path}/barcode.png';
+      final String filePath = p.join(tempDir.path, 'barcode.png');
       final File file = File(filePath);
       final barcodeImage = _getBarcodeImage();
       file.writeAsBytesSync(img.encodePng(barcodeImage));
