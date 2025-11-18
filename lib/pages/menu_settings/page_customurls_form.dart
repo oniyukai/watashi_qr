@@ -1,72 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/common/utils.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 
-class PageCustomurlsForm extends StatefulWidget with RouterBridge<String> {
+class PageCustomurlsForm extends StatefulWidget with RouterBridge<PageCustomurlsFormArgs> {
   const PageCustomurlsForm({super.key});
 
   @override
   State<PageCustomurlsForm> createState() => _PageCustomurlsFormState();
 }
 
+class PageCustomurlsFormArgs {
+  final int? index;
+  final List<CustomSearchUrl> items;
+
+  const PageCustomurlsFormArgs({
+    this.index,
+    required this.items,
+  });
+}
+
 class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   final _formKey = GlobalKey<FormBuilderState>();
-  String _title = '';
-  String _url = '';
-  bool _isAddorModify = true; // true:Add, false:Modify
+  late final PageCustomurlsFormArgs _args;
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _args = widget.argumentOf(context)!;
+      _isInitialized = true;
+    }
+  }
+
+  Future<void> _pressedCheck() async {
+    if (_formKey.currentState?.saveAndValidate() != true) return;
+    Navigator.pop(context);
+    final String formTitle = _formKey.currentState?.value['formTitle'];
+    final String formUrl = _formKey.currentState?.value['formUrl'];
+    if (_args.index == null) {
+      _args.items.insert(0, CustomSearchUrl(title: formTitle, url: formUrl));
+      Utils.showToast(AppLocale.customUrlAdded.s);
+    } else {
+      _args.items[_args.index!] = CustomSearchUrl(title: formTitle, url: formUrl);
+      Utils.showToast(AppLocale.customUrlUpdated.s);
+    }
+    await context.readPrefs.update(PrefsEnum.customSearchUrls, _args.items);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     final theme = Theme.of(context);
-    final argument = widget.argumentOf(context);
-    final List<String> customSearchUrls = context.readPrefs.get(PrefsEnum.customSearchUrls);
-    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
-    if (argument != '') {
-      final List<String> parts = argument.split(StaticString.separationObject);
-      _title = parts[0];
-      _url = parts[1];
-      _isAddorModify = false;
-    }
-
+    final argItem = _args.index == null ? null : _args.items[_args.index!];
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          (argument == '')
+        title: Text(argItem == null
             ? AppLocale.customSearchUrlsAddUrl.s
             : AppLocale.customSearchUrlsModifyUrl.s
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () {
-              if (_formKey.currentState?.saveAndValidate() ?? false) {
-                String formTitle = _formKey.currentState?.value['formTitle'];
-                formTitle = formTitle.replaceAll('<>', ' ');
-                final formUrl = _formKey.currentState?.value['formUrl'];
-                if (_isDuplicatedTitle(formTitle, customSearchUrls)) {
-                  Utils.showToast(AppLocale.customSearchUrlsisDuplicated.s);
-                  return;
-                }
-                if (_isAddorModify) {
-                  customSearchUrls.add('$formTitle${StaticString.separationObject}$formUrl');
-                  Utils.showToast(AppLocale.customUrlAdded.s);
-                } else {
-                  for (int i = 0; i<customSearchUrls.length; i++) {
-                    if (customSearchUrls[i].startsWith('$_title${StaticString.separationObject}')) {
-                      customSearchUrls[i] = '$formTitle${StaticString.separationObject}$formUrl';
-                    }
-                  }
-                  Utils.showToast(AppLocale.customUrlUpdated.s);
-                }
-                context.readPrefs.update(PrefsEnum.customSearchUrls, customSearchUrls);
-                Navigator.pop(context);
-              }
-            },
-          )
+            onPressed: _pressedCheck,
+          ),
         ],
       ),
       body: SafeArea(
@@ -81,7 +83,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                   children: [
                     FormBuilderTextField(
                       name: 'formTitle',
-                      initialValue: _title,
+                      initialValue: argItem?.title,
                       maxLines: null,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
@@ -95,7 +97,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                     const SizedBox(height: 16),
                     FormBuilderTextField(
                       name: 'formUrl',
-                      initialValue: _url,
+                      initialValue: argItem?.url,
                       maxLines: null,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
@@ -122,15 +124,5 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
         ),
       ),
     );
-  }
-  
-  bool _isDuplicatedTitle(String formTitle, List<String> customSearchUrls) {
-    if (_title == formTitle) return false;
-    for (int i = 0; i<customSearchUrls.length; i++) {
-      if (customSearchUrls[i].startsWith('$formTitle${StaticString.separationObject}')) {
-        return true;
-      }
-    }
-    return false;
   }
 }

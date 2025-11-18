@@ -321,7 +321,6 @@ const LocaleInstance mapZhHans = {
   K.examples: '例子: ',
   K.customSearchUrlsErrorUrl: '网址中必须包含术语: {code}',
   K.errorEmptyFields: '输入字段不得为空。',
-  K.customSearchUrlsisDuplicated: '名称已重复，请输入其他名称。',
   // API Base URL
   // URL Engines
   // E-Commerce Engines

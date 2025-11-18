@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +8,7 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 
 class PrefDef<RUN extends Object, STO extends Object> {
   final RUN defaultValue;
@@ -73,17 +75,17 @@ enum PrefsEnum {
       selectedColor =>  PrefDef<ColorOption, String>._(
           ColorOption.sys,
           (fromRUN) => fromRUN.name,
-          (fromSTO) => ColorOption.values.fromName(fromSTO)
+          (fromSTO) => ColorOption.values.fromName(fromSTO),
       ),
       selectedTheme => PrefDef<ThemeOption, String>._(
           ThemeOption.sys,
           (fromRUN) => fromRUN.name,
-          (fromSTO) => ThemeOption.values.fromName(fromSTO)
+          (fromSTO) => ThemeOption.values.fromName(fromSTO),
       ),
       selectedLanguage => PrefDef<LocaleOption, String>._(
           LocaleOption.sys,
           (fromRUN) => fromRUN.name,
-          (fromSTO) => LocaleOption.values.fromName(fromSTO)
+          (fromSTO) => LocaleOption.values.fromName(fromSTO),
       ),
       isAutoOpenWebsite => PrefDef._same(false),
       isContinuousScan => PrefDef._same(false),
@@ -95,7 +97,7 @@ enum PrefsEnum {
       selectedQRErrorLevel => PrefDef<HistoryErrorLevel, String>._(
           HistoryErrorLevel.L,
           (fromRUN) => fromRUN.name,
-          (fromSTO) => HistoryErrorLevel.values.fromName(fromSTO)
+          (fromSTO) => HistoryErrorLevel.values.fromName(fromSTO),
       ),
       isScanAddHistory => PrefDef._same(true),
       isCreateAddHistory => PrefDef._same(true),
@@ -103,9 +105,13 @@ enum PrefsEnum {
       selectedSearchEngine => PrefDef<SearchEngine, String>._(
           SearchEngine.google,
           (fromRUN) => fromRUN.name,
-          (fromSTO) => SearchEngine.values.fromName(fromSTO)
+          (fromSTO) => SearchEngine.values.fromName(fromSTO),
       ),
-      customSearchUrls => PrefDef._same(<String>[]),
+      customSearchUrls => PrefDef<List<CustomSearchUrl>, List<String>>._(
+          <CustomSearchUrl>[],
+          (fromRUN) => fromRUN.map((run) => jsonEncode(run)).toList(),
+          (fromSTO) => fromSTO.map((sto) => CustomSearchUrl.fromString(sto)).toList(),
+      ),
       scannerWindowWidthPortrait => PrefDef._same(-1.0),
       scannerWindowHeightPortrait => PrefDef._same(-1.0),
       scannerWindowWidthLandscape => PrefDef._same(-1.0),

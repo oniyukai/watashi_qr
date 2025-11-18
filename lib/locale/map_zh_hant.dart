@@ -320,7 +320,6 @@ const LocaleInstance mapZhHant = {
   K.examples: '例子: ',
   K.customSearchUrlsErrorUrl: '網址中必須包含術語: {code}',
   K.errorEmptyFields: '輸入欄位不得為空白。',
-  K.customSearchUrlsisDuplicated: '名稱已重複，請輸入其他名稱。',
   // API Base URL
   // URL Engines
   // E-Commerce Engines

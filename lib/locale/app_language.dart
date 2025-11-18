@@ -11,6 +11,7 @@ extension StaticString on AppLocale {
       pngLabel = 'PNG',
       jpgLabel = 'JPG',
       svgLabel = 'SVG',
+      nullString = 'NULL<String>',
       // Animations
       // Default font
       // External Services Label
@@ -385,7 +386,6 @@ enum AppLocale {
   examples,
   customSearchUrlsErrorUrl,
   errorEmptyFields,
-  customSearchUrlsisDuplicated,
   // API Base URL
   // URL Engines
   // E-Commerce Engines

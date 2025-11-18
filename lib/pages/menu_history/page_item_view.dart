@@ -12,6 +12,7 @@ import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/common/prefs.dart';
@@ -341,11 +342,11 @@ class _PageItemViewState extends State<PageItemView> {
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: context.readPrefs.get(PrefsEnum.customSearchUrls).map((searchUrl) => ItemTile(
-            title: searchUrl.split(StaticString.separationObject)[0],
-            description: searchUrl.split(StaticString.separationObject)[1],
+          children: context.readPrefs.get<List<CustomSearchUrl>>(PrefsEnum.customSearchUrls).map((searchUrl) => ItemTile(
+            title: searchUrl.title,
+            description: searchUrl.url,
             onTap: () {
-              Utils.searchInBrowser(searchUrl.split(StaticString.separationObject)[1], _historyItem.contents);
+              Utils.searchInBrowser(searchUrl.url, _historyItem.contents);
               Navigator.pop(context);
             },
           )).toList(),

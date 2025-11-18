@@ -321,7 +321,6 @@ const LocaleInstance mapJa = {
   K.examples: '例：',
   K.customSearchUrlsErrorUrl: 'URLに「{code}」という用語が含まれている必要があります。',
   K.errorEmptyFields: '入力フィールドは空にできません。',
-  K.customSearchUrlsisDuplicated: '名前が重複しています。別の名前を入力してください。',
   // API Base URL
   // URL Engines
   // E-Commerce Engines

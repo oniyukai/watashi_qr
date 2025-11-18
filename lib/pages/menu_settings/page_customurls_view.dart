@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -16,9 +17,43 @@ class PageCustomurlsView extends StatefulWidget {
   State<PageCustomurlsView> createState() => _PageCustomurlsViewState();
 }
 
-class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, String>  {
+class CustomSearchUrl {
+  final String title;
+  final String url;
+
+  const CustomSearchUrl({
+    required this.title,
+    required this.url,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'url': url,
+  };
+
+  factory CustomSearchUrl.fromString(String jsonString) {
+    String? title;
+    String? url;
+    try {
+      final Map<String, dynamic> json = jsonDecode(jsonString);
+      title = json['title'];
+      url = json['url'];
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return CustomSearchUrl(
+      title: title ?? StaticString.nullString,
+      url: url ?? StaticString.nullString,
+    );
+  }
+}
+
+class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, int> {
+  List<CustomSearchUrl> _customSearchUrls = [];
+
   @override
   Widget build(BuildContext context) {
+    _customSearchUrls = context.readPrefs.get(PrefsEnum.customSearchUrls);
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -27,11 +62,11 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
           : null,
         title: Text(AppLocale.customSearchUrls.s),
         actions: [
-          IconButton(
+          if (!isSelectionMode) IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => context.routeOf<PageCustomurlsForm>()
-              .arguments('')
-              .to(),
+            onPressed: () => context.routeOf<PageCustomurlsForm>().arguments(PageCustomurlsFormArgs(
+              items: _customSearchUrls,
+            )).to(),
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
@@ -49,66 +84,54 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
                   onPressed: () {
                     Navigator.of(context).pop();
                     if (isSelectionMode) {
-                      final List<String> customSearchUrls = context.readPrefs.get(PrefsEnum.customSearchUrls);
-                      customSearchUrls.removeWhere((searchUrl) {
-                        for (final title in selectedObjects) {
-                          if (searchUrl.startsWith('$title${StaticString.separationObject}')) {
-                            return true;
-                          }
-                        }
-                        return false;
-                      });
-                      context.readPrefs.update(PrefsEnum.customSearchUrls, customSearchUrls);
+                      _customSearchUrls = [
+                        for (final entry in _customSearchUrls.asMap().entries)
+                          if (!selectedObjects.contains(entry.key)) entry.value
+                      ];
+                      context.readPrefs.update(PrefsEnum.customSearchUrls, _customSearchUrls);
                       exitSelectionMode();
                     } else {
-                      context.readPrefs.update(PrefsEnum.customSearchUrls, <String>[]);
+                      context.readPrefs.update(PrefsEnum.customSearchUrls, PrefsEnum.customSearchUrls.defaultValue());
                     }
                     Utils.showToast(AppLocale.customUrlDeleted.s);
                   },
                 ),
-              ]
+              ],
             ),
           ),
         ],
       ),
       body: SafeArea(
         child: Scrollbar(
-          child: Consumer<PrefsProvider>(
-            builder:(context, settings, child) {
-              if (settings.get(PrefsEnum.customSearchUrls).isEmpty) {
-                return Center(child: Text(AppLocale.customSearchUrlsListIsEmptyMessage.s));
-              }
-              return ListView.builder(
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: false,
-                padding: const EdgeInsets.all(16.0),
-                itemCount: settings.get(PrefsEnum.customSearchUrls).length,
-                itemBuilder: (context, index) {
-                  final String searchUrl = settings.get(PrefsEnum.customSearchUrls)[index];
-                  final List<String> parts = searchUrl.split(StaticString.separationObject);
-                  final String title = parts[0];
-                  final String url = parts[1];
-                  return Card(
-                    elevation: 0,
-                    child: ItemTile(
-                      title: title,
-                      description: url,
-                      selected: selectedObjects.contains(title),
-                      onTap: () {
-                        if (isSelectionMode) {
-                          toggleSelection(title);
-                        } else {
-                          context.routeOf<PageCustomurlsForm>()
-                              .arguments(searchUrl)
-                              .to();
-                        }
-                      },
-                      onLongPress: () => enterSelectionMode(title),
-                    ),
-                  );
-                }
+          child: _customSearchUrls.isEmpty
+            ? Center(child: Text(AppLocale.customSearchUrlsListIsEmptyMessage.s))
+            : ListView.builder(
+            addAutomaticKeepAlives: false,
+            addRepaintBoundaries: false,
+            padding: const EdgeInsets.all(16.0),
+            itemCount: _customSearchUrls.length,
+            itemBuilder: (context, index) {
+              final item = _customSearchUrls[index];
+              return Card(
+                elevation: 0,
+                child: ItemTile(
+                  title: item.title,
+                  description: item.url,
+                  selected: selectedObjects.contains(index),
+                  onTap: () {
+                    if (isSelectionMode) {
+                      toggleSelection(index);
+                    } else {
+                      context.routeOf<PageCustomurlsForm>().arguments(PageCustomurlsFormArgs(
+                        index: index,
+                        items: _customSearchUrls,
+                      )).to();
+                    }
+                  },
+                  onLongPress: () => enterSelectionMode(index),
+                ),
               );
-            }
+            },
           ),
         ),
       ),

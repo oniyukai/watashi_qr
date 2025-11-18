@@ -321,7 +321,6 @@ const LocaleInstance mapEn = {
   K.examples: 'Examples:',
   K.customSearchUrlsErrorUrl: 'The term "{code}" must be present in the URL.',
   K.errorEmptyFields: 'Input fields must not be empty.',
-  K.customSearchUrlsisDuplicated: 'The name has been duplicated, please enter another name.',
   // API Base URL
   // URL Engines
   // E-Commerce Engines

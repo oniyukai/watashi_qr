@@ -39,7 +39,7 @@ class HistoryItem {
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
     return HistoryItem(
       unixTime: json['unixTime'] ?? 1,
-      contents: json['contents'] ?? 'NULL<String>',
+      contents: json['contents'] ?? StaticString.nullString,
       format: json['format'] ?? HistoryFormat.qrCode.name,
       type: json['type'] ?? HistoryType.text.name,
       errorLevel: json['errorLevel'] ?? HistoryErrorLevel.none.name,

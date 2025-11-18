@@ -20,17 +20,15 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<LocaleInstance> {
       'zh' => locale.scriptCode == 'Hans' ? LocaleOption.zhHans : LocaleOption.zhHant,
       _ => LocaleOption.zhHant,
     }.mapList!;
-    final LocaleInstance mergedMap = {};
-    for (final enumValue in AppLocale.values) {
-      for (final map in mapList) {
-        final value = map[enumValue];
-        if (value != null) {
-          mergedMap[enumValue] = value;
-          break;
-        }
-      }
-    }
-    return mergedMap;
+    return {
+      for (final enumValue in AppLocale.values)
+        if (mapList
+            .map((map) => map[enumValue])
+            .where((value) => value != null)
+            .firstOrNull
+        case final value?)
+          enumValue: value,
+    };
   }
 
   @override
