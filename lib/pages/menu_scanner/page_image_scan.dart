@@ -33,6 +33,7 @@ class _PageImageScanState extends State<PageImageScan> {
   final CropController _cropController = CropController();
   Uint8List? _imageBytes;
   BarcodeCapture? _barcodeCapture;
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +51,6 @@ class _PageImageScanState extends State<PageImageScan> {
       setState(() {
         _imageBytes = bytes;
       });
-      _cropController.image = bytes;  // <-- don't setState this
     } else {
       Navigator.pop(context);
     }
@@ -59,7 +59,7 @@ class _PageImageScanState extends State<PageImageScan> {
   Future<void> _onCropped(CropResult croppedData) async {
     if (croppedData is CropSuccess) {
       final MobileScannerController? controller = widget.argumentOf(context)?.controller;
-      if (controller == null) throw 'widget.argumentOf(context) connot be null.';
+      if (controller == null) throw 'widget.argumentOf(context) cannot be null.';
       final Uint8List croppedImage = croppedData.croppedImage;
 
       final tempDir = await getTemporaryDirectory();
@@ -95,7 +95,7 @@ class _PageImageScanState extends State<PageImageScan> {
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) DatabaseServices.addItem(item, context);
+    if (isScanAddHistory) item.id = DatabaseServices.addItem(item, context);
     await context.routeOf<PageItemView>().arguments(item).to();
     Navigator.pop(context);
   }

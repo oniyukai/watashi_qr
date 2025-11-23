@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
@@ -26,11 +27,11 @@ class _PageAboutViewState extends State<PageAboutView> {
         child: Scrollbar(
           child: ListView(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 64,
                 height: 64,
                 child: Image(
-                  image: AssetImage('assets/appicon.png'),
+                  image: AssetImage(p.join('assets/', 'appicon.png')),
                 ),
               ),
               const SizedBox(height: 16),

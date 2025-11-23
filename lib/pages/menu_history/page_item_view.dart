@@ -32,17 +32,18 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 
 class _PageItemViewState extends State<PageItemView> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late HistoryItem _historyItem;
-  late bool _isExistInhistories;
-  bool? _isWillExist;
+  late final HistoryItem _historyItem;
+  late bool _isWillExist;
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final argument = widget.argumentOf(context);
-    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
-    _historyItem = argument;
-    _isExistInhistories = _historyItem.id > 0;
+    if (!_isInitialized) {
+      _historyItem = widget.argumentOf(context)!;
+      _isWillExist = _historyItem.id > 0;
+      _isInitialized = true;
+    }
   }
 
   @override
@@ -52,25 +53,19 @@ class _PageItemViewState extends State<PageItemView> {
 
   @override
   void dispose() {
-    _updateHistoryItem();
-    super.dispose();
-  }
-
-  void _updateHistoryItem() {
-    _isWillExist ??= _isExistInhistories;
-    if (_isExistInhistories != _isWillExist){
-      if (_isWillExist == true){
-        DatabaseServices.addItem(_historyItem, context);
-      } else {
-        DatabaseServices.deleteItem(_historyItem.id);
-      }
-    } else if (_isExistInhistories) {
+    if (_historyItem.id > 0 && _isWillExist) {
       DatabaseServices.updateItem(_historyItem);
+    } else if (_historyItem.id > 0) {
+      DatabaseServices.deleteItem(_historyItem.id);
+    } else if (_isWillExist) {
+      DatabaseServices.addItem(_historyItem, context);
     }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     final colorScheme = Theme.of(context).colorScheme;
     final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format);
     final isFormatSupported = _historyItem.getFormat != null;
@@ -216,7 +211,6 @@ class _PageItemViewState extends State<PageItemView> {
 
   List<PressButtonGrid> _getActionGridList() {
     final type = _historyItem.getType;
-    final bool willExist = _isWillExist ?? _isExistInhistories;
     return <PressButtonGrid>[
       if (type != HistoryType.website) PressButtonGrid(
           iconData: Icons.search,
@@ -280,16 +274,16 @@ class _PageItemViewState extends State<PageItemView> {
       //   onTap: () {}, // Notodo: WIFI按鈕(決定不加入)
       // ),
       PressButtonGrid(
-        iconData: willExist ? Icons.delete_forever : Icons.add,
-        description: willExist
+        iconData: _isWillExist ? Icons.delete_forever : Icons.add,
+        description: _isWillExist
             ? AppLocale.menuItemHistoryDeleteFromHistory.s
             : AppLocale.menuItemHistoryAddInHistory.s,
         onTap: () {
-          Utils.showToast(willExist
+          Utils.showToast(_isWillExist
               ? AppLocale.menuItemHistoryRemovedFromHistory.s
               : AppLocale.menuItemHistoryAddedInHistory.s);
           setState(() {
-            _isWillExist = !willExist;
+            _isWillExist = !_isWillExist;
           });
         },
       ),

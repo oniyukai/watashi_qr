@@ -30,8 +30,19 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   String _wifiSecurityType = 'SAE'; // only for the WIFI form
   final List<String> _contactMailType = <String>['home', 'home', 'home']; // only for the _CONTACT form
   final List<String> _contactPhoneType = <String>['cell', 'cell', 'cell']; // only for the _CONTACT form
+  late final HistoryType _historyType;
+  bool _isInitialized = false;
 
-  void _sendForm(String contents, HistoryType historyType) {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _historyType = widget.argumentOf(context)!;
+      _isInitialized = true;
+    }
+  }
+
+  void _sendForm(String contents) {
     if (contents.length > 2953) {
       Utils.showToast('${AppLocale.errorBarcodeWrongLengthMessage.s}< 2953');
       return;
@@ -42,7 +53,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
       unixTime: Utils.nowUnixTime,
       contents: contents,
       format: HistoryFormat.qrCode.name,
-      type: historyType.name,
+      type: _historyType.name,
       errorLevel: selectedQRErrorLevel,
       origin: HistoryOrigin.C.name,
       isFavorite: false,
@@ -54,8 +65,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final historyType = widget.argumentOf(context);
-    if (historyType == null) throw 'widget.argumentOf(context) connot be null.';
+    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleBarCodeCreator.s),
@@ -66,8 +76,8 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               if (_formKey.currentState?.saveAndValidate() ?? false) {
                 final valueMap = _formKey.currentState?.value;
                 if (valueMap == null) return;
-                final String contents = _contentsFromForm(historyType, valueMap);
-                _sendForm(contents, historyType);
+                final String contents = _contentsFromForm(valueMap);
+                _sendForm(contents);
               }
             },
           )
@@ -79,13 +89,13 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
               ItemTile(
-                title: HistoryType.localeStrFromName(historyType.name),
-                myIconData: historyType.myIconData,
+                title: HistoryType.localeStrFromName(_historyType.name),
+                myIconData: _historyType.myIconData,
               ),
               const SizedBox(height: 16),
               FormBuilder(
                 key:_formKey,
-                child: _formFromType(historyType),
+                child: _formFromType(),
               ),
             ],
           ),
@@ -105,14 +115,14 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
 
       final File file = File(result.files.single.path!);
       final String vCardString = await file.readAsString();
-      _sendForm(vCardString, HistoryType.contact);
+      _sendForm(vCardString);
     } catch (e) {
       Utils.showToast('${AppLocale.snackBarMessageFileImportError.s}\n$e', true);
     }
   }
 
-  String _contentsFromForm(HistoryType historyType, Map<String, dynamic> valueMap) {
-    switch(historyType) {
+  String _contentsFromForm(Map<String, dynamic> valueMap) {
+    switch(_historyType) {
       case HistoryType.text:
         return valueMap['text'];
       case HistoryType.website:
@@ -234,8 +244,8 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
     return 'null';
   }
 
-  Widget _formFromType(HistoryType historyType) {
-    switch(historyType) {
+  Widget _formFromType() {
+    switch(_historyType) {
       case HistoryType.website:
         return FormBuilderTextField(
           name: 'website',

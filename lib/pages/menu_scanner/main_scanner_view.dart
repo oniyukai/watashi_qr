@@ -131,7 +131,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) DatabaseServices.addItem(item, context);
+    if (isScanAddHistory) item.id = DatabaseServices.addItem(item, context);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
       await Future<void>.delayed(const Duration(milliseconds: 800));
@@ -221,7 +221,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                   ),
                   Transform.scale( //todo debug: 字體水平相反
                     scaleX: context.readPrefs.get(PrefsEnum.isUseFrontcamera) ? -1 : 1,
-                    child: BarcodeOverlay( //todo debug: 套件該組件並沒有處理完轉向問題
+                    child: BarcodeOverlay( //todo debug: 套件該組件並沒有處理完轉向問題 v7.1.3問題更嚴重了
                       controller: _scannerController,
                       boxFit: BoxFit.cover,
                       color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),

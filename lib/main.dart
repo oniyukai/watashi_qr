@@ -12,7 +12,7 @@ import 'package:watashi_qr/common/database_services.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PrefsProvider.init();
-  await DatabaseServices.hiveInit();
+  await DatabaseServices.init();
   runApp(
     MultiProvider(
       providers: [

@@ -2,6 +2,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:watashi_qr/common/prefs.dart';
@@ -20,7 +21,7 @@ class Utils {
 
   // 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
   static String formatUnixTimes(int unixTime) {
-    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime).toLocal();
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime);
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
   }
@@ -45,7 +46,7 @@ class Utils {
   // 嗶的一聲
   static Future<void> audioPlayBeep(AudioPlayer audioPlayer) async {
     try {
-      audioPlayer.play(AssetSource('short_beep_tone.mp3'));
+      audioPlayer.play(AssetSource(p.join('assets/', 'short_beep_tone.mp3')));
     } catch (e) {
       showToast(e.toString());
     }

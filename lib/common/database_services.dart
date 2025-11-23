@@ -18,7 +18,7 @@ class DatabaseServices {
   static late Store _store;
   static late final Box<HistoryItem> _historyItemBox;
 
-  static Future<void> hiveInit() async {
+  static Future<void> init() async {
     final dir = await getApplicationSupportDirectory();
     _store = await openStore(directory: p.join(dir.path, 'objectbox'));
     _historyItemBox = _store.box<HistoryItem>();

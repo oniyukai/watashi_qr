@@ -27,27 +27,31 @@ class PageCodeView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageCodeViewState extends State<PageCodeView> {
-  late HistoryItem _historyItem;
-  late HistoryFormat? _historyFormat;
+  late final HistoryItem _historyItem;
+  late final HistoryFormat? _historyFormat;
   late HistoryErrorLevel? _historyErrorLevel;
+  bool _isInitialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final argument = widget.argumentOf(context);
-    if (argument == null) throw 'widget.argumentOf(context) cannot be null.';
-    _historyItem = argument;
-    _historyFormat = _historyItem.getFormat;
-    _historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
-    if (_historyErrorLevel == HistoryErrorLevel.none || _historyErrorLevel == null) {
-      _historyErrorLevel = context.readPrefs.get(PrefsEnum.selectedQRErrorLevel);
+    if (!_isInitialized) {
+      _historyItem = widget.argumentOf(context)!;
+      _historyFormat = _historyItem.getFormat;
+      _historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
+      if (_historyErrorLevel == HistoryErrorLevel.none || _historyErrorLevel == null) {
+        _historyErrorLevel = context.readPrefs.get(PrefsEnum.selectedQRErrorLevel);
+      }
+      _isInitialized = true;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     final isPortrait = Utils.isPortrait(context);
     final validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
+    final longestSide = MediaQuery.of(context).size.longestSide;
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryFormat.localeStrFromName(_historyItem.format)),
@@ -75,27 +79,31 @@ class _PageCodeViewState extends State<PageCodeView> {
           child: Flex(
             direction: isPortrait ? Axis.vertical : Axis.horizontal,
             children: [
-              Card(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      double length = isPortrait ? constraints.maxWidth : constraints.maxHeight;
-                      length = isPortrait ? length*0.8 : length;
-                      length = min(length, (!isPortrait ? constraints.maxWidth : constraints.maxHeight)/1.618);
-                      return Center(
-                        child: (validatorMsg == null)
-                            ? _getSvgPicture(length) //todo debug: 不如預期地能夠限制長邊比例
-                            : Text(validatorMsg, style: TextStyle(color: Colors.grey)
-                        ),
-                      );
-                    },
+              Expanded(
+                flex: isPortrait ? 0 : 1,
+                child: Card(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double width = isPortrait
+                            ? min(constraints.biggest.shortestSide * 0.8, longestSide * 0.5)
+                            : constraints.biggest.shortestSide;
+                        return Center(
+                          child: (validatorMsg == null)
+                              ? _getSvgPicture(width)
+                              : Text(validatorMsg, style: TextStyle(color: Colors.grey)
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
               isPortrait ? const SizedBox(height: 24) : const SizedBox(width: 24),
               Expanded(
+                flex: 1,
                 child: ListView(
                   children: [
                     ExpandableCard(
@@ -120,9 +128,9 @@ class _PageCodeViewState extends State<PageCodeView> {
     );
   }
 
-  Widget _getSvgPicture(double length) {
+  Widget _getSvgPicture(double width) {
     try {
-      return SvgPicture.string(_getBarcodeSvg(length));
+      return SvgPicture.string(_getBarcodeSvg(width));
     } catch (e) {
       return Text(e.toString(), style: TextStyle(color: Colors.grey));
     }
@@ -139,7 +147,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       final file = File(filePath);
 
       if (option == StaticString.svgLabel) {
-        final String svg = _getBarcodeSvg();
+        final String svg = _getBarcodeSvg(1024);
         await file.writeAsString(svg);
       } else {
         final barcodeImage = _getBarcodeImage();
@@ -172,10 +180,10 @@ class _PageCodeViewState extends State<PageCodeView> {
     return barcodeImage;
   }
 
-  String _getBarcodeSvg([double length = 1024]) {
+  String _getBarcodeSvg(double width) {
     final Barcode barcode = _getBarcode();
-    final double height = _getHeight(length);
-    return barcode.toSvg(_historyItem.contents, width: length, height: height);
+    final double height = _getHeight(width);
+    return barcode.toSvg(_historyItem.contents, width: width, height: height);
   }
 
   double _getHeight(double width) {
@@ -204,6 +212,6 @@ class _PageCodeViewState extends State<PageCodeView> {
     final level = _historyErrorLevel?.barcodeQRCorrectionLevel ?? BarcodeQRCorrectionLevel.low;
     return (_historyFormat == null || _historyFormat == HistoryFormat.qrCode)
         ? Barcode.qrCode(errorCorrectLevel: level)
-        : _historyFormat!.barcodeFunc();
+        : _historyFormat.barcodeFunc();
   }
 }
