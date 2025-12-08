@@ -122,15 +122,15 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               items: [
                 MyMenuItem(
                   text: AppLocale.shareJsonLabel.s,
-                  onTap: () => DatabaseServices.shareHistoriesToJson(),
+                  onTap: () => DatabaseServices.shareHistoryBoxToJson(),
                 ),
                 MyMenuItem(
                   text: AppLocale.exportJsonLabel.s,
-                  onTap: () => DatabaseServices.exportHistoriesToJson(),
+                  onTap: () => DatabaseServices.exportHistoryBoxToJson(),
                 ),
                 MyMenuItem(
                   text: AppLocale.importJsonLabel.s,
-                  onTap: () => DatabaseServices.importHistoriesFromJson(),
+                  onTap: () => DatabaseServices.importHistoryBoxFromJson(),
                 ),
               ],
             ),
@@ -145,7 +145,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                     child: Text(AppLocale.deleteLabel.s),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      DatabaseServices.clearHistories();
+                      DatabaseServices.clearHistoryBox();
                       Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
                     },
                   ),

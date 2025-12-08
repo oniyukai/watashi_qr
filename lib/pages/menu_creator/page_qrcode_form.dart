@@ -108,9 +108,11 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
-        return Utils.showToast(AppLocale.cancelLabel.s);
+        Utils.showToast(AppLocale.cancelLabel.s);
+        return;
       } else if (!result.files.single.path!.endsWith('.vcf')) {
-        return Utils.showToast('Error: Not .vcf file');
+        Utils.showToast('Error: Not .vcf file');
+        return;
       }
 
       final File file = File(result.files.single.path!);

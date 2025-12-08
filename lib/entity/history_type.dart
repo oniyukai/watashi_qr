@@ -18,8 +18,9 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   product(MyIconData(Icons.sell_outlined)),
   industrial(MyIconData(Icons.build_circle_outlined));
 
-  const HistoryType(this.myIconData);
   final MyIconData myIconData;
+
+  const HistoryType(this.myIconData);
 
   static String localeStrFromName(String n) => <HistoryType, String>{
     text: AppLocale.qrCodeTypeNameText.s,
@@ -38,10 +39,10 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     final String upperContents = contents.toUpperCase();
     switch (format) {
-      case HistoryFormat.qrCode:
-      case HistoryFormat.dataMatrix:
-      case HistoryFormat.aztec:
-      case HistoryFormat.pdf417:
+      case .qrCode:
+      case .dataMatrix:
+      case .aztec:
+      case .pdf417:
         if (upperContents.startsWith('BEGIN:VCARD\n')) {
           return contact;
         } else if (upperContents.startsWith('MAILTO:') || upperContents.startsWith('MATMSG:')) {
@@ -66,16 +67,16 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
         } else {
           return text;
         }
-      case HistoryFormat.ean13:
-      case HistoryFormat.ean8:
-      case HistoryFormat.upcE:
-      case HistoryFormat.upcA:
+      case .ean13:
+      case .ean8:
+      case .upcE:
+      case .upcA:
         return product;
-      case HistoryFormat.code128:
-      case HistoryFormat.code93:
-      case HistoryFormat.code39:
-      case HistoryFormat.codebar:
-      case HistoryFormat.itf:
+      case .code128:
+      case .code93:
+      case .code39:
+      case .codebar:
+      case .itf:
         return industrial;
       default:
         return text;

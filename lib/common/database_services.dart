@@ -16,45 +16,45 @@ class DatabaseServices {
   const DatabaseServices._();
 
   static late Store _store;
-  static late final Box<HistoryItem> _historyItemBox;
+  static late final Box<HistoryItem> _historyBox;
 
   static Future<void> init() async {
-    final dir = await getApplicationSupportDirectory();
+    final Directory dir = await getApplicationSupportDirectory();
     _store = await openStore(directory: p.join(dir.path, 'objectbox'));
-    _historyItemBox = _store.box<HistoryItem>();
+    _historyBox = _store.box<HistoryItem>();
   }
 
   static void dispose() => _store.close();
 
   static Stream<List<HistoryItem>> get historyItemsStream =>
-      _applyOrder(_historyItemBox.query())
+      _applyOrder(_historyBox.query())
           .watch(triggerImmediately: true)
           .map((query) => query.find());
 
   static int addItem(HistoryItem item, BuildContext context) {
     assert(item.id == 0);
-    if (context.readPrefs.get(PrefsEnum.isSaveDuplicates)) return _historyItemBox.put(item, mode: PutMode.insert);
-    final query = _applyOrder(_historyItemBox
+    if (context.readPrefs.get(.isSaveDuplicates)) return _historyBox.put(item, mode: .insert);
+    final Query<HistoryItem> query = _applyOrder(_historyBox
         .query(HistoryItem_.format.equals(item.format).and(HistoryItem_.contents.equals(item.contents)))
     ).build();
-    final result = query.find();
+    final List<HistoryItem> result = query.find();
     query.close();
-    if (result.isEmpty) return _historyItemBox.put(item, mode: PutMode.insert);
-    final latestDuplicate = result.first;
+    if (result.isEmpty) return _historyBox.put(item, mode: .insert);
+    final HistoryItem latestDuplicate = result.first;
     item
       ..isFavorite = latestDuplicate.isFavorite
       ..notes = latestDuplicate.notes;
     deleteItem(latestDuplicate.id);
-    return _historyItemBox.put(item, mode: PutMode.insert);
+    return _historyBox.put(item, mode: .insert);
   }
 
   // static HistoryItem? getItem(int id) => _historyItemBox.get(id);
 
   static List<HistoryItem> getItems([List<int>? ids]) {
-    final query = _applyOrder(_historyItemBox
+    final Query<HistoryItem> query = _applyOrder(_historyBox
         .query(ids != null ? HistoryItem_.id.oneOf(ids) : null)
     ).build();
-    final result = query.find();
+    final List<HistoryItem> result = query.find();
     query.close();
     return result;
   }
@@ -64,62 +64,68 @@ class DatabaseServices {
           .order(HistoryItem_.isFavorite, flags: Order.descending)
           .order(HistoryItem_.unixTime, flags: Order.descending);
 
-  static int updateItem(HistoryItem item) => _historyItemBox.put(item, mode: PutMode.update);
+  static int updateItem(HistoryItem item) => _historyBox.put(item, mode: .update);
 
-  static List<int> updateItems(List<HistoryItem> items) => _historyItemBox.putMany(items, mode: PutMode.update);
+  static List<int> updateItems(List<HistoryItem> items) => _historyBox.putMany(items, mode: .update);
 
-  static bool deleteItem(int id) => _historyItemBox.remove(id);
+  static bool deleteItem(int id) => _historyBox.remove(id);
 
-  static int deleteItems(List<int> ids) => _historyItemBox.removeMany(ids);
+  static int deleteItems(List<int> ids) => _historyBox.removeMany(ids);
 
-  static int clearHistories() => _historyItemBox.removeAll();
+  static int clearHistoryBox() => _historyBox.removeAll();
 
-  static Future<void> shareHistoriesToJson() async {
-    if (_historyItemBox.isEmpty()) return Utils.showToast(AppLocale.labelHistoryEmpty.s);
+  static Future<void> shareHistoryBoxToJson() async {
+    if (_historyBox.isEmpty()) {
+      await Utils.showToast(AppLocale.labelHistoryEmpty.s);
+      return;
+    }
     final Directory tempDir = await getTemporaryDirectory();
-    final File? file = await _getHistoriesJsonFile(tempDir.path);
+    final File? file = await _getHistoryBoxJsonFile(tempDir.path);
     if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
-  static Future<void> exportHistoriesToJson() async {
-    if (_historyItemBox.isEmpty()) return Utils.showToast(AppLocale.labelHistoryEmpty.s);
+  static Future<void> exportHistoryBoxToJson() async {
+    if (_historyBox.isEmpty()) {
+      await Utils.showToast(AppLocale.labelHistoryEmpty.s);
+      return;
+    }
     final Directory? directory = await getDownloadsDirectory();
     final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
-      return Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
+      await Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
+      return;
     }
-    final File? file = await _getHistoriesJsonFile(directoryPath);
+    final File? file = await _getHistoryBoxJsonFile(directoryPath);
     if (file != null) {
-      Utils.showToast('${AppLocale.snackBarMessageFileExportSuccess.s}\n${file.path}');
+      await Utils.showToast('${AppLocale.snackBarMessageFileExportSuccess.s}\n${file.path}');
     } else {
-      Utils.showToast(AppLocale.snackBarMessageFileExportError.s);
+      await Utils.showToast(AppLocale.snackBarMessageFileExportError.s);
     }
   }
 
-  static Future<File?> _getHistoriesJsonFile(String directory) async {
+  static Future<File?> _getHistoryBoxJsonFile(String directory) async {
     try {
-      if (_historyItemBox.isEmpty()) return null;
+      if (_historyBox.isEmpty()) return null;
       final String jsonString = jsonEncode(getItems());
       final DateTime now = DateTime.now();
       final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
       final String filePath = p.join(directory, 'qr_$formattedDateTime.json');
       final File file = File(filePath);
-      await file.writeAsString(jsonString);
-      return file;
+      return await file.writeAsString(jsonString);
     } catch (e) {
-      Utils.showToast(e.toString(), true);
+      await Utils.showToast(e.toString(), true);
       return null;
     }
   }
 
-  static Future<void> importHistoriesFromJson() async {
+  static Future<void> importHistoryBoxFromJson() async {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result == null) {
-        Utils.showToast(AppLocale.cancelLabel.s);
+        await Utils.showToast(AppLocale.cancelLabel.s);
         return;
       } else if (!result.files.single.path!.endsWith('.json')) {
-        Utils.showToast('Error: Not .json file');
+        await Utils.showToast('Error: Not .json file');
         return;
       }
 
@@ -134,16 +140,16 @@ class DatabaseServices {
         final HistoryItem historyItem = HistoryItem.fromJson(itemJson);
         itemsToProcess[historyItem.unixTime] = historyItem;
       }
-      final query = _historyItemBox
+      final Query<HistoryItem> query = _historyBox
           .query(HistoryItem_.unixTime.oneOf(itemsToProcess.keys.toList()))
           .build();
       final Map<int, int> existingTimeKeyMap = {
-        for (final queryItem in query.find())
+        for (final HistoryItem queryItem in query.find())
           queryItem.unixTime: queryItem.id,
       };
       query.close();
-      for (final item in itemsToProcess.values) {
-        final searchId = existingTimeKeyMap[item.unixTime];
+      for (final HistoryItem item in itemsToProcess.values) {
+        final int? searchId = existingTimeKeyMap[item.unixTime];
         if (searchId != null) {
           item.id = searchId;
           replaced += 1;
@@ -151,12 +157,12 @@ class DatabaseServices {
           added += 1;
         }
       }
-      _historyItemBox.putMany(itemsToProcess.values.toList());
+      _historyBox.putMany(itemsToProcess.values.toList());
       final String endTip = '${AppLocale.snackBarMessageFileImportSuccess.s}'
           '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
-      Utils.showToast(endTip, true);
+      await Utils.showToast(endTip, true);
     } catch (e) {
-      Utils.showToast('${AppLocale.snackBarMessageFileImportError.s}\n$e', true);
+      await Utils.showToast('${AppLocale.snackBarMessageFileImportError.s}\n$e', true);
     }
   }
 }

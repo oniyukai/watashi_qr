@@ -63,27 +63,26 @@ enum PrefsEnum {
   scannerWindowHeightPortrait,
   scannerWindowWidthLandscape,
   scannerWindowHeightLandscape,
-  scannerZoomLevel
-  ;
+  scannerZoomLevel;
 
   static final Map<PrefsEnum, PrefDef> _prefDefCache = {};
 
-  PrefDef get _prefDef {
-    final cache = _prefDefCache[this];
+  PrefDef get _getPrefDef {
+    final PrefDef<Object, Object>? cache = _prefDefCache[this];
     if (cache != null) return cache;
-    final prefDef = switch (this) {
+    final PrefDef<Object, Object> prefDef = switch (this) {
       selectedColor =>  PrefDef<ColorOption, String>._(
-          ColorOption.sys,
+          .sys,
           (fromRUN) => fromRUN.name,
           (fromSTO) => ColorOption.values.fromName(fromSTO),
       ),
       selectedTheme => PrefDef<ThemeOption, String>._(
-          ThemeOption.sys,
+          .sys,
           (fromRUN) => fromRUN.name,
           (fromSTO) => ThemeOption.values.fromName(fromSTO),
       ),
       selectedLanguage => PrefDef<LocaleOption, String>._(
-          LocaleOption.sys,
+          .sys,
           (fromRUN) => fromRUN.name,
           (fromSTO) => LocaleOption.values.fromName(fromSTO),
       ),
@@ -95,7 +94,7 @@ enum PrefsEnum {
       isBarcodeCopied => PrefDef._same(false),
       isUseFrontcamera => PrefDef._same(false),
       selectedQRErrorLevel => PrefDef<HistoryErrorLevel, String>._(
-          HistoryErrorLevel.L,
+          .L,
           (fromRUN) => fromRUN.name,
           (fromSTO) => HistoryErrorLevel.values.fromName(fromSTO),
       ),
@@ -103,7 +102,7 @@ enum PrefsEnum {
       isCreateAddHistory => PrefDef._same(true),
       isSaveDuplicates => PrefDef._same(true),
       selectedSearchEngine => PrefDef<SearchEngine, String>._(
-          SearchEngine.google,
+          .google,
           (fromRUN) => fromRUN.name,
           (fromSTO) => SearchEngine.values.fromName(fromSTO),
       ),
@@ -118,11 +117,10 @@ enum PrefsEnum {
       scannerWindowHeightLandscape => PrefDef._same(-1.0),
       scannerZoomLevel => PrefDef._same(0.0),
     };
-    _prefDefCache[this] = prefDef;
-    return prefDef;
+    return _prefDefCache[this] = prefDef;
   }
 
-  T defaultValue<T>() => _prefDef.defaultValue as T;
+  T defaultValue<T>() => _getPrefDef.defaultValue as T;
 }
 
 class PrefsProvider extends ChangeNotifier {
@@ -136,26 +134,26 @@ class PrefsProvider extends ChangeNotifier {
 
   PrefsProvider() {
     for (final PrefsEnum key in PrefsEnum.values) {
-      final prefDef = key._prefDef;
-      final fromSTO = instance.get(key.name);
+      final PrefDef<Object, Object> prefDef = key._getPrefDef;
+      final Object? fromSTO = instance.get(key.name);
       if (fromSTO.runtimeType == prefDef.typeSTO && fromSTO != null) _prefsMap[key] = prefDef.toRUN(fromSTO);
     }
   }
 
   /// 依賴BuildContext
   T get<T>(PrefsEnum key) {
-    final prefDef = key._prefDef;
-    final value = _prefsMap[key] ?? prefDef.defaultValue;
+    final PrefDef<Object, Object> prefDef = key._getPrefDef;
+    final Object value = _prefsMap[key] ?? prefDef.defaultValue;
     assert(value.runtimeType == prefDef.typeRUN);
     return value as T;
   }
 
   Future<void> update(PrefsEnum key, Object value, [bool notify = true]) async {
-    final prefDef = key._prefDef;
+    final PrefDef<Object, Object> prefDef = key._getPrefDef;
     if (value.runtimeType != prefDef.typeRUN) {
       throw ArgumentError('Error type: value<${value.runtimeType}> != $key<${prefDef.typeRUN}>');
     }
-    final fromSTO = prefDef.toSTO(value);
+    final Object fromSTO = prefDef.toSTO(value);
     if (fromSTO is bool) {
       await instance.setBool(key.name, fromSTO);
     } else if (fromSTO is int) {

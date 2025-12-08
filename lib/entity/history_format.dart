@@ -42,19 +42,19 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   };
 
   static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) => const <BarcodeFormat, HistoryFormat>{
-    BarcodeFormat.qrCode: qrCode,
-    BarcodeFormat.dataMatrix: dataMatrix,
-    BarcodeFormat.aztec: aztec,
-    BarcodeFormat.pdf417: pdf417,
-    BarcodeFormat.ean13: ean13,
-    BarcodeFormat.ean8: ean8,
-    BarcodeFormat.upcA: upcA,
-    BarcodeFormat.upcE: upcE,
-    BarcodeFormat.code128: code128,
-    BarcodeFormat.code93: code93,
-    BarcodeFormat.code39: code39,
-    BarcodeFormat.codebar: codebar,
-    BarcodeFormat.itf: itf,
+    .qrCode: qrCode,
+    .dataMatrix: dataMatrix,
+    .aztec: aztec,
+    .pdf417: pdf417,
+    .ean13: ean13,
+    .ean8: ean8,
+    .upcA: upcA,
+    .upcE: upcE,
+    .code128: code128,
+    .code93: code93,
+    .code39: code39,
+    .codebar: codebar,
+    .itf: itf,
   }[barcodeFormat];
 
   static String localeStrFromName(String n) => <HistoryFormat, String>{
@@ -73,21 +73,21 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     itf: AppLocale.barcodeItfLabel.s,
   }[values.fromName(n)] ?? '"$n"';
 
-  String get composition => <HistoryFormat, String>{
-    qrCode: AppLocale.barcodeTextCompositionLabel.s,
-    dataMatrix: AppLocale.barcodeTextNoSpecialCompositionLabel.s,
-    aztec: AppLocale.barcodeTextNoSpecialCompositionLabel.s,
-    pdf417: AppLocale.barcodeTextCompositionLabel.s,
-    ean13: AppLocale.barcode12Digits1CheckCompositionLabel.s,
-    ean8: AppLocale.barcode7Digits1CheckCompositionLabel.s,
-    upcA: AppLocale.barcode11Digits1CheckCompositionLabel.s,
-    upcE: AppLocale.barcode7Digits1CheckCompositionLabel.s,
-    code128: AppLocale.barcodeTextNoSpecialCompositionLabel.s,
-    code93: AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
-    code39: AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
-    codebar: AppLocale.barcodeDigitsCompositionLabel.s,
-    itf: AppLocale.barcodeEvenDigitsCompositionLabel.s,
-  }[this] ?? AppLocale.barcodeTextCompositionLabel.s;
+  String get composition => switch (this) {
+    qrCode => AppLocale.barcodeTextCompositionLabel.s,
+    dataMatrix => AppLocale.barcodeTextNoSpecialCompositionLabel.s,
+    aztec => AppLocale.barcodeTextNoSpecialCompositionLabel.s,
+    pdf417 => AppLocale.barcodeTextCompositionLabel.s,
+    ean13 => AppLocale.barcode12Digits1CheckCompositionLabel.s,
+    ean8 => AppLocale.barcode7Digits1CheckCompositionLabel.s,
+    upcA => AppLocale.barcode11Digits1CheckCompositionLabel.s,
+    upcE => AppLocale.barcode7Digits1CheckCompositionLabel.s,
+    code128 => AppLocale.barcodeTextNoSpecialCompositionLabel.s,
+    code93 => AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
+    code39 => AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
+    codebar => AppLocale.barcodeDigitsCompositionLabel.s,
+    itf => AppLocale.barcodeEvenDigitsCompositionLabel.s,
+  };
 
   String? get description => <HistoryFormat, String>{
     ean13: AppLocale.barcodeEan13DescriptionLabel.s,

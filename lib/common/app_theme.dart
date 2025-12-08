@@ -4,8 +4,8 @@ import 'package:watashi_qr/locale/app_language.dart';
 
 enum ThemeOption {
   sys,
-  light(Brightness.light),
-  dark(Brightness.dark);
+  light(.light),
+  dark(.dark);
 
   final Brightness? brightness;
 
@@ -41,22 +41,22 @@ enum ColorOption {
 }
 
 ThemeData appTheme (
-    BuildContext context,
-    ColorScheme? lightDynamic,
-    ColorScheme? darkDynamic,)
+  BuildContext context,
+  ColorScheme? lightDynamic,
+  ColorScheme? darkDynamic,)
 {
-  final ThemeOption selectedTheme = context.readPrefs.get(PrefsEnum.selectedTheme);
-  final ColorOption selectedColor = context.readPrefs.get(PrefsEnum.selectedColor);
+  final ThemeOption selectedTheme = context.readPrefs.get(.selectedTheme);
+  final ColorOption selectedColor = context.readPrefs.get(.selectedColor);
   final Brightness brightness = selectedTheme.brightness ?? View.of(context).platformDispatcher.platformBrightness;
   final MaterialColor seedColor = selectedColor.color ?? Colors.blue; // <--sys顏色不支援時會用到
   late final ColorScheme colorScheme;
 
-  if (selectedColor==ColorOption.sys && lightDynamic!=null && brightness==Brightness.light) {
+  if (selectedColor==.sys && lightDynamic!=null && brightness==.light) {
     colorScheme = ColorScheme.fromSeed(
       seedColor: lightDynamic.primary,
       brightness: lightDynamic.brightness,
     );
-  } else if (selectedColor==ColorOption.sys && darkDynamic!=null && brightness==Brightness.dark) {
+  } else if (selectedColor==.sys && darkDynamic!=null && brightness==.dark) {
     colorScheme = ColorScheme.fromSeed(
       seedColor: darkDynamic.primary,
       brightness: darkDynamic.brightness,
@@ -79,7 +79,7 @@ ThemeData appTheme (
       border: OutlineInputBorder(),
     ),
     cardTheme: const CardThemeData(
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: .antiAlias,
     ),
   );
 }

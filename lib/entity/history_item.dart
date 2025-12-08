@@ -36,43 +36,40 @@ class HistoryItem {
   @Transient() MyIconData get getTypeIconData => getType?.myIconData ?? MyIconData(Icons.help_center);
 
   @Transient()
-  factory HistoryItem.fromJson(Map<String, dynamic> json) {
-    return HistoryItem(
-      unixTime: json['unixTime'] ?? 1,
-      contents: json['contents'] ?? StaticString.nullString,
-      format: json['format'] ?? HistoryFormat.qrCode.name,
-      type: json['type'] ?? HistoryType.text.name,
-      errorLevel: json['errorLevel'] ?? HistoryErrorLevel.none.name,
-      origin: json['origin'] ?? HistoryOrigin.C.name,
-      isFavorite: json['isFavorite'] ?? false,
-      notes: json['notes'] ?? '',
-    );
-  }
+  factory HistoryItem.fromJson(Map<String, dynamic> json) => HistoryItem(
+    unixTime: json['unixTime'] ?? 1,
+    contents: json['contents'] ?? StaticString.nullString,
+    format: json['format'] ?? HistoryFormat.qrCode.name,
+    type: json['type'] ?? HistoryType.text.name,
+    errorLevel: json['errorLevel'] ?? HistoryErrorLevel.none.name,
+    origin: json['origin'] ?? HistoryOrigin.C.name,
+    isFavorite: json['isFavorite'] ?? false,
+    notes: json['notes'] ?? '',
+  );
 
   @Transient()
-  Map<String, dynamic> toJson() {
-    return {
-      'unixTime': unixTime,
-      'contents': contents,
-      'format': format,
-      'type': type,
-      'errorLevel': errorLevel,
-      'origin': origin,
-      'isFavorite': isFavorite,
-      'notes': notes,
-    };
-  }
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'unixTime': unixTime,
+    'contents': contents,
+    'format': format,
+    'type': type,
+    'errorLevel': errorLevel,
+    'origin': origin,
+    'isFavorite': isFavorite,
+    'notes': notes,
+  };
 }
 
 
 enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
-  L(BarcodeQRCorrectionLevel.low),
-  M(BarcodeQRCorrectionLevel.medium),
-  Q(BarcodeQRCorrectionLevel.quartile),
-  H(BarcodeQRCorrectionLevel.high),
+  L(.low),
+  M(.medium),
+  Q(.quartile),
+  H(.high),
   none;
 
   const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
+
   final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
 
   static HistoryErrorLevel? fromName(String? n) => values.fromName(n);

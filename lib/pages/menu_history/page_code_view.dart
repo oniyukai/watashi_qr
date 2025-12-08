@@ -141,7 +141,8 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory? directory = await getDownloadsDirectory();
       final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
       if (directoryPath == null) {
-        return Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
+        Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
+        return;
       }
       final String filePath = p.join(directoryPath, 'barcode.$option');
       final file = File(filePath);
