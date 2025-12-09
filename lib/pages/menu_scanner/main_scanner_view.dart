@@ -84,7 +84,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   Future<void> _startScan() async {
-    final cameraFacing = context.readPrefs.get(PrefsEnum.isUseFrontcamera) ? CameraFacing.front : CameraFacing.back;
+    final cameraFacing = context.readPrefs.get(PrefsEnum.isUseFrontCamera) ? CameraFacing.front : CameraFacing.back;
     await _scannerController.start(cameraDirection: cameraFacing);
     await _scannerController.setZoomScale(_zoomLevel);
   }
@@ -211,7 +211,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                 fit: StackFit.expand,
                 children: [
                   Transform.scale(
-                    scaleX: context.readPrefs.get(PrefsEnum.isUseFrontcamera) ? -1 : 1,
+                    scaleX: context.readPrefs.get(PrefsEnum.isUseFrontCamera) ? -1 : 1,
                     child: MobileScanner(
                       scanWindow: _scanWindow,
                       controller: _scannerController,
@@ -220,7 +220,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                     ),
                   ),
                   Transform.scale( //todo debug: 字體水平相反
-                    scaleX: context.readPrefs.get(PrefsEnum.isUseFrontcamera) ? -1 : 1,
+                    scaleX: context.readPrefs.get(PrefsEnum.isUseFrontCamera) ? -1 : 1,
                     child: BarcodeOverlay( //todo debug: 套件該組件並沒有處理完轉向問題 v7.1.3問題更嚴重了
                       controller: _scannerController,
                       boxFit: BoxFit.cover,

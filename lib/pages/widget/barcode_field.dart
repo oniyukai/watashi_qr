@@ -54,7 +54,7 @@ extension _HistoryFormatForValid on HistoryFormat {
     HistoryFormat.ean8,
     HistoryFormat.upcA,
     HistoryFormat.upcE,
-    HistoryFormat.codebar,
+    HistoryFormat.codabar,
     HistoryFormat.itf
   }.contains(this);
 
@@ -66,7 +66,7 @@ extension _HistoryFormatForValid on HistoryFormat {
     HistoryFormat.code128: 2046,
     HistoryFormat.code93: 47,
     HistoryFormat.code39: 43,
-    HistoryFormat.codebar: 20,
+    HistoryFormat.codabar: 20,
     HistoryFormat.itf: 20,
   }[this];
 

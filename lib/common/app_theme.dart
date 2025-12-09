@@ -51,12 +51,12 @@ ThemeData appTheme (
   final MaterialColor seedColor = selectedColor.color ?? Colors.blue; // <--sys顏色不支援時會用到
   late final ColorScheme colorScheme;
 
-  if (selectedColor==.sys && lightDynamic!=null && brightness==.light) {
+  if (selectedColor==.sys && brightness==.light && lightDynamic!=null) {
     colorScheme = ColorScheme.fromSeed(
       seedColor: lightDynamic.primary,
       brightness: lightDynamic.brightness,
     );
-  } else if (selectedColor==.sys && darkDynamic!=null && brightness==.dark) {
+  } else if (selectedColor==.sys && brightness==.dark && darkDynamic!=null) {
     colorScheme = ColorScheme.fromSeed(
       seedColor: darkDynamic.primary,
       brightness: darkDynamic.brightness,

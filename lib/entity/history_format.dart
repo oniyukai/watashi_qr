@@ -9,17 +9,17 @@ import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
   qrCode(MyIconData(Icons.qr_code)),
   dataMatrix(MyIconData(MaterialCommunityIcons.data_matrix)),
-  aztec(MyIconData.aztec),
-  pdf417(MyIconData.pdf417),
-  ean13(MyIconData.barcode),
-  ean8(MyIconData.barcode),
-  upcA(MyIconData.barcode),
-  upcE(MyIconData.barcode),
-  code128(MyIconData.barcode),
-  code93(MyIconData.barcode),
-  code39(MyIconData.barcode),
-  codebar(MyIconData.barcode),
-  itf(MyIconData.barcode);
+  aztec(.aztec),
+  pdf417(.pdf417),
+  ean13(.barcode),
+  ean8(.barcode),
+  upcA(.barcode),
+  upcE(.barcode),
+  code128(.barcode),
+  code93(.barcode),
+  code39(.barcode),
+  codabar(.barcode),
+  itf(.barcode);
 
   const HistoryFormat(this.myIconData);
 
@@ -37,67 +37,70 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code128 => Barcode.code128,
     code93 => Barcode.code93,
     code39 => Barcode.code39,
-    codebar => Barcode.codabar,
+    codabar => Barcode.codabar,
     itf => Barcode.itf,
   };
 
-  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) => const <BarcodeFormat, HistoryFormat>{
-    .qrCode: qrCode,
-    .dataMatrix: dataMatrix,
-    .aztec: aztec,
-    .pdf417: pdf417,
-    .ean13: ean13,
-    .ean8: ean8,
-    .upcA: upcA,
-    .upcE: upcE,
-    .code128: code128,
-    .code93: code93,
-    .code39: code39,
-    .codebar: codebar,
-    .itf: itf,
-  }[barcodeFormat];
-
-  static String localeStrFromName(String n) => <HistoryFormat, String>{
-    qrCode: AppLocale.barcodeQrCodeLabel.s,
-    dataMatrix: AppLocale.barcodeDataMatrixLabel.s,
-    aztec: AppLocale.barcodeAztecLabel.s,
-    pdf417: AppLocale.barcodePdf417Label.s,
-    ean13: AppLocale.barcodeEan13Label.s,
-    ean8: AppLocale.barcodeEan8Label.s,
-    upcA: AppLocale.barcodeUpcALabel.s,
-    upcE: AppLocale.barcodeUpcELabel.s,
-    code128: AppLocale.barcodeCode128Label.s,
-    code93: AppLocale.barcodeCode93Label.s,
-    code39: AppLocale.barcodeCode39Label.s,
-    codebar: AppLocale.barcodeCodabarLabel.s,
-    itf: AppLocale.barcodeItfLabel.s,
-  }[values.fromName(n)] ?? '"$n"';
-
-  String get composition => switch (this) {
-    qrCode => AppLocale.barcodeTextCompositionLabel.s,
-    dataMatrix => AppLocale.barcodeTextNoSpecialCompositionLabel.s,
-    aztec => AppLocale.barcodeTextNoSpecialCompositionLabel.s,
-    pdf417 => AppLocale.barcodeTextCompositionLabel.s,
-    ean13 => AppLocale.barcode12Digits1CheckCompositionLabel.s,
-    ean8 => AppLocale.barcode7Digits1CheckCompositionLabel.s,
-    upcA => AppLocale.barcode11Digits1CheckCompositionLabel.s,
-    upcE => AppLocale.barcode7Digits1CheckCompositionLabel.s,
-    code128 => AppLocale.barcodeTextNoSpecialCompositionLabel.s,
-    code93 => AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
-    code39 => AppLocale.barcodeTextUpperNoSpecialCompositionLabel.s,
-    codebar => AppLocale.barcodeDigitsCompositionLabel.s,
-    itf => AppLocale.barcodeEvenDigitsCompositionLabel.s,
+  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) => switch (barcodeFormat) {
+    .qrCode => qrCode,
+    .dataMatrix => dataMatrix,
+    .aztec => aztec,
+    .pdf417 => pdf417,
+    .ean13 => ean13,
+    .ean8 => ean8,
+    .upcA => upcA,
+    .upcE => upcE,
+    .code128 => code128,
+    .code93 => code93,
+    .code39 => code39,
+    .codabar => codabar,
+    .itf => itf,
+    .unknown || .all => null,
   };
 
-  String? get description => <HistoryFormat, String>{
-    ean13: AppLocale.barcodeEan13DescriptionLabel.s,
-    ean8: AppLocale.barcodeEan8DescriptionLabel.s,
-    upcA: AppLocale.barcodeUpcADescriptionLabel.s,
-    upcE: AppLocale.barcodeUpcEDescriptionLabel.s,
-    code128: AppLocale.barcodeCode128DescriptionLabel.s,
-    code93: AppLocale.barcodeCode93DescriptionLabel.s,
-    code39: AppLocale.barcodeCode39DescriptionLabel.s,
-    codebar: AppLocale.barcodeCodabarDescriptionLabel.s,
-    itf: AppLocale.barcodeItfDescriptionLabel.s,
-  }[this];
+  static String localeStrFromName(String n) => switch (values.fromName(n)) {
+    qrCode => AppLocale.barcodeQrCodeLabel,
+    dataMatrix => AppLocale.barcodeDataMatrixLabel,
+    aztec => AppLocale.barcodeAztecLabel,
+    pdf417 => AppLocale.barcodePdf417Label,
+    ean13 => AppLocale.barcodeEan13Label,
+    ean8 => AppLocale.barcodeEan8Label,
+    upcA => AppLocale.barcodeUpcALabel,
+    upcE => AppLocale.barcodeUpcELabel,
+    code128 => AppLocale.barcodeCode128Label,
+    code93 => AppLocale.barcodeCode93Label,
+    code39 => AppLocale.barcodeCode39Label,
+    codabar => AppLocale.barcodeCodabarLabel,
+    itf => AppLocale.barcodeItfLabel,
+    null => null,
+  }?.s ?? '"$n"';
+
+  String get composition => switch (this) {
+    qrCode => AppLocale.barcodeTextCompositionLabel,
+    dataMatrix => AppLocale.barcodeTextNoSpecialCompositionLabel,
+    aztec => AppLocale.barcodeTextNoSpecialCompositionLabel,
+    pdf417 => AppLocale.barcodeTextCompositionLabel,
+    ean13 => AppLocale.barcode12Digits1CheckCompositionLabel,
+    ean8 => AppLocale.barcode7Digits1CheckCompositionLabel,
+    upcA => AppLocale.barcode11Digits1CheckCompositionLabel,
+    upcE => AppLocale.barcode7Digits1CheckCompositionLabel,
+    code128 => AppLocale.barcodeTextNoSpecialCompositionLabel,
+    code93 => AppLocale.barcodeTextUpperNoSpecialCompositionLabel,
+    code39 => AppLocale.barcodeTextUpperNoSpecialCompositionLabel,
+    codabar => AppLocale.barcodeDigitsCompositionLabel,
+    itf => AppLocale.barcodeEvenDigitsCompositionLabel,
+  }.s;
+
+  String? get description => switch (this) {
+    ean13 => AppLocale.barcodeEan13DescriptionLabel,
+    ean8 => AppLocale.barcodeEan8DescriptionLabel,
+    upcA => AppLocale.barcodeUpcADescriptionLabel,
+    upcE => AppLocale.barcodeUpcEDescriptionLabel,
+    code128 => AppLocale.barcodeCode128DescriptionLabel,
+    code93 => AppLocale.barcodeCode93DescriptionLabel,
+    code39 => AppLocale.barcodeCode39DescriptionLabel,
+    codabar => AppLocale.barcodeCodabarDescriptionLabel,
+    itf => AppLocale.barcodeItfDescriptionLabel,
+    qrCode || dataMatrix || aztec || pdf417 => null,
+  }?.s;
 }

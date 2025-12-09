@@ -1,28 +1,23 @@
 import 'package:watashi_qr/locale/app_language.dart';
 
 const LocaleInstance mapZhHant = {
-  // Permission Denied
   K.cameraPermissionDenied: '等待授權存取相機。',
-  // AlertDialog
   K.closeDialogLabel: '關閉',
   K.yesLabel: '是',
   K.noLabel: '否',
   K.goToDialogLabel: '進入網站',
   K.error: '錯誤',
-  // ImageView Description
   K.imageViewDescriptionFlag: '標誌',
   K.imageViewDescriptionLogo: '標示',
   K.imageViewDescriptionTypeIcon: '類型',
   K.imageViewDescriptionBarCode: '條碼',
   K.imageViewDescriptionIcon: '圖示',
   K.imageViewDescriptionProductFront: '產品圖片',
-  K.imageViewDescriptionNutriscore: '營養分數',
   K.imageViewDescriptionNovaGroup: 'NOVA GROUP',
   K.imageViewDescriptionEcoScore: 'ECO SCORE',
   K.imageViewDescriptionBackground: '背景',
   K.imageViewDescriptionImage: '圖片',
   K.sliderDescriptionZoom: '縮放',
-  // Menu Item
   K.titleScan: '掃描',
   K.titleHistory: '歷史紀錄',
   K.titleGenerate: '創建',
@@ -35,7 +30,6 @@ const LocaleInstance mapZhHant = {
   K.downloadFromApiLabel: '從 API 下載',
   K.shareToThisAppLabel: '也可以在其他應用中分享到此程式。',
   K.menuMore: '更多',
-  // Barcode Type
   K.barcodeQrCodeLabel: 'QR 圖碼',
   K.barcodeDataMatrixLabel: 'Data Matrix',
   K.barcodePdf417Label: 'PDF 417',
@@ -49,7 +43,6 @@ const LocaleInstance mapZhHant = {
   K.barcodeCode39Label: 'Code 39',
   K.barcodeCodabarLabel: 'Codabar',
   K.barcodeItfLabel: 'ITF',
-  // QR Type
   K.qrCodeTypeNameText: '文字',
   K.qrCodeTypeNameWebSite: '網站',
   K.qrCodeTypeNameContact: '聯絡人',
@@ -60,18 +53,15 @@ const LocaleInstance mapZhHant = {
   K.qrCodeTypeNameEvent: '日程',
   K.qrCodeTypeNameWifi: 'Wi-Fi',
   K.qrCodeTypeNameApps: '應用程式',
-  // Product Type
   K.barCodeTypeProduct: '產品代碼',
   K.barCodeTypeIndustrial: '工業代碼',
   K.barCodeTypeNameUnknown: '不詳',
-  // Error Correction Level
   K.qrCodeErrorCorrectionLevelLabel: '錯誤修正等級',
   K.qrCodeErrorCorrectionLevelSettingsLabel: '錯誤修正等級（QR 圖碼）',
   K.qrCodeErrorCorrectionLevelNameLow: '低（~7%）',
   K.qrCodeErrorCorrectionLevelNameMedium: '中（~15%）',
   K.qrCodeErrorCorrectionLevelNameQuartile: '四分位數（~25%）',
   K.qrCodeErrorCorrectionLevelNameHigh: '高（~30%）',
-  // History
   K.labelHistoryEmpty: '沒有歷史紀錄…',
   K.snackBarMessageItemDeleted: '產品已從歷史紀錄中刪除。',
   K.snackBarMessageItemsDeleted: '已從歷史記錄中刪除項目。',
@@ -87,7 +77,6 @@ const LocaleInstance mapZhHant = {
   K.deleteLabel: '刪除',
   K.cancelLabel: '取消',
   K.recordLabel: '儲存',
-  // Export File
   K.exportLabel: '匯出',
   K.exportJsonLabel: '匯出為 JSON',
   K.importJsonLabel: '匯入 (JSON)',
@@ -96,8 +85,6 @@ const LocaleInstance mapZhHant = {
   K.snackBarMessageFileExportError: '發生了錯誤！檔案未儲存。',
   K.snackBarMessageFileImportSuccess: '檔案已匯入！',
   K.snackBarMessageFileImportError: '發生了錯誤！檔案未匯入。',
-  // CaptureActivity
-  // BarcodeAnalysisActivity
   K.barcodeInformationSearchLabel: '搜尋中…',
   K.scanErrorLabel: '掃描時發生錯誤！',
   K.scanErrorShortInformationLabel: '搜尋資訊時發生錯誤！',
@@ -110,23 +97,8 @@ const LocaleInstance mapZhHant = {
   K.aboutBarcodeFormatLabel: '格式: ',
   K.aboutBarcodeContentLabel: '條碼: ',
   K.aboutBarcodeOriginLabel: '來源: ',
-  // Product
-  // Barcode Searching Error
-  // Food Beauty and Pet Food Product
-  // Overview
-  // Details
-  // Ingredients
-  // Additif
-  // Veggie
-  // Nutrition
-  // Table
-  // For 100g
-  // Book
-  // Music
-  // Matrix Barcode
   K.barCodeContentLabel: '條碼內容',
   K.barCodeAnalysisLabel: '條碼分析',
-  // Matrix Barcode Contact Analysis
   K.matrixContactNameLabel: '名稱',
   K.matrixContactOrganisationLabel: '公司',
   K.matrixContactJobTitleLabel: '職位名稱',
@@ -134,21 +106,17 @@ const LocaleInstance mapZhHant = {
   K.matrixContactMailLabel: '電子郵件',
   K.matrixContactAddressLabel: '地址',
   K.matrixContactNotesLabel: '備註',
-  // Matrix Barcode Agenda Analysis
   K.matrixAgendaNameEventLabel: '事件名稱',
   K.matrixAgendaStartDateEventLabel: '開始',
   K.matrixAgendaEndDateEventLabel: '結束',
   K.matrixAgendaPlaceEventLabel: '地點',
   K.matrixAgendaDescriptionEventLabel: '描述',
-  // Matrix Barcode Phone Analysis
   K.matrixPhoneTelNumberLabel: '電話',
-  // Matrix Barcode Email Analysis
   K.matrixEmailRecipientLabel: '收件人',
   K.matrixEmailCcLabel: '副本',
   K.matrixEmailBccLabel: '密件副本',
   K.matrixSubjectLabel: '主旨',
   K.matrixBodyLabel: '訊息',
-  // Matrix Barcode Wi-Fi Analysis
   K.matrixWifiSsidLabel: 'SSID',
   K.matrixWifiPasswordLabel: '密碼',
   K.matrixWifiEncryptionLabel: '加密',
@@ -157,11 +125,8 @@ const LocaleInstance mapZhHant = {
   K.matrixWifiIdentityLabel: '身分',
   K.matrixWifiEapMethodLabel: 'Eap 方法',
   K.matrixWifiPhase2MethodLabel: 'Phase 2 方法',
-  // Matrix Barcode URL Analysis
   K.matrixUriUrlLabel: 'URL',
   K.matrixUriMaliciousLabel: '可能是惡意 URL…',
-  // Matrix Barcode URI UPI Analysis
-  // Matrix Barcode URL Localisation Analysis
   K.matrixLocalisationLatitudeLabel: '緯度',
   K.matrixLocalisationLongitudeLabel: '經度',
   K.matrixLocalisationAltitudeLabel: '高度',
@@ -169,7 +134,6 @@ const LocaleInstance mapZhHant = {
   K.matrixLocalisationButtonFindLocation: '從你的位置產生',
   K.matrixLocalisationSearchCurrentPositionLabel: '搜尋目前位置…',
   K.matrixLocalisationLocationDisabledLabel: '你的裝置定位似乎沒有被啟用。',
-  // Barcode Description
   K.barcodeIndustrialDescriptionLabel: '此條碼類型經常被使用於工業。',
   K.barcodeCode39DescriptionLabel: 'Code 39 是一種用於紡織記號與西藥房藥品的條碼。它也用於軍事行業與汽車工業。',
   K.barcodeCode93DescriptionLabel: 'Code 93 是一種用於軍事與汽車產業的條碼，也被 "Postes Canada" 用於編碼特殊交貨訊息。',
@@ -180,7 +144,6 @@ const LocaleInstance mapZhHant = {
   K.barcodeUpcEDescriptionLabel: 'Code UPC-E (通用產品代碼) 是 UPC-A 代碼的壓縮條碼，主要用於美國和加拿大辨認商店與商店中銷售的商品。它用於太小而無法使用 UPC-A 的包裝。',
   K.barcodeEan13DescriptionLabel: 'Code EAN-13 (歐洲商品條碼 13) 是一種廣泛用於辨識銷售在歐洲與世界上幾乎所有地方的產品的條碼。它由 13 位數字組成。',
   K.barcodeEan8DescriptionLabel: 'Code EAN-8 (歐洲商品條碼 8) 是 EAN-13 代碼的壓縮條碼，用於辨識銷售在歐洲與世界上幾乎所有地方的產品的條碼。它用於太小而無法使用 EAN-13 的包裝。',
-  // Barcode Composition
   K.barcodeTextCompositionLabel: '文本',
   K.barcodeTextNoSpecialCompositionLabel: '沒有特殊字符的文本',
   K.barcodeTextUpperNoSpecialCompositionLabel: '沒有特殊字符的大寫文本',
@@ -189,12 +152,10 @@ const LocaleInstance mapZhHant = {
   K.barcode7Digits1CheckCompositionLabel: '7位數字 + 1位校驗',
   K.barcode11Digits1CheckCompositionLabel: '11位數字 + 1位校驗',
   K.barcode12Digits1CheckCompositionLabel: '12位數字 + 1位校驗',
-  // Snackbar Feddbacks
   K.snackBarMessagePermissionRefused: '你必須接受許可以使用此功能。',
   K.snackBarMessageSaveBitmapOk: '圖片已儲存',
   K.snackBarMessageSaveBitmapError: '圖片未被儲存…',
   K.snackBarMessageShareBitmapError: '分享組態時發生錯誤。',
-  // Actions
   K.actionsLabel: '功能',
   K.intentChooserShareTitle: '分享…',
   K.intentChooserMailTitle: '發送郵件…',
@@ -219,10 +180,6 @@ const LocaleInstance mapZhHant = {
   K.actionModifyBarcode: '修改條碼',
   K.actionModifyNotes: '修改備註',
   K.apply: '應用',
-  // Wi-Fi Connection
-
-  // QR Code Generator
-  // Barcode Generator Errors
   K.errorBarcodeNoneCharacterMessage: '你必須在欄位中輸入正確的值。',
   K.errorBarcodeNotANumberMessage: '條碼只能由數字組成。',
   K.errorBarcodeWrongLengthMessage: '條碼要求的數字長度: ',
@@ -238,7 +195,6 @@ const LocaleInstance mapZhHant = {
   K.errorBarcodeQrPhoneNumberMissingMessage: '你必須輸入一個電話號碼',
   K.errorBarcodeQrEmailMissingMessage: '你必須至少輸入一個欄位',
   K.errorBarcodeQrLocalisationMissingMessage: '你必須告知經度和緯度',
-  // Action Barcode Generated
   K.barcodeCreatorConfirmTextLabel: '產生',
   K.saveLabel: '儲存',
   K.shareLabel: '分享',
@@ -246,13 +202,10 @@ const LocaleInstance mapZhHant = {
   K.shareTextLabel: '分享文字',
   K.popupMessageConfirmationSaveImage: '儲存圖片？',
   K.clipboardEmpty: '剪貼簿是空的。',
-  // Barcode Image Editor
-  // Form
   K.qrCodeTextGeneratorHintTextInputEditText: '輸入文字…',
   K.qrCodeTextGeneratorHintPhoneInputEditText: '輸入電話號碼…',
   K.qrCodeTextGeneratorHintUrlInputEditText: '輸入網址…',
   K.qrCodeTextInputEditTextHintMessage: '訊息...',
-  // Contact Creator
   K.qrCodeTypeNameGenerateFromContact: '從通訊錄產生',
   K.qrCodeImportContactFromVcard: '從vCard產生',
   K.qrCodeTextRadioButtonLabelM: '先生',
@@ -280,16 +233,12 @@ const LocaleInstance mapZhHant = {
   K.spinnerTypeHome: '住家',
   K.spinnerTypeWork: '工作',
   K.spinnerTypeOther: '其他',
-  // EPC Creator
-  // Mail Creator
   K.qrCodeTextInputEditTextHintEmail: '電子郵件',
   K.qrCodeTextInputEditTextHintEmailSubject: '主旨',
-  // Geo Localisation Creator
   K.qrCodeTextInputEditTextHintLocalisationLatitude: '緯度',
   K.qrCodeTextInputEditTextHintLocalisationLongitude: '經度',
   K.qrCodeTextInputEditTextHintLocalisationHeight: '高度',
   K.qrCodeTextInputEditTextHintLocalisationRequest: '查詢',
-  // Wifi Creator
   K.qrCodeTextInputEditTextHintWifiSsid: 'SSID / 網路名稱',
   K.qrCodeTextInputEditTextHintWifiPassword: '密碼',
   K.qrCodeTextInputEditTextHintWifiHide: '隱藏',
@@ -297,15 +246,12 @@ const LocaleInstance mapZhHant = {
   K.spinnerWifiEncryptionWpa: 'WPA/WPA2',
   K.spinnerWifiEncryptionSae: 'WPA3',
   K.spinnerWifiEncryptionNone: '無密碼',
-  // Event Creator
   K.qrCodeTextInputEditTextHintAgendaEventName: '事件名稱',
   K.qrCodeTextInputEditTextHintAgendaPlace: '地點',
   K.qrCodeTextInputEditTextHintAgendaDescription: '描述',
   K.checkBoxEventAllOfDay: '整日',
   K.beginLabel: '開始',
   K.endLabel: '結束',
-  // URL
-  // Custom search URL
   K.customSearchUrls: '自訂搜尋網址',
   K.customUrls: '自訂網址',
   K.customSearchUrlsAddUrl: '新增網址',
@@ -320,15 +266,7 @@ const LocaleInstance mapZhHant = {
   K.examples: '例子: ',
   K.customSearchUrlsErrorUrl: '網址中必須包含術語: {code}',
   K.errorEmptyFields: '輸入欄位不得為空白。',
-  // API Base URL
-  // URL Engines
-  // E-Commerce Engines
-  // API Product Engines
-  // API Sources Links
-  // API Sources Description
-  // Preferences
   K.preferencesDefault: '預設',
-  // Appearance Settings
   K.preferencesAppearanceTitle: '外觀',
   K.preferencesThemeLabel: '背景顏色',
   K.preferencesSwitchSystemThemeLabel: '系統背景',
@@ -341,12 +279,8 @@ const LocaleInstance mapZhHant = {
   K.preferencesColorGreen: '綠色',
   K.preferencesColorRed: '紅色',
   K.preferencesColorPurple: '紫色',
-  // Languages Settings
   K.preferencesLanguagesTitle: '語言',
   K.preferencesLanguagesChange: '變更語言',
-  // Remote API
-  // About Remote API
-  // Scan Settings
   K.preferencesScanTitle: '掃描',
   K.preferencesSwitchScanAutoOpenWebsiteLabel: '自動打開網站',
   K.preferencesSwitchScanContinuousScanLabel: '連續掃描',
@@ -354,25 +288,15 @@ const LocaleInstance mapZhHant = {
   K.preferencesSwitchScanBipLabel: '播放聲音',
   K.preferencesSwitchScanScreenRotationLabel: '掃描期間禁用螢幕旋轉',
   K.preferencesSwitchScanBarcodeCopiedLabel: '複製到剪貼簿',
-  K.preferencesSwitchScanUseFrontcameraLabel: '使用前鏡頭',
-  // Barcode Generation Settings
+  K.preferencesSwitchScanUseFrontCameraLabel: '使用前鏡頭',
   K.preferencesBarcodeGenerationTitle: '條碼創建',
-  // History settings-->
   K.preferencesSwitchScanAddBarcodeToTheHistoryLabel: '加入掃描的條碼至歷史紀錄',
   K.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel: '加入創建的條碼至歷史紀錄',
   K.preferencesSwitchHistorySaveDuplicatesLabel: '掃描或創建時保留重複項',
-  // Search Engine Settings
   K.preferencesSearchTitle: '搜尋',
   K.preferencesSearchEngine: '搜尋引擎',
-  // Settings: Additional options
-  // Shortcuts
-  // About Settings
   K.preferencesAboutTitle: '關於',
   K.preferencesAboutOpenSourceLibrariesLabel: '開源許可證',
   K.preferencesApplicationVersionLabel: '應用版本',
   K.preferencesSourceCodeLabel: '原始碼',
-  // About Permissions
-  // About BDD
-  // About Library Third
-  // Countries
 };

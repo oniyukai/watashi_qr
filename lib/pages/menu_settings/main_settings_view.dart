@@ -113,11 +113,11 @@ class _MainSettingsPage extends State<MainSettingsView> {
                   },
                 ),
                 ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanUseFrontcameraLabel.s,
+                  text: AppLocale.preferencesSwitchScanUseFrontCameraLabel.s,
                   iconData: Icons.camera_front,
-                  initialValue: prefs.get(PrefsEnum.isUseFrontcamera),
+                  initialValue: prefs.get(PrefsEnum.isUseFrontCamera),
                   onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isUseFrontcamera, value);
+                    prefs.update(PrefsEnum.isUseFrontCamera, value);
                   },
                 ),
 

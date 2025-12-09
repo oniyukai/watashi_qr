@@ -22,19 +22,20 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
 
   const HistoryType(this.myIconData);
 
-  static String localeStrFromName(String n) => <HistoryType, String>{
-    text: AppLocale.qrCodeTypeNameText.s,
-    website: AppLocale.qrCodeTypeNameWebSite.s,
-    contact: AppLocale.qrCodeTypeNameContact.s,
-    mail: AppLocale.qrCodeTypeNameMail.s,
-    sms: AppLocale.qrCodeTypeNameSms.s,
-    phone: AppLocale.qrCodeTypeNamePhone.s,
-    location: AppLocale.qrCodeTypeNameLocation.s,
-    event: AppLocale.qrCodeTypeNameEvent.s,
-    wifi: AppLocale.qrCodeTypeNameWifi.s,
-    product: AppLocale.barCodeTypeProduct.s,
-    industrial: AppLocale.barCodeTypeIndustrial.s,
-  }[values.fromName(n)] ?? '?$n';
+  static String localeStrFromName(String n) => switch (values.fromName(n)) {
+    text => AppLocale.qrCodeTypeNameText,
+    website => AppLocale.qrCodeTypeNameWebSite,
+    contact => AppLocale.qrCodeTypeNameContact,
+    mail => AppLocale.qrCodeTypeNameMail,
+    sms => AppLocale.qrCodeTypeNameSms,
+    phone => AppLocale.qrCodeTypeNamePhone,
+    location => AppLocale.qrCodeTypeNameLocation,
+    event => AppLocale.qrCodeTypeNameEvent,
+    wifi => AppLocale.qrCodeTypeNameWifi,
+    product => AppLocale.barCodeTypeProduct,
+    industrial => AppLocale.barCodeTypeIndustrial,
+    null => null,
+  }?.s ?? '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     final String upperContents = contents.toUpperCase();
@@ -75,7 +76,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
       case .code128:
       case .code93:
       case .code39:
-      case .codebar:
+      case .codabar:
       case .itf:
         return industrial;
       default:

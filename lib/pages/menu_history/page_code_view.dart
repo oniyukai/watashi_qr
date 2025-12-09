@@ -201,7 +201,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       case HistoryFormat.code128:
       case HistoryFormat.code93:
       case HistoryFormat.code39:
-      case HistoryFormat.codebar:
+      case HistoryFormat.codabar:
       case HistoryFormat.itf:
         return width/2.718;
       default:

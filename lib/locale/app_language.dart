@@ -6,8 +6,8 @@ typedef K = AppLocale;
 extension StaticString on AppLocale {
   static const String
       appName = 'Watashi QR',
-      appVersion = '1.1.3',
-      appVersionTag = 'v1.0_25.07.04',
+      appVersion = '1.2.0.alpha',
+      appVersionTag = 'v1.1.alpha_25.12.09',
       pngLabel = 'PNG',
       jpgLabel = 'JPG',
       svgLabel = 'SVG',
@@ -68,7 +68,6 @@ enum AppLocale {
   imageViewDescriptionBarCode,
   imageViewDescriptionIcon,
   imageViewDescriptionProductFront,
-  imageViewDescriptionNutriscore,
   imageViewDescriptionNovaGroup,
   imageViewDescriptionEcoScore,
   imageViewDescriptionBackground,
@@ -168,7 +167,6 @@ enum AppLocale {
   // Overview
   // Details
   // Ingredients
-  // Additif
   // Veggie
   // Nutrition
   // Table
@@ -241,7 +239,7 @@ enum AppLocale {
   barcode7Digits1CheckCompositionLabel,
   barcode11Digits1CheckCompositionLabel,
   barcode12Digits1CheckCompositionLabel,
-  // Snackbar Feddbacks
+  // SnackBar Feedback
   snackBarMessagePermissionRefused,
   snackBarMessageSaveBitmapOk,
   snackBarMessageSaveBitmapError,
@@ -420,7 +418,7 @@ enum AppLocale {
   preferencesSwitchScanBipLabel,
   preferencesSwitchScanScreenRotationLabel,
   preferencesSwitchScanBarcodeCopiedLabel,
-  preferencesSwitchScanUseFrontcameraLabel,
+  preferencesSwitchScanUseFrontCameraLabel,
   // Barcode Generation Settings
   preferencesBarcodeGenerationTitle,
   // History settings-->

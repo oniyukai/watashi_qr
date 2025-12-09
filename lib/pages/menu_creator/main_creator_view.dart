@@ -47,7 +47,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
     HistoryFormat.code128,
     HistoryFormat.code93,
     HistoryFormat.code39,
-    HistoryFormat.codebar,
+    HistoryFormat.codabar,
     HistoryFormat.itf,
   };
 
