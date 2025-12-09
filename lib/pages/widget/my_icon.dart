@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MyIconData {
+  final IconData? iconData;
+  final String? svgString;
+
   const MyIconData(
     this.iconData, {
     this.svgString,
   });
-
-  final IconData? iconData;
-  final String? svgString;
 
   static const MyIconData
         barcode = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -32,6 +32,13 @@ class MyIconData {
 
 
 class MyIcon extends StatelessWidget {
+  final MyIconData? myIconData;
+  final Color? color;
+  final double? size;
+  final String? semanticLabel;
+  final TextDirection? textDirection;
+  final List<Shadow>? shadows;
+
   const MyIcon(
     this.myIconData, {
     super.key,
@@ -42,19 +49,10 @@ class MyIcon extends StatelessWidget {
     this.shadows,
   });
 
-  final MyIconData? myIconData;
-  final Color? color;
-  final double? size;
-  final String? semanticLabel;
-  final TextDirection? textDirection;
-  final List<Shadow>? shadows;
-
   @override
   Widget build(BuildContext context) {
-
     final IconThemeData iconTheme = IconTheme.of(context);
     final double iconSize = size ?? iconTheme.size ?? kDefaultFontSize;
-
     if (myIconData?.iconData != null) {
       return Icon(
         myIconData!.iconData,
@@ -66,7 +64,7 @@ class MyIcon extends StatelessWidget {
       );
     } else if (myIconData?.svgString != null) {
       return SvgPicture.string(
-        myIconData!.svgString!, //myIconData!.svgString!,
+        myIconData!.svgString!,
         colorFilter: ColorFilter.mode(
           color ?? iconTheme.color ?? Colors.red,
           BlendMode.srcIn,
@@ -76,6 +74,6 @@ class MyIcon extends StatelessWidget {
         semanticsLabel: semanticLabel,
       );
     }
-    return Semantics(label: semanticLabel, child: SizedBox(width: iconSize, height: iconSize));
+    return Icon(null, size: iconSize, semanticLabel: semanticLabel);
   }
 }

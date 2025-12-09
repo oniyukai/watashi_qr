@@ -4,7 +4,7 @@ mixin SelectionMixin<T extends StatefulWidget, E> on State<T> {
   bool _isSelectionMode = false;
   final Set<E> _selectedObjects = <E>{};
   bool get isSelectionMode => _isSelectionMode;
-  Set<E> get selectedObjects => _selectedObjects;
+  Set<E> get selectedObjects => _selectedObjects.toSet();
 
   void enterSelectionMode(E item) {
     if (_isSelectionMode == true) {

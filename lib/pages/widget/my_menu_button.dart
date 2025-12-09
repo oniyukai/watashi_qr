@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 class MyMenuItem {
   final String? text;
+  final IconData? iconData;
   final VoidCallback? onTap;
-  // final IconData? iconData;
 
   const MyMenuItem({
     required this.text,
     this.onTap,
-    // this.iconData,
+    this.iconData,
   });
 }
 
 class MyMenuButton extends StatelessWidget {
   final Widget? icon;
   final List<MyMenuItem> items;
-  final void Function(int value)? onSelectedEnd;
+  final ValueChanged<int>? onSelectedEnd;
 
   const MyMenuButton({
     super.key,
@@ -29,24 +29,24 @@ class MyMenuButton extends StatelessWidget {
     return PopupMenuButton<int>(
       icon: icon ?? const Icon(Icons.more_vert),
       itemBuilder: (BuildContext context) => List.generate(
-          items.length,
-              (value) {
-            final text = items[value].text;
-            // final iconData = items[value].iconData;
-            return PopupMenuItem<int>(
-              value: value,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // if (iconData != null) Icon(iconData),
-                  // if (iconData != null) const SizedBox(width: 8),
-                  if (text != null) Text(text),
-                ],
-              ),
-            );
-          }),
+        items.length, (index) {
+          final String? text = items[index].text;
+          final IconData? iconData = items[index].iconData;
+          return PopupMenuItem<int>(
+            value: index,
+            child: Row(
+              mainAxisSize: .min,
+              children: [
+                if (iconData != null) Icon(iconData),
+                if (iconData != null) const SizedBox(width: 8),
+                if (text != null) Text(text),
+              ],
+            ),
+          );
+        },
+      ),
       onSelected: (int value) {
-        final func = items[value].onTap;
+        final VoidCallback? func = items[value].onTap;
         if (func != null) func();
         if (onSelectedEnd != null) onSelectedEnd!(value);
       },

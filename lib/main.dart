@@ -42,7 +42,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic){
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return Consumer<PrefsProvider>(
           builder: (context, prefs, child) {
             return MaterialApp(
@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               theme: appTheme(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
-              locale: prefs.get<LocaleOption>(PrefsEnum.selectedLanguage).locale,
+              locale: prefs.get<LocaleOption>(.selectedLanguage).locale,
               localizationsDelegates: LocaleOption.localizationsDelegates,
               supportedLocales: LocaleOption.supportedLocales,
 
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               onGenerateRoute: MyRouter.onGenerateRoute,
 
             );
-          }
+          },
         );
       },
     );

@@ -71,7 +71,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
             icon: const Icon(Icons.delete_forever),
             onPressed: () => showMyDialog(
               context: context,
-              titleStr: AppLocale.deleteLabel.s,
+              title: AppLocale.deleteLabel.s,
               content: Text(
                 isSelectionMode
                   ? AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s
@@ -81,7 +81,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
                 TextButton(
                   child: Text(AppLocale.deleteLabel.s),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.pop(context);
                     if (isSelectionMode) {
                       _customSearchUrls = [
                         for (final entry in _customSearchUrls.asMap().entries)

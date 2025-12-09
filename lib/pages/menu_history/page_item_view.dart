@@ -330,7 +330,7 @@ class _PageItemViewState extends State<PageItemView> {
 
   void _actionCustomSearch() => showMyDialog(
     context: context,
-    titleStr: AppLocale.customSearchUrls.s,
+    title: AppLocale.customSearchUrls.s,
     noCancelButton: true,
     content: Scrollbar(
       child: SingleChildScrollView(

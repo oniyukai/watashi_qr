@@ -20,14 +20,15 @@ class MenuNavBarProvider extends ChangeNotifier {
   bool get onScanner => _currentIndex == 0;
 
   void updateIndex(int index) {
-    _currentIndex = index;
-    notifyListeners();
+    if (_currentIndex != index) {
+      _currentIndex = index;
+      notifyListeners();
+    }
   }
 }
 
 class _MenuNavBarState extends State<MenuNavBar> {
-
-  final List<Widget> _pages = const <Widget>[
+  final List<Widget> _pages = const [
     MainScannerView(),
     MainCreatorView(),
     MainHistoryView(),
@@ -39,7 +40,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
     AppLocale.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Consumer<MenuNavBarProvider>(
-      builder: (context, state, _) => Scaffold(
+      builder: (context, state, child) => Scaffold(
         bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
         body: Row(
           children: [
@@ -54,24 +55,28 @@ class _MenuNavBarState extends State<MenuNavBar> {
   Widget _buildBottomNavigationBar(MenuNavBarProvider state) {
     return NavigationBar(
       selectedIndex: state.currentIndex,
-      onDestinationSelected: (int index) => state.updateIndex(index),
+      onDestinationSelected: state.updateIndex,
       destinations: <NavigationDestination>[
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: AppLocale.titleScan.s),
+          label: AppLocale.titleScan.s
+        ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: AppLocale.titleGenerate.s),
+          label: AppLocale.titleGenerate.s
+        ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: AppLocale.titleHistory.s),
+          label: AppLocale.titleHistory.s
+        ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: AppLocale.titleSettings.s),
+          label: AppLocale.titleSettings.s
+        ),
       ],
     );
   }
@@ -79,26 +84,30 @@ class _MenuNavBarState extends State<MenuNavBar> {
   Widget _buildSideNavigationBar(MenuNavBarProvider state) {
     return NavigationRail(
       selectedIndex: state.currentIndex,
-      onDestinationSelected: (index) => state.updateIndex(index),
+      onDestinationSelected: state.updateIndex,
       labelType: NavigationRailLabelType.all,
       groupAlignment: 1.0,
       destinations: <NavigationRailDestination>[
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: Text(AppLocale.titleScan.s)),
+          label: Text(AppLocale.titleScan.s)
+        ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: Text(AppLocale.titleGenerate.s)),
+          label: Text(AppLocale.titleGenerate.s)
+        ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: Text(AppLocale.titleHistory.s)),
+          label: Text(AppLocale.titleHistory.s)
+        ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: Text(AppLocale.titleSettings.s)),
+          label: Text(AppLocale.titleSettings.s)
+        ),
       ],
     );
   }

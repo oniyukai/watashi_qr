@@ -6,6 +6,11 @@ import 'package:barcode/barcode.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
 class BarcodeField extends StatelessWidget {
+  final HistoryFormat? format;
+  final String name;
+  final GlobalKey<FormBuilderState> formKey;
+  final String? initialValue;
+
   const BarcodeField({
     super.key,
     required this.format,
@@ -14,17 +19,12 @@ class BarcodeField extends StatelessWidget {
     this.initialValue,
   });
 
-  final HistoryFormat? format;
-  final String name;
-  final GlobalKey<FormBuilderState> formKey;
-  final String? initialValue;
-
   @override
   Widget build(BuildContext context) {
-    final isNumbers = format?.isNumbers ?? false;
+    final bool isNumbers = format?.isNumbers ?? false;
     return FormBuilderTextField(
       name: name,
-      maxLines: _allowLineBreaks,
+      maxLines: format?.allowLineBreaks,
       initialValue: initialValue,
       decoration: InputDecoration(
         prefixIcon: Icon(isNumbers ? Icons.pin_outlined : Icons.format_size),
@@ -38,58 +38,49 @@ class BarcodeField extends StatelessWidget {
       },
     );
   }
-
-  int? get _allowLineBreaks => const <HistoryFormat>{
-    HistoryFormat.qrCode,
-    HistoryFormat.dataMatrix,
-    HistoryFormat.aztec,
-    HistoryFormat.pdf417,
-    HistoryFormat.code128
-  }.contains(format) ? null : 1;
 }
 
 extension _HistoryFormatForValid on HistoryFormat {
+  int? get allowLineBreaks => const <HistoryFormat>{
+    .qrCode, .dataMatrix, .aztec, .pdf417, .code128
+  }.contains(this) ? null : 1;
+
   bool get isNumbers => const <HistoryFormat>{
-    HistoryFormat.ean13,
-    HistoryFormat.ean8,
-    HistoryFormat.upcA,
-    HistoryFormat.upcE,
-    HistoryFormat.codabar,
-    HistoryFormat.itf
+    .ean13, .ean8, .upcA, .upcE, .codabar, .itf
   }.contains(this);
 
-  int? get maxLength => const <HistoryFormat, int>{
-    HistoryFormat.qrCode: 2953,
-    HistoryFormat.pdf417: 990,
-    HistoryFormat.aztec: 2335,
-    HistoryFormat.dataMatrix: 1559,
-    HistoryFormat.code128: 2046,
-    HistoryFormat.code93: 47,
-    HistoryFormat.code39: 43,
-    HistoryFormat.codabar: 20,
-    HistoryFormat.itf: 20,
-  }[this];
+  int? get maxLength => switch (this) {
+    .qrCode => 2953,
+    .pdf417 => 990,
+    .aztec => 2335,
+    .dataMatrix => 1559,
+    .code128 => 2046,
+    .code93 => 47,
+    .code39 => 43,
+    .codabar => 20,
+    .itf => 20,
+    _ => null
+  };
 
-  int? get hardLength => const <HistoryFormat, int>{
-    HistoryFormat.ean13: 13,
-    HistoryFormat.ean8: 8,
-    HistoryFormat.upcA: 12,
-    HistoryFormat.upcE: 8,
-  }[this];
+  int? get hardLength => switch (this) {
+    .ean13 => 13,
+    .ean8 => 8,
+    .upcA => 12,
+    .upcE => 8,
+    _ => null
+  };
 
-  String? get encodingErrorMessage => <HistoryFormat, String>{
-    HistoryFormat.aztec: AppLocale.errorBarcodeEncodingIso88591ErrorMessage.s,
-    HistoryFormat.dataMatrix: AppLocale.errorBarcodeEncodingIso88591ErrorMessage.s,
-    HistoryFormat.code128: AppLocale.errorBarcodeEncodingUsAsciiErrorMessage.s,
-    HistoryFormat.code93: AppLocale.errorBarcode93RegexErrorMessage.s,
-    HistoryFormat.code39: AppLocale.errorBarcode39RegexErrorMessage.s,
-  }[this];
+  String? get encodingErrorMessage => switch (this) {
+    .aztec => AppLocale.errorBarcodeEncodingIso88591ErrorMessage,
+    .dataMatrix => AppLocale.errorBarcodeEncodingIso88591ErrorMessage,
+    .code128 => AppLocale.errorBarcodeEncodingUsAsciiErrorMessage,
+    .code93 => AppLocale.errorBarcode93RegexErrorMessage,
+    .code39 => AppLocale.errorBarcode39RegexErrorMessage,
+    _ => null
+  }?.s;
 
   bool get hasCheckDigit => const <HistoryFormat>{
-    HistoryFormat.ean13,
-    HistoryFormat.ean8,
-    HistoryFormat.upcA,
-    HistoryFormat.upcE,
+    .ean13, .ean8, .upcA, .upcE,
   }.contains(this);
 }
 
@@ -104,15 +95,15 @@ String? barcodeValidator(String? value, HistoryFormat? format){
   final int? maxLength = format.maxLength;
   final int? hardLength = format.hardLength;
   final String? encodingErrorMessage = format.encodingErrorMessage;
-  final barcodeFunc = format.barcodeFunc;
+  final ValueGetter<Barcode> barcodeFunc = format.barcodeFunc;
 
   if (isNumbers && !value.isNumeric) {
     return AppLocale.errorBarcodeNotANumberMessage.s;
   }
-  if (format == HistoryFormat.upcE && value[0] != '0') {
+  if (format == .upcE && value[0] != '0') {
     return AppLocale.errorBarcodeUpcENotStartWith0ErrorMessage.s;
   }
-  if (format == HistoryFormat.itf && (value.length % 2) != 0) {
+  if (format == .itf && (value.length % 2) != 0) {
     return AppLocale.errorBarcodeItfErrorMessage.s;
   }
   if (maxLength != null && value.length > maxLength) {
@@ -125,19 +116,19 @@ String? barcodeValidator(String? value, HistoryFormat? format){
     return encodingErrorMessage;
   }
   if (format.hasCheckDigit) {
-    final String checkDigit = _trytoFindCheck(value, format.barcodeFunc);
+    final String checkDigit = _tryFindCheck(value, format.barcodeFunc);
     if (value[value.length - 1] != checkDigit) {
       return '${AppLocale.errorBarcodeWrongKeyMessage.s}$checkDigit';
     }
   }
-  if (format == HistoryFormat.code128 && !value.isAscii) {
+  if (format == .code128 && !value.isAscii) {
     return AppLocale.errorBarcodeEncodingUsAsciiErrorMessage.s;
   }
   return null;
 }
 
-String _trytoFindCheck(String value, Barcode Function() codeType) {
-  final valueNoCheck = value.substring(0, value.length - 1);
+String _tryFindCheck(String value, ValueGetter<Barcode> codeType) {
+  final String valueNoCheck = value.substring(0, value.length - 1);
   for (int i=0; i < 10; i++) {
     final bool isValid = codeType().isValid('$valueNoCheck$i');
     if (isValid) return i.toString();

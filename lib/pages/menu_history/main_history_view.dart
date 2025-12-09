@@ -77,13 +77,13 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               icon: const Icon(Icons.delete_forever),
               onPressed: () => showMyDialog(
                 context: context,
-                titleStr: AppLocale.deleteLabel.s,
+                title: AppLocale.deleteLabel.s,
                 content: Text(AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s),
                 actions: [
                   TextButton(
                     child: Text(AppLocale.deleteLabel.s),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.pop(context);
                       DatabaseServices.deleteItems(selectedObjects.toList());
                       Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
                       exitSelectionMode();
@@ -138,13 +138,13 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               icon: const Icon(Icons.delete_forever),
               onPressed: () => showMyDialog(
                 context: context,
-                titleStr: AppLocale.deleteLabel.s,
+                title: AppLocale.deleteLabel.s,
                 content: Text(AppLocale.popupMessageConfirmationDeleteHistory.s),
                 actions: [
                   TextButton(
                     child: Text(AppLocale.deleteLabel.s),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.pop(context);
                       DatabaseServices.clearHistoryBox();
                       Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
                     },

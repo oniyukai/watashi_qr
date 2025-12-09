@@ -109,7 +109,7 @@ class ListTilePicker<T> extends StatelessWidget {
       shape: shape,
       onTap: () => showMyDialog(
         context: context,
-        titleStr: dialogText ?? text,
+        title: dialogText ?? text,
         content: Scrollbar(
           child: SingleChildScrollView(
             child: RadioGroup<T>(

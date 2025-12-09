@@ -48,8 +48,7 @@ extension StaticString on AppLocale {
       localeLanguageEn = 'English',
       localeLanguageJa = '日本語',
       localeLanguageZhHans = '简体中文',
-      localeLanguageZhHant = '繁體中文'
-  ;
+      localeLanguageZhHant = '繁體中文';
 }
 
 enum AppLocale {
@@ -434,12 +433,8 @@ enum AppLocale {
   preferencesAboutTitle,
   preferencesAboutOpenSourceLibrariesLabel,
   preferencesApplicationVersionLabel,
-  preferencesSourceCodeLabel,
-  // About Permissions
-  // About BDD
-  // About Library Third
-  // Countries
-  ;
+  preferencesSourceCodeLabel;
+
   String get s => _instance?[this] ?? '<$name>';
 
   static LocaleInstance? _instance;

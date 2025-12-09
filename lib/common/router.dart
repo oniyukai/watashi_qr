@@ -65,7 +65,7 @@ final class MyRouter {
     assert(hasName(name), "Route \"$RT\" is not registered.");
     _instance._context = context;
     _instance._routeName = name;
-    Widget Function(BuildContext) builder = _$ROUTES_[name]!;
+    final WidgetBuilder builder = _$ROUTES_[name]!;
     return builder.call(context) as RT;
   }
 
@@ -105,7 +105,7 @@ final class MyRouter {
   ///* @param [settings] 路由配置参数
   /// * @return [CupertinoPageRoute] 页面略由对象
   static CupertinoPageRoute onGenerateRoute<T>(RouteSettings settings) {
-    final Widget Function(BuildContext) builder = _$ROUTES_[settings.name] ?? _$ROUTES_[$INDEX]!;
+    final WidgetBuilder builder = _$ROUTES_[settings.name] ?? _$ROUTES_[$INDEX]!;
     return CupertinoPageRoute<T>(builder: builder, settings: settings);
   }
 

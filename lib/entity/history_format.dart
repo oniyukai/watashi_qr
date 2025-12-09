@@ -25,7 +25,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
 
   final MyIconData myIconData;
 
-  Barcode Function() get barcodeFunc => switch (this) {
+  ValueGetter<Barcode> get barcodeFunc => switch (this) {
     qrCode => Barcode.qrCode,
     aztec => Barcode.aztec,
     dataMatrix=> Barcode.dataMatrix,
