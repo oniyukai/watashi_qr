@@ -54,24 +54,6 @@ extension StaticString on AppLocale {
 enum AppLocale {
   // Permission Denied
   cameraPermissionDenied,
-  // AlertDialog
-  closeDialogLabel,
-  yesLabel,
-  noLabel,
-  goToDialogLabel,
-  error,
-  // ImageView Description
-  imageViewDescriptionFlag,
-  imageViewDescriptionLogo,
-  imageViewDescriptionTypeIcon,
-  imageViewDescriptionBarCode,
-  imageViewDescriptionIcon,
-  imageViewDescriptionProductFront,
-  imageViewDescriptionNovaGroup,
-  imageViewDescriptionEcoScore,
-  imageViewDescriptionBackground,
-  imageViewDescriptionImage,
-  sliderDescriptionZoom,
   // Menu Item
   titleScan,
   titleHistory,
@@ -80,11 +62,7 @@ enum AppLocale {
   titleQrCodeCreator,
   titleBarCodeCreator,
   createQrFromClipboard,
-  informationLabel,
-  barcodeLabel,
-  downloadFromApiLabel,
   shareToThisAppLabel,
-  menuMore,
   // Barcode Type
   barcodeQrCodeLabel,
   barcodeDataMatrixLabel,
@@ -109,11 +87,9 @@ enum AppLocale {
   qrCodeTypeNameLocation,
   qrCodeTypeNameEvent,
   qrCodeTypeNameWifi,
-  qrCodeTypeNameApps,
   // Product Type
   barCodeTypeProduct,
   barCodeTypeIndustrial,
-  barCodeTypeNameUnknown,
   // Error Correction Level
   qrCodeErrorCorrectionLevelLabel,
   qrCodeErrorCorrectionLevelSettingsLabel,
@@ -123,11 +99,8 @@ enum AppLocale {
   qrCodeErrorCorrectionLevelNameHigh,
   // History
   labelHistoryEmpty,
-  snackBarMessageItemDeleted,
-  snackBarMessageItemsDeleted,
   popupMessageConfirmationDeleteHistory,
   popupMessageConfirmationDeleteSelectedItemsHistory,
-  menuItemHistoryDelete,
   menuItemHistoryDeleteFromHistory,
   menuItemHistoryRemovedFromHistory,
   menuItemHistoryAddInHistory,
@@ -136,9 +109,7 @@ enum AppLocale {
   menuItemHistoryRemoveFavorite,
   deleteLabel,
   cancelLabel,
-  recordLabel,
   // Export File
-  exportLabel,
   exportJsonLabel,
   importJsonLabel,
   shareJsonLabel,
@@ -148,17 +119,9 @@ enum AppLocale {
   snackBarMessageFileImportError,
   // CaptureActivity
   // BarcodeAnalysisActivity
-  barcodeInformationSearchLabel,
   scanErrorLabel,
-  scanErrorShortInformationLabel,
-  barcodeScannedLabel,
-  barcodeFoundOnLabel,
-  barcodeNotFoundOnApiLabel,
-  noInternetPermission,
   aboutBarcodeInformationLabel,
-  aboutBarcodeLabel,
   aboutBarcodeFormatLabel,
-  aboutBarcodeContentLabel,
   aboutBarcodeOriginLabel,
   // Product
   // Barcode Searching Error
@@ -174,7 +137,6 @@ enum AppLocale {
   // Music
   // Matrix Barcode
   barCodeContentLabel,
-  barCodeAnalysisLabel,
   // Matrix Barcode Contact Analysis
   matrixContactNameLabel,
   matrixContactOrganisationLabel,
@@ -193,8 +155,6 @@ enum AppLocale {
   matrixPhoneTelNumberLabel,
   // Matrix Barcode Email Analysis
   matrixEmailRecipientLabel,
-  matrixEmailCcLabel,
-  matrixEmailBccLabel,
   matrixSubjectLabel,
   matrixBodyLabel,
   // Matrix Barcode Wi-Fi Analysis
@@ -202,24 +162,15 @@ enum AppLocale {
   matrixWifiPasswordLabel,
   matrixWifiEncryptionLabel,
   matrixWifiIsHiddenLabel,
-  matrixWifiAnonymousIdentityLabel,
-  matrixWifiIdentityLabel,
-  matrixWifiEapMethodLabel,
-  matrixWifiPhase2MethodLabel,
   // Matrix Barcode URL Analysis
   matrixUriUrlLabel,
-  matrixUriMaliciousLabel,
   // Matrix Barcode URI UPI Analysis
   // Matrix Barcode URL Localisation Analysis
   matrixLocalisationLatitudeLabel,
   matrixLocalisationLongitudeLabel,
   matrixLocalisationAltitudeLabel,
   matrixLocalisationQueryLabel,
-  matrixLocalisationButtonFindLocation,
-  matrixLocalisationSearchCurrentPositionLabel,
-  matrixLocalisationLocationDisabledLabel,
   // Barcode Description
-  barcodeIndustrialDescriptionLabel,
   barcodeCode39DescriptionLabel,
   barcodeCode93DescriptionLabel,
   barcodeCode128DescriptionLabel,
@@ -239,24 +190,12 @@ enum AppLocale {
   barcode11Digits1CheckCompositionLabel,
   barcode12Digits1CheckCompositionLabel,
   // SnackBar Feedback
-  snackBarMessagePermissionRefused,
   snackBarMessageSaveBitmapOk,
   snackBarMessageSaveBitmapError,
-  snackBarMessageShareBitmapError,
   // Actions
   actionsLabel,
-  intentChooserShareTitle,
-  intentChooserMailTitle,
-  copyBarcodeLabel,
-  copyLabel,
   barcodeCopiedLabel,
-  barcodeSearchErrorLabel,
-  barcodeSearchErrorNoCompatibleApplicationFound,
-  searchLabel,
-  actionTitleDialogLabel,
-  actionGoToUrlLabel,
   actionWebSearchLabel,
-  actionProductSearchLabel,
   actionSendMailLabel,
   actionSendSmsLabel,
   actionCallPhoneLabel,
@@ -267,7 +206,6 @@ enum AppLocale {
   actionOpenLink,
   actionModifyBarcode,
   actionModifyNotes,
-  apply,
   // Wi-Fi Connection
   // QR Code Generator
   // Barcode Generator Errors
@@ -284,15 +222,7 @@ enum AppLocale {
   errorBarcodeUpcENotStartWith0ErrorMessage,
   errorBarcodeQrUrlFormatMessage,
   errorBarcodeQrPhoneNumberMissingMessage,
-  errorBarcodeQrEmailMissingMessage,
-  errorBarcodeQrLocalisationMissingMessage,
   // Action Barcode Generated
-  barcodeCreatorConfirmTextLabel,
-  saveLabel,
-  shareLabel,
-  shareImageLabel,
-  shareTextLabel,
-  popupMessageConfirmationSaveImage,
   clipboardEmpty,
   // Barcode Image Editor
   // Form
@@ -303,10 +233,6 @@ enum AppLocale {
   // Contact Creator
   qrCodeTypeNameGenerateFromContact,
   qrCodeImportContactFromVcard,
-  qrCodeTextRadioButtonLabelM,
-  qrCodeTextRadioButtonLabelMrs,
-  qrCodeTextRadioButtonLabelMiss,
-  qrCodeTextRadioButtonLabelNone,
   qrCodeTextInputEditTextHintName,
   qrCodeTextInputEditTextHintFirstName,
   qrCodeTextInputEditTextHintWebSite,
@@ -322,28 +248,11 @@ enum AppLocale {
   qrCodeTextInputEditTextHintCountry,
   qrCodeTextInputEditTextHintRegion,
   qrCodeTextInputEditTextHintNotes,
-  qrCodeSpinnerPromptNone,
   spinnerTypeMobile,
   spinnerTypeFax,
   spinnerTypeHome,
   spinnerTypeWork,
   spinnerTypeOther,
-  // EPC Creator
-  qrCodeTextInputEditTextHintEpcServiceTag,
-  qrCodeTextInputEditTextHintEpcVersion,
-  qrCodeTextInputEditTextHintEpcCharacterSet,
-  qrCodeTextInputEditTextHintEpcIdentification,
-  qrCodeTextInputEditTextHintEpcBic,
-  qrCodeTextInputEditTextHintEpcName,
-  qrCodeTextInputEditTextHintEpcIban,
-  qrCodeTextInputEditTextHintEpcAmount,
-  qrCodeTextInputEditTextHintEpcPurpose,
-  qrCodeTextInputEditTextHintEpcRemittanceRef,
-  qrCodeTextInputEditTextHintEpcRemittanceText,
-  qrCodeTextInputEditTextHintEpcInformation,
-  qrCodeTextInputEditTextEpcNameError,
-  qrCodeTextInputEditTextEpcIbanError,
-  listBankEmptyMessage,
   // Mail Creator
   qrCodeTextInputEditTextHintEmail,
   qrCodeTextInputEditTextHintEmailSubject,
@@ -370,10 +279,8 @@ enum AppLocale {
   // URL
   // Custom search URL
   customSearchUrls,
-  customUrls,
   customSearchUrlsAddUrl,
   customSearchUrlsModifyUrl,
-  customSearchUrlsList,
   customSearchUrlsListIsEmptyMessage,
   popupMessageConfirmationDeletedAllCustomUrls,
   customUrlDeleted,
@@ -435,9 +342,9 @@ enum AppLocale {
   preferencesApplicationVersionLabel,
   preferencesSourceCodeLabel;
 
-  String get s => _instance?[this] ?? '<$name>';
+  String get s => _instance[this] ?? '<$name>';
 
-  static LocaleInstance? _instance;
+  static late LocaleInstance _instance;
 
   static void load(BuildContext context) {
     _instance = Localizations.of<LocaleInstance>(context, LocaleInstance)!;

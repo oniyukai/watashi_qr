@@ -56,7 +56,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
     return NavigationBar(
       selectedIndex: state.currentIndex,
       onDestinationSelected: state.updateIndex,
-      destinations: <NavigationDestination>[
+      destinations: [
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
@@ -85,9 +85,9 @@ class _MenuNavBarState extends State<MenuNavBar> {
     return NavigationRail(
       selectedIndex: state.currentIndex,
       onDestinationSelected: state.updateIndex,
-      labelType: NavigationRailLabelType.all,
+      labelType: .all,
       groupAlignment: 1.0,
-      destinations: <NavigationRailDestination>[
+      destinations: [
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),

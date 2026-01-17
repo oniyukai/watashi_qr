@@ -57,7 +57,7 @@ class _PageItemViewState extends State<PageItemView> {
       DatabaseServices.updateItem(_historyItem);
     } else if (_historyItem.id > 0) {
       DatabaseServices.deleteItem(_historyItem.id);
-    } else if (_isWillExist) {
+    } else if (_isWillExist) { // todo: 測試這個正不正常
       DatabaseServices.addItem(_historyItem, context);
     }
     super.dispose();

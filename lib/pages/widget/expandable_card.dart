@@ -24,9 +24,9 @@ class ExpandableCard extends StatefulWidget {
 class _ExpandableCardState extends State<ExpandableCard>
     with SingleTickerProviderStateMixin {
   late bool _isExpanded;
-  late AnimationController _controller;
-  late Animation<double> _arrowAnimation;
-  late Animation<double> _expandAnimation;
+  late final AnimationController _controller;
+  late final Animation<double> _arrowAnimation;
+  late final Animation<double> _expandAnimation;
 
   @override
   void initState() {

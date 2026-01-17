@@ -52,15 +52,9 @@ ThemeData appTheme (
   late final ColorScheme colorScheme;
 
   if (selectedColor==.sys && brightness==.light && lightDynamic!=null) {
-    colorScheme = ColorScheme.fromSeed(
-      seedColor: lightDynamic.primary,
-      brightness: lightDynamic.brightness,
-    );
+    colorScheme = lightDynamic;
   } else if (selectedColor==.sys && brightness==.dark && darkDynamic!=null) {
-    colorScheme = ColorScheme.fromSeed(
-      seedColor: darkDynamic.primary,
-      brightness: darkDynamic.brightness,
-    );
+    colorScheme = darkDynamic;
   } else {
     colorScheme = ColorScheme.fromSeed(
       seedColor: seedColor,
@@ -73,7 +67,7 @@ ThemeData appTheme (
     colorScheme: colorScheme,
     scrollbarTheme: ScrollbarThemeData(
       thumbColor: WidgetStateProperty.all(colorScheme.primary.withValues(alpha:0.5)),
-      radius: Radius.circular(10.0),
+      radius: const Radius.circular(10.0),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(),

@@ -75,7 +75,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
               content: Text(
                 isSelectionMode
                   ? AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s
-                  : AppLocale.popupMessageConfirmationDeleteHistory.s
+                  : AppLocale.popupMessageConfirmationDeletedAllCustomUrls.s
               ),
               actions: [
                 TextButton(
