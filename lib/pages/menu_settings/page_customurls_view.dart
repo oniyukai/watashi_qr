@@ -50,10 +50,38 @@ class CustomSearchUrl {
 class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, int> {
   List<CustomSearchUrl> _customSearchUrls = [];
 
+  void _pressDelete() => showMyDialog(
+    context: context,
+    title: AppLocale.deleteLabel.s,
+    content: Text(isSelectionMode
+        ? AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s
+        : AppLocale.popupMessageConfirmationDeletedAllCustomUrls.s
+    ),
+    actions: [
+      TextButton(
+        child: Text(AppLocale.deleteLabel.s),
+        onPressed: () async {
+          Navigator.pop(context);
+          if (isSelectionMode) {
+            _customSearchUrls = [
+              for (final entry in _customSearchUrls.asMap().entries)
+                if (!selectedObjects.contains(entry.key)) entry.value
+            ];
+            await context.readPrefs.update(.customSearchUrls, _customSearchUrls);
+            exitSelectionMode();
+          } else {
+            await context.readPrefs.update(.customSearchUrls, PrefsEnum.customSearchUrls.defaultValue());
+          }
+          Utils.showToast(AppLocale.customUrlDeleted.s);
+        },
+      ),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
-    _customSearchUrls = context.readPrefs.get(PrefsEnum.customSearchUrls);
-    final colorScheme = Theme.of(context).colorScheme;
+    _customSearchUrls = context.readPrefs.get(.customSearchUrls);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
@@ -69,34 +97,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () => showMyDialog(
-              context: context,
-              title: AppLocale.deleteLabel.s,
-              content: Text(
-                isSelectionMode
-                  ? AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s
-                  : AppLocale.popupMessageConfirmationDeletedAllCustomUrls.s
-              ),
-              actions: [
-                TextButton(
-                  child: Text(AppLocale.deleteLabel.s),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    if (isSelectionMode) {
-                      _customSearchUrls = [
-                        for (final entry in _customSearchUrls.asMap().entries)
-                          if (!selectedObjects.contains(entry.key)) entry.value
-                      ];
-                      context.readPrefs.update(PrefsEnum.customSearchUrls, _customSearchUrls);
-                      exitSelectionMode();
-                    } else {
-                      context.readPrefs.update(PrefsEnum.customSearchUrls, PrefsEnum.customSearchUrls.defaultValue());
-                    }
-                    Utils.showToast(AppLocale.customUrlDeleted.s);
-                  },
-                ),
-              ],
-            ),
+            onPressed: _pressDelete,
           ),
         ],
       ),
@@ -110,7 +111,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
             padding: const EdgeInsets.all(16.0),
             itemCount: _customSearchUrls.length,
             itemBuilder: (context, index) {
-              final item = _customSearchUrls[index];
+              final CustomSearchUrl item = _customSearchUrls[index];
               return Card(
                 elevation: 0,
                 child: ItemTile(

@@ -25,7 +25,7 @@ class PageCustomurlsFormArgs {
 }
 
 class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
-  final _formKey = GlobalKey<FormBuilderState>();
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final PageCustomurlsFormArgs _args;
   bool _isInitialized = false;
 
@@ -38,7 +38,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
     }
   }
 
-  Future<void> _pressedCheck() async {
+  Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
     Navigator.pop(context);
     final String formTitle = _formKey.currentState?.value['formTitle'];
@@ -50,14 +50,14 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
       _args.items[_args.index!] = CustomSearchUrl(title: formTitle, url: formUrl);
       Utils.showToast(AppLocale.customUrlUpdated.s);
     }
-    await context.readPrefs.update(PrefsEnum.customSearchUrls, _args.items);
+    await context.readPrefs.update(.customSearchUrls, _args.items);
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) return const Center(child: CircularProgressIndicator());
-    final theme = Theme.of(context);
-    final argItem = _args.index == null ? null : _args.items[_args.index!];
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final CustomSearchUrl? argItem = _args.index == null ? null : _args.items[_args.index!];
     return Scaffold(
       appBar: AppBar(
         title: Text(argItem == null
@@ -67,7 +67,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: _pressedCheck,
+            onPressed: _pressCheck,
           ),
         ],
       ),
@@ -78,13 +78,12 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
             children: [
               const SizedBox(height: 16),
               FormBuilder(
-                key:_formKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     FormBuilderTextField(
                       name: 'formTitle',
                       initialValue: argItem?.title,
-                      maxLines: null,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
                         labelText: AppLocale.matrixContactNameLabel.s,
@@ -92,13 +91,12 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
                       ]),
-                      keyboardType: TextInputType.text,
+                      keyboardType: .text,
                     ),
                     const SizedBox(height: 16),
                     FormBuilderTextField(
                       name: 'formUrl',
                       initialValue: argItem?.url,
-                      maxLines: null,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
                         labelText: AppLocale.matrixUriUrlLabel.s,
@@ -109,14 +107,14 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                         FormBuilderValidators.startsWith('http', errorText: AppLocale.errorBarcodeQrUrlFormatMessage.s),
                         FormBuilderValidators.url(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
                       ]),
-                      keyboardType: TextInputType.url,
+                      keyboardType: .url,
                     ),
                   ],
-                )
+                ),
               ),
               const SizedBox(height: 16),
               SelectableText('${AppLocale.customSearchUrlsAddInfo.s}\n\n${AppLocale.examples.s} ${StaticString.googleUrl}',
-                style: theme.textTheme.bodyMedium
+                style: textTheme.bodyMedium
               ),
               const SizedBox(height: 16),
             ],

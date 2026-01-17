@@ -22,7 +22,6 @@ extension StaticString on AppLocale {
       bingUrl = 'https://www.bing.com/search?q={code}',
       wikipediaUrl = 'https://wikipedia.org/w/index.php?search={code}',
       // Preferences Settings Keys
-      separationObject = '<Separation.Object>',
       // Preferences Entry Values
       // About Library Third
       // Activity KTX
@@ -340,6 +339,7 @@ enum AppLocale {
   preferencesAboutTitle,
   preferencesAboutOpenSourceLibrariesLabel,
   preferencesApplicationVersionLabel,
+  preferencesApplicationVersionTagLabel,
   preferencesSourceCodeLabel;
 
   String get s => _instance[this] ?? '<$name>';

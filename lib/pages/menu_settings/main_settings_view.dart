@@ -30,157 +30,129 @@ class _MainSettingsPage extends State<MainSettingsView> {
   @override
   Widget build(BuildContext context) {
     AppLocale.load(context);
-    final trailingIcon = Icon((Directionality.of(context) == TextDirection.ltr)
-        ? Icons.chevron_right
-        : Icons.chevron_left
-    );
-    return Scaffold(
-      body: SafeArea(
-        child: Scrollbar(
-          controller: _scrollController,
-          child: Consumer<PrefsProvider>(
-            builder: (context, prefs, child) => ListView(
-              children: [
-                ListTileText(text: AppLocale.preferencesAppearanceTitle.s, isSection: true),
-                ListTilePicker(
-                  text: AppLocale.preferencesColor.s,
-                  selectedOption: prefs.get(PrefsEnum.selectedColor),
-                  optionMap: ColorOption.optionMap,
-                  onChanged: (value) => prefs.update(PrefsEnum.selectedColor, value),
-                ),
-                ListTilePicker(
-                  text: AppLocale.preferencesThemeLabel.s,
-                  selectedOption: prefs.get(PrefsEnum.selectedTheme),
-                  optionMap: ThemeOption.optionMap,
-                  onChanged: (value) => prefs.update(PrefsEnum.selectedTheme, value),
-                ),
-                ListTilePicker(
-                  text: AppLocale.preferencesLanguagesTitle.s,
-                  dialogText: AppLocale.preferencesLanguagesChange.s,
-                  selectedOption: prefs.get(PrefsEnum.selectedLanguage),
-                  optionMap: LocaleOption.optionMap,
-                  onChanged: (value) => prefs.update(PrefsEnum.selectedLanguage, value),
-                ),
+    return SafeArea(
+      child: Scrollbar(
+        controller: _scrollController,
+        child: Consumer<PrefsProvider>(
+          builder: (context, prefs, child) => ListView(
+            children: [
+              ListTileText(text: AppLocale.preferencesAppearanceTitle.s, isSection: true),
+              ListTilePicker(
+                text: AppLocale.preferencesColor.s,
+                selectedOption: prefs.get(.selectedColor),
+                optionMap: ColorOption.optionMap,
+                onChanged: (value) => prefs.update(.selectedColor, value),
+              ),
+              ListTilePicker(
+                text: AppLocale.preferencesThemeLabel.s,
+                selectedOption: prefs.get(.selectedTheme),
+                optionMap: ThemeOption.optionMap,
+                onChanged: (value) => prefs.update(.selectedTheme, value),
+              ),
+              ListTilePicker(
+                text: AppLocale.preferencesLanguagesTitle.s,
+                dialogText: AppLocale.preferencesLanguagesChange.s,
+                selectedOption: prefs.get(.selectedLanguage),
+                optionMap: LocaleOption.optionMap,
+                onChanged: (value) => prefs.update(.selectedLanguage, value),
+              ),
 
-                ListTileText(text: AppLocale.preferencesScanTitle.s, isSection: true),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanAutoOpenWebsiteLabel.s,
-                  iconData: Icons.open_in_browser,
-                  initialValue: prefs.get(PrefsEnum.isAutoOpenWebsite),
-                  enabled: !prefs.get(PrefsEnum.isContinuousScan),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isAutoOpenWebsite, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanContinuousScanLabel.s,
-                  iconData: Icons.fast_forward,
-                  initialValue: prefs.get(PrefsEnum.isContinuousScan),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isContinuousScan, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanVibrateLabel.s,
-                  iconData: Icons.vibration,
-                  initialValue: prefs.get(PrefsEnum.isVibrateOnScan),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isVibrateOnScan, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanBipLabel.s,
-                  iconData: Icons.volume_up,
-                  initialValue: prefs.get(PrefsEnum.isBipOnScan),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isBipOnScan, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanScreenRotationLabel.s,
-                  iconData: Icons.screen_rotation,
-                  initialValue: prefs.get(PrefsEnum.isScreenRotation),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isScreenRotation, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanBarcodeCopiedLabel.s,
-                  iconData: Icons.content_copy,
-                  initialValue: prefs.get(PrefsEnum.isBarcodeCopied),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isBarcodeCopied, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanUseFrontCameraLabel.s,
-                  iconData: Icons.camera_front,
-                  initialValue: prefs.get(PrefsEnum.isUseFrontCamera),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isUseFrontCamera, value);
-                  },
-                ),
+              ListTileText(text: AppLocale.preferencesScanTitle.s, isSection: true),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanAutoOpenWebsiteLabel.s,
+                iconData: Icons.open_in_browser,
+                initialValue: prefs.get(.isAutoOpenWebsite),
+                enabled: !prefs.get(.isContinuousScan),
+                onToggle: (value) => prefs.update(.isAutoOpenWebsite, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanContinuousScanLabel.s,
+                iconData: Icons.fast_forward,
+                initialValue: prefs.get(.isContinuousScan),
+                onToggle: (value) => prefs.update(.isContinuousScan, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanVibrateLabel.s,
+                iconData: Icons.vibration,
+                initialValue: prefs.get(.isVibrateOnScan),
+                onToggle: (value) => prefs.update(.isVibrateOnScan, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanBipLabel.s,
+                iconData: Icons.volume_up,
+                initialValue: prefs.get(.isBipOnScan),
+                onToggle: (value) => prefs.update(.isBipOnScan, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanScreenRotationLabel.s,
+                iconData: Icons.screen_rotation,
+                initialValue: prefs.get(.isScreenRotation),
+                onToggle: (value) => prefs.update(.isScreenRotation, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanBarcodeCopiedLabel.s,
+                iconData: Icons.content_copy,
+                initialValue: prefs.get(.isBarcodeCopied),
+                onToggle: (value) => prefs.update(.isBarcodeCopied, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanUseFrontCameraLabel.s,
+                iconData: Icons.camera_front,
+                initialValue: prefs.get(.isUseFrontCamera),
+                onToggle: (value) => prefs.update(.isUseFrontCamera, value),
+              ),
 
-                ListTileText(text: AppLocale.preferencesBarcodeGenerationTitle.s, isSection: true),
-                ListTilePicker(
-                  text: AppLocale.qrCodeErrorCorrectionLevelLabel.s,
-                  dialogText: AppLocale.qrCodeErrorCorrectionLevelSettingsLabel.s,
-                  selectedOption: prefs.get(PrefsEnum.selectedQRErrorLevel),
-                  optionMap: HistoryErrorLevel.optionMap,
-                  onChanged: (value) => prefs.update(
-                    PrefsEnum.selectedQRErrorLevel, value
-                  ),
-                ),
+              ListTileText(text: AppLocale.preferencesBarcodeGenerationTitle.s, isSection: true),
+              ListTilePicker(
+                text: AppLocale.qrCodeErrorCorrectionLevelLabel.s,
+                dialogText: AppLocale.qrCodeErrorCorrectionLevelSettingsLabel.s,
+                selectedOption: prefs.get(.selectedQRErrorLevel),
+                optionMap: HistoryErrorLevel.optionMap,
+                onChanged: (value) => prefs.update(.selectedQRErrorLevel, value),
+              ),
 
-                ListTileText(text: AppLocale.titleHistory.s, isSection: true),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchScanAddBarcodeToTheHistoryLabel.s,
-                  iconData: Icons.qr_code_scanner,
-                  initialValue: prefs.get(PrefsEnum.isScanAddHistory),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isScanAddHistory, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel.s,
-                  iconData: Icons.edit,
-                  initialValue: prefs.get(PrefsEnum.isCreateAddHistory),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isCreateAddHistory, value);
-                  },
-                ),
-                ListTileSwitch(
-                  text: AppLocale.preferencesSwitchHistorySaveDuplicatesLabel.s,
-                  iconData: Icons.filter_2,
-                  initialValue: prefs.get(PrefsEnum.isSaveDuplicates),
-                  onToggle: (bool value) {
-                    prefs.update(PrefsEnum.isSaveDuplicates, value);
-                  },
-                ),
+              ListTileText(text: AppLocale.titleHistory.s, isSection: true),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchScanAddBarcodeToTheHistoryLabel.s,
+                iconData: Icons.qr_code_scanner,
+                initialValue: prefs.get(.isScanAddHistory),
+                onToggle: (value) => prefs.update(.isScanAddHistory, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel.s,
+                iconData: Icons.edit,
+                initialValue: prefs.get(.isCreateAddHistory),
+                onToggle: (value) => prefs.update(.isCreateAddHistory, value),
+              ),
+              ListTileSwitch(
+                text: AppLocale.preferencesSwitchHistorySaveDuplicatesLabel.s,
+                iconData: Icons.filter_2,
+                initialValue: prefs.get(.isSaveDuplicates),
+                onToggle: (value) => prefs.update(.isSaveDuplicates, value),
+              ),
 
-                ListTileText(text: AppLocale.preferencesSearchTitle.s, isSection: true),
-                ListTilePicker(
-                  text: AppLocale.preferencesSearchEngine.s,
-                  selectedOption: prefs.get(PrefsEnum.selectedSearchEngine),
-                  optionMap: SearchEngine.optionMap,
-                  onChanged: (value) => prefs.update(PrefsEnum.selectedSearchEngine, value),
-                ),
-                ListTileText(
-                  text: AppLocale.customSearchUrls.s,
-                  trailing: trailingIcon,
-                  onTap:() => context.routeTo(PageCustomurlsView),
-                ),
+              ListTileText(text: AppLocale.preferencesSearchTitle.s, isSection: true),
+              ListTilePicker(
+                text: AppLocale.preferencesSearchEngine.s,
+                selectedOption: prefs.get(.selectedSearchEngine),
+                optionMap: SearchEngine.optionMap,
+                onChanged: (value) => prefs.update(.selectedSearchEngine, value),
+              ),
+              ListTileText(
+                text: AppLocale.customSearchUrls.s,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.routeTo(PageCustomurlsView),
+              ),
 
-                ListTileText(text: AppLocale.preferencesAboutTitle.s, isSection: true),
-                ListTileText(
-                    text: StaticString.appName,
-                  trailing: trailingIcon,
-                  onTap:() => context.routeTo(PageAboutView)
-                ),
-              ],
-            )
-          )
-        )
+              ListTileText(text: AppLocale.preferencesAboutTitle.s, isSection: true),
+              ListTileText(
+                text: StaticString.appName,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.routeTo(PageAboutView),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

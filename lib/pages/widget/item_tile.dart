@@ -23,15 +23,15 @@ class ItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
 
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       contentPadding: const EdgeInsets.all(8),
       minTileHeight: 40,
       minVerticalPadding: 0,
-      selected: selected==true,
+      selected: selected == true,
       selectedTileColor: theme.colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: onLongPress,
@@ -55,7 +55,7 @@ class ItemTile extends StatelessWidget {
         style: theme.textTheme.titleMedium,
         overflow: .ellipsis,
       ),
-      subtitle: (description!=null) ? Text(
+      subtitle: (description != null) ? Text(
         description!,
         style: theme.textTheme.bodySmall,
         overflow: .ellipsis,

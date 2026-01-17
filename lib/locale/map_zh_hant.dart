@@ -223,5 +223,6 @@ const LocaleInstance mapZhHant = {
   K.preferencesAboutTitle: '關於',
   K.preferencesAboutOpenSourceLibrariesLabel: '開源許可證',
   K.preferencesApplicationVersionLabel: '應用版本',
+  K.preferencesApplicationVersionTagLabel: '版本標籤',
   K.preferencesSourceCodeLabel: '原始碼',
 };

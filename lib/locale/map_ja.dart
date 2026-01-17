@@ -223,5 +223,6 @@ const LocaleInstance mapJa = {
   K.preferencesAboutTitle: '情報',
   K.preferencesAboutOpenSourceLibrariesLabel: 'オープンソースライセンス',
   K.preferencesApplicationVersionLabel: 'アプリのバージョン',
+  K.preferencesApplicationVersionTagLabel: 'バージョンラベル',
   K.preferencesSourceCodeLabel: 'ソースコード',
 };

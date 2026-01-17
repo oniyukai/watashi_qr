@@ -223,5 +223,6 @@ const LocaleInstance mapEn = {
   K.preferencesAboutTitle: 'About',
   K.preferencesAboutOpenSourceLibrariesLabel: 'Open Source Licenses',
   K.preferencesApplicationVersionLabel: 'App Version',
+  K.preferencesApplicationVersionTagLabel: 'Version Tag',
   K.preferencesSourceCodeLabel: 'Source code',
 };

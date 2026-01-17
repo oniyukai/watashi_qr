@@ -23,8 +23,8 @@ class ListTileText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
     return ListTile(
       contentPadding: isSection ? const EdgeInsets.only(top: 16, left: 16) : null,
       leading: SizedBox(width: 48, child: Icon(iconData)),
@@ -36,7 +36,7 @@ class ListTileText extends StatelessWidget {
           fontSize: isSection ? theme.textTheme.titleSmall?.fontSize : null,
         ),
       ),
-      subtitle: subText==null ? null : Text(subText!),
+      subtitle: subText == null ? null : Text(subText!),
       textColor: isSection ? colorScheme.primary : null,
       trailing: trailing,
       onTap: onTap,
@@ -70,7 +70,7 @@ class ListTileSwitch extends StatelessWidget {
       title: Text(text),
       enabled: enabled,
       shape: shape,
-      onTap: ()=>onToggle(!initialValue),
+      onTap: () => onToggle(!initialValue),
       trailing: Switch.adaptive(
         value: initialValue,
         onChanged: enabled ? onToggle : null,
@@ -121,7 +121,7 @@ class ListTilePicker<T> extends StatelessWidget {
                 }
               },
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: .min,
                 children: optionMap.entries.map((entry) => RadioListTile(
                   title: Text(entry.value),
                   value: entry.key,
