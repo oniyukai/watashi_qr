@@ -50,7 +50,7 @@ class CustomSearchUrl {
 class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, int> {
   List<CustomSearchUrl> _customSearchUrls = [];
 
-  void _pressDelete() => showMyDialog(
+  Future<void> _pressDelete() => showMyDialog(
     context: context,
     title: AppLocale.deleteLabel.s,
     content: Text(isSelectionMode

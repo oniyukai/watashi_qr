@@ -107,7 +107,7 @@ class ListTilePicker<T> extends StatelessWidget {
       title: Text(text),
       subtitle: Text('${optionMap[selectedOption] ?? selectedOption}'),
       shape: shape,
-      onTap: () => showMyDialog(
+      onTap: () async => showMyDialog(
         context: context,
         title: dialogText ?? text,
         content: Scrollbar(

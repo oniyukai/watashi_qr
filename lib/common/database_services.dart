@@ -120,12 +120,12 @@ class DatabaseServices {
 
   static Future<void> importHistoryBoxFromJson() async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles();
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: .custom,
+        allowedExtensions: const ["json"],
+      );
       if (result == null) {
         await Utils.showToast(AppLocale.cancelLabel.s);
-        return;
-      } else if (!result.files.single.path!.endsWith('.json')) {
-        await Utils.showToast('Error: Not .json file');
         return;
       }
 

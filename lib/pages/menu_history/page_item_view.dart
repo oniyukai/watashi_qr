@@ -57,7 +57,7 @@ class _PageItemViewState extends State<PageItemView> {
       DatabaseServices.updateItem(_historyItem);
     } else if (_historyItem.id > 0) {
       DatabaseServices.deleteItem(_historyItem.id);
-    } else if (_isWillExist) { // todo: 測試這個正不正常
+    } else if (_isWillExist) { // todo debug: 當我關閉掃描加入 並手動加入 他並沒有加入記錄
       DatabaseServices.addItem(_historyItem, context);
     }
     super.dispose();
@@ -144,7 +144,7 @@ class _PageItemViewState extends State<PageItemView> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   leading: isFormatSupported ? const Icon(MaterialCommunityIcons.barcode_scan) : null,
-                  onTap: isFormatSupported ? ()=>context.routeOf<PageCodeView>().arguments(_historyItem).to() : null,
+                  onTap: isFormatSupported ? () => context.routeOf<PageCodeView>().arguments(_historyItem).to() : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -180,9 +180,11 @@ class _PageItemViewState extends State<PageItemView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text('  ${AppLocale.actionsLabel.s}', style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 4),
+              ListTile(
+                minTileHeight: 0,
+                subtitle: Text(AppLocale.actionsLabel.s),
+              ),
               Builder(builder: (BuildContext context) {
                 final List<Widget> rows = [];
                 final actionGrids = _getActionGridList();
@@ -290,7 +292,7 @@ class _PageItemViewState extends State<PageItemView> {
     ];
   }
 
-  void _showModifyContentsSheet() => showMyBottomSheet(
+  Future<void> _showModifyContentsSheet() => showMyBottomSheet(
     context: context,
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -304,7 +306,6 @@ class _PageItemViewState extends State<PageItemView> {
       child: BarcodeField(
         format: _historyItem.getFormat,
         name: 'modifyContents',
-        formKey: _formKey,
         initialValue: _historyItem.contents,
       ),
     ),
@@ -312,23 +313,21 @@ class _PageItemViewState extends State<PageItemView> {
       ElevatedButton(
         child: Text(AppLocale.actionModifyBarcode.s),
         onPressed: () {
-          if (_formKey.currentState?.saveAndValidate() ?? false) {
-            final value = _formKey.currentState?.value['modifyContents'];
-            _historyItem.contents = value;
-            _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, value).name;
-            Navigator.pop(context);
-          }
+          if (_formKey.currentState?.saveAndValidate() != true) return;
+          _historyItem.contents = _formKey.currentState!.value['modifyContents'];
+          _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, _historyItem.contents).name;
+          Navigator.pop(context);
         },
       ),
     ],
   );
 
   void _actionWebSearch(){
-    final String searchEngine = context.readPrefs.get<SearchEngine>(PrefsEnum.selectedSearchEngine).url;
-    Utils.searchInBrowser(searchEngine, _historyItem.contents);
+    final SearchEngine searchEngine = context.readPrefs.get(PrefsEnum.selectedSearchEngine);
+    Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
   }
 
-  void _actionCustomSearch() => showMyDialog(
+  Future<void> _actionCustomSearch() => showMyDialog(
     context: context,
     title: AppLocale.customSearchUrls.s,
     noCancelButton: true,
@@ -349,31 +348,30 @@ class _PageItemViewState extends State<PageItemView> {
     ),
   );
 
-  void _actionModifyNotes() => showMyBottomSheet(
+  Future<void> _actionModifyNotes() => showMyBottomSheet(
     context: context,
     title: Text(AppLocale.actionModifyNotes.s),
     content: FormBuilder(
       key: _formKey,
       child: FormBuilderTextField(
         name: 'modifyNotes',
-        initialValue: _historyItem.notes,
+        keyboardType: .text,
         maxLines: null,
+        initialValue: _historyItem.notes,
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.format_size),
           labelText: AppLocale.barcodeTextCompositionLabel.s,
         ),
-        keyboardType: TextInputType.text,
       ),
     ),
     actions: [
       ElevatedButton(
         child: Text(AppLocale.actionModifyNotes.s),
         onPressed: () {
-          if (_formKey.currentState?.saveAndValidate() ?? false) {
-            final String value = _formKey.currentState?.value['modifyNotes'];
-            _historyItem.notes = value;
-            Navigator.pop(context);
-          }
+          if (_formKey.currentState?.saveAndValidate() != true) return;
+          final String value = _formKey.currentState!.value['modifyNotes'];
+          _historyItem.notes = value;
+          Navigator.pop(context);
         },
       ),
     ],

@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
-import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
-import 'package:watashi_qr/common/prefs.dart';
+import 'package:watashi_qr/pages/menu_creator/main_creator_view.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
@@ -20,37 +15,35 @@ class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
 }
 
 class _PageBarcodeFormState extends State<PageBarcodeForm> {
-  final _formKey = GlobalKey<FormBuilderState>();
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
+  late final HistoryFormat _historyFormat;
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _historyFormat = widget.argumentOf(context)!;
+      _isInitialized = true;
+    }
+  }
+
+  Future<void> _pressCheck() async {
+    if (_formKey.currentState?.saveAndValidate() != true) return;
+    final String contents = _formKey.currentState!.value['barcodeFieldName'];
+    await MainCreatorView.createRouteTo(context, contents, _historyFormat);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final format = widget.argumentOf(context);
-    final theme = Theme.of(context);
-    if (format == null) throw 'widget.argumentOf(context) connot be null.';
+    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleBarCodeCreator.s),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () {
-              if (_formKey.currentState?.saveAndValidate() ?? false) {
-                final value = _formKey.currentState?.value['name'];
-                final bool isCreateAddHistory = context.readPrefs.get(PrefsEnum.isCreateAddHistory);
-                final HistoryItem item = HistoryItem(
-                  unixTime: Utils.nowUnixTime,
-                  contents: value,
-                  format: format.name,
-                  type: HistoryType.fromDistinguish(format, value).name,
-                  errorLevel: HistoryErrorLevel.none.name,
-                  origin: HistoryOrigin.C.name,
-                  isFavorite: false,
-                  notes: '',
-                );
-                if (isCreateAddHistory) DatabaseServices.addItem(item, context);
-                context.routeOf<PageCodeView>().arguments(item).to();
-              }
-            },
+            onPressed: _pressCheck,
           ),
         ],
       ),
@@ -60,22 +53,21 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
               ItemTile(
-                title: HistoryFormat.localeStrFromName(format.name),
-                myIconData: format.myIconData,
+                title: HistoryFormat.localeStrFromName(_historyFormat.name),
+                myIconData: _historyFormat.myIconData,
               ),
               const SizedBox(height: 16),
               FormBuilder(
-                key:_formKey,
+                key: _formKey,
                 child: BarcodeField(
-                  format: format,
-                  name: 'name',
-                  formKey: _formKey,
+                  format: _historyFormat,
+                  name: 'barcodeFieldName',
                 ),
               ),
               const SizedBox(height: 16),
-              Text(format.description ?? '',
+              Text(_historyFormat.description ?? '',
                   softWrap: true,
-                  style: theme.textTheme.bodyMedium
+                  style: Theme.of(context).textTheme.bodyMedium
               ),
               const SizedBox(height: 16),
             ],

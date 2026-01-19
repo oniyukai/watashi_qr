@@ -75,7 +75,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
           if (isSelectionMode) ...[
             IconButton(
               icon: const Icon(Icons.delete_forever),
-              onPressed: () => showMyDialog(
+              onPressed: () async => showMyDialog(
                 context: context,
                 title: AppLocale.deleteLabel.s,
                 content: Text(AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s),
@@ -122,21 +122,21 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
               items: [
                 MyMenuItem(
                   text: AppLocale.shareJsonLabel.s,
-                  onTap: () => DatabaseServices.shareHistoryBoxToJson(),
+                  onTap: DatabaseServices.shareHistoryBoxToJson,
                 ),
                 MyMenuItem(
                   text: AppLocale.exportJsonLabel.s,
-                  onTap: () => DatabaseServices.exportHistoryBoxToJson(),
+                  onTap: DatabaseServices.exportHistoryBoxToJson,
                 ),
                 MyMenuItem(
                   text: AppLocale.importJsonLabel.s,
-                  onTap: () => DatabaseServices.importHistoryBoxFromJson(),
+                  onTap: DatabaseServices.importHistoryBoxFromJson,
                 ),
               ],
             ),
             IconButton(
               icon: const Icon(Icons.delete_forever),
-              onPressed: () => showMyDialog(
+              onPressed: () async => showMyDialog(
                 context: context,
                 title: AppLocale.deleteLabel.s,
                 content: Text(AppLocale.popupMessageConfirmationDeleteHistory.s),

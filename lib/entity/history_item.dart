@@ -31,9 +31,9 @@ class HistoryItem {
   });
 
   @Transient() HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
-  @Transient() MyIconData get getFormatIconData => getFormat?.myIconData ?? MyIconData(Icons.help_center_outlined);
+  @Transient() MyIconData get getFormatIconData => getFormat?.myIconData ?? const MyIconData(Icons.help_center_outlined);
   @Transient() HistoryType? get getType => HistoryType.values.fromName(type);
-  @Transient() MyIconData get getTypeIconData => getType?.myIconData ?? MyIconData(Icons.help_center);
+  @Transient() MyIconData get getTypeIconData => getType?.myIconData ?? const MyIconData(Icons.help_center);
 
   @Transient()
   factory HistoryItem.fromJson(Map<String, dynamic> json) => HistoryItem(

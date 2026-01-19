@@ -41,8 +41,8 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
     Navigator.pop(context);
-    final String formTitle = _formKey.currentState?.value['formTitle'];
-    final String formUrl = _formKey.currentState?.value['formUrl'];
+    final String formTitle = _formKey.currentState!.value['formTitle'];
+    final String formUrl = _formKey.currentState!.value['formUrl'];
     if (_args.index == null) {
       _args.items.insert(0, CustomSearchUrl(title: formTitle, url: formUrl));
       Utils.showToast(AppLocale.customUrlAdded.s);
@@ -83,6 +83,8 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                   children: [
                     FormBuilderTextField(
                       name: 'formTitle',
+                      keyboardType: .text,
+                      autovalidateMode: .onUserInteraction,
                       initialValue: argItem?.title,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
@@ -91,11 +93,12 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
                       ]),
-                      keyboardType: .text,
                     ),
                     const SizedBox(height: 16),
                     FormBuilderTextField(
                       name: 'formUrl',
+                      keyboardType: .url,
+                      autovalidateMode: .onUserInteraction,
                       initialValue: argItem?.url,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
@@ -103,11 +106,10 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       ),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
-                        FormBuilderValidators.contains('{code}', errorText: AppLocale.customSearchUrlsErrorUrl.s),
                         FormBuilderValidators.startsWith('http', errorText: AppLocale.errorBarcodeQrUrlFormatMessage.s),
+                        FormBuilderValidators.contains('{code}', errorText: AppLocale.customSearchUrlsErrorUrl.s),
                         FormBuilderValidators.url(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
                       ]),
-                      keyboardType: .url,
                     ),
                   ],
                 ),

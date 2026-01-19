@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:watashi_qr/entity/history_format.dart';
@@ -8,14 +9,12 @@ import 'package:watashi_qr/locale/app_language.dart';
 class BarcodeField extends StatelessWidget {
   final HistoryFormat? format;
   final String name;
-  final GlobalKey<FormBuilderState> formKey;
   final String? initialValue;
 
   const BarcodeField({
     super.key,
     required this.format,
     required this.name,
-    required this.formKey,
     this.initialValue,
   });
 
@@ -24,6 +23,8 @@ class BarcodeField extends StatelessWidget {
     final bool isNumbers = format?.isNumbers ?? false;
     return FormBuilderTextField(
       name: name,
+      keyboardType: isNumbers ? .number : null,
+      autovalidateMode: .onUserInteraction,
       maxLines: format?.allowLineBreaks,
       initialValue: initialValue,
       decoration: InputDecoration(
@@ -31,11 +32,7 @@ class BarcodeField extends StatelessWidget {
         labelText: format?.composition ?? AppLocale.barcodeTextCompositionLabel.s,
         errorMaxLines: 8,
       ),
-      keyboardType: isNumbers ? TextInputType.number : null,
       validator: (value) => barcodeValidator(value, format),
-      onEditingComplete: () {
-        formKey.currentState?.fields[name]?.validate();
-      },
     );
   }
 }
@@ -49,11 +46,15 @@ extension _HistoryFormatForValid on HistoryFormat {
     .ean13, .ean8, .upcA, .upcE, .codabar, .itf
   }.contains(this);
 
-  int? get maxLength => switch (this) {
+  int? get maxByteLength => switch (this) {
     .qrCode => 2953,
     .pdf417 => 990,
     .aztec => 2335,
     .dataMatrix => 1559,
+    _ => null
+  };
+
+  int? get maxLength => switch (this) {
     .code128 => 2046,
     .code93 => 47,
     .code39 => 43,
@@ -85,13 +86,14 @@ extension _HistoryFormatForValid on HistoryFormat {
 }
 
 String? barcodeValidator(String? value, HistoryFormat? format){
-  if (value==null || value.replaceAll('\n', '').replaceAll(' ', '').isEmpty) {
+  if (value == null || value.replaceAll('\n', '').replaceAll(' ', '').isEmpty) {
     return AppLocale.errorEmptyFields.s;
   } else if (format == null) {
     return null;
   }
 
   final bool isNumbers = format.isNumbers;
+  final int? maxByteLength = format.maxByteLength;
   final int? maxLength = format.maxLength;
   final int? hardLength = format.hardLength;
   final String? encodingErrorMessage = format.encodingErrorMessage;
@@ -105,6 +107,9 @@ String? barcodeValidator(String? value, HistoryFormat? format){
   }
   if (format == .itf && (value.length % 2) != 0) {
     return AppLocale.errorBarcodeItfErrorMessage.s;
+  }
+  if (maxByteLength != null && utf8.encode(value).length > maxByteLength) {
+    return '${AppLocale.errorBarcodeWrongLengthMessage.s}< $maxByteLength (Bytes)';
   }
   if (maxLength != null && value.length > maxLength) {
     return '${AppLocale.errorBarcodeWrongLengthMessage.s}< $maxLength';
@@ -123,6 +128,11 @@ String? barcodeValidator(String? value, HistoryFormat? format){
   }
   if (format == .code128 && !value.isAscii) {
     return AppLocale.errorBarcodeEncodingUsAsciiErrorMessage.s;
+  }
+  try {
+    format.barcodeFunc().verify(value);
+  } catch (e) {
+    return e.toString();
   }
   return null;
 }

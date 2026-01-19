@@ -27,8 +27,8 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
 
   ValueGetter<Barcode> get barcodeFunc => switch (this) {
     qrCode => Barcode.qrCode,
+    dataMatrix => Barcode.dataMatrix,
     aztec => Barcode.aztec,
-    dataMatrix=> Barcode.dataMatrix,
     pdf417 => Barcode.pdf417,
     ean13 => Barcode.ean13,
     ean8 => Barcode.ean8,

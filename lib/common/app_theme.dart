@@ -51,9 +51,9 @@ ThemeData appTheme (
   final MaterialColor seedColor = selectedColor.color ?? Colors.blue; // <--sys顏色不支援時會用到
   late final ColorScheme colorScheme;
 
-  if (selectedColor==.sys && brightness==.light && lightDynamic!=null) {
+  if (selectedColor == .sys && brightness == .light && lightDynamic != null) {
     colorScheme = lightDynamic;
-  } else if (selectedColor==.sys && brightness==.dark && darkDynamic!=null) {
+  } else if (selectedColor == .sys && brightness == .dark && darkDynamic != null) {
     colorScheme = darkDynamic;
   } else {
     colorScheme = ColorScheme.fromSeed(
