@@ -4,27 +4,21 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
-class ScannerErrorWidget extends StatelessWidget {
-  const ScannerErrorWidget({required this.error, super.key});
-  final MobileScannerException error;
-
-  @override
-  Widget build(BuildContext context) {
-    final String errorMessage = switch (error.errorCode) {
-      MobileScannerErrorCode.permissionDenied => AppLocale.cameraPermissionDenied.s,
-      _ => error.errorCode.message,
-    };
-
-    return Center(
-      child: Text('$errorMessage\n\n${error.errorDetails?.message ?? ''}'),
-    );
-  }
+Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
+  final String errorMessage = switch (error.errorCode) {
+    .permissionDenied => AppLocale.cameraPermissionDenied.s,
+    _ => error.errorCode.message,
+  };
+  return Center(
+    child: Text('$errorMessage\n\n${error.errorDetails?.message ?? ''}'),
+  );
 }
 
 
 class FlashlightButton extends StatelessWidget {
-  const FlashlightButton({required this.controller, super.key});
   final MobileScannerController controller;
+
+  const FlashlightButton({required this.controller, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +26,16 @@ class FlashlightButton extends StatelessWidget {
       valueListenable: controller,
       builder: (context, state, child) {
         final IconData iconData = switch (state.torchState) {
-          TorchState.auto => Icons.flash_auto,
-          TorchState.on => Icons.flash_on,
-          _ => Icons.flash_off,
+          .auto => Icons.flash_auto,
+          .on => Icons.flash_on,
+          .off => Icons.flash_off,
+          .unavailable => Icons.no_flash,
         };
-        final void Function()? onPressed = (
-            !state.isInitialized ||
-            !state.isRunning ||
-            state.torchState == TorchState.unavailable
-        ) ? null : controller.toggleTorch;
-
+        final Future<void> Function()? onPressed = (
+            state.isInitialized &&
+            state.isRunning &&
+            state.torchState != .unavailable
+        ) ? controller.toggleTorch : null;
         return IconButton(
           icon: Icon(iconData),
           onPressed: onPressed,
@@ -53,6 +47,11 @@ class FlashlightButton extends StatelessWidget {
 
 
 class MyScanWindowOverlay extends StatefulWidget {
+  final MobileScannerController controller;
+  final Rect scanWindow;
+  final void Function(double width, double height) onPanUpdate; //Function請使用setState()來更新scanWindow
+  final VoidCallback onPanEnd;
+
   const MyScanWindowOverlay({
     super.key,
     required this.controller,
@@ -61,19 +60,14 @@ class MyScanWindowOverlay extends StatefulWidget {
     required this.onPanEnd,
   });
 
-  final MobileScannerController controller;
-  final Rect scanWindow;
-  final void Function(double width, double height) onPanUpdate; //Function請使用setState()來更新scanWindow
-  final void Function() onPanEnd;
-
   @override
   State<MyScanWindowOverlay> createState() => _MyScanWindowOverlayState();
 }
 
 class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
-  late double _initialWidth;
-  late double _initialHeight;
-  late Offset _initialPosition;
+  late double _startWidth;
+  late double _startHeight;
+  late Offset _startPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +82,8 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
             value.size.isEmpty) {
           return const SizedBox.shrink();
         }
-
         return LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
+          builder: (context, constraints) {
             final double screenWidth = constraints.maxWidth;
             final double screenHeight = constraints.maxHeight;
             final double scanWindowWidth = widget.scanWindow.width;
@@ -104,11 +97,12 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
 
             return Stack(
               children: [
+                // Darker Surrounding Mask
                 ScanWindowOverlay(
                   controller: widget.controller,
                   scanWindow: widget.scanWindow,
                   borderColor: Colors.transparent,
-                  borderWidth: 0,
+                  borderWidth: 0.0,
                   color: overlayColor,
                 ),
                 // Top Left Corner
@@ -193,15 +187,15 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
                   right: (screenWidth - scanWindowWidth) / 2,
                   child: GestureDetector(
                     onPanStart: (details) {
-                      _initialWidth = scanWindowWidth;
-                      _initialHeight = scanWindowHeight;
-                      _initialPosition = details.globalPosition;
+                      _startWidth = scanWindowWidth;
+                      _startHeight = scanWindowHeight;
+                      _startPosition = details.globalPosition;
                     },
                     onPanUpdate: (details) {
-                      final double widthDelta = (details.globalPosition.dx - _initialPosition.dx) * 2;
-                      final double heightDelta = (details.globalPosition.dy - _initialPosition.dy) * 2;
-                      final double width = (_initialWidth + widthDelta).clamp(minScanWindowSize, maxScanWindowSize);
-                      final double height = (_initialHeight + heightDelta).clamp(minScanWindowSize, maxScanWindowSize);
+                      final double widthDelta = (details.globalPosition.dx - _startPosition.dx) * 2;
+                      final double heightDelta = (details.globalPosition.dy - _startPosition.dy) * 2;
+                      final double width = (_startWidth + widthDelta).clamp(minScanWindowSize, maxScanWindowSize);
+                      final double height = (_startHeight + heightDelta).clamp(minScanWindowSize, maxScanWindowSize);
                       widget.onPanUpdate(width, height);
                     },
                     onPanEnd: (details) => widget.onPanEnd(),

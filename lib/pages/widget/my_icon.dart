@@ -11,7 +11,7 @@ class MyIconData {
   });
 
   static const MyIconData
-        barcode = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      barcode = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3 3H5V21H3V3Z" fill="white"/>
 <path d="M12 3H13V21H12V3Z" fill="white"/>
 <path d="M7 3H10V21H7V3Z" fill="white"/>

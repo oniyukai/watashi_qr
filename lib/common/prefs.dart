@@ -67,10 +67,8 @@ enum PrefsEnum {
 
   static final Map<PrefsEnum, PrefDef> _prefDefCache = {};
 
-  PrefDef get _getPrefDef {
-    final PrefDef<Object, Object>? cache = _prefDefCache[this];
-    if (cache != null) return cache;
-    final PrefDef<Object, Object> prefDef = switch (this) {
+  PrefDef get _getPrefDef => _prefDefCache.putIfAbsent(this, () {
+    final prefDef = switch (this) {
       selectedColor =>  PrefDef<ColorOption, String>._(
           .sys,
           (fromRUN) => fromRUN.name,
@@ -86,21 +84,21 @@ enum PrefsEnum {
           (fromRUN) => fromRUN.name,
           (fromSTO) => LocaleOption.values.fromName(fromSTO),
       ),
-      isAutoOpenWebsite => PrefDef._same<bool>(false),
-      isContinuousScan => PrefDef._same<bool>(false),
-      isVibrateOnScan => PrefDef._same<bool>(true),
-      isBipOnScan => PrefDef._same<bool>(false),
-      isScreenRotation => PrefDef._same<bool>(false),
-      isBarcodeCopied => PrefDef._same<bool>(false),
-      isUseFrontCamera => PrefDef._same<bool>(false),
+      isAutoOpenWebsite => PrefDef._same(false),
+      isContinuousScan => PrefDef._same(false),
+      isVibrateOnScan => PrefDef._same(true),
+      isBipOnScan => PrefDef._same(false),
+      isScreenRotation => PrefDef._same(false),
+      isBarcodeCopied => PrefDef._same(false),
+      isUseFrontCamera => PrefDef._same(false),
       selectedQRErrorLevel => PrefDef<HistoryErrorLevel, String>._(
           .L,
           (fromRUN) => fromRUN.name,
           (fromSTO) => HistoryErrorLevel.values.fromName(fromSTO),
       ),
-      isScanAddHistory => PrefDef._same<bool>(true),
-      isCreateAddHistory => PrefDef._same<bool>(true),
-      isSaveDuplicates => PrefDef._same<bool>(true),
+      isScanAddHistory => PrefDef._same(true),
+      isCreateAddHistory => PrefDef._same(true),
+      isSaveDuplicates => PrefDef._same(true),
       selectedSearchEngine => PrefDef<SearchEngine, String>._(
           .google,
           (fromRUN) => fromRUN.name,
@@ -111,16 +109,24 @@ enum PrefsEnum {
           (fromRUN) => fromRUN.map((run) => jsonEncode(run)).toList(),
           (fromSTO) => fromSTO.map((sto) => CustomSearchUrl.fromString(sto)).toList(),
       ),
-      scannerWindowWidthPortrait => PrefDef._same<double>(-1.0),
-      scannerWindowHeightPortrait => PrefDef._same<double>(-1.0),
-      scannerWindowWidthLandscape => PrefDef._same<double>(-1.0),
-      scannerWindowHeightLandscape => PrefDef._same<double>(-1.0),
-      scannerZoomLevel => PrefDef._same<double>(0.0),
+      scannerWindowWidthPortrait => PrefDef._same(-1.0),
+      scannerWindowHeightPortrait => PrefDef._same(-1.0),
+      scannerWindowWidthLandscape => PrefDef._same(-1.0),
+      scannerWindowHeightLandscape => PrefDef._same(-1.0),
+      scannerZoomLevel => PrefDef._same(0.0),
     };
-    return _prefDefCache[this] = prefDef;
-  }
+    return prefDef;
+  });
 
   T defaultValue<T>() => _getPrefDef.defaultValue as T;
+
+  /// 不依賴BuildContext, 不即時請謹慎使用
+  T get<T>() {
+    final PrefDef<Object, Object> prefDef = _getPrefDef;
+    final Object? fromSTO = PrefsProvider.instance.get(name);
+    if (fromSTO.runtimeType == prefDef.typeSTO && fromSTO != null) return prefDef.toRUN(fromSTO) as T;
+    return prefDef.defaultValue as T;
+  }
 }
 
 class PrefsProvider extends ChangeNotifier {
@@ -130,20 +136,20 @@ class PrefsProvider extends ChangeNotifier {
     instance = await SharedPreferences.getInstance();
   }
 
-  final Map<PrefsEnum, Object> _prefsMap = {};
+  final Map<PrefsEnum, Object> _prefsRunsMap = {};
 
   PrefsProvider() {
     for (final PrefsEnum key in PrefsEnum.values) {
       final PrefDef<Object, Object> prefDef = key._getPrefDef;
       final Object? fromSTO = instance.get(key.name);
-      if (fromSTO.runtimeType == prefDef.typeSTO && fromSTO != null) _prefsMap[key] = prefDef.toRUN(fromSTO);
+      if (fromSTO.runtimeType == prefDef.typeSTO && fromSTO != null) _prefsRunsMap[key] = prefDef.toRUN(fromSTO);
     }
   }
 
   /// 依賴BuildContext
   T get<T>(PrefsEnum key) {
     final PrefDef<Object, Object> prefDef = key._getPrefDef;
-    final Object value = _prefsMap[key] ?? prefDef.defaultValue;
+    final Object value = _prefsRunsMap[key] ?? prefDef.defaultValue;
     assert(value.runtimeType == prefDef.typeRUN);
     return value as T;
   }
@@ -167,7 +173,7 @@ class PrefsProvider extends ChangeNotifier {
     } else {
       throw ArgumentError('Unsupported type $key: ${fromSTO.runtimeType}');
     }
-    _prefsMap[key] = value;
+    _prefsRunsMap[key] = value;
     if (notify) notifyListeners();
   }
 }

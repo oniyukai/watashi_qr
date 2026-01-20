@@ -7,16 +7,16 @@ import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:flutter/services.dart';
 
 class AnalyzedContentItem extends StatelessWidget {
+  final String contents;
+  final HistoryType? type;
+  final HistoryFormat? format;
+
   const AnalyzedContentItem({
     super.key,
     required this.contents,
     required this.type,
     required this.format,
   });
-
-  final String contents;
-  final HistoryType? type;
-  final HistoryFormat? format;
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +185,7 @@ class AnalyzedContentItem extends StatelessWidget {
 
 class _AnalyzedContentColumn extends StatelessWidget {
   final Map<String, String?> map;
+
   const _AnalyzedContentColumn({required this.map});
 
   @override

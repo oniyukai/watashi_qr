@@ -39,7 +39,7 @@ class MainCreatorView extends StatefulWidget {
       isFavorite: false,
       notes: '',
     );
-    if (isCreateAddHistory) item.id = DatabaseServices.addItem(item, context);
+    if (isCreateAddHistory) item.id = DatabaseServices.addItem(item);
     await context.routeOf<PageCodeView>().arguments(item).to();
   }
 

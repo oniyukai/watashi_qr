@@ -1,7 +1,6 @@
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
@@ -31,9 +30,9 @@ class DatabaseServices {
           .watch(triggerImmediately: true)
           .map((query) => query.find());
 
-  static int addItem(HistoryItem item, BuildContext context) {
+  static int addItem(HistoryItem item) {
     assert(item.id == 0);
-    if (context.readPrefs.get(.isSaveDuplicates)) return _historyBox.put(item, mode: .insert);
+    if (PrefsEnum.isSaveDuplicates.get()) return _historyBox.put(item, mode: .insert);
     final Query<HistoryItem> query = _applyOrder(_historyBox
         .query(HistoryItem_.format.equals(item.format).and(HistoryItem_.contents.equals(item.contents)))
     ).build();

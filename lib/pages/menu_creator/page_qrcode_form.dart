@@ -25,18 +25,8 @@ typedef _ValueDecode = String Function(Map<String, dynamic> valueMap);
 
 class _PageQrcodeFormState extends State<PageQrcodeForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryType _historyType;
-  bool _isInitialized = false;
+  late final HistoryType _historyType = widget.argumentOf(context)!;
   late _ValueDecode _valueDecode;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      _historyType = widget.argumentOf(context)!;
-      _isInitialized = true;
-    }
-  }
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -46,7 +36,6 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleQrCodeCreator.s),

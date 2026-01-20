@@ -27,28 +27,19 @@ class PageCodeView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageCodeViewState extends State<PageCodeView> {
-  late final HistoryItem _historyItem;
-  late final HistoryFormat? _historyFormat;
-  late HistoryErrorLevel? _historyErrorLevel;
-  bool _isInitialized = false;
+  late final HistoryItem _historyItem = widget.argumentOf(context)!;
+  late final HistoryFormat? _historyFormat = _historyItem.getFormat;
+  late final HistoryErrorLevel _historyErrorLevel = _initErrorLevel();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      _historyItem = widget.argumentOf(context)!;
-      _historyFormat = _historyItem.getFormat;
-      _historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
-      if (_historyErrorLevel == HistoryErrorLevel.none || _historyErrorLevel == null) {
-        _historyErrorLevel = context.readPrefs.get(PrefsEnum.selectedQRErrorLevel);
-      }
-      _isInitialized = true;
-    }
+  HistoryErrorLevel _initErrorLevel() {
+    final HistoryErrorLevel? historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
+    return (historyErrorLevel == .none || historyErrorLevel == null)
+        ? context.readPrefs.get<HistoryErrorLevel>(.selectedQRErrorLevel)
+        : historyErrorLevel;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     final isPortrait = Utils.isPortrait(context);
     final validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
     final longestSide = MediaQuery.of(context).size.longestSide;
@@ -115,7 +106,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                     const SizedBox(height: 8),
                     if (_historyFormat == HistoryFormat.qrCode || _historyFormat == null)
                       Center(child: Text('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
-                          '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel?.name)}')),
+                          '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}')),
                     Text(_historyFormat?.description ?? ''),
                     const SizedBox(height: 16),
                   ],
@@ -210,7 +201,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   }
 
   Barcode _getBarcode() {
-    final level = _historyErrorLevel?.barcodeQRCorrectionLevel ?? BarcodeQRCorrectionLevel.low;
+    final level = _historyErrorLevel.barcodeQRCorrectionLevel ?? BarcodeQRCorrectionLevel.low;
     return (_historyFormat == null || _historyFormat == HistoryFormat.qrCode)
         ? Barcode.qrCode(errorCorrectLevel: level)
         : _historyFormat.barcodeFunc();

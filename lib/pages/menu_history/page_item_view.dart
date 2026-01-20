@@ -32,19 +32,8 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 
 class _PageItemViewState extends State<PageItemView> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryItem _historyItem;
-  late bool _isWillExist;
-  bool _isInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      _historyItem = widget.argumentOf(context)!;
-      _isWillExist = _historyItem.id > 0;
-      _isInitialized = true;
-    }
-  }
+  late final HistoryItem _historyItem = widget.argumentOf(context)!;
+  late bool _isWillExist = _historyItem.id > 0;
 
   @override
   void initState() {
@@ -57,15 +46,14 @@ class _PageItemViewState extends State<PageItemView> {
       DatabaseServices.updateItem(_historyItem);
     } else if (_historyItem.id > 0) {
       DatabaseServices.deleteItem(_historyItem.id);
-    } else if (_isWillExist) { // todo debug: 當我關閉掃描加入 並手動加入 他並沒有加入記錄
-      DatabaseServices.addItem(_historyItem, context);
+    } else if (_isWillExist) {
+      DatabaseServices.addItem(_historyItem);
     }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     final colorScheme = Theme.of(context).colorScheme;
     final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format);
     final isFormatSupported = _historyItem.getFormat != null;

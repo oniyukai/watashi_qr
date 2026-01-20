@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:watashi_qr/common/prefs.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:core';
@@ -67,23 +66,18 @@ class Utils {
   static Future<void> searchInBrowser(String searchUrl, String keyWord) =>
     openUrlInBrowser(searchUrl.replaceAll('{code}', Uri.encodeComponent(keyWord)));
 
-  /// 看設定要不要鎖定螢幕轉向
+  /// 鎖定螢幕轉向
   static Future<void> lockCurrentOrientation(BuildContext context) async {
-    final bool isScreenRotation = context.readPrefs.get(.isScreenRotation);
-    if (isScreenRotation) {
-      if (isPortrait(context)) {
-        await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
-          .portraitUp,
-          .portraitDown,
-        ]);
-      } else {
-        await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
-          .landscapeLeft,
-          .landscapeRight,
-        ]);
-      }
+    if (isPortrait(context)) {
+      await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+        .portraitUp,
+        .portraitDown,
+      ]);
     } else {
-      await unlockCurrentOrientation();
+      await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+        .landscapeLeft,
+        .landscapeRight,
+      ]);
     }
   }
 

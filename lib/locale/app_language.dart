@@ -12,8 +12,6 @@ extension StaticString on AppLocale {
       jpgLabel = 'JPG',
       svgLabel = 'SVG',
       nullString = 'NULL<String>',
-      // Animations
-      // Default font
       // External Services Label
       googleLabel = 'Google',
       bingLabel = 'Bing',
@@ -21,26 +19,6 @@ extension StaticString on AppLocale {
       googleUrl = 'https://www.google.com/search?q={code}',
       bingUrl = 'https://www.bing.com/search?q={code}',
       wikipediaUrl = 'https://wikipedia.org/w/index.php?search={code}',
-      // Preferences Settings Keys
-      // Preferences Entry Values
-      // About Library Third
-      // Activity KTX
-      // Preference KTX
-      // Lifecycle Livedata KTX
-      // AppCompat
-      // ConstraintLayout
-      // RecyclerView
-      // Material Components for Android
-      // CameraX
-      // Room
-      // Retrofit
-      // Gson
-      // Coil
-      // Koin
-      // Zxing
-      // Android Image Cropper
-      // ez-vcard
-      // Color Picker
       // Link
       sourceCodeLink = 'https://github.com/oniyukai/watashi_qr',
       // Local Language text
@@ -122,18 +100,6 @@ enum AppLocale {
   aboutBarcodeInformationLabel,
   aboutBarcodeFormatLabel,
   aboutBarcodeOriginLabel,
-  // Product
-  // Barcode Searching Error
-  // Food Beauty and Pet Food Product
-  // Overview
-  // Details
-  // Ingredients
-  // Veggie
-  // Nutrition
-  // Table
-  // For 100g
-  // Book
-  // Music
   // Matrix Barcode
   barCodeContentLabel,
   // Matrix Barcode Contact Analysis
@@ -313,8 +279,6 @@ enum AppLocale {
   // Languages Settings
   preferencesLanguagesTitle,
   preferencesLanguagesChange,
-  // Remote API
-  // About Remote API
   // Scan Settings
   preferencesScanTitle,
   preferencesSwitchScanAutoOpenWebsiteLabel,
@@ -334,7 +298,6 @@ enum AppLocale {
   preferencesSearchTitle,
   preferencesSearchEngine,
   // Settings: Additional options
-  // Shortcuts
   // About Settings
   preferencesAboutTitle,
   preferencesAboutOpenSourceLibrariesLabel,

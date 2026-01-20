@@ -26,17 +26,7 @@ class PageCustomurlsFormArgs {
 
 class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final PageCustomurlsFormArgs _args;
-  bool _isInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      _args = widget.argumentOf(context)!;
-      _isInitialized = true;
-    }
-  }
+  late final PageCustomurlsFormArgs _args = widget.argumentOf(context)!;
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -55,7 +45,6 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     final TextTheme textTheme = Theme.of(context).textTheme;
     final CustomSearchUrl? argItem = _args.index == null ? null : _args.items[_args.index!];
     return Scaffold(

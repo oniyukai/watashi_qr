@@ -6,6 +6,11 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class MainHistoryCard extends StatelessWidget {
+  final HistoryItem historyItem;
+  final bool selected;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
   const MainHistoryCard({
     super.key,
     required this.historyItem,
@@ -13,11 +18,6 @@ class MainHistoryCard extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
   });
-
-  final HistoryItem historyItem;
-  final bool selected;
-  final void Function() onTap;
-  final void Function() onLongPress;
 
   @override
   Widget build(BuildContext context) {

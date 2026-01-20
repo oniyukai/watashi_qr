@@ -67,10 +67,10 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
               for (final entry in _customSearchUrls.asMap().entries)
                 if (!selectedObjects.contains(entry.key)) entry.value
             ];
-            await context.readPrefs.update(.customSearchUrls, _customSearchUrls);
+            await context.readPrefs.update(.customSearchUrls, _customSearchUrls, false);
             exitSelectionMode();
           } else {
-            await context.readPrefs.update(.customSearchUrls, PrefsEnum.customSearchUrls.defaultValue());
+            await context.readPrefs.update(.customSearchUrls, _customSearchUrls..clear());
           }
           Utils.showToast(AppLocale.customUrlDeleted.s);
         },

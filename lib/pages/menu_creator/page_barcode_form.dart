@@ -16,17 +16,7 @@ class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
 
 class _PageBarcodeFormState extends State<PageBarcodeForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryFormat _historyFormat;
-  bool _isInitialized = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      _historyFormat = widget.argumentOf(context)!;
-      _isInitialized = true;
-    }
-  }
+  late final HistoryFormat _historyFormat = widget.argumentOf(context)!;
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -36,7 +26,6 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isInitialized) return const Center(child: CircularProgressIndicator());
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleBarCodeCreator.s),

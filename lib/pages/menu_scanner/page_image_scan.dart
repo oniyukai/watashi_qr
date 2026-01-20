@@ -25,77 +25,63 @@ class PageImageScan extends StatefulWidget with RouterBridge<PageImageScanArgs> 
 
 class PageImageScanArgs {
   final MobileScannerController controller;
-  final XFile? xFile;
+  XFile? xFile;
   PageImageScanArgs({required this.controller, this.xFile});
 }
 
 class _PageImageScanState extends State<PageImageScan> {
   final CropController _cropController = CropController();
+  late final PageImageScanArgs _args = widget.argumentOf(context)!;
   Uint8List? _imageBytes;
   BarcodeCapture? _barcodeCapture;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
-      _loadImage();
-    });
+    WidgetsBinding.instance.addPostFrameCallback(_postFrameCallback);
   }
 
-  Future<void> _loadImage() async {
-    XFile? xFile = widget.argumentOf(context)?.xFile
-        ?? await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (xFile != null) {
-      final bytes = await xFile.readAsBytes();
-      setState(() {
-        _imageBytes = bytes;
-      });
-    } else {
+  Future<void> _postFrameCallback(Duration timeStamp) async {
+    _args.xFile ??= await ImagePicker().pickImage(source: .gallery);
+    if (_args.xFile == null) {
       Navigator.pop(context);
+      return;
     }
+    final Uint8List bytes = await _args.xFile!.readAsBytes();
+    setState(() => _imageBytes = bytes);
   }
 
   Future<void> _onCropped(CropResult croppedData) async {
-    if (croppedData is CropSuccess) {
-      final MobileScannerController? controller = widget.argumentOf(context)?.controller;
-      if (controller == null) throw 'widget.argumentOf(context) cannot be null.';
-      final Uint8List croppedImage = croppedData.croppedImage;
-
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File(p.join(tempDir.path, 'temp_image.png'));
-      await tempFile.writeAsBytes(croppedImage);
-
-      final BarcodeCapture? barcodeCapture = await controller.analyzeImage(tempFile.path);
-
-      if (mounted) {
-        setState(() {
-          _barcodeCapture = barcodeCapture;
-        });
-      }
-    } else if (croppedData is CropFailure) {
+    if (croppedData is CropFailure) {
       Utils.showToast('${croppedData.cause}');
+    } else if (croppedData is CropSuccess) {
+      final Directory tempDir = await getTemporaryDirectory();
+      final File tempFile = File(p.join(tempDir.path, 'temp_cropped_image.png'));
+      await tempFile.writeAsBytes(croppedData.croppedImage);
+      final BarcodeCapture? barcodeCapture = await _args.controller.analyzeImage(tempFile.path);
+      if (!mounted) return;
+      setState(() => _barcodeCapture = barcodeCapture);
     }
   }
 
-  Future<void> checkAndGoView() async {
-    final barcodeFormat = _barcodeCapture?.barcodes.first.format;
-    final String? contents = _barcodeCapture?.barcodes.first.rawValue;
-    if (barcodeFormat==null || contents==null || contents.isEmpty) return;
+  Future<void> _pressCheck() async {
+    final BarcodeFormat scannerFormat = _barcodeCapture!.barcodes.first.format;
+    final String? contents = _barcodeCapture!.barcodes.first.rawValue;
+    if (contents == null || contents.isEmpty) return;
 
-    final format = HistoryFormat.fromScannerFormat(barcodeFormat);
-    final bool isScanAddHistory = context.readPrefs.get(PrefsEnum.isScanAddHistory);
+    final HistoryFormat? format = HistoryFormat.fromScannerFormat(scannerFormat);
+    final bool isScanAddHistory = context.readPrefs.get(.isScanAddHistory);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
-      format: format?.name ?? barcodeFormat.name,
+      format: format?.name ?? scannerFormat.name,
       type: HistoryType.fromDistinguish(format, contents).name,
       errorLevel: HistoryErrorLevel.none.name,
       origin: HistoryOrigin.S.name,
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) item.id = DatabaseServices.addItem(item, context);
+    if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
     await context.routeOf<PageItemView>().arguments(item).to();
     Navigator.pop(context);
   }
@@ -108,20 +94,20 @@ class _PageImageScanState extends State<PageImageScan> {
         actions: [
           if (_barcodeCapture?.barcodes.isNotEmpty == true) IconButton(
             icon: const Icon(Icons.check),
-            onPressed: checkAndGoView,
+            onPressed: _pressCheck,
           ),
         ],
       ),
       body: (_imageBytes == null) ? null
           : Crop(
+        key: ValueKey(Utils.isPortrait(context)),
         controller: _cropController,
         image: _imageBytes!,
-        initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
-        onCropped: _onCropped,
-        onHistoryChanged: (_) => _cropController.crop(),
-        baseColor: Colors.transparent,
-        key: ValueKey(Utils.isPortrait(context)),
         interactive: true,
+        onCropped: _onCropped,
+        onHistoryChanged: (history) => _cropController.crop(),
+        baseColor: Colors.transparent,
+        initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
       ),
     );
   }
