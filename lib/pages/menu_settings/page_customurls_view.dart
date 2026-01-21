@@ -64,7 +64,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
           Navigator.pop(context);
           if (isSelectionMode) {
             _customSearchUrls = [
-              for (final entry in _customSearchUrls.asMap().entries)
+              for (final MapEntry<int, CustomSearchUrl> entry in _customSearchUrls.asMap().entries)
                 if (!selectedObjects.contains(entry.key)) entry.value
             ];
             await context.readPrefs.update(.customSearchUrls, _customSearchUrls, false);
@@ -79,7 +79,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     _customSearchUrls = context.readPrefs.get(.customSearchUrls);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(

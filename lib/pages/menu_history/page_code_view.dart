@@ -30,6 +30,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   late final HistoryItem _historyItem = widget.argumentOf(context)!;
   late final HistoryFormat? _historyFormat = _historyItem.getFormat;
   late final HistoryErrorLevel _historyErrorLevel = _initErrorLevel();
+  late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
 
   HistoryErrorLevel _initErrorLevel() {
     final HistoryErrorLevel? historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
@@ -38,29 +39,59 @@ class _PageCodeViewState extends State<PageCodeView> {
         : historyErrorLevel;
   }
 
+  Future<void> _pressExport(String fileSuffix) async {
+    try {
+      final Directory? initialDir = await getDownloadsDirectory();
+      final String? dir = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDir?.path);
+      if (dir == null) {
+        Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
+        return;
+      }
+      final double width = 1024.0;
+      final File file = File(p.join(dir, 'barcode.$fileSuffix'));
+      switch (fileSuffix) {
+        case StaticString.svgSuffix:
+          await file.writeAsString(_getBarcodeSvg(width));
+        case StaticString.pngSuffix:
+          await file.writeAsBytes(img.encodePng(_getBarcodeImage(width)));
+        case StaticString.jpgSuffix:
+          await file.writeAsBytes(img.encodeJpg(_getBarcodeImage(width)));
+        default: throw 'Unsupported file format: $fileSuffix';
+      }
+      Utils.showToast(AppLocale.snackBarMessageSaveBitmapOk.s);
+    } catch (e) {
+      Utils.showToast('${AppLocale.snackBarMessageSaveBitmapError.s}\n$e', true);
+    }
+  }
+
+  Future<void> _pressShare() async {
+    try {
+      final Directory tempDir = await getTemporaryDirectory();
+      final File file = File(p.join(tempDir.path, 'barcode.png'));
+      await file.writeAsBytes(img.encodePng(_getBarcodeImage(1024.0)));
+      await Utils.share(ShareParams(files: [XFile(file.path)]));
+    } catch (e) {
+      Utils.showToast(e.toString());
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    final isPortrait = Utils.isPortrait(context);
-    final validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
-    final longestSide = MediaQuery.of(context).size.longestSide;
+  Widget build(context) {
+    final bool isPortrait = Utils.isPortrait(context);
+    final double longestSide = MediaQuery.of(context).size.longestSide;
     return Scaffold(
       appBar: AppBar(
         title: Text(HistoryFormat.localeStrFromName(_historyItem.format)),
-        actions: (validatorMsg == null) ? [
+        actions: _historyFormat != null && _validatorMsg == null ? [
           MyMenuButton(
             icon: const Icon(Icons.save),
-            items: [
-              MyMenuItem(text: StaticString.pngLabel),
-              MyMenuItem(text: StaticString.jpgLabel),
-              MyMenuItem(text: StaticString.svgLabel),
-            ],
-            onSelectedEnd: (int option) => _exportImage(const <String>[
-              StaticString.pngLabel, StaticString.jpgLabel, StaticString.svgLabel
-            ][option]),
+            items: const {StaticString.pngSuffix, StaticString.jpgSuffix, StaticString.svgSuffix}
+              .map((suffix) => MyMenuItem(text: suffix.toUpperCase(), onTap: () => _pressExport(suffix)))
+              .toList(),
           ),
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () => _shareImage(), // 匯出PNG
+            onPressed: _pressShare,
           ),
         ] : null,
       ),
@@ -68,9 +99,9 @@ class _PageCodeViewState extends State<PageCodeView> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Flex(
-            direction: isPortrait ? Axis.vertical : Axis.horizontal,
+            direction: isPortrait ? .vertical : .horizontal,
             children: [
-              Expanded(
+              if (_historyFormat != null) Expanded(
                 flex: isPortrait ? 0 : 1,
                 child: Card(
                   color: Colors.white,
@@ -81,11 +112,14 @@ class _PageCodeViewState extends State<PageCodeView> {
                         final double width = isPortrait
                             ? min(constraints.biggest.shortestSide * 0.8, longestSide * 0.5)
                             : constraints.biggest.shortestSide;
+                        Widget? svgWidget;
+                        try {
+                          if (_validatorMsg == null) svgWidget = SvgPicture.string(_getBarcodeSvg(width));
+                        } catch (e) {
+                          _validatorMsg = e.toString();
+                        }
                         return Center(
-                          child: (validatorMsg == null)
-                              ? _getSvgPicture(width)
-                              : Text(validatorMsg, style: TextStyle(color: Colors.grey)
-                          ),
+                          child: svgWidget ?? Text(_validatorMsg!, style: TextStyle(color: Colors.grey))
                         );
                       },
                     ),
@@ -104,9 +138,11 @@ class _PageCodeViewState extends State<PageCodeView> {
                       expandedChild: SelectableText(_historyItem.contents),
                     ),
                     const SizedBox(height: 8),
-                    if (_historyFormat == HistoryFormat.qrCode || _historyFormat == null)
-                      Center(child: Text('${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
-                          '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}')),
+                    if (_historyFormat == .qrCode) Text(
+                      '${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
+                      '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}',
+                      textAlign: .center,
+                    ),
                     Text(_historyFormat?.description ?? ''),
                     const SizedBox(height: 16),
                   ],
@@ -119,91 +155,25 @@ class _PageCodeViewState extends State<PageCodeView> {
     );
   }
 
-  Widget _getSvgPicture(double width) {
-    try {
-      return SvgPicture.string(_getBarcodeSvg(width));
-    } catch (e) {
-      return Text(e.toString(), style: TextStyle(color: Colors.grey));
-    }
+  String _getBarcodeSvg(double width) =>
+      _getBarcode().toSvg(_historyItem.contents, width: width, height: _getHeight(width));
+
+  img.Image _getBarcodeImage(double width) {
+    final img.Image image = img.Image(width: width.round(), height: _getHeight(width).round());
+    img.fill(image, color: img.ColorRgb8(255, 255, 255));
+    drawBarcode(image, _getBarcode(), _historyItem.contents, font: img.arial48);
+    return image;
   }
 
-  Future<void> _exportImage(String option) async {
-    try {
-      final Directory? directory = await getDownloadsDirectory();
-      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
-      if (directoryPath == null) {
-        Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
-        return;
-      }
-      final String filePath = p.join(directoryPath, 'barcode.$option');
-      final file = File(filePath);
+  Barcode _getBarcode() => _historyFormat == .qrCode || _historyFormat == null
+      ? Barcode.qrCode(errorCorrectLevel: _historyErrorLevel.barcodeQRCorrectionLevel ?? .low)
+      : _historyFormat.barcodeFunc();
 
-      if (option == StaticString.svgLabel) {
-        final String svg = _getBarcodeSvg(1024);
-        await file.writeAsString(svg);
-      } else {
-        final barcodeImage = _getBarcodeImage();
-        file.writeAsBytesSync(option==StaticString.pngLabel ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
-      }
-
-      Utils.showToast(AppLocale.snackBarMessageSaveBitmapOk.s);
-    } catch (e) {
-      Utils.showToast('${AppLocale.snackBarMessageSaveBitmapError.s}\n$e', true);
-    }
-  }
-
-  Future<void> _shareImage() async {
-    try {
-      final Directory tempDir = await getTemporaryDirectory();
-      final String filePath = p.join(tempDir.path, 'barcode.png');
-      final File file = File(filePath);
-      final barcodeImage = _getBarcodeImage();
-      file.writeAsBytesSync(img.encodePng(barcodeImage));
-      await Utils.share(ShareParams(files: [XFile(filePath)]));
-    } catch (e) {
-      Utils.showToast(e.toString());
-    }
-  }
-
-  img.Image _getBarcodeImage(){
-    final barcodeImage = img.Image(width: 1024, height: _getHeight(1024.0).toInt());
-    img.fill(barcodeImage, color: img.ColorRgb8(255, 255, 255));
-    drawBarcode(barcodeImage, _getBarcode(), _historyItem.contents, font: img.arial48);
-    return barcodeImage;
-  }
-
-  String _getBarcodeSvg(double width) {
-    final Barcode barcode = _getBarcode();
-    final double height = _getHeight(width);
-    return barcode.toSvg(_historyItem.contents, width: width, height: height);
-  }
-
-  double _getHeight(double width) {
-    switch (_historyFormat) {
-      case HistoryFormat.qrCode:
-      case HistoryFormat.aztec:
-      case HistoryFormat.dataMatrix:
-        return width;
-      case HistoryFormat.pdf417:
-      case HistoryFormat.ean13:
-      case HistoryFormat.ean8:
-      case HistoryFormat.upcA:
-      case HistoryFormat.upcE:
-      case HistoryFormat.code128:
-      case HistoryFormat.code93:
-      case HistoryFormat.code39:
-      case HistoryFormat.codabar:
-      case HistoryFormat.itf:
-        return width/2.718;
-      default:
-        return width;
-    }
-  }
-
-  Barcode _getBarcode() {
-    final level = _historyErrorLevel.barcodeQRCorrectionLevel ?? BarcodeQRCorrectionLevel.low;
-    return (_historyFormat == null || _historyFormat == HistoryFormat.qrCode)
-        ? Barcode.qrCode(errorCorrectLevel: level)
-        : _historyFormat.barcodeFunc();
-  }
+  double _getHeight(double width) => switch (_historyFormat) {
+    .qrCode || .dataMatrix || .aztec || null => width,
+    .pdf417 || .ean13 || .ean8 ||
+    .upcA || .upcE || .code128 ||
+    .code93 || .code39 || .codabar ||
+    .itf => width/2.718,
+  };
 }

@@ -20,16 +20,16 @@ class MainHistoryCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+  Widget build(context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     return Card(
       elevation: 0,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         selected: selected,
-        tileColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.25),
-        selectedTileColor: theme.colorScheme.primaryContainer,
+        tileColor: colorScheme.primaryContainer.withValues(alpha: 0.25),
+        selectedTileColor: colorScheme.primaryContainer,
         onTap: onTap,
         onLongPress: onLongPress,
         minTileHeight: 40,
@@ -38,10 +38,10 @@ class MainHistoryCard extends StatelessWidget {
           width: 40.0,
           height: 40.0,
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: (historyItem.isFavorite)
-                  ? colorScheme.tertiary
-                  : colorScheme.primary
+            shape: .circle,
+            color: historyItem.isFavorite
+                ? colorScheme.tertiary
+                : colorScheme.primary
           ),
           child: Center(
             child: MyIcon(
@@ -54,64 +54,60 @@ class MainHistoryCard extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                historyItem.contents.replaceAll("\n", " "),
+                historyItem.contents.replaceAll('\n', ' '),
                 style: theme.textTheme.titleMedium,
-                overflow: TextOverflow.ellipsis,
+                overflow: .ellipsis,
               ),
             ),
             const SizedBox(width: 4.0),
-            Row(
-              children: [
-                if (historyItem.isFavorite) Icon(
-                  Icons.favorite,
-                  size: 16.0,
-                  color: theme.hintColor
-                ),
-                const SizedBox(width: 2.0),
-                Text(
-                  HistoryFormat.localeStrFromName(historyItem.format),
-                  style: theme.textTheme.bodySmall,
-                ),
-                const SizedBox(width: 2.0),
-                MyIcon(
-                  historyItem.getFormatIconData,
-                  size: 16.0,
-                  color: theme.hintColor,
-                ),
-              ],
+            if (historyItem.isFavorite) Icon(
+                Icons.favorite,
+                size: 16.0,
+                color: theme.hintColor
+            ),
+            const SizedBox(width: 2.0),
+            Text(
+              HistoryFormat.localeStrFromName(historyItem.format),
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(width: 2.0),
+            MyIcon(
+              historyItem.getFormatIconData,
+              size: 16.0,
+              color: theme.hintColor,
             ),
           ],
         ),
         subtitle: Row(
           children: [
-            Text(HistoryType.localeStrFromName(historyItem.type),
+            Text(
+              HistoryType.localeStrFromName(historyItem.type),
               style: theme.textTheme.bodySmall,
-              overflow: TextOverflow.ellipsis,
+              overflow: .ellipsis,
             ),
-            const SizedBox(width: 8.0),
-            Expanded(child: Text(
-              historyItem.notes.replaceAll("\n", " "),
-              style: TextStyle(
-                color: colorScheme.tertiary,
-                fontWeight: FontWeight.bold,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),),
             const SizedBox(width: 4.0),
-            Row(
-              children: [
-                Icon(
-                  (historyItem.origin == HistoryOrigin.S.name)
-                    ? Icons.fullscreen
-                    : Icons.edit_outlined,
-                  size: 16.0, color: theme.hintColor
+            Expanded(
+              child: Text(
+                historyItem.notes.replaceAll('\n', ' '),
+                style: TextStyle(
+                  color: colorScheme.tertiary,
+                  fontWeight: .bold,
                 ),
-                const SizedBox(width: 2.0),
-                Text(
-                  Utils.formatUnixTimes(historyItem.unixTime),
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
+                overflow: .ellipsis,
+              ),
+            ),
+            const SizedBox(width: 4.0),
+            Icon(
+              historyItem.origin == HistoryOrigin.S.name
+                ? Icons.fullscreen
+                : Icons.edit_outlined,
+              size: 16.0,
+              color: theme.hintColor
+            ),
+            const SizedBox(width: 2.0),
+            Text(
+              Utils.formatUnixTimes(historyItem.unixTime),
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),

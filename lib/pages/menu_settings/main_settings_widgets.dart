@@ -22,9 +22,9 @@ class ListTileText extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  Widget build(context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
       contentPadding: isSection ? const EdgeInsets.only(top: 16, left: 16) : null,
       leading: SizedBox(width: 48, child: Icon(iconData)),
@@ -64,7 +64,7 @@ class ListTileSwitch extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(text),
@@ -101,7 +101,7 @@ class ListTilePicker<T> extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(text),

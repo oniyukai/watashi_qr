@@ -11,8 +11,9 @@ async {
   await showDialog(
     context: context,
     builder: (BuildContext context) => AlertDialog(
-      title: Center(
-        child: Text(title, style:Theme.of(context).textTheme.titleMedium),
+      title: Text(title,
+        style:Theme.of(context).textTheme.titleMedium,
+        textAlign: .center
       ),
       content: content,
       actions: [

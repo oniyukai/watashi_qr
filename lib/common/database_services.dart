@@ -47,7 +47,7 @@ class DatabaseServices {
     return _historyBox.put(item, mode: .insert);
   }
 
-  // static HistoryItem? getItem(int id) => _historyItemBox.get(id);
+  // static HistoryItem? getItem(int id) => _historyBox.get(id);
 
   static List<HistoryItem> getItems([List<int>? ids]) {
     final Query<HistoryItem> query = _applyOrder(_historyBox
@@ -135,7 +135,7 @@ class DatabaseServices {
       int replaced = 0;
 
       final Map<int, HistoryItem> itemsToProcess = {};
-      for (final itemJson in jsonData) {
+      for (final dynamic itemJson in jsonData) {
         final HistoryItem historyItem = HistoryItem.fromJson(itemJson);
         itemsToProcess[historyItem.unixTime] = historyItem;
       }

@@ -71,7 +71,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     AppLocale.load(context);
     return SafeArea(
       child: Scrollbar(

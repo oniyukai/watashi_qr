@@ -65,7 +65,7 @@ class _ExpandableCardState extends State<ExpandableCard>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Card(
       child: Column(
         children: [

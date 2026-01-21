@@ -44,7 +44,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final CustomSearchUrl? argItem = _args.index == null ? null : _args.items[_args.index!];
     return Scaffold(
@@ -96,7 +96,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
                         FormBuilderValidators.startsWith('http', errorText: AppLocale.errorBarcodeQrUrlFormatMessage.s),
-                        FormBuilderValidators.contains('{code}', errorText: AppLocale.customSearchUrlsErrorUrl.s),
+                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: AppLocale.customSearchUrlsErrorUrl.s),
                         FormBuilderValidators.url(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
                       ]),
                     ),

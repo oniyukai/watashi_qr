@@ -31,13 +31,13 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     autoStart: false,
   );
   final AudioPlayer _audioPlayer = AudioPlayer();
-  late final double _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.4;
-  late double _zoomLevel = context.readPrefs.get(.scannerZoomLevel);
-  late bool _isLockOrientation;
-  late bool _isUseFrontCamera;
   bool _enableDetect = true;
   bool _isLastTimeOnView = false;
   Rect _scanWindow = .zero;
+  late double _zoomLevel = context.readPrefs.get(.scannerZoomLevel);
+  late bool _isScreenRotation;
+  late bool _isUseFrontCamera;
+  late double _defaultScanWindowSize;
 
   @override
   void initState() {
@@ -62,8 +62,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
 
   Future<void> _viewEntryExitEvent(bool onScanner) async {
     if (_enableDetect && onScanner) {
-      _isLockOrientation = context.readPrefs.get(.isScreenRotation);
-      _setOrientationLock(_isLockOrientation);
+      _setOrientationLock(_isScreenRotation = context.readPrefs.get(.isScreenRotation));
       _loadOrientationLengthStartScan();
       _isLastTimeOnView = true;
     } else if (_isLastTimeOnView) {
@@ -83,6 +82,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
         ? .scannerWindowHeightPortrait
         : .scannerWindowHeightLandscape
     );
+    _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.4;
     _scanWindow = Rect.fromCenter(
       center: _scanWindow.center,
       width: width >= 0 ? width : _defaultScanWindowSize,
@@ -96,18 +96,16 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   Future<void> _setOrientationLock(bool toLock) async {
     if (toLock) {
       await Utils.lockCurrentOrientation(context);
-    } else if (_isLockOrientation) {
+    } else if (_isScreenRotation) {
       await Utils.unlockCurrentOrientation();
     }
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(state) {
     super.didChangeAppLifecycleState(state);
     if (!_scannerController.value.isInitialized) return;
-    if (state == AppLifecycleState.resumed && _enableDetect &&
-        context.read<MenuNavBarProvider>().onScanner
-    ) {
+    if (state == .resumed && _enableDetect && context.read<MenuNavBarProvider>().onScanner) {
       _scannerController.setZoomScale(_zoomLevel);
     }
   }
@@ -178,11 +176,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   Future<void> _resetScanWindow() async {
-    setState(() => _scanWindow = Rect.fromCenter(
-      center: _scanWindow.center,
-      width: _defaultScanWindowSize,
-      height: _defaultScanWindowSize
-    ));
+    _updateScanWindow(_defaultScanWindowSize, _defaultScanWindowSize);
     await _saveScanWindow();
   }
 
@@ -204,7 +198,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     AppLocale.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return SafeArea(

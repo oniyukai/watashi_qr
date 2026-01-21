@@ -53,7 +53,7 @@ class _PageItemViewState extends State<PageItemView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final colorScheme = Theme.of(context).colorScheme;
     final formatNameStr = HistoryFormat.localeStrFromName(_historyItem.format);
     final isFormatSupported = _historyItem.getFormat != null;

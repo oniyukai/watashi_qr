@@ -25,7 +25,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleBarCodeCreator.s),

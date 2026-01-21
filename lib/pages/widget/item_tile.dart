@@ -22,10 +22,9 @@ class ItemTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  Widget build(context) {
     final ThemeData theme = Theme.of(context);
-
+    final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       contentPadding: const EdgeInsets.all(8),
@@ -47,7 +46,6 @@ class ItemTile extends StatelessWidget {
             myIconData,
             color: colorScheme.onPrimary,
           ),
-          // child: Icon(iconData, color: colorScheme.onPrimary)
         ),
       ) : null,
       title: Text(

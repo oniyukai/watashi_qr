@@ -19,7 +19,7 @@ class AnalyzedContentItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     switch (type) {
       case HistoryType.contact:
         String name = '';
@@ -189,7 +189,7 @@ class _AnalyzedContentColumn extends StatelessWidget {
   const _AnalyzedContentColumn({required this.map});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Column(
       children: map.entries.map((entry) {
         if (entry.value != null && entry.value!.isNotEmpty) {
@@ -224,7 +224,7 @@ class PressButtonGrid extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final theme = Theme.of(context);
     return Card(
       child: ListTile(

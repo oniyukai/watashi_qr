@@ -12,7 +12,7 @@ class PageAboutView extends StatefulWidget {
 
 class _PageAboutViewState extends State<PageAboutView> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(

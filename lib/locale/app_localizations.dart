@@ -10,10 +10,10 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<LocaleInstance> {
   const AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) => const <String>{'en', 'ja', 'zh'}.contains(locale.languageCode);
+  bool isSupported(locale) => const <String>{'en', 'ja', 'zh'}.contains(locale.languageCode);
 
   @override
-  Future<LocaleInstance> load(Locale locale) async {
+  Future<LocaleInstance> load(locale) async {
     final List<LocaleInstance> mapList = switch (locale.languageCode) {
       'en' => LocaleOption.en,
       'ja' => LocaleOption.ja,
@@ -21,7 +21,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<LocaleInstance> {
       _ => LocaleOption.zhHant,
     }.mapList!;
     return {
-      for (final enumValue in AppLocale.values)
+      for (final AppLocale enumValue in AppLocale.values)
         if (mapList
             .map((map) => map[enumValue])
             .where((value) => value != null)
@@ -32,7 +32,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<LocaleInstance> {
   }
 
   @override
-  bool shouldReload(covariant LocalizationsDelegate<LocaleInstance> old) => false;
+  bool shouldReload(old) => false;
 }
 
 enum LocaleOption {

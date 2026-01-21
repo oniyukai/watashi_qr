@@ -29,9 +29,10 @@ class PageImageScanArgs {
   PageImageScanArgs({required this.controller, this.xFile});
 }
 
-class _PageImageScanState extends State<PageImageScan> {
+class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserver {
   final CropController _cropController = CropController();
   late final PageImageScanArgs _args = widget.argumentOf(context)!;
+  bool _isInCycleCrop = true;
   Uint8List? _imageBytes;
   BarcodeCapture? _barcodeCapture;
 
@@ -39,6 +40,24 @@ class _PageImageScanState extends State<PageImageScan> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(_postFrameCallback);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    _isInCycleCrop = false;
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == .resumed && !_isInCycleCrop) {
+      _isInCycleCrop = true;
+    } else if (_isInCycleCrop) {
+      _isInCycleCrop = false;
+    }
   }
 
   Future<void> _postFrameCallback(Duration timeStamp) async {
@@ -68,7 +87,6 @@ class _PageImageScanState extends State<PageImageScan> {
     final BarcodeFormat scannerFormat = _barcodeCapture!.barcodes.first.format;
     final String? contents = _barcodeCapture!.barcodes.first.rawValue;
     if (contents == null || contents.isEmpty) return;
-
     final HistoryFormat? format = HistoryFormat.fromScannerFormat(scannerFormat);
     final bool isScanAddHistory = context.readPrefs.get(.isScanAddHistory);
     final HistoryItem item = HistoryItem(
@@ -82,12 +100,13 @@ class _PageImageScanState extends State<PageImageScan> {
       notes: '',
     );
     if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
+    _isInCycleCrop = false;
     await context.routeOf<PageItemView>().arguments(item).to();
     Navigator.pop(context);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleScan.s),
@@ -98,16 +117,19 @@ class _PageImageScanState extends State<PageImageScan> {
           ),
         ],
       ),
-      body: (_imageBytes == null) ? null
+      body: _imageBytes == null ? null
           : Crop(
         key: ValueKey(Utils.isPortrait(context)),
         controller: _cropController,
         image: _imageBytes!,
         interactive: true,
         onCropped: _onCropped,
-        onHistoryChanged: (history) => _cropController.crop(),
         baseColor: Colors.transparent,
         initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
+        onStatusChanged: (cropStatus) async {
+          if (cropStatus != .ready || !_isInCycleCrop) return;
+          await Future.delayed(const Duration(milliseconds: 256), _cropController.crop);
+        },
       ),
     );
   }

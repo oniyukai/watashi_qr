@@ -30,19 +30,15 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
   void initState() {
     super.initState();
     _historySubscription = DatabaseServices.historyItemsStream.listen(
-      (data) {
-        setState(() {
-          _historyItems = data;
-          _isLoading = false;
-          _errorMessage = null;
-        });
-      },
-      onError: (e) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = e.toString();
-        });
-      },
+      (data) => setState(() {
+        _historyItems = data;
+        _isLoading = false;
+        _errorMessage = null;
+      }),
+      onError: (e) => setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      }),
     );
   }
 
@@ -53,10 +49,40 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
     super.dispose();
   }
 
+  void _pressSelectedDelete() {
+    Navigator.pop(context);
+    DatabaseServices.deleteItems(selectedObjects.toList());
+    Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
+    exitSelectionMode();
+  }
+
+  Future<void> _pressSelectedCopy() async {
+    final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
+    final String combinedText = items.map((item) => item.contents).join('\n');
+    await Clipboard.setData(ClipboardData(text: combinedText));
+    Utils.showToast(AppLocale.barcodeCopiedLabel.s);
+    exitSelectionMode();
+  }
+
+  void _pressSelectedFavorite(int option) {
+    final List<HistoryItem> selectedItems = DatabaseServices.getItems(selectedObjects.toList());
+    for (final HistoryItem item in selectedItems) {
+      item.isFavorite = option == 0;
+    }
+    DatabaseServices.updateItems(selectedItems);
+    exitSelectionMode();
+  }
+
+  void _pressDeleteAll() {
+    Navigator.pop(context);
+    DatabaseServices.clearHistoryBox();
+    Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     AppLocale.load(context);
-    final colorScheme = Theme.of(context).colorScheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
@@ -71,91 +97,68 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
         title: isSelectionMode
             ? Text('${selectedObjects.length}/${_historyItems.length}')
             : Text('${_historyItems.length}'),
-        actions: [
-          if (isSelectionMode) ...[
-            IconButton(
-              icon: const Icon(Icons.delete_forever),
-              onPressed: () async => showMyDialog(
-                context: context,
-                title: AppLocale.deleteLabel.s,
-                content: Text(AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s),
-                actions: [
-                  TextButton(
-                    child: Text(AppLocale.deleteLabel.s),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      DatabaseServices.deleteItems(selectedObjects.toList());
-                      Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
-                      exitSelectionMode();
-                    },
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.content_copy),
-              onPressed: () {
-                final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
-                final String combinedText = items.map((item) => item.contents).join('\n');
-                Clipboard.setData(ClipboardData(text: combinedText));
-                Utils.showToast(AppLocale.barcodeCopiedLabel.s);
-                exitSelectionMode();
-              },
-            ),
-            MyMenuButton(
-              items: [
-                MyMenuItem(text: AppLocale.menuItemHistoryAddFavorite.s),
-                MyMenuItem(text: AppLocale.menuItemHistoryRemoveFavorite.s),
-              ],
-              onSelectedEnd: (int option) {
-                final selectedItems = DatabaseServices.getItems(selectedObjects.toList());
-                for (final item in selectedItems) {
-                  item.isFavorite = (option == 0);
-                }
-                DatabaseServices.updateItems(selectedItems);
-                exitSelectionMode();
-              },
-            ),
-          ] else ...[
-            MyMenuButton(
-              icon: const Icon(Icons.swap_vert),
-              items: [
-                MyMenuItem(
-                  text: AppLocale.shareJsonLabel.s,
-                  onTap: DatabaseServices.shareHistoryBoxToJson,
-                ),
-                MyMenuItem(
-                  text: AppLocale.exportJsonLabel.s,
-                  onTap: DatabaseServices.exportHistoryBoxToJson,
-                ),
-                MyMenuItem(
-                  text: AppLocale.importJsonLabel.s,
-                  onTap: DatabaseServices.importHistoryBoxFromJson,
+        actions: isSelectionMode
+            ? [
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            onPressed: () async => showMyDialog(
+              context: context,
+              title: AppLocale.deleteLabel.s,
+              content: Text(AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s),
+              actions: [
+                TextButton(
+                  onPressed: _pressSelectedDelete,
+                  child: Text(AppLocale.deleteLabel.s),
                 ),
               ],
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_forever),
-              onPressed: () async => showMyDialog(
-                context: context,
-                title: AppLocale.deleteLabel.s,
-                content: Text(AppLocale.popupMessageConfirmationDeleteHistory.s),
-                actions: [
-                  TextButton(
-                    child: Text(AppLocale.deleteLabel.s),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      DatabaseServices.clearHistoryBox();
-                      Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
-                    },
-                  ),
-                ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.content_copy),
+            onPressed: _pressSelectedCopy,
+          ),
+          MyMenuButton(
+            items: [
+              MyMenuItem(text: AppLocale.menuItemHistoryAddFavorite.s),
+              MyMenuItem(text: AppLocale.menuItemHistoryRemoveFavorite.s),
+            ],
+            onSelectedEnd: _pressSelectedFavorite,
+          ),
+        ]
+            : [
+          MyMenuButton(
+            icon: const Icon(Icons.swap_vert),
+            items: [
+              MyMenuItem(
+                text: AppLocale.shareJsonLabel.s,
+                onTap: DatabaseServices.shareHistoryBoxToJson,
               ),
+              MyMenuItem(
+                text: AppLocale.exportJsonLabel.s,
+                onTap: DatabaseServices.exportHistoryBoxToJson,
+              ),
+              MyMenuItem(
+                text: AppLocale.importJsonLabel.s,
+                onTap: DatabaseServices.importHistoryBoxFromJson,
+              ),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            onPressed: () async => showMyDialog(
+              context: context,
+              title: AppLocale.deleteLabel.s,
+              content: Text(AppLocale.popupMessageConfirmationDeleteHistory.s),
+              actions: [
+                TextButton(
+                  onPressed: _pressDeleteAll,
+                  child: Text(AppLocale.deleteLabel.s),
+                ),
+              ],
             ),
-          ],
+          ),
         ],
       ),
-
       body: SafeArea(
         child: Scrollbar(
           controller: _scrollController,
@@ -175,19 +178,14 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
                 controller: _scrollController,
                 itemCount: _historyItems.length,
                 itemBuilder: (context, index) {
-                  final item = _historyItems[index];
-                  final id = item.id;
+                  final HistoryItem item = _historyItems[index];
                   return MainHistoryCard(
                     historyItem: item,
-                    selected: selectedObjects.contains(id),
-                    onTap: () {
-                      if (isSelectionMode) {
-                        toggleSelection(id);
-                      } else {
-                        context.routeOf<PageItemView>().arguments(item).to();
-                      }
-                    },
-                    onLongPress: () => enterSelectionMode(id),
+                    selected: selectedObjects.contains(item.id),
+                    onTap: isSelectionMode
+                        ? () => toggleSelection(item.id)
+                        : () => context.routeOf<PageItemView>().arguments(item).to(),
+                    onLongPress: () => enterSelectionMode(item.id),
                   );
                 },
               );

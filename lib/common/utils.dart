@@ -7,10 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:collection/collection.dart';
 import 'dart:core';
+import 'package:watashi_qr/locale/app_language.dart';
 
 extension EnumFromName<T extends Enum> on Iterable<T> {
-  T? fromName(String? n) => asNameMap()[n];
+  T? fromName(String? n) => firstWhereOrNull((value) => value.name == n);
 }
 
 class Utils {
@@ -64,7 +66,7 @@ class Utils {
     }
   }
   static Future<void> searchInBrowser(String searchUrl, String keyWord) =>
-    openUrlInBrowser(searchUrl.replaceAll('{code}', Uri.encodeComponent(keyWord)));
+    openUrlInBrowser(searchUrl.replaceAll(StaticString.searchReplaceWord, Uri.encodeComponent(keyWord)));
 
   /// 鎖定螢幕轉向
   static Future<void> lockCurrentOrientation(BuildContext context) async {

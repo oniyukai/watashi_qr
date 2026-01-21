@@ -21,12 +21,10 @@ class PageQrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
   State<PageQrcodeForm> createState() => _PageQrcodeFormState();
 }
 
-typedef _ValueDecode = String Function(Map<String, dynamic> valueMap);
-
 class _PageQrcodeFormState extends State<PageQrcodeForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryType _historyType = widget.argumentOf(context)!;
-  late _ValueDecode _valueDecode;
+  late String Function(Map<String, dynamic> valueMap) _valueDecode;
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -35,7 +33,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocale.titleQrCodeCreator.s),
@@ -63,6 +61,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   valueDecodeChange: (valueDecode) => _valueDecode = valueDecode,
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -73,7 +72,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
 
 class _TypeSwitchForm extends StatefulWidget {
   final HistoryType historyType;
-  final ValueChanged<_ValueDecode> valueDecodeChange;
+  final ValueChanged<String Function(Map<String, dynamic> valueMap)> valueDecodeChange;
 
   const _TypeSwitchForm({
     required this.historyType,
@@ -101,29 +100,29 @@ class _TypeSwitchForm extends StatefulWidget {
 }
 
 abstract class _FormState extends State<_TypeSwitchForm> {
-  _ValueDecode get _valueDecode;
+  String _valueDecode(Map<String, dynamic> valueMap);
 }
 
 class _StateUnsupported extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     return StaticString.nullString;
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return const Text('Unsupported');
   }
 }
 
 class _StateText extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     return valueMap['text'];
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return BarcodeField(
       format: .qrCode,
       name: 'text',
@@ -133,12 +132,12 @@ class _StateText extends _FormState {
 
 class _StateWebsite extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     return valueMap['website'];
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return FormBuilderTextField(
       name: 'website',
       keyboardType: .url,
@@ -161,7 +160,7 @@ class _StateContact extends _FormState {
   final List<String> _phoneType = ['cell', 'cell', 'cell'];
 
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     final String name = valueMap['name'] ?? '';
     final String firstname = valueMap['firstname'] ?? '';
     final String organisation = valueMap['organisation'] ?? '';
@@ -200,7 +199,7 @@ class _StateContact extends _FormState {
       if (notes.isNotEmpty) 'NOTE:$notes',
       'END:VCARD',
     ].join('\n');
-  };
+  }
 
   Future<void> _importContactFromVcard() async {
     try {
@@ -221,7 +220,7 @@ class _StateContact extends _FormState {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Column(
       spacing: 8.0,
       children: [
@@ -385,7 +384,6 @@ class _StateContact extends _FormState {
             labelText: AppLocale.qrCodeTextInputEditTextHintNotes.s,
           ),
         ),
-        const SizedBox(height: 8),
       ],
     );
   }
@@ -393,7 +391,7 @@ class _StateContact extends _FormState {
 
 class _StateMail extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     final String email = valueMap['email'];
     final String subject = valueMap['subject'] ?? '';
     final String message = valueMap['message'] ?? '';
@@ -401,10 +399,10 @@ class _StateMail extends _FormState {
       return 'MATMSG:TO:$email;SUB:$subject;BODY:$message;;';
     }
     return 'MAILTO:$email';
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Column(
       spacing: 16.0,
       children: [
@@ -445,12 +443,12 @@ class _StateMail extends _FormState {
 
 class _StateSms extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     return 'SMSTO:${valueMap['phone']}:${valueMap['message']}';
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Column(
       spacing: 16.0,
       children: [
@@ -487,12 +485,12 @@ class _StateSms extends _FormState {
 
 class _StatePhone extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     return 'tel:${valueMap['phone']}';
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return FormBuilderTextField(
       name: 'phone',
       keyboardType: .phone,
@@ -511,7 +509,7 @@ class _StatePhone extends _FormState {
 
 class _StateLocation extends _FormState {
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     final String latitude = valueMap['latitude'];
     final String longitude = valueMap['longitude'];
     final String height = valueMap['height'] ?? '';
@@ -521,10 +519,10 @@ class _StateLocation extends _FormState {
       if (height.isNotEmpty) ',$height',
       if (request.isNotEmpty) '?q=$request',
     ].join();
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Column(
       spacing: 16.0,
       children: [
@@ -585,7 +583,7 @@ class _StateEvent extends _FormState {
   bool _isAllDay = false;
 
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     final String summary = valueMap['summary'];
     final DateTime beginDate = valueMap['beginDate'];
     final DateTime endDate = valueMap['endDate'];
@@ -631,10 +629,10 @@ class _StateEvent extends _FormState {
       if (description.isNotEmpty) 'DESCRIPTION:$description',
       'END:VEVENT',
     ].join('\n');
-  };
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return Column(
       children: [
         FormBuilderTextField(
@@ -760,11 +758,11 @@ class _StateWifi extends _FormState {
   bool _isHide = false;
 
   @override
-  _ValueDecode get _valueDecode => (valueMap) {
+  String _valueDecode(valueMap) {
     final String ssid = valueMap['ssid'];
     final String password = _securityType != 'nopass' ? valueMap['password'] : '';
     return 'WIFI:S:$ssid;T:$_securityType;P:$password;H:$_isHide;';
-  };
+  }
 
   @override
   Widget build(BuildContext context) {

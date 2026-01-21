@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return Consumer<PrefsProvider>(

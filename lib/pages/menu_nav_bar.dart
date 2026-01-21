@@ -36,7 +36,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     AppLocale.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Consumer<MenuNavBarProvider>(

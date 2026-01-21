@@ -21,7 +21,7 @@ class FlashlightButton extends StatelessWidget {
   const FlashlightButton({required this.controller, super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, state, child) {
@@ -70,7 +70,7 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
   late Offset _startPosition;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ValueListenableBuilder(
       valueListenable: widget.controller,
       builder: (context, value, child) {

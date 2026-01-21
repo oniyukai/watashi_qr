@@ -28,7 +28,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     AppLocale.load(context);
     return SafeArea(
       child: Scrollbar(

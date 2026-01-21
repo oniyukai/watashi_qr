@@ -19,7 +19,7 @@ class BarcodeField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final bool isNumbers = format?.isNumbers ?? false;
     return FormBuilderTextField(
       name: name,

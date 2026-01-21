@@ -50,7 +50,7 @@ class MyIcon extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     final IconThemeData iconTheme = IconTheme.of(context);
     final double iconSize = size ?? iconTheme.size ?? kDefaultFontSize;
     if (myIconData?.iconData != null) {
