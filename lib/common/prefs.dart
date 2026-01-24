@@ -23,7 +23,7 @@ class PrefDef<RUN extends Object, STO extends Object> {
     STO Function(RUN fromRUN)? toSTO_,
     RUN? Function(STO fromSTO)? toRUN_,])
   {
-    assert(const {bool, int, double, String, List<String>}.contains(STO), 'STO<${STO.runtimeType}> unsupported.');
+    assert(const [bool, int, double, String, List<String>].contains(STO), 'STO<${STO.runtimeType}> unsupported.');
     if (RUN == STO) {
       toSTO = toSTO_ != null
           ? (fromRUN) => toSTO_(fromRUN as RUN)
@@ -123,17 +123,17 @@ enum PrefsEnum {
   /// 不依賴BuildContext, 不即時請謹慎使用
   T get<T>() {
     final PrefDef<Object, Object> prefDef = _getPrefDef;
-    final Object? fromSTO = PrefsProvider.instance.get(name);
+    final Object? fromSTO = PrefsProvider._instance.get(name);
     if (fromSTO.runtimeType == prefDef.typeSTO && fromSTO != null) return prefDef.toRUN(fromSTO) as T;
     return prefDef.defaultValue as T;
   }
 }
 
 class PrefsProvider extends ChangeNotifier {
-  static late SharedPreferences instance;
+  static late final SharedPreferences _instance;
 
   static Future<void> init() async {
-    instance = await SharedPreferences.getInstance();
+    _instance = await SharedPreferences.getInstance();
   }
 
   final Map<PrefsEnum, Object> _prefsRunsMap = {};
@@ -141,7 +141,7 @@ class PrefsProvider extends ChangeNotifier {
   PrefsProvider() {
     for (final PrefsEnum key in PrefsEnum.values) {
       final PrefDef<Object, Object> prefDef = key._getPrefDef;
-      final Object? fromSTO = instance.get(key.name);
+      final Object? fromSTO = _instance.get(key.name);
       if (fromSTO.runtimeType == prefDef.typeSTO && fromSTO != null) _prefsRunsMap[key] = prefDef.toRUN(fromSTO);
     }
   }
@@ -161,15 +161,15 @@ class PrefsProvider extends ChangeNotifier {
     }
     final Object fromSTO = prefDef.toSTO(value);
     if (fromSTO is bool) {
-      await instance.setBool(key.name, fromSTO);
+      await _instance.setBool(key.name, fromSTO);
     } else if (fromSTO is int) {
-      await instance.setInt(key.name, fromSTO);
+      await _instance.setInt(key.name, fromSTO);
     } else if (fromSTO is double) {
-      await instance.setDouble(key.name, fromSTO);
+      await _instance.setDouble(key.name, fromSTO);
     } else if (fromSTO is String) {
-      await instance.setString(key.name, fromSTO);
+      await _instance.setString(key.name, fromSTO);
     } else if (fromSTO is List<String>) {
-      await instance.setStringList(key.name, fromSTO);
+      await _instance.setStringList(key.name, fromSTO);
     } else {
       throw ArgumentError('Unsupported type $key: ${fromSTO.runtimeType}');
     }

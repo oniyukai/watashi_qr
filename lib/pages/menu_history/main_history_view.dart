@@ -19,10 +19,10 @@ class MainHistoryView extends StatefulWidget {
   State<MainHistoryView> createState() => _MainHistoryViewState();
 }
 
-class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<MainHistoryView, int> {
+class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<int> {
   final ScrollController _scrollController = ScrollController();
   late final StreamSubscription<List<HistoryItem>> _historySubscription;
-  List<HistoryItem> _historyItems = [];
+  List<HistoryItem> _historyItems = const [];
   bool _isLoading = true;
   String? _errorMessage;
 

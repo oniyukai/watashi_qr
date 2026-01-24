@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:string_validator/string_validator.dart';
 import 'package:barcode/barcode.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
@@ -38,13 +37,13 @@ class BarcodeField extends StatelessWidget {
 }
 
 extension _HistoryFormatForValid on HistoryFormat {
-  int? get allowLineBreaks => const <HistoryFormat>{
+  int? get allowLineBreaks => const <HistoryFormat>[
     .qrCode, .dataMatrix, .aztec, .pdf417, .code128
-  }.contains(this) ? null : 1;
+  ].contains(this) ? null : 1;
 
-  bool get isNumbers => const <HistoryFormat>{
-    .ean13, .ean8, .upcA, .upcE, .codabar, .itf
-  }.contains(this);
+  bool get isNumbers => const <HistoryFormat>[
+    .ean13, .ean8, .upcA, .upcE, .itf
+  ].contains(this);
 
   int? get maxByteLength => switch (this) {
     .qrCode => 2953,
@@ -77,12 +76,13 @@ extension _HistoryFormatForValid on HistoryFormat {
     .code128 => AppLocale.errorBarcodeEncodingUsAsciiErrorMessage,
     .code93 => AppLocale.errorBarcode93RegexErrorMessage,
     .code39 => AppLocale.errorBarcode39RegexErrorMessage,
+    .codabar=> AppLocale.errorBarcodeCodabarRegexErrorMessage,
     _ => null
   }?.s;
 
-  bool get hasCheckDigit => const <HistoryFormat>{
+  bool get hasCheckDigit => const <HistoryFormat>[
     .ean13, .ean8, .upcA, .upcE,
-  }.contains(this);
+  ].contains(this);
 }
 
 String? barcodeValidator(String? value, HistoryFormat? format){
@@ -99,7 +99,7 @@ String? barcodeValidator(String? value, HistoryFormat? format){
   final String? encodingErrorMessage = format.encodingErrorMessage;
   final ValueGetter<Barcode> barcodeFunc = format.barcodeFunc;
 
-  if (isNumbers && !value.isNumeric) {
+  if (isNumbers && !value.codeUnits.every((u) => u >= 48 && u <= 57)) {
     return AppLocale.errorBarcodeNotANumberMessage.s;
   }
   if (format == .upcE && value[0] != '0') {
@@ -125,9 +125,6 @@ String? barcodeValidator(String? value, HistoryFormat? format){
     if (value[value.length - 1] != checkDigit) {
       return '${AppLocale.errorBarcodeWrongKeyMessage.s}$checkDigit';
     }
-  }
-  if (format == .code128 && !value.isAscii) {
-    return AppLocale.errorBarcodeEncodingUsAsciiErrorMessage.s;
   }
   try {
     format.barcodeFunc().verify(value);

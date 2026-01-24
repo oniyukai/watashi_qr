@@ -1,220 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:flutter/services.dart';
 
-class AnalyzedContentItem extends StatelessWidget {
-  final String contents;
-  final HistoryType? type;
-  final HistoryFormat? format;
-
-  const AnalyzedContentItem({
-    super.key,
-    required this.contents,
-    required this.type,
-    required this.format,
-  });
-
-  @override
-  Widget build(context) {
-    switch (type) {
-      case HistoryType.contact:
-        String name = '';
-        String organisation = '';
-        String jobTitle = '';
-        String website = '';
-        String mail = '';
-        String phone = '';
-        String address = '';
-        String notes = '';
-        for (final i in contents.split('\n')) {
-          final String upperI = i.toUpperCase();
-          if (upperI.startsWith('FN:') ){
-            if (name.isNotEmpty) name += '\n';
-            name += i.substring(3);
-          } else if (upperI.startsWith('ORG:') ) {
-            if (organisation.isNotEmpty) organisation += '\n';
-            organisation += i.substring(4);
-          } else if (upperI.startsWith('TITLE:') ) {
-            if (jobTitle.isNotEmpty) jobTitle += '\n';
-            jobTitle += i.substring(6);
-          } else if (upperI.startsWith('URL:') ) {
-            if (website.isNotEmpty) website += '\n';
-            website += i.substring(4);
-          } else if (upperI.startsWith('EMAIL') ) {
-            if (mail.isNotEmpty) mail += '\n';
-            mail += i.split(':').last;
-          } else if (upperI.startsWith('TEL') ) {
-            if (phone.isNotEmpty) phone += '\n';
-            phone += i.split(':').last;
-          } else if (upperI.startsWith('ADR:') ) {
-            if (address.isNotEmpty) address += '\n';
-            address += i.substring(4).split(';').where((split) => split.isNotEmpty).join('\n');
-          } else if (upperI.startsWith('NOTE:') ) {
-            if (notes.isNotEmpty) notes += '\n';
-            notes += i.substring(5);
-          }
-        }
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixContactNameLabel.s: name,
-          AppLocale.matrixContactOrganisationLabel.s: organisation,
-          AppLocale.matrixContactJobTitleLabel.s: jobTitle,
-          AppLocale.matrixUriUrlLabel.s: website,
-          AppLocale.matrixContactMailLabel.s: mail,
-          AppLocale.matrixContactPhoneLabel.s: phone,
-          AppLocale.matrixContactAddressLabel.s: address,
-          AppLocale.matrixContactNotesLabel.s: notes,
-        });
-      case HistoryType.mail:
-        final analyzed = analyzeMail(contents);
-        final String? email = analyzed['email'];
-        final String? subject = analyzed['subject'];
-        final String? message = analyzed['message'];
-        if ((email ?? subject ?? message) == null) break;
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixEmailRecipientLabel.s: email,
-          AppLocale.matrixSubjectLabel.s: subject,
-          AppLocale.matrixBodyLabel.s: message,
-        });
-      case HistoryType.sms:
-        final analyzed = analyzeSms(contents);
-        final String? phone = analyzed['phone'];
-        final String? message = analyzed['message'];
-        if ((phone ?? message) == null) break;
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixPhoneTelNumberLabel.s: phone,
-          AppLocale.matrixBodyLabel.s: message,
-        });
-      case HistoryType.phone:
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixPhoneTelNumberLabel.s: contents.substring(4),
-        });
-      case HistoryType.location:
-        String? latitude;
-        String? longitude;
-        String? height;
-        String? request;
-        final substring = contents.substring(4);
-        final temp = substring.split('?');
-        for (final i in temp.first.split(',')){
-          if (latitude == null) {
-            latitude = i;
-          } else if (longitude == null) {
-            longitude = i;
-          } else {
-            height = i;
-          }
-        }
-        if (temp.length >= 2) request = temp.last.substring(2);
-        if ((latitude ?? longitude ?? height ?? request) == null) break;
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixLocalisationLatitudeLabel.s: latitude,
-          AppLocale.matrixLocalisationLongitudeLabel.s: longitude,
-          AppLocale.matrixLocalisationAltitudeLabel.s: height,
-          AppLocale.matrixLocalisationQueryLabel.s: request,
-        });
-      case HistoryType.event:
-        String? summary;
-        String? startDate;
-        String? endDate;
-        String? location;
-        String? description;
-        for (final i in contents.split('\n')){
-          final String upperI = i.toUpperCase();
-          if (upperI.startsWith('SUMMARY:') ){
-            summary = i.substring(8);
-          } else if (upperI.startsWith('DTSTART') ) {
-            final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
-            final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
-            startDate = formatter.format(dateTime);
-          } else if (upperI.startsWith('DTEND') ) {
-            final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
-            final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
-            endDate = formatter.format(dateTime);
-          } else if (upperI.startsWith('LOCATION:') ) {
-            location = i.substring(9);
-          } else if (upperI.startsWith('DESCRIPTION:') ) {
-            description = i.substring(12);
-          }
-        }
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixAgendaNameEventLabel.s: summary,
-          AppLocale.matrixAgendaStartDateEventLabel.s: startDate,
-          AppLocale.matrixAgendaEndDateEventLabel.s: endDate,
-          AppLocale.matrixAgendaPlaceEventLabel.s: location,
-          AppLocale.matrixAgendaDescriptionEventLabel.s: description,
-        });
-      case HistoryType.wifi:
-        String? ssid;
-        String? password;
-        String? security;
-        String? hide;
-        for (final i in contents.substring(5).split(';')){
-          final String upperI = i.toUpperCase();
-          final String? substring = i.length>2 ? i.substring(2) : null;
-          if (upperI.startsWith('S:') ){
-            ssid = substring;
-          } else if (upperI.startsWith('P:') ) {
-            password = substring;
-          } else if (upperI.startsWith('T:') ) {
-            security = substring;
-          } else if (upperI.startsWith('H:') ) {
-            hide = substring;
-          }
-        }
-        if ((ssid ?? password ?? security ?? hide) == null) break;
-        return _AnalyzedContentColumn(map: {
-          AppLocale.matrixWifiSsidLabel.s: ssid,
-          AppLocale.matrixWifiPasswordLabel.s: password,
-          AppLocale.matrixWifiEncryptionLabel.s: security,
-          AppLocale.matrixWifiIsHiddenLabel.s: hide,
-        });
-      case HistoryType.text:
-      case HistoryType.website:
-      case HistoryType.product:
-      case HistoryType.industrial:
-      default:
-    }
-    return SelectableText(contents);
-  }
-}
-
-
-class _AnalyzedContentColumn extends StatelessWidget {
-  final Map<String, String?> map;
-
-  const _AnalyzedContentColumn({required this.map});
-
-  @override
-  Widget build(context) {
-    return Column(
-      children: map.entries.map((entry) {
-        if (entry.value != null && entry.value!.isNotEmpty) {
-          return ItemTile(
-            title: entry.value!,
-            description: entry.key,
-            trailing: IconButton(
-              iconSize: 20,
-              onPressed: () => Clipboard.setData(ClipboardData(text: entry.value!)),
-              icon: const Icon(Icons.copy),
-            ),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      }).toList(),
-    );
-  }
-}
-
-
 class PressButtonGrid extends StatelessWidget {
   final IconData iconData;
   final String description;
-  final void Function()? onTap;
+  final VoidCallback? onTap;
 
   const PressButtonGrid({
     super.key,
@@ -225,7 +19,6 @@ class PressButtonGrid extends StatelessWidget {
 
   @override
   Widget build(context) {
-    final theme = Theme.of(context);
     return Card(
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
@@ -235,63 +28,362 @@ class PressButtonGrid extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
             description,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: theme.textTheme.bodyMedium!.fontSize),
+            textAlign: .center,
             softWrap: true,
           ),
-        )
+        ),
       ),
     );
   }
 }
 
-Map<String, String?> analyzeMail(String contents) {
-  String? email;
-  String? subject;
-  String? message;
-  if (contents.toUpperCase().startsWith('MAILTO:')) {
-    final substring = contents.substring(7);
-    final Uri uri = Uri.parse('mailto:$substring');
-    email = uri.path;
-    subject = uri.queryParameters['subject'];
-    message = uri.queryParameters['body'];
-  } else {
-    for (final i in contents.substring(7).split(';')) {
-      final String upperI = i.toUpperCase();
-      if (upperI.startsWith('TO:')) {
-        email = i.substring(3);
-      } else if (upperI.startsWith('SUB:')) {
-        subject = i.substring(4);
-      } else if (upperI.startsWith('BODY:')) {
-        message = i.substring(5);
-      }
+class AnalyzedContentItem extends StatelessWidget {
+  final String contents;
+  final HistoryType? type;
+
+  const AnalyzedContentItem({
+    super.key,
+    required this.contents,
+    required this.type,
+  });
+
+  @override
+  Widget build(context) {
+    Iterable<MapEntry<String, String?>> entryList = const [];
+    String? error;
+    try {
+      entryList = switch (type) {
+        .text || .website || .product || .industrial || null => _TextAnalyzer(contents),
+        .contact => _ContactAnalyzer(contents),
+        .mail => MailAnalyzer(contents),
+        .sms => SmsAnalyzer(contents),
+        .phone => _PhoneAnalyzer(contents),
+        .location => _LocationAnalyzer(contents),
+        .event => _EventAnalyzer(contents),
+        .wifi => _WifiAnalyzer(contents),
+      }.getEntryList().where((e) => e.value?.isNotEmpty == true);
+    } catch (e) {
+      error = e.toString();
     }
+    return Column(
+      crossAxisAlignment: .start,
+      children: [
+        if (entryList.isEmpty) SelectableText(contents)
+        else for (final MapEntry<String, String?> entry in entryList)
+          ItemTile(
+            title: entry.value!,
+            description: entry.key,
+            trailing: IconButton(
+              padding: const EdgeInsets.all(0),
+              visualDensity: .compact,
+              onPressed: () => Clipboard.setData(ClipboardData(text: entry.value!)),
+              icon: const Icon(Icons.copy),
+            ),
+          ),
+        if (error != null && error.isNotEmpty) SelectableText(
+          'Analysis Error: $error',
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
+      ],
+    );
   }
-  return {
-    'email': email,
-    'subject': subject,
-    'message': message,
-  };
 }
 
-Map<String, String?> analyzeSms(String contents) {
-  String? phone;
-  String? message;
-  final substring = contents.substring(6);
-  final Uri uri = Uri.parse('smsto:$substring');
-  final uriPhone = uri.path;
-  final uriMessage = uri.queryParameters['body'];
-  if (uriMessage == null) {
-    for (final i in substring.split(':')){
-      if (phone == null) {
-        phone = i;
-      } else {
-        message = i;
+class _TextAnalyzer {
+  final String _contents;
+
+  const _TextAnalyzer(this._contents);
+
+  dynamic _parse() => true;
+
+  List<MapEntry<String, String?>> getEntryList() {
+    assert(_parse());
+    return const [];
+  }
+}
+
+class _ContactAnalyzer extends _TextAnalyzer {
+  _ContactAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String name, String organisation, String jobTitle, String website,
+  String mail, String phone, String address, String notes}) _parse() {
+    String name = '';
+    String organisation = '';
+    String jobTitle = '';
+    String website = '';
+    String mail = '';
+    String phone = '';
+    String address = '';
+    String notes = '';
+    for (final i in _contents.split('\n')) {
+      final String upperI = i.toUpperCase();
+      if (upperI.startsWith('FN:') ){
+        if (name.isNotEmpty) name += '\n';
+        name += i.substring(3);
+      } else if (upperI.startsWith('ORG:') ) {
+        if (organisation.isNotEmpty) organisation += '\n';
+        organisation += i.substring(4);
+      } else if (upperI.startsWith('TITLE:') ) {
+        if (jobTitle.isNotEmpty) jobTitle += '\n';
+        jobTitle += i.substring(6);
+      } else if (upperI.startsWith('URL:') ) {
+        if (website.isNotEmpty) website += '\n';
+        website += i.substring(4);
+      } else if (upperI.startsWith('EMAIL') ) {
+        if (mail.isNotEmpty) mail += '\n';
+        mail += i.split(':').last;
+      } else if (upperI.startsWith('TEL') ) {
+        if (phone.isNotEmpty) phone += '\n';
+        phone += i.split(':').last;
+      } else if (upperI.startsWith('ADR:') ) {
+        if (address.isNotEmpty) address += '\n';
+        address += i.substring(4).split(';').where((split) => split.isNotEmpty).join('\n');
+      } else if (upperI.startsWith('NOTE:') ) {
+        if (notes.isNotEmpty) notes += '\n';
+        notes += i.substring(5);
       }
     }
+    return (
+    name: name,
+    organisation: organisation,
+    jobTitle: jobTitle,
+    website: website,
+    mail: mail,
+    phone: phone,
+    address: address,
+    notes: notes,
+    );
   }
-  return {
-    'phone': phone ?? uriPhone,
-    'message': uriMessage ?? message,
-  };
-}
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixContactNameLabel.s, parse.name),
+    MapEntry(AppLocale.matrixContactOrganisationLabel.s, parse.organisation),
+    MapEntry(AppLocale.matrixContactJobTitleLabel.s, parse.jobTitle),
+    MapEntry(AppLocale.matrixUriUrlLabel.s, parse.website),
+    MapEntry(AppLocale.matrixContactMailLabel.s, parse.mail),
+    MapEntry(AppLocale.matrixContactPhoneLabel.s, parse.phone),
+    MapEntry(AppLocale.matrixContactAddressLabel.s, parse.address),
+    MapEntry(AppLocale.matrixContactNotesLabel.s, parse.notes),
+  ];
+} // todo
+
+class MailAnalyzer extends _TextAnalyzer {
+  MailAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String? email, String? subject, String? message}) _parse() {
+    String? email;
+    String? subject;
+    String? message;
+    if (_contents.toUpperCase().startsWith('MAILTO:')) {
+      final substring = _contents.substring(7);
+      final Uri uri = Uri.parse('mailto:$substring');
+      email = uri.path;
+      subject = uri.queryParameters['subject'];
+      message = uri.queryParameters['body'];
+    } else {
+      for (final i in _contents.substring(7).split(';')) {
+        final String upperI = i.toUpperCase();
+        if (upperI.startsWith('TO:')) {
+          email = i.substring(3);
+        } else if (upperI.startsWith('SUB:')) {
+          subject = i.substring(4);
+        } else if (upperI.startsWith('BODY:')) {
+          message = i.substring(5);
+        }
+      }
+    }
+    return (
+    email: email,
+    subject: subject,
+    message: message,
+    );
+  }
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixEmailRecipientLabel.s, parse.email),
+    MapEntry(AppLocale.matrixSubjectLabel.s, parse.subject),
+    MapEntry(AppLocale.matrixBodyLabel.s, parse.message),
+  ];
+} // todo
+
+class SmsAnalyzer extends _TextAnalyzer {
+  SmsAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String phone, String? message}) _parse() {
+    String? phone;
+    String? message;
+    final substring = _contents.substring(6);
+    final Uri uri = Uri.parse('smsto:$substring');
+    final uriPhone = uri.path;
+    final uriMessage = uri.queryParameters['body'];
+    if (uriMessage == null) {
+      for (final i in substring.split(':')){
+        if (phone == null) {
+          phone = i;
+        } else {
+          message = i;
+        }
+      }
+    }
+    return (
+    phone: phone ?? uriPhone,
+    message: uriMessage ?? message,
+    );
+  }
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixPhoneTelNumberLabel.s, parse.phone),
+    MapEntry(AppLocale.matrixBodyLabel.s, parse.message),
+  ];
+} // todo
+
+class _PhoneAnalyzer extends _TextAnalyzer {
+  _PhoneAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String phone}) _parse() => (
+  phone: _contents.substring(4),
+  );
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixPhoneTelNumberLabel.s, parse.phone),
+  ];
+} // todo
+
+class _LocationAnalyzer extends _TextAnalyzer {
+  _LocationAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String? latitude, String? longitude, String? height, String? request}) _parse() {
+    String? latitude;
+    String? longitude;
+    String? height;
+    String? request;
+    final substring = _contents.substring(4);
+    final temp = substring.split('?');
+    for (final i in temp.first.split(',')){
+      if (latitude == null) {
+        latitude = i;
+      } else if (longitude == null) {
+        longitude = i;
+      } else {
+        height = i;
+      }
+    }
+    if (temp.length >= 2) request = temp.last.substring(2);
+    return (
+    latitude: latitude,
+    longitude: longitude,
+    height: height,
+    request: request,
+    );
+  }
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixLocalisationLatitudeLabel.s, parse.latitude),
+    MapEntry(AppLocale.matrixLocalisationLongitudeLabel.s, parse.longitude),
+    MapEntry(AppLocale.matrixLocalisationAltitudeLabel.s, parse.height),
+    MapEntry(AppLocale.matrixLocalisationQueryLabel.s, parse.request),
+  ];
+} // todo
+
+class _EventAnalyzer extends _TextAnalyzer {
+  _EventAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String? summary, String? startDate, String? endDate, String? location, String? description}) _parse() {
+    String? summary;
+    String? startDate;
+    String? endDate;
+    String? location;
+    String? description;
+    for (final i in _contents.split('\n')){
+      final String upperI = i.toUpperCase();
+      if (upperI.startsWith('SUMMARY:') ){
+        summary = i.substring(8);
+      } else if (upperI.startsWith('DTSTART') ) {
+        final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
+        final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
+        startDate = formatter.format(dateTime);
+      } else if (upperI.startsWith('DTEND') ) {
+        final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
+        final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
+        endDate = formatter.format(dateTime);
+      } else if (upperI.startsWith('LOCATION:') ) {
+        location = i.substring(9);
+      } else if (upperI.startsWith('DESCRIPTION:') ) {
+        description = i.substring(12);
+      }
+    }
+    return (
+    summary: summary,
+    startDate: startDate,
+    endDate: endDate,
+    location: location,
+    description: description,
+    );
+  }
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixAgendaNameEventLabel.s, parse.summary),
+    MapEntry(AppLocale.matrixAgendaStartDateEventLabel.s, parse.startDate),
+    MapEntry(AppLocale.matrixAgendaEndDateEventLabel.s, parse.endDate),
+    MapEntry(AppLocale.matrixAgendaPlaceEventLabel.s, parse.location),
+    MapEntry(AppLocale.matrixAgendaDescriptionEventLabel.s, parse.description),
+  ];
+} // todo
+
+class _WifiAnalyzer extends _TextAnalyzer {
+  _WifiAnalyzer(super._contents);
+  late final parse = _parse();
+
+  @override
+  ({String? ssid, String? password, String? security, String? hide}) _parse() {
+    String? ssid;
+    String? password;
+    String? security;
+    String? hide;
+    for (final i in _contents.substring(5).split(';')){
+      final String upperI = i.toUpperCase();
+      final String? substring = i.length>2 ? i.substring(2) : null;
+      if (upperI.startsWith('S:') ){
+        ssid = substring;
+      } else if (upperI.startsWith('P:') ) {
+        password = substring;
+      } else if (upperI.startsWith('T:') ) {
+        security = substring;
+      } else if (upperI.startsWith('H:') ) {
+        hide = substring;
+      }
+    }
+    return (
+    ssid: ssid,
+    password: password,
+    security: security,
+    hide: hide,
+    );
+  }
+
+  @override
+  List<MapEntry<String, String?>> getEntryList() => [
+    MapEntry(AppLocale.matrixWifiSsidLabel.s, parse.ssid),
+    MapEntry(AppLocale.matrixWifiPasswordLabel.s, parse.password),
+    MapEntry(AppLocale.matrixWifiEncryptionLabel.s, parse.security),
+    MapEntry(AppLocale.matrixWifiIsHiddenLabel.s, parse.hide),
+  ];
+} // todo

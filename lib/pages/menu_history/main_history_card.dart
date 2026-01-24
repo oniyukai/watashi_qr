@@ -98,9 +98,7 @@ class MainHistoryCard extends StatelessWidget {
             ),
             const SizedBox(width: 4.0),
             Icon(
-              historyItem.origin == HistoryOrigin.S.name
-                ? Icons.fullscreen
-                : Icons.edit_outlined,
+              historyItem.getOrigin?.iconData ?? Icons.help_center_outlined,
               size: 16.0,
               color: theme.hintColor
             ),

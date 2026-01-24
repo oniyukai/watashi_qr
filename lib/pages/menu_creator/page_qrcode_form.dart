@@ -8,7 +8,6 @@ import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_creator/main_creator_view.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:string_validator/string_validator.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_widgets.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
@@ -560,7 +559,7 @@ class _StateLocation extends _FormState {
             labelText: AppLocale.qrCodeTextInputEditTextHintLocalisationHeight.s,
           ),
           validator: (value) {
-            if (value == null || value.isEmpty || value.isFloat){
+            if (value == null || value.isEmpty || double.tryParse(value) != null) {
               return null;
             } else {
               return AppLocale.errorBarcodeNoneCharacterMessage.s;

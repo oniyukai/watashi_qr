@@ -79,7 +79,10 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
       await tempFile.writeAsBytes(croppedData.croppedImage);
       final BarcodeCapture? barcodeCapture = await _args.controller.analyzeImage(tempFile.path);
       if (!mounted) return;
-      setState(() => _barcodeCapture = barcodeCapture);
+      if ((_barcodeCapture?.barcodes.isNotEmpty == true) != (barcodeCapture?.barcodes.isNotEmpty == true)) {
+        setState(() => _barcodeCapture = barcodeCapture);
+      }
+      _barcodeCapture = barcodeCapture;
     }
   }
 
@@ -128,7 +131,7 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
         initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
         onStatusChanged: (cropStatus) async {
           if (cropStatus != .ready || !_isInCycleCrop) return;
-          await Future.delayed(const Duration(milliseconds: 256), _cropController.crop);
+          await Future.delayed(const Duration(milliseconds: 512), _cropController.crop);
         },
       ),
     );

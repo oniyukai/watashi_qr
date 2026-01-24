@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 typedef LocaleInstance = Map<AppLocale, String?>;
-typedef K = AppLocale;
 
 extension StaticString on AppLocale {
   static const String

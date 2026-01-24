@@ -47,7 +47,7 @@ class CustomSearchUrl {
   }
 }
 
-class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, int> {
+class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<int> {
   List<CustomSearchUrl> _customSearchUrls = [];
 
   Future<void> _pressDelete() => showMyDialog(
@@ -81,11 +81,10 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
   @override
   Widget build(context) {
     _customSearchUrls = context.readPrefs.get(.customSearchUrls);
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
-          ? colorScheme.primary.withValues(alpha:0.25)
+          ? Theme.of(context).colorScheme.primary.withValues(alpha:0.25)
           : null,
         title: Text(AppLocale.customSearchUrls.s),
         actions: [

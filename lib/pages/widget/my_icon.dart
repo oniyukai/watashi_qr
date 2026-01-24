@@ -66,7 +66,7 @@ class MyIcon extends StatelessWidget {
       return SvgPicture.string(
         myIconData!.svgString!,
         colorFilter: ColorFilter.mode(
-          color ?? iconTheme.color ?? Colors.red,
+          color ?? iconTheme.color ?? Theme.of(context).colorScheme.error,
           .srcIn,
         ),
         width: iconSize,

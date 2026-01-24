@@ -49,10 +49,6 @@ class MainCreatorView extends StatefulWidget {
 
 class _MainCreatorViewState extends State<MainCreatorView> {
   final ScrollController _scrollController = ScrollController();
-  final Set<HistoryType> _historyTypes = HistoryType.values.toSet()
-    ..removeAll(const <HistoryType>{.product, .industrial});
-  final Set<HistoryFormat> _historyFormats = HistoryFormat.values.toSet()
-    ..removeAll(const <HistoryFormat>{.qrCode});
 
   Future<void> _createQrFromClipboard() async {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
@@ -91,11 +87,13 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                     myIconData: const MyIconData(Icons.content_copy),
                     onTap: _createQrFromClipboard,
                   ),
-                  ..._historyTypes.map((type) => ItemTile(
-                    title: HistoryType.localeStrFromName(type.name),
-                    myIconData: type.myIconData,
-                    onTap: () =>  context.routeOf<PageQrcodeForm>().arguments(type).to(),
-                  )),
+                  for (final HistoryType type in HistoryType.values)
+                    if (!const <HistoryType>[.product, .industrial].contains(type))
+                      ItemTile(
+                        title: HistoryType.localeStrFromName(type.name),
+                        myIconData: type.myIconData,
+                        onTap: () =>  context.routeOf<PageQrcodeForm>().arguments(type).to(),
+                      ),
                 ],
               ),
             ),
@@ -104,12 +102,16 @@ class _MainCreatorViewState extends State<MainCreatorView> {
               title: AppLocale.titleBarCodeCreator.s,
               myIconData: .barcode,
               expandedChild: Column(
-                children: _historyFormats.map((format) => ItemTile(
-                  title: HistoryFormat.localeStrFromName(format.name),
-                  myIconData: format.myIconData,
-                  description: format.composition,
-                  onTap: () => context.routeOf<PageBarcodeForm>().arguments(format).to(),
-                )).toList(),
+                children: [
+                  for (final HistoryFormat format in HistoryFormat.values)
+                    if (!const <HistoryFormat>[.qrCode].contains(format))
+                      ItemTile(
+                        title: HistoryFormat.localeStrFromName(format.name),
+                        myIconData: format.myIconData,
+                        description: format.composition,
+                        onTap: () => context.routeOf<PageBarcodeForm>().arguments(format).to(),
+                      ),
+                ],
               ),
             ),
             const SizedBox(height: 16),

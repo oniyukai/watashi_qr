@@ -18,7 +18,7 @@ Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
 class FlashlightButton extends StatelessWidget {
   final MobileScannerController controller;
 
-  const FlashlightButton({required this.controller, super.key});
+  const FlashlightButton(this.controller, {super.key});
 
   @override
   Widget build(context) {
@@ -28,8 +28,7 @@ class FlashlightButton extends StatelessWidget {
         final IconData iconData = switch (state.torchState) {
           .auto => Icons.flash_auto,
           .on => Icons.flash_on,
-          .off => Icons.flash_off,
-          .unavailable => Icons.no_flash,
+          .off || .unavailable => Icons.flash_off,
         };
         final Future<void> Function()? onPressed = (
             state.isInitialized &&
@@ -90,10 +89,10 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
             final double scanWindowHeight = widget.scanWindow.height;
             final double minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.175;
             final double maxScanWindowSize = min(screenWidth, screenHeight) * 0.85;
-            final Color overlayColor = Colors.black54; // 遮罩顏色
+            const Color overlayColor = Colors.black54; // 遮罩顏色
             final Color cornerColor = Theme.of(context).colorScheme.primary; // 角落顏色
-            final double cornerSize = 32.0; // 角落大小
-            final double cornerWidth = 2.0; // 角落粗細
+            const double cornerSize = 32.0; // 角落大小
+            const double cornerWidth = 2.0; // 角落粗細
 
             return Stack(
               children: [

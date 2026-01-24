@@ -144,7 +144,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     if (isContinuousScan) {
       Utils.showToast(item.contents);
       await Future<void>.delayed(const Duration(milliseconds: 800));
-    } else if (isAutoOpenWebsite && item.type == HistoryType.website.name) {
+    } else if (isAutoOpenWebsite && item.getType == .website) {
       await Utils.openUrlInBrowser(item.contents);
       await Future<void>.delayed(const Duration(milliseconds: 1600));
     } else {
@@ -260,7 +260,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                 direction: isPortrait ? .horizontal : .vertical,
                 mainAxisSize: .min,
                 children: [
-                  FlashlightButton(controller: _scannerController),
+                  FlashlightButton(_scannerController),
                   IconButton(
                     splashRadius: 16,
                     icon: const Icon(Icons.photo),

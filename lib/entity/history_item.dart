@@ -34,6 +34,8 @@ class HistoryItem {
   @Transient() MyIconData get getFormatIconData => getFormat?.myIconData ?? const MyIconData(Icons.help_center_outlined);
   @Transient() HistoryType? get getType => HistoryType.values.fromName(type);
   @Transient() MyIconData get getTypeIconData => getType?.myIconData ?? const MyIconData(Icons.help_center);
+  @Transient() HistoryErrorLevel? get getErrorLevel => HistoryErrorLevel.values.fromName(errorLevel);
+  @Transient() HistoryOrigin? get getOrigin => HistoryOrigin.values.fromName(origin);
 
   @Transient()
   factory HistoryItem.fromJson(Map<String, dynamic> json) => HistoryItem(
@@ -68,12 +70,11 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   H(.high),
   none;
 
-  const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
-
   final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
 
-  static HistoryErrorLevel? fromName(String? n) => values.fromName(n);
-  static String localeStrFromName(String? n) => optionMap[fromName(n)] ?? '?$n';
+  const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
+
+  static String localeStrFromName(String n) => optionMap[values.fromName(n)] ?? '?$n';
 
   static Map<HistoryErrorLevel, String> get optionMap => <HistoryErrorLevel, String>{
     L: AppLocale.qrCodeErrorCorrectionLevelNameLow.s,
@@ -85,5 +86,16 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
 
 
 enum HistoryOrigin { // !! 改變name會影響之後HistoryItem儲存的值
-  S, C; // from scanner, creator
+  S(Icons.fullscreen), // scanner
+  C(Icons.edit_outlined); // creator
+
+  final IconData iconData;
+
+  const HistoryOrigin(this.iconData);
+
+  static String localeStrFromName(String n) => switch (values.fromName(n)) {
+    S => AppLocale.titleScan,
+    C => AppLocale.titleGenerate,
+    null => null,
+  }?.s ?? '?$n';
 }

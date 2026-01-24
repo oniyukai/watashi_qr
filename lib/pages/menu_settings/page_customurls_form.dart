@@ -45,7 +45,6 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
 
   @override
   Widget build(context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
     final CustomSearchUrl? argItem = _args.index == null ? null : _args.items[_args.index!];
     return Scaffold(
       appBar: AppBar(
@@ -104,9 +103,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              SelectableText('${AppLocale.customSearchUrlsAddInfo.s}\n\n${AppLocale.examples.s} ${StaticString.googleUrl}',
-                style: textTheme.bodyMedium
-              ),
+              SelectableText('${AppLocale.customSearchUrlsAddInfo.s}\n\n${AppLocale.examples.s} ${StaticString.googleUrl}'),
               const SizedBox(height: 16),
             ],
           ),

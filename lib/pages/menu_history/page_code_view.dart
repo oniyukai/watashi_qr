@@ -33,7 +33,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
 
   HistoryErrorLevel _initErrorLevel() {
-    final HistoryErrorLevel? historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
+    final HistoryErrorLevel? historyErrorLevel = _historyItem.getErrorLevel;
     return (historyErrorLevel == .none || historyErrorLevel == null)
         ? context.readPrefs.get<HistoryErrorLevel>(.selectedQRErrorLevel)
         : historyErrorLevel;
@@ -47,7 +47,7 @@ class _PageCodeViewState extends State<PageCodeView> {
         Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
         return;
       }
-      final double width = 1024.0;
+      const double width = 1024.0;
       final File file = File(p.join(dir, 'barcode.$fileSuffix'));
       switch (fileSuffix) {
         case StaticString.svgSuffix:
@@ -85,9 +85,10 @@ class _PageCodeViewState extends State<PageCodeView> {
         actions: _historyFormat != null && _validatorMsg == null ? [
           MyMenuButton(
             icon: const Icon(Icons.save),
-            items: const {StaticString.pngSuffix, StaticString.jpgSuffix, StaticString.svgSuffix}
-              .map((suffix) => MyMenuItem(text: suffix.toUpperCase(), onTap: () => _pressExport(suffix)))
-              .toList(),
+            items: [
+              for (final String suffix in const [StaticString.pngSuffix, StaticString.jpgSuffix, StaticString.svgSuffix])
+                MyMenuItem(text: suffix.toUpperCase(), onTap: () => _pressExport(suffix)),
+            ],
           ),
           IconButton(
             icon: const Icon(Icons.share),
@@ -119,7 +120,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                           _validatorMsg = e.toString();
                         }
                         return Center(
-                          child: svgWidget ?? Text(_validatorMsg!, style: TextStyle(color: Colors.grey))
+                          child: svgWidget ?? Text(_validatorMsg!, style: const TextStyle(color: Colors.grey))
                         );
                       },
                     ),

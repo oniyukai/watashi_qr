@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:string_validator/string_validator.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -44,6 +44,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
       case .dataMatrix:
       case .aztec:
       case .pdf417:
+      case null:
         if (upperContents.startsWith('BEGIN:VCARD\n')) {
           return contact;
         } else if (upperContents.startsWith('MAILTO:') || upperContents.startsWith('MATMSG:')) {
@@ -58,12 +59,10 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
           return event;
         } else if (upperContents.startsWith('WIFI:')) {
           return wifi;
-        } else if (isURL(contents, {
-          'protocols': ['http', 'https'],
-          'require_tld': true,
-          'require_protocol': true,
-          'allow_underscores': false,
-        })) {
+        } else if (UrlValidator().isURL(
+            contents,
+            protocols: const <String?>['http', 'https'],
+            requireProtocol: true)) {
           return website;
         } else {
           return text;
@@ -79,8 +78,6 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
       case .codabar:
       case .itf:
         return industrial;
-      default:
-        return text;
     }
   }
 }

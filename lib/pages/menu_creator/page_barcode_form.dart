@@ -54,9 +54,9 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(_historyFormat.description ?? '',
-                  softWrap: true,
-                  style: Theme.of(context).textTheme.bodyMedium
+              Text(
+                _historyFormat.description ?? '',
+                softWrap: true,
               ),
               const SizedBox(height: 16),
             ],

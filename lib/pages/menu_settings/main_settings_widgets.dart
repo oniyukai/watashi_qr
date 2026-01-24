@@ -122,11 +122,14 @@ class ListTilePicker<T> extends StatelessWidget {
               },
               child: Column(
                 mainAxisSize: .min,
-                children: optionMap.entries.map((entry) => RadioListTile(
-                  title: Text(entry.value),
-                  value: entry.key,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                )).toList(),
+                children: [
+                  for (final MapEntry<T, String> entry in optionMap.entries)
+                    RadioListTile(
+                      title: Text(entry.value),
+                      value: entry.key,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                    ),
+                ],
               ),
             ),
           ),

@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 class DatabaseServices {
   const DatabaseServices._();
 
-  static late Store _store;
+  static late final Store _store;
   static late final Box<HistoryItem> _historyBox;
 
   static Future<void> init() async {

@@ -58,6 +58,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               routes: MyRouter.$ROUTES,
               navigatorKey: MyRouter.navigatorKey,
               onGenerateRoute: MyRouter.onGenerateRoute,
+              onUnknownRoute: MyRouter.onUnknownRoute,
 
             );
           },
