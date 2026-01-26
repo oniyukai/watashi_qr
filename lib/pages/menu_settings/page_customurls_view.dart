@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -52,27 +53,24 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
 
   Future<void> _pressDelete() => showMyDialog(
     context: context,
-    title: AppLocale.deleteLabel.s,
+    title: DictKey.deleteLabel.s,
     content: Text(isSelectionMode
-        ? AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s
-        : AppLocale.popupMessageConfirmationDeletedAllCustomUrls.s
+        ? DictKey.popupMessageConfirmationDeleteSelectedItemsHistory.s
+        : DictKey.popupMessageConfirmationDeletedAllCustomUrls.s
     ),
     actions: [
       TextButton(
-        child: Text(AppLocale.deleteLabel.s),
+        child: Text(DictKey.deleteLabel.s),
         onPressed: () async {
           Navigator.pop(context);
           if (isSelectionMode) {
-            _customSearchUrls = [
-              for (final MapEntry<int, CustomSearchUrl> entry in _customSearchUrls.asMap().entries)
-                if (!selectedObjects.contains(entry.key)) entry.value
-            ];
+            _customSearchUrls = _customSearchUrls.whereIndexed((i, e) => !selectedObjects.contains(i)).toList();
             await context.readPrefs.update(.customSearchUrls, _customSearchUrls, false);
             exitSelectionMode();
           } else {
             await context.readPrefs.update(.customSearchUrls, _customSearchUrls..clear());
           }
-          Utils.showToast(AppLocale.customUrlDeleted.s);
+          Utils.showToast(DictKey.customUrlDeleted.s);
         },
       ),
     ],
@@ -86,13 +84,13 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
         backgroundColor: isSelectionMode
           ? Theme.of(context).colorScheme.primary.withValues(alpha:0.25)
           : null,
-        title: Text(AppLocale.customSearchUrls.s),
+        title: Text(DictKey.customSearchUrls.s),
         actions: [
           if (!isSelectionMode) IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => context.routeOf<PageCustomurlsForm>().arguments(PageCustomurlsFormArgs(
+            onPressed: () => context.routeOf<PageCustomurlsForm>().toPass(PageCustomurlsFormArgs(
               items: _customSearchUrls,
-            )).to(),
+            )),
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
@@ -103,7 +101,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
       body: SafeArea(
         child: Scrollbar(
           child: _customSearchUrls.isEmpty
-            ? Center(child: Text(AppLocale.customSearchUrlsListIsEmptyMessage.s))
+            ? Center(child: Text(DictKey.customSearchUrlsListIsEmptyMessage.s))
             : ListView.builder(
             addAutomaticKeepAlives: false,
             addRepaintBoundaries: false,
@@ -121,10 +119,10 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
                     if (isSelectionMode) {
                       toggleSelection(index);
                     } else {
-                      context.routeOf<PageCustomurlsForm>().arguments(PageCustomurlsFormArgs(
+                      context.routeOf<PageCustomurlsForm>().toPass(PageCustomurlsFormArgs(
                         index: index,
                         items: _customSearchUrls,
-                      )).to();
+                      ));
                     }
                   },
                   onLongPress: () => enterSelectionMode(index),

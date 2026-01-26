@@ -52,7 +52,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
   void _pressSelectedDelete() {
     Navigator.pop(context);
     DatabaseServices.deleteItems(selectedObjects.toList());
-    Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
+    Utils.showToast(DictKey.menuItemHistoryRemovedFromHistory.s);
     exitSelectionMode();
   }
 
@@ -60,7 +60,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
     final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
     final String combinedText = items.map((item) => item.contents).join('\n');
     await Clipboard.setData(ClipboardData(text: combinedText));
-    Utils.showToast(AppLocale.barcodeCopiedLabel.s);
+    Utils.showToast(DictKey.barcodeCopiedLabel.s);
     exitSelectionMode();
   }
 
@@ -76,12 +76,12 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
   void _pressDeleteAll() {
     Navigator.pop(context);
     DatabaseServices.clearHistoryBox();
-    Utils.showToast(AppLocale.menuItemHistoryRemovedFromHistory.s);
+    Utils.showToast(DictKey.menuItemHistoryRemovedFromHistory.s);
   }
 
   @override
   Widget build(context) {
-    AppLocale.load(context);
+    DictKey.load(context);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -103,12 +103,12 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
             icon: const Icon(Icons.delete_forever),
             onPressed: () async => showMyDialog(
               context: context,
-              title: AppLocale.deleteLabel.s,
-              content: Text(AppLocale.popupMessageConfirmationDeleteSelectedItemsHistory.s),
+              title: DictKey.deleteLabel.s,
+              content: Text(DictKey.popupMessageConfirmationDeleteSelectedItemsHistory.s),
               actions: [
                 TextButton(
                   onPressed: _pressSelectedDelete,
-                  child: Text(AppLocale.deleteLabel.s),
+                  child: Text(DictKey.deleteLabel.s),
                 ),
               ],
             ),
@@ -119,8 +119,8 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
           ),
           MyMenuButton(
             items: [
-              MyMenuItem(text: AppLocale.menuItemHistoryAddFavorite.s),
-              MyMenuItem(text: AppLocale.menuItemHistoryRemoveFavorite.s),
+              MyMenuItem(text: DictKey.menuItemHistoryAddFavorite.s),
+              MyMenuItem(text: DictKey.menuItemHistoryRemoveFavorite.s),
             ],
             onSelectedEnd: _pressSelectedFavorite,
           ),
@@ -130,15 +130,15 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
             icon: const Icon(Icons.swap_vert),
             items: [
               MyMenuItem(
-                text: AppLocale.shareJsonLabel.s,
+                text: DictKey.shareJsonLabel.s,
                 onTap: DatabaseServices.shareHistoryBoxToJson,
               ),
               MyMenuItem(
-                text: AppLocale.exportJsonLabel.s,
+                text: DictKey.exportJsonLabel.s,
                 onTap: DatabaseServices.exportHistoryBoxToJson,
               ),
               MyMenuItem(
-                text: AppLocale.importJsonLabel.s,
+                text: DictKey.importJsonLabel.s,
                 onTap: DatabaseServices.importHistoryBoxFromJson,
               ),
             ],
@@ -147,12 +147,12 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
             icon: const Icon(Icons.delete_forever),
             onPressed: () async => showMyDialog(
               context: context,
-              title: AppLocale.deleteLabel.s,
-              content: Text(AppLocale.popupMessageConfirmationDeleteHistory.s),
+              title: DictKey.deleteLabel.s,
+              content: Text(DictKey.popupMessageConfirmationDeleteHistory.s),
               actions: [
                 TextButton(
                   onPressed: _pressDeleteAll,
-                  child: Text(AppLocale.deleteLabel.s),
+                  child: Text(DictKey.deleteLabel.s),
                 ),
               ],
             ),
@@ -169,7 +169,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
               } else if (_errorMessage != null) {
                 return Center(child: Text(_errorMessage!));
               } else if (_historyItems.isEmpty) {
-                return Center(child: Text(AppLocale.labelHistoryEmpty.s));
+                return Center(child: Text(DictKey.labelHistoryEmpty.s));
               }
               return ListView.builder(
                 addAutomaticKeepAlives: false,
@@ -184,7 +184,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
                     selected: selectedObjects.contains(item.id),
                     onTap: isSelectionMode
                         ? () => toggleSelection(item.id)
-                        : () => context.routeOf<PageItemView>().arguments(item).to(),
+                        : () => context.routeOf<PageItemView>().toPass(item),
                     onLongPress: () => enterSelectionMode(item.id),
                   );
                 },

@@ -27,10 +27,10 @@ class PageCodeView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageCodeViewState extends State<PageCodeView> {
-  late final HistoryItem _historyItem = widget.argumentOf(context)!;
+  late final HistoryItem _historyItem = widget.getArgs(context)!;
   late final HistoryFormat? _historyFormat = _historyItem.getFormat;
   late final HistoryErrorLevel _historyErrorLevel = _initErrorLevel();
-  late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
+  late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat!);
 
   HistoryErrorLevel _initErrorLevel() {
     final HistoryErrorLevel? historyErrorLevel = _historyItem.getErrorLevel;
@@ -44,7 +44,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory? initialDir = await getDownloadsDirectory();
       final String? dir = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDir?.path);
       if (dir == null) {
-        Utils.showToast('${AppLocale.cancelLabel.s}\nUnable to get storage directory.');
+        Utils.showToast('${DictKey.cancelLabel.s}\nUnable to get storage directory.');
         return;
       }
       const double width = 1024.0;
@@ -58,9 +58,9 @@ class _PageCodeViewState extends State<PageCodeView> {
           await file.writeAsBytes(img.encodeJpg(_getBarcodeImage(width)));
         default: throw 'Unsupported file format: $fileSuffix';
       }
-      Utils.showToast(AppLocale.snackBarMessageSaveBitmapOk.s);
+      Utils.showToast(DictKey.snackBarMessageSaveBitmapOk.s);
     } catch (e) {
-      Utils.showToast('${AppLocale.snackBarMessageSaveBitmapError.s}\n$e', true);
+      Utils.showToast('${DictKey.snackBarMessageSaveBitmapError.s}\n$e', true);
     }
   }
 
@@ -140,7 +140,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                     ),
                     const SizedBox(height: 8),
                     if (_historyFormat == .qrCode) Text(
-                      '${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
+                      '${DictKey.qrCodeErrorCorrectionLevelLabel.s}: '
                       '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}',
                       textAlign: .center,
                     ),

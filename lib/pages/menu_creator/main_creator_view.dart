@@ -40,7 +40,7 @@ class MainCreatorView extends StatefulWidget {
       notes: '',
     );
     if (isCreateAddHistory) item.id = DatabaseServices.addItem(item);
-    await context.routeOf<PageCodeView>().arguments(item).to();
+    await context.routeOf<PageCodeView>().toPass(item);
   }
 
   @override
@@ -54,7 +54,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String? contents = clipboardData?.text;
     if (contents == null || contents.isEmpty) {
-      Utils.showToast('${AppLocale.clipboardEmpty.s}\n${AppLocale.qrCodeTextGeneratorHintTextInputEditText.s}');
+      Utils.showToast('${DictKey.clipboardEmpty.s}\n${DictKey.qrCodeTextGeneratorHintTextInputEditText.s}');
       return;
     }
     await MainCreatorView.createRouteTo(context, contents, .qrCode);
@@ -68,7 +68,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
 
   @override
   Widget build(context) {
-    AppLocale.load(context);
+    DictKey.load(context);
     return SafeArea(
       child: Scrollbar(
         controller: _scrollController,
@@ -78,12 +78,12 @@ class _MainCreatorViewState extends State<MainCreatorView> {
           children: [
             const SizedBox(height: 16),
             ExpandableCard(
-              title: AppLocale.titleQrCodeCreator.s,
+              title: DictKey.titleQrCodeCreator.s,
               myIconData: HistoryFormat.qrCode.myIconData,
               expandedChild: Column(
                 children: [
                   ItemTile(
-                    title: AppLocale.createQrFromClipboard.s,
+                    title: DictKey.createQrFromClipboard.s,
                     myIconData: const MyIconData(Icons.content_copy),
                     onTap: _createQrFromClipboard,
                   ),
@@ -92,14 +92,14 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                       ItemTile(
                         title: HistoryType.localeStrFromName(type.name),
                         myIconData: type.myIconData,
-                        onTap: () =>  context.routeOf<PageQrcodeForm>().arguments(type).to(),
+                        onTap: () => context.routeOf<PageQrcodeForm>().toPass(type),
                       ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
             ExpandableCard(
-              title: AppLocale.titleBarCodeCreator.s,
+              title: DictKey.titleBarCodeCreator.s,
               myIconData: .barcode,
               expandedChild: Column(
                 children: [
@@ -109,7 +109,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                         title: HistoryFormat.localeStrFromName(format.name),
                         myIconData: format.myIconData,
                         description: format.composition,
-                        onTap: () => context.routeOf<PageBarcodeForm>().arguments(format).to(),
+                        onTap: () => context.routeOf<PageBarcodeForm>().toPass(format),
                       ),
                 ],
               ),

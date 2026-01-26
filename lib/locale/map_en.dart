@@ -1,6 +1,6 @@
 import 'package:watashi_qr/locale/app_language.dart';
 
-const LocaleInstance mapEn = {
+const DictInstance mapEn = {
   .cameraPermissionDenied: 'Waiting for Authorized Access to the Camera.',
   .titleScan: 'Scan',
   .titleHistory: 'History',

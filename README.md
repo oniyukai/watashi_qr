@@ -4,8 +4,8 @@
 
 <h4 align="center">An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
 
-![GitHub release](https://img.shields.io/github/v/release/oniyukai/watashi_qr.svg)
 [![GitHub License](https://img.shields.io/github/license/oniyukai/watashi_qr)](https://github.com/oniyukai/watashi_qr/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/oniyukai/watashi_qr.svg)](https://github.com/oniyukai/watashi_qr)
 
 ## Formats
 

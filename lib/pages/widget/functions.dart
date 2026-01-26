@@ -10,7 +10,7 @@ Future<void> showMyDialog({
 async {
   await showDialog(
     context: context,
-    builder: (BuildContext context) => AlertDialog(
+    builder: (context) => AlertDialog(
       title: Text(title,
         style:Theme.of(context).textTheme.titleMedium,
         textAlign: .center
@@ -19,7 +19,7 @@ async {
       actions: [
         if (!noCancelButton) TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(AppLocale.cancelLabel.s),
+          child: Text(DictKey.cancelLabel.s),
         ),
         if (actions != null) ...actions,
       ],
@@ -38,7 +38,7 @@ async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    builder: (BuildContext context) => SingleChildScrollView(
+    builder: (context) => SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
@@ -56,7 +56,7 @@ async {
               mainAxisAlignment: .spaceAround,
               children: [
                 if (!noCancelButton) ElevatedButton(
-                  child: Text(AppLocale.cancelLabel.s),
+                  child: Text(DictKey.cancelLabel.s),
                   onPressed: () => Navigator.pop(context),
                 ),
                 if (actions != null) ...actions,

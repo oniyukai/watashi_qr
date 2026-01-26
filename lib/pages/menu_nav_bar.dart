@@ -37,7 +37,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
 
   @override
   Widget build(context) {
-    AppLocale.load(context);
+    DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Consumer<MenuNavBarProvider>(
       builder: (context, state, child) => Scaffold(
@@ -60,22 +60,22 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: AppLocale.titleScan.s
+          label: DictKey.titleScan.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: AppLocale.titleGenerate.s
+          label: DictKey.titleGenerate.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: AppLocale.titleHistory.s
+          label: DictKey.titleHistory.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: AppLocale.titleSettings.s
+          label: DictKey.titleSettings.s
         ),
       ],
     );
@@ -91,22 +91,22 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: Text(AppLocale.titleScan.s)
+          label: Text(DictKey.titleScan.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: Text(AppLocale.titleGenerate.s)
+          label: Text(DictKey.titleGenerate.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: Text(AppLocale.titleHistory.s)
+          label: Text(DictKey.titleHistory.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: Text(AppLocale.titleSettings.s)
+          label: Text(DictKey.titleSettings.s)
         ),
       ],
     );

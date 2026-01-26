@@ -16,7 +16,7 @@ class _PageAboutViewState extends State<PageAboutView> {
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocale.preferencesAboutTitle.s),
+        title: Text(DictKey.preferencesAboutTitle.s),
       ),
       body: SafeArea(
         child: Scrollbar(
@@ -41,24 +41,24 @@ class _PageAboutViewState extends State<PageAboutView> {
                 textAlign: .center,
               ),
               ListTile(
-                title: Text(AppLocale.preferencesApplicationVersionLabel.s),
+                title: Text(DictKey.preferencesApplicationVersionLabel.s),
                 subtitle: Text(StaticString.appVersion),
               ),
               ListTile(
-                title: Text(AppLocale.preferencesApplicationVersionTagLabel.s),
+                title: Text(DictKey.preferencesApplicationVersionTagLabel.s),
                 subtitle: Text(StaticString.appVersionTag),
               ),
               ListTile(
-                title: Text(AppLocale.preferencesAboutOpenSourceLibrariesLabel.s),
+                title: Text(DictKey.preferencesAboutOpenSourceLibrariesLabel.s),
                 subtitle: Text('${StaticString.appName} is Licensed under\nGNU General Public License v3.0'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => showLicensePage(
                   context: context,
-                  applicationName: AppLocale.preferencesAboutOpenSourceLibrariesLabel.s,
+                  applicationName: DictKey.preferencesAboutOpenSourceLibrariesLabel.s,
                 ),
               ),
               ListTile(
-                title: Text(AppLocale.preferencesSourceCodeLabel.s),
+                title: Text(DictKey.preferencesSourceCodeLabel.s),
                 subtitle: Text(StaticString.sourceCodeLink),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Utils.openUrlInBrowser(StaticString.sourceCodeLink),

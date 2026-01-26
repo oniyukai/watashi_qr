@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 class MyMenuItem {
@@ -28,24 +29,20 @@ class MyMenuButton extends StatelessWidget {
   Widget build(context) {
     return PopupMenuButton<int>(
       icon: icon ?? const Icon(Icons.more_vert),
-      itemBuilder: (BuildContext context) => List.generate(
-        items.length, (index) {
-          final String? text = items[index].text;
-          final IconData? iconData = items[index].iconData;
-          assert (text != null || iconData != null);
-          return PopupMenuItem<int>(
-            value: index,
-            child: Row(
-              mainAxisSize: .min,
-              children: [
-                if (iconData != null) Icon(iconData),
-                if (iconData != null) const SizedBox(width: 8),
-                if (text != null) Text(text),
-              ],
-            ),
-          );
-        },
-      ),
+      itemBuilder: (context) => items.mapIndexed((index, item) {
+        assert (item.text != null || item.iconData != null);
+        return PopupMenuItem<int>(
+          value: index,
+          child: Row(
+            mainAxisSize: .min,
+            children: [
+              if (item.iconData != null) Icon(item.iconData),
+              if (item.iconData != null) const SizedBox(width: 8),
+              if (item.text != null) Text(item.text!),
+            ],
+          ),
+        );
+      }).toList(),
       onSelected: (value) {
         final VoidCallback? func = items[value].onTap;
         if (func != null) func();

@@ -32,7 +32,7 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 
 class _PageItemViewState extends State<PageItemView> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryItem _historyItem = widget.argumentOf(context)!;
+  late final HistoryItem _historyItem = widget.getArgs(context)!;
   late final HistoryFormat? _historyFormat = _historyItem.getFormat;
   late HistoryType? _historyType = _historyItem.getType;
   late bool _isWillExist = _historyItem.id > 0;
@@ -60,7 +60,7 @@ class _PageItemViewState extends State<PageItemView> {
     title: Row(
       mainAxisAlignment: .spaceBetween,
       children: [
-        Text(AppLocale.actionModifyBarcode.s),
+        Text(DictKey.actionModifyBarcode.s),
         Text(HistoryFormat.localeStrFromName(_historyItem.format)),
       ],
     ),
@@ -74,7 +74,7 @@ class _PageItemViewState extends State<PageItemView> {
     ),
     actions: [
       ElevatedButton(
-        child: Text(AppLocale.actionModifyBarcode.s),
+        child: Text(DictKey.actionModifyBarcode.s),
         onPressed: () {
           if (_formKey.currentState?.saveAndValidate() != true) return;
           _historyItem.contents = _formKey.currentState!.value['modifyContents'];
@@ -88,7 +88,7 @@ class _PageItemViewState extends State<PageItemView> {
 
   Future<void> _pressCopyContents() async {
     await Clipboard.setData(ClipboardData(text: _historyItem.contents));
-    Utils.showToast(AppLocale.barcodeCopiedLabel.s);
+    Utils.showToast(DictKey.barcodeCopiedLabel.s);
   }
 
   @override
@@ -104,7 +104,7 @@ class _PageItemViewState extends State<PageItemView> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             children: [
               ExpandableCard(
-                title: AppLocale.barCodeContentLabel.s,
+                title: DictKey.barCodeContentLabel.s,
                 myIconData: _historyItem.getTypeIconData,
                 initialExpanded: true,
                 expandedChild: AnalyzedContentItem(
@@ -120,7 +120,7 @@ class _PageItemViewState extends State<PageItemView> {
                       minTileHeight: 0,
                       contentPadding: const EdgeInsets.only(left: 16, top: 8),
                       leading: MyIcon(_historyItem.getFormatIconData),
-                      title: Text(AppLocale.aboutBarcodeInformationLabel.s),
+                      title: Text(DictKey.aboutBarcodeInformationLabel.s),
                     ),
                     ListTile(
                       minVerticalPadding: 0,
@@ -132,24 +132,24 @@ class _PageItemViewState extends State<PageItemView> {
                             mainAxisAlignment: .spaceBetween,
                             children: [
                               SelectableText(
-                                AppLocale.aboutBarcodeFormatLabel.s +
+                                DictKey.aboutBarcodeFormatLabel.s +
                                 HistoryFormat.localeStrFromName(_historyItem.format)
                               ),
                               SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
                             ],
                           ),
                           SelectableText(
-                            AppLocale.aboutBarcodeOriginLabel.s +
+                            DictKey.aboutBarcodeOriginLabel.s +
                             HistoryOrigin.localeStrFromName(_historyItem.origin)
                           ),
                           if (_historyItem.getErrorLevel != .none) SelectableText(
-                            '${AppLocale.qrCodeErrorCorrectionLevelLabel.s}: '
+                            '${DictKey.qrCodeErrorCorrectionLevelLabel.s}: '
                             '${HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel)}',
                           ),
                           if (_historyItem.notes.isNotEmpty) Row(
                             crossAxisAlignment: .start,
                             children: [
-                              SelectableText('${AppLocale.matrixContactNotesLabel.s}: '),
+                              SelectableText('${DictKey.matrixContactNotesLabel.s}: '),
                               Expanded(
                                 child: SelectableText(
                                   _historyItem.notes,
@@ -172,7 +172,7 @@ class _PageItemViewState extends State<PageItemView> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   leading: const Icon(MaterialCommunityIcons.barcode_scan),
-                  onTap: () => context.routeOf<PageCodeView>().arguments(_historyItem).to(),
+                  onTap: () => context.routeOf<PageCodeView>().toPass(_historyItem),
                   trailing: Row(
                     mainAxisSize: .min,
                     children: [
@@ -207,7 +207,7 @@ class _PageItemViewState extends State<PageItemView> {
               const SizedBox(height: 4),
               ListTile(
                 minTileHeight: 0,
-                subtitle: Text(AppLocale.actionsLabel.s),
+                subtitle: Text(DictKey.actionsLabel.s),
               ),
               Builder(
                 builder: (context) {
@@ -241,7 +241,7 @@ class _PageItemViewState extends State<PageItemView> {
   List<PressButtonGrid> _getActionGridList() => [
     if (_historyType != .website) PressButtonGrid(
       iconData: Icons.search,
-      description: AppLocale.actionWebSearchLabel.s,
+      description: DictKey.actionWebSearchLabel.s,
       onTap: () async {
         final SearchEngine searchEngine = context.readPrefs.get(.selectedSearchEngine);
         await Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
@@ -250,16 +250,16 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (_historyType == .website) PressButtonGrid(
       iconData: Icons.open_in_browser,
-      description: AppLocale.actionOpenLink.s,
+      description: DictKey.actionOpenLink.s,
       onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
     ),
 
     if (context.readPrefs.get<List<CustomSearchUrl>>(.customSearchUrls).isNotEmpty) PressButtonGrid(
       iconData: Icons.search,
-      description: AppLocale.customSearchUrls.s,
+      description: DictKey.customSearchUrls.s,
       onTap: () => showMyDialog(
         context: context,
-        title: AppLocale.customSearchUrls.s,
+        title: DictKey.customSearchUrls.s,
         noCancelButton: true,
         content: Scrollbar(
           child: SingleChildScrollView(
@@ -284,10 +284,10 @@ class _PageItemViewState extends State<PageItemView> {
 
     PressButtonGrid(
       iconData: Icons.edit_note,
-      description: AppLocale.actionModifyNotes.s,
+      description: DictKey.actionModifyNotes.s,
       onTap: () => showMyBottomSheet(
         context: context,
-        title: Text(AppLocale.actionModifyNotes.s),
+        title: Text(DictKey.actionModifyNotes.s),
         content: FormBuilder(
           key: _formKey,
           child: FormBuilderTextField(
@@ -297,17 +297,16 @@ class _PageItemViewState extends State<PageItemView> {
             initialValue: _historyItem.notes,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.format_size),
-              labelText: AppLocale.barcodeTextCompositionLabel.s,
+              labelText: DictKey.barcodeTextCompositionLabel.s,
             ),
           ),
         ),
         actions: [
           ElevatedButton(
-            child: Text(AppLocale.actionModifyNotes.s),
+            child: Text(DictKey.actionModifyNotes.s),
             onPressed: () {
               if (_formKey.currentState?.saveAndValidate() != true) return;
-              final String value = _formKey.currentState!.value['modifyNotes'];
-              _historyItem.notes = value;
+              _historyItem.notes = _formKey.currentState!.value['modifyNotes'];
               Navigator.pop(context);
             },
           ),
@@ -323,10 +322,10 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (_historyType == .contact) PressButtonGrid(
       iconData: Icons.share,
-      description: AppLocale.actionShareVcfFile.s,
+      description: DictKey.actionShareVcfFile.s,
       onTap: () async {
-        final directory = await getTemporaryDirectory();
-        final file = File(p.join(directory.path, 'contact.vcf'));
+        final Directory tempDir = await getTemporaryDirectory();
+        final File file = File(p.join(tempDir.path, 'contact.vcf'));
         await file.writeAsString(_historyItem.contents);
         await Utils.share(ShareParams(files: [XFile(file.path)]));
       },
@@ -334,7 +333,7 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (_historyType == .mail) PressButtonGrid(
       iconData: Icons.mail_outline,
-      description: AppLocale.actionSendMailLabel.s,
+      description: DictKey.actionSendMailLabel.s,
       onTap: () {
         final analyzed = MailAnalyzer(_historyItem.contents).parse;
         if ((analyzed.email ?? analyzed.subject ?? analyzed.message) == null) return;
@@ -348,11 +347,11 @@ class _PageItemViewState extends State<PageItemView> {
         );
         Utils.openUrlInBrowser(uri.toString());
       },
-    ),
+    ), // todo: 檢視方式
 
     if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
       iconData: Icons.sms_outlined,
-      description: AppLocale.actionSendSmsLabel.s,
+      description: DictKey.actionSendSmsLabel.s,
       onTap: () {
         String? phone;
         String? message;
@@ -373,11 +372,11 @@ class _PageItemViewState extends State<PageItemView> {
         );
         Utils.openUrlInBrowser(uri.toString());
       },
-    ),
+    ), // todo: 檢視方式
 
     if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
       iconData: Icons.call,
-      description: AppLocale.actionCallPhoneLabel.s,
+      description: DictKey.actionCallPhoneLabel.s,
       onTap: () {
         String? phone;
         if (_historyType == .sms) {
@@ -388,13 +387,13 @@ class _PageItemViewState extends State<PageItemView> {
         }
         if (phone != null) Utils.openUrlInBrowser('tel:$phone');
       },
-    ),
+    ), // todo: 檢視方式
 
     if (_historyType == .location) PressButtonGrid(
       iconData: Icons.location_on,
-      description: AppLocale.actionShowLocation.s,
+      description: DictKey.actionShowLocation.s,
       onTap: () => Utils.openUrlInBrowser('geo:${_historyItem.contents.substring(4)}'),
-    ),
+    ), // todo: 檢視方式
 
     // if (_historyType == .event) PressButtonGrid(
     //   iconData: Icons.event,
@@ -405,12 +404,12 @@ class _PageItemViewState extends State<PageItemView> {
     PressButtonGrid(
       iconData: _isWillExist ? Icons.delete_forever : Icons.add,
       description: _isWillExist
-          ? AppLocale.menuItemHistoryDeleteFromHistory.s
-          : AppLocale.menuItemHistoryAddInHistory.s,
+          ? DictKey.menuItemHistoryDeleteFromHistory.s
+          : DictKey.menuItemHistoryAddInHistory.s,
       onTap: () {
         Utils.showToast(_isWillExist
-            ? AppLocale.menuItemHistoryRemovedFromHistory.s
-            : AppLocale.menuItemHistoryAddedInHistory.s);
+            ? DictKey.menuItemHistoryRemovedFromHistory.s
+            : DictKey.menuItemHistoryAddedInHistory.s);
         setState(() => _isWillExist = !_isWillExist);
       },
     ),

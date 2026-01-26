@@ -12,9 +12,9 @@ enum ThemeOption {
   const ThemeOption([this.brightness]);
 
   static Map<ThemeOption, String> get optionMap => <ThemeOption, String>{
-    sys: AppLocale.preferencesSwitchSystemThemeLabel.s,
-    light: AppLocale.preferencesSwitchLightThemeLabel.s,
-    dark: AppLocale.preferencesSwitchDarkThemeLabel.s,
+    sys: DictKey.preferencesSwitchSystemThemeLabel.s,
+    light: DictKey.preferencesSwitchLightThemeLabel.s,
+    dark: DictKey.preferencesSwitchDarkThemeLabel.s,
   };
 }
 
@@ -31,12 +31,12 @@ enum ColorOption {
   const ColorOption([this.color]);
 
   static Map<ColorOption, String> get optionMap => <ColorOption, String>{
-    sys: AppLocale.preferencesColorMaterialYou.s,
-    blue: AppLocale.preferencesColorBlue.s,
-    orange: AppLocale.preferencesColorOrange.s,
-    green: AppLocale.preferencesColorGreen.s,
-    red: AppLocale.preferencesColorRed.s,
-    purple: AppLocale.preferencesColorPurple.s,
+    sys: DictKey.preferencesColorMaterialYou.s,
+    blue: DictKey.preferencesColorBlue.s,
+    orange: DictKey.preferencesColorOrange.s,
+    green: DictKey.preferencesColorGreen.s,
+    red: DictKey.preferencesColorRed.s,
+    purple: DictKey.preferencesColorPurple.s,
   };
 }
 

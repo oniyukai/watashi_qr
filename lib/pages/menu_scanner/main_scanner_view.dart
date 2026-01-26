@@ -122,7 +122,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     final BarcodeFormat scannerFormat = capture.barcodes.first.format;
     final String? contents = capture.barcodes.first.rawValue;
     if (contents == null || contents.isEmpty) {
-      Utils.showToast(AppLocale.scanErrorLabel.s);
+      Utils.showToast(DictKey.scanErrorLabel.s);
       _enableDetect = true;
       return;
     }
@@ -148,7 +148,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       await Utils.openUrlInBrowser(item.contents);
       await Future<void>.delayed(const Duration(milliseconds: 1600));
     } else {
-      await context.routeOf<PageItemView>().arguments(item).to();
+      await context.routeOf<PageItemView>().toPass(item);
     }
     _enableDetect = true;
   }
@@ -183,8 +183,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   Future<void> _goPageImageScan() async {
     _viewEntryExitEvent(_enableDetect = false);
     await context.routeOf<PageImageScan>()
-        .arguments((PageImageScanArgs(controller: _scannerController)))
-        .to();
+        .toPass((PageImageScanArgs(controller: _scannerController)));
     await _viewEntryExitEvent(_enableDetect = true);
   }
 
@@ -199,7 +198,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
 
   @override
   Widget build(context) {
-    AppLocale.load(context);
+    DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return SafeArea(
       child: Stack(

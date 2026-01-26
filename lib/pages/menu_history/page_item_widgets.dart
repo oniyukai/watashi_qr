@@ -159,16 +159,16 @@ class _ContactAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixContactNameLabel.s, parse.name),
-    MapEntry(AppLocale.matrixContactOrganisationLabel.s, parse.organisation),
-    MapEntry(AppLocale.matrixContactJobTitleLabel.s, parse.jobTitle),
-    MapEntry(AppLocale.matrixUriUrlLabel.s, parse.website),
-    MapEntry(AppLocale.matrixContactMailLabel.s, parse.mail),
-    MapEntry(AppLocale.matrixContactPhoneLabel.s, parse.phone),
-    MapEntry(AppLocale.matrixContactAddressLabel.s, parse.address),
-    MapEntry(AppLocale.matrixContactNotesLabel.s, parse.notes),
+    MapEntry(DictKey.matrixContactNameLabel.s, parse.name),
+    MapEntry(DictKey.matrixContactOrganisationLabel.s, parse.organisation),
+    MapEntry(DictKey.matrixContactJobTitleLabel.s, parse.jobTitle),
+    MapEntry(DictKey.matrixUriUrlLabel.s, parse.website),
+    MapEntry(DictKey.matrixContactMailLabel.s, parse.mail),
+    MapEntry(DictKey.matrixContactPhoneLabel.s, parse.phone),
+    MapEntry(DictKey.matrixContactAddressLabel.s, parse.address),
+    MapEntry(DictKey.matrixContactNotesLabel.s, parse.notes),
   ];
-} // todo
+} // todo 重構解析
 
 class MailAnalyzer extends _TextAnalyzer {
   MailAnalyzer(super._contents);
@@ -206,11 +206,11 @@ class MailAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixEmailRecipientLabel.s, parse.email),
-    MapEntry(AppLocale.matrixSubjectLabel.s, parse.subject),
-    MapEntry(AppLocale.matrixBodyLabel.s, parse.message),
+    MapEntry(DictKey.matrixEmailRecipientLabel.s, parse.email),
+    MapEntry(DictKey.matrixSubjectLabel.s, parse.subject),
+    MapEntry(DictKey.matrixBodyLabel.s, parse.message),
   ];
-} // todo
+} // todo 重構解析
 
 class SmsAnalyzer extends _TextAnalyzer {
   SmsAnalyzer(super._contents);
@@ -241,10 +241,10 @@ class SmsAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixPhoneTelNumberLabel.s, parse.phone),
-    MapEntry(AppLocale.matrixBodyLabel.s, parse.message),
+    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parse.phone),
+    MapEntry(DictKey.matrixBodyLabel.s, parse.message),
   ];
-} // todo
+} // todo 重構解析
 
 class _PhoneAnalyzer extends _TextAnalyzer {
   _PhoneAnalyzer(super._contents);
@@ -257,9 +257,9 @@ class _PhoneAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixPhoneTelNumberLabel.s, parse.phone),
+    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parse.phone),
   ];
-} // todo
+} // todo 重構解析
 
 class _LocationAnalyzer extends _TextAnalyzer {
   _LocationAnalyzer(super._contents);
@@ -293,12 +293,12 @@ class _LocationAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixLocalisationLatitudeLabel.s, parse.latitude),
-    MapEntry(AppLocale.matrixLocalisationLongitudeLabel.s, parse.longitude),
-    MapEntry(AppLocale.matrixLocalisationAltitudeLabel.s, parse.height),
-    MapEntry(AppLocale.matrixLocalisationQueryLabel.s, parse.request),
+    MapEntry(DictKey.matrixLocalisationLatitudeLabel.s, parse.latitude),
+    MapEntry(DictKey.matrixLocalisationLongitudeLabel.s, parse.longitude),
+    MapEntry(DictKey.matrixLocalisationAltitudeLabel.s, parse.height),
+    MapEntry(DictKey.matrixLocalisationQueryLabel.s, parse.request),
   ];
-} // todo
+} // todo 重構解析
 
 class _EventAnalyzer extends _TextAnalyzer {
   _EventAnalyzer(super._contents);
@@ -340,13 +340,13 @@ class _EventAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixAgendaNameEventLabel.s, parse.summary),
-    MapEntry(AppLocale.matrixAgendaStartDateEventLabel.s, parse.startDate),
-    MapEntry(AppLocale.matrixAgendaEndDateEventLabel.s, parse.endDate),
-    MapEntry(AppLocale.matrixAgendaPlaceEventLabel.s, parse.location),
-    MapEntry(AppLocale.matrixAgendaDescriptionEventLabel.s, parse.description),
+    MapEntry(DictKey.matrixAgendaNameEventLabel.s, parse.summary),
+    MapEntry(DictKey.matrixAgendaStartDateEventLabel.s, parse.startDate),
+    MapEntry(DictKey.matrixAgendaEndDateEventLabel.s, parse.endDate),
+    MapEntry(DictKey.matrixAgendaPlaceEventLabel.s, parse.location),
+    MapEntry(DictKey.matrixAgendaDescriptionEventLabel.s, parse.description),
   ];
-} // todo
+} // todo 重構解析
 
 class _WifiAnalyzer extends _TextAnalyzer {
   _WifiAnalyzer(super._contents);
@@ -381,9 +381,9 @@ class _WifiAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(AppLocale.matrixWifiSsidLabel.s, parse.ssid),
-    MapEntry(AppLocale.matrixWifiPasswordLabel.s, parse.password),
-    MapEntry(AppLocale.matrixWifiEncryptionLabel.s, parse.security),
-    MapEntry(AppLocale.matrixWifiIsHiddenLabel.s, parse.hide),
+    MapEntry(DictKey.matrixWifiSsidLabel.s, parse.ssid),
+    MapEntry(DictKey.matrixWifiPasswordLabel.s, parse.password),
+    MapEntry(DictKey.matrixWifiEncryptionLabel.s, parse.security),
+    MapEntry(DictKey.matrixWifiIsHiddenLabel.s, parse.hide),
   ];
-} // todo
+} // todo重構解析

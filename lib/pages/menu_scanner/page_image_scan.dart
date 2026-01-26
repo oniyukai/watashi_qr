@@ -31,7 +31,7 @@ class PageImageScanArgs {
 
 class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserver {
   final CropController _cropController = CropController();
-  late final PageImageScanArgs _args = widget.argumentOf(context)!;
+  late final PageImageScanArgs _args = widget.getArgs(context)!;
   bool _isInCycleCrop = true;
   Uint8List? _imageBytes;
   BarcodeCapture? _barcodeCapture;
@@ -104,7 +104,7 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
     );
     if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
     _isInCycleCrop = false;
-    await context.routeOf<PageItemView>().arguments(item).to();
+    await context.routeOf<PageItemView>().toPass(item);
     Navigator.pop(context);
   }
 
@@ -112,7 +112,7 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocale.titleScan.s),
+        title: Text(DictKey.titleScan.s),
         actions: [
           if (_barcodeCapture?.barcodes.isNotEmpty == true) IconButton(
             icon: const Icon(Icons.check),
@@ -131,7 +131,8 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
         initialRectBuilder: InitialRectBuilder.withSizeAndRatio(size: 0.75),
         onStatusChanged: (cropStatus) async {
           if (cropStatus != .ready || !_isInCycleCrop) return;
-          await Future.delayed(const Duration(milliseconds: 512), _cropController.crop);
+          await Future.delayed(const Duration(milliseconds: 512));
+          if (_isInCycleCrop) _cropController.crop();
         },
       ),
     );

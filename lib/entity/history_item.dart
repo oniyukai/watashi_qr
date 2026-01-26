@@ -77,10 +77,10 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   static String localeStrFromName(String n) => optionMap[values.fromName(n)] ?? '?$n';
 
   static Map<HistoryErrorLevel, String> get optionMap => <HistoryErrorLevel, String>{
-    L: AppLocale.qrCodeErrorCorrectionLevelNameLow.s,
-    M: AppLocale.qrCodeErrorCorrectionLevelNameMedium.s,
-    Q: AppLocale.qrCodeErrorCorrectionLevelNameQuartile.s,
-    H: AppLocale.qrCodeErrorCorrectionLevelNameHigh.s,
+    L: DictKey.qrCodeErrorCorrectionLevelNameLow.s,
+    M: DictKey.qrCodeErrorCorrectionLevelNameMedium.s,
+    Q: DictKey.qrCodeErrorCorrectionLevelNameQuartile.s,
+    H: DictKey.qrCodeErrorCorrectionLevelNameHigh.s,
   };
 }
 
@@ -94,8 +94,8 @@ enum HistoryOrigin { // !! 改變name會影響之後HistoryItem儲存的值
   const HistoryOrigin(this.iconData);
 
   static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    S => AppLocale.titleScan,
-    C => AppLocale.titleGenerate,
+    S => DictKey.titleScan,
+    C => DictKey.titleGenerate,
     null => null,
   }?.s ?? '?$n';
 }

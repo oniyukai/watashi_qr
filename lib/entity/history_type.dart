@@ -23,17 +23,17 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   const HistoryType(this.myIconData);
 
   static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    text => AppLocale.qrCodeTypeNameText,
-    website => AppLocale.qrCodeTypeNameWebSite,
-    contact => AppLocale.qrCodeTypeNameContact,
-    mail => AppLocale.qrCodeTypeNameMail,
-    sms => AppLocale.qrCodeTypeNameSms,
-    phone => AppLocale.qrCodeTypeNamePhone,
-    location => AppLocale.qrCodeTypeNameLocation,
-    event => AppLocale.qrCodeTypeNameEvent,
-    wifi => AppLocale.qrCodeTypeNameWifi,
-    product => AppLocale.barCodeTypeProduct,
-    industrial => AppLocale.barCodeTypeIndustrial,
+    text => DictKey.qrCodeTypeNameText,
+    website => DictKey.qrCodeTypeNameWebSite,
+    contact => DictKey.qrCodeTypeNameContact,
+    mail => DictKey.qrCodeTypeNameMail,
+    sms => DictKey.qrCodeTypeNameSms,
+    phone => DictKey.qrCodeTypeNamePhone,
+    location => DictKey.qrCodeTypeNameLocation,
+    event => DictKey.qrCodeTypeNameEvent,
+    wifi => DictKey.qrCodeTypeNameWifi,
+    product => DictKey.barCodeTypeProduct,
+    industrial => DictKey.barCodeTypeIndustrial,
     null => null,
   }?.s ?? '?$n';
 

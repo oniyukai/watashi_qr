@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:watashi_locale/watashi_locale.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -32,6 +33,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WatashiLocale.register([LocaleOption.dictDelegate]);
+  }
 
   @override
   void dispose() {
@@ -46,20 +52,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return Consumer<PrefsProvider>(
           builder: (context, prefs, child) {
             return MaterialApp(
-
               title: StaticString.appName,
               theme: appTheme(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
               locale: prefs.get<LocaleOption>(.selectedLanguage).locale,
-              localizationsDelegates: LocaleOption.localizationsDelegates,
-              supportedLocales: LocaleOption.supportedLocales,
+              localizationsDelegates: WatashiLocale.localizationsDelegates,
+              supportedLocales: WatashiLocale.supportedLocales,
 
-              routes: MyRouter.$ROUTES,
               navigatorKey: MyRouter.navigatorKey,
+              routes: MyRouter.routes,
               onGenerateRoute: MyRouter.onGenerateRoute,
               onUnknownRoute: MyRouter.onUnknownRoute,
-
             );
           },
         );

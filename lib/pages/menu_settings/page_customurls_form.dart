@@ -26,7 +26,7 @@ class PageCustomurlsFormArgs {
 
 class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final PageCustomurlsFormArgs _args = widget.argumentOf(context)!;
+  late final PageCustomurlsFormArgs _args = widget.getArgs(context)!;
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -35,10 +35,10 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
     final String formUrl = _formKey.currentState!.value['formUrl'];
     if (_args.index == null) {
       _args.items.insert(0, CustomSearchUrl(title: formTitle, url: formUrl));
-      Utils.showToast(AppLocale.customUrlAdded.s);
+      Utils.showToast(DictKey.customUrlAdded.s);
     } else {
       _args.items[_args.index!] = CustomSearchUrl(title: formTitle, url: formUrl);
-      Utils.showToast(AppLocale.customUrlUpdated.s);
+      Utils.showToast(DictKey.customUrlUpdated.s);
     }
     await context.readPrefs.update(.customSearchUrls, _args.items);
   }
@@ -49,8 +49,8 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text(argItem == null
-            ? AppLocale.customSearchUrlsAddUrl.s
-            : AppLocale.customSearchUrlsModifyUrl.s
+            ? DictKey.customSearchUrlsAddUrl.s
+            : DictKey.customSearchUrlsModifyUrl.s
         ),
         actions: [
           IconButton(
@@ -76,10 +76,10 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       initialValue: argItem?.title,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
-                        labelText: AppLocale.matrixContactNameLabel.s,
+                        labelText: DictKey.matrixContactNameLabel.s,
                       ),
                       validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
+                        FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
                       ]),
                     ),
                     const SizedBox(height: 16),
@@ -90,20 +90,20 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       initialValue: argItem?.url,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
-                        labelText: AppLocale.matrixUriUrlLabel.s,
+                        labelText: DictKey.matrixUriUrlLabel.s,
                       ),
                       validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: AppLocale.errorEmptyFields.s),
-                        FormBuilderValidators.startsWith('http', errorText: AppLocale.errorBarcodeQrUrlFormatMessage.s),
-                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: AppLocale.customSearchUrlsErrorUrl.s),
-                        FormBuilderValidators.url(errorText: AppLocale.errorBarcodeNoneCharacterMessage.s),
+                        FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
+                        FormBuilderValidators.startsWith('http', errorText: DictKey.errorBarcodeQrUrlFormatMessage.s),
+                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: DictKey.customSearchUrlsErrorUrl.s),
+                        FormBuilderValidators.url(errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
                       ]),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-              SelectableText('${AppLocale.customSearchUrlsAddInfo.s}\n\n${AppLocale.examples.s} ${StaticString.googleUrl}'),
+              SelectableText('${DictKey.customSearchUrlsAddInfo.s}\n\n${DictKey.examples.s} ${StaticString.googleUrl}'),
               const SizedBox(height: 16),
             ],
           ),

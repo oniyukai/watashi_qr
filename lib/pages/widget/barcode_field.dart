@@ -28,7 +28,7 @@ class BarcodeField extends StatelessWidget {
       initialValue: initialValue,
       decoration: InputDecoration(
         prefixIcon: Icon(isNumbers ? Icons.pin_outlined : Icons.format_size),
-        labelText: format?.composition ?? AppLocale.barcodeTextCompositionLabel.s,
+        labelText: format?.composition ?? DictKey.barcodeTextCompositionLabel.s,
         errorMaxLines: 8,
       ),
       validator: (value) => barcodeValidator(value, format),
@@ -71,12 +71,12 @@ extension _HistoryFormatForValid on HistoryFormat {
   };
 
   String? get encodingErrorMessage => switch (this) {
-    .aztec => AppLocale.errorBarcodeEncodingIso88591ErrorMessage,
-    .dataMatrix => AppLocale.errorBarcodeEncodingIso88591ErrorMessage,
-    .code128 => AppLocale.errorBarcodeEncodingUsAsciiErrorMessage,
-    .code93 => AppLocale.errorBarcode93RegexErrorMessage,
-    .code39 => AppLocale.errorBarcode39RegexErrorMessage,
-    .codabar=> AppLocale.errorBarcodeCodabarRegexErrorMessage,
+    .aztec => DictKey.errorBarcodeEncodingIso88591ErrorMessage,
+    .dataMatrix => DictKey.errorBarcodeEncodingIso88591ErrorMessage,
+    .code128 => DictKey.errorBarcodeEncodingUsAsciiErrorMessage,
+    .code93 => DictKey.errorBarcode93RegexErrorMessage,
+    .code39 => DictKey.errorBarcode39RegexErrorMessage,
+    .codabar=> DictKey.errorBarcodeCodabarRegexErrorMessage,
     _ => null
   }?.s;
 
@@ -87,7 +87,7 @@ extension _HistoryFormatForValid on HistoryFormat {
 
 String? barcodeValidator(String? value, HistoryFormat? format){
   if (value == null || value.replaceAll('\n', '').replaceAll(' ', '').isEmpty) {
-    return AppLocale.errorEmptyFields.s;
+    return DictKey.errorEmptyFields.s;
   } else if (format == null) {
     return null;
   }
@@ -100,22 +100,22 @@ String? barcodeValidator(String? value, HistoryFormat? format){
   final ValueGetter<Barcode> barcodeFunc = format.barcodeFunc;
 
   if (isNumbers && !value.codeUnits.every((u) => u >= 48 && u <= 57)) {
-    return AppLocale.errorBarcodeNotANumberMessage.s;
+    return DictKey.errorBarcodeNotANumberMessage.s;
   }
   if (format == .upcE && value[0] != '0') {
-    return AppLocale.errorBarcodeUpcENotStartWith0ErrorMessage.s;
+    return DictKey.errorBarcodeUpcENotStartWith0ErrorMessage.s;
   }
   if (format == .itf && (value.length % 2) != 0) {
-    return AppLocale.errorBarcodeItfErrorMessage.s;
+    return DictKey.errorBarcodeItfErrorMessage.s;
   }
   if (maxByteLength != null && utf8.encode(value).length > maxByteLength) {
-    return '${AppLocale.errorBarcodeWrongLengthMessage.s}< $maxByteLength (Bytes)';
+    return '${DictKey.errorBarcodeWrongLengthMessage.s}< $maxByteLength (Bytes)';
   }
   if (maxLength != null && value.length > maxLength) {
-    return '${AppLocale.errorBarcodeWrongLengthMessage.s}< $maxLength';
+    return '${DictKey.errorBarcodeWrongLengthMessage.s}< $maxLength';
   }
   if (hardLength != null && value.length != hardLength) {
-    return '${AppLocale.errorBarcodeWrongLengthMessage.s}$hardLength';
+    return '${DictKey.errorBarcodeWrongLengthMessage.s}$hardLength';
   }
   if (encodingErrorMessage != null && !barcodeFunc().isValid(value)) {
     return encodingErrorMessage;
@@ -123,7 +123,7 @@ String? barcodeValidator(String? value, HistoryFormat? format){
   if (format.hasCheckDigit) {
     final String checkDigit = _tryFindCheck(value, format.barcodeFunc);
     if (value[value.length - 1] != checkDigit) {
-      return '${AppLocale.errorBarcodeWrongKeyMessage.s}$checkDigit';
+      return '${DictKey.errorBarcodeWrongKeyMessage.s}$checkDigit';
     }
   }
   try {

@@ -415,7 +415,7 @@ packages:
     source: hosted
     version: "6.0.0"
   flutter_localizations:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -1194,6 +1194,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.0.2"
+  watashi_locale:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "0683585697035f4f9bb671a13f09e4a9170a2ec7"
+      url: "https://github.com/oniyukai/watashi_locale.git"
+    source: git
+    version: "0.0.1"
   watcher:
     dependency: transitive
     description:

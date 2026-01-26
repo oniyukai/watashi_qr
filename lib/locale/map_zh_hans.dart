@@ -1,6 +1,6 @@
 import 'package:watashi_qr/locale/app_language.dart';
 
-const LocaleInstance mapZhHans = {
+const DictInstance mapZhHans = {
   .cameraPermissionDenied: '等待授权访问相机。',
   .titleScan: '扫描',
   .titleHistory: '历史记录',

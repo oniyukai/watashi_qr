@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-typedef LocaleInstance = Map<AppLocale, String?>;
+typedef DictInstance = Map<DictKey, String?>;
 
-extension StaticString on AppLocale {
+extension StaticString on DictKey {
   static const String
       appName = 'Watashi QR',
       appVersion = '1.2.0.alpha',
@@ -28,7 +28,7 @@ extension StaticString on AppLocale {
       localeLanguageZhHant = '繁體中文';
 }
 
-enum AppLocale {
+enum DictKey {
   // Permission Denied
   cameraPermissionDenied,
   // Menu Item
@@ -307,9 +307,9 @@ enum AppLocale {
 
   String get s => _instance[this] ?? '<$name>';
 
-  static late LocaleInstance _instance;
+  static late DictInstance _instance;
 
   static void load(BuildContext context) {
-    _instance = Localizations.of<LocaleInstance>(context, LocaleInstance)!;
+    _instance = Localizations.of<DictInstance>(context, DictInstance)!;
   }
 }

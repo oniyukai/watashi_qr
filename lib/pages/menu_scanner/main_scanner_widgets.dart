@@ -6,7 +6,7 @@ import 'package:watashi_qr/locale/app_language.dart';
 
 Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
   final String errorMessage = switch (error.errorCode) {
-    .permissionDenied => AppLocale.cameraPermissionDenied.s,
+    .permissionDenied => DictKey.cameraPermissionDenied.s,
     _ => error.errorCode.message,
   };
   return Center(

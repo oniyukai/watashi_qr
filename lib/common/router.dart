@@ -1,5 +1,5 @@
-// This “router.dart” is not covered by License because it is a package from another source.
-import 'package:flutter/cupertino.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
@@ -10,149 +10,125 @@ import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
 
-/// 把'Type'名轉成String
-String _typeName(Type type) => type.toString();
+typedef _InitialPage = MenuNavBar;
 
-const Type _$HOME_ = MenuNavBar;
-final Map<String, WidgetBuilder> _$ROUTES_ = <Type, WidgetBuilder>{
-  _$HOME_: (_) => MenuNavBar(),
-  //menu_scanner
-  PageImageScan: (_) => PageImageScan(),
-  //menu_creator
-  PageQrcodeForm: (_) => PageQrcodeForm(),
-  PageBarcodeForm: (_) => PageBarcodeForm(),
-  //menu_history
-  PageItemView: (_) => PageItemView(),
-  PageCodeView: (_) => PageCodeView(),
-  //menu_settings
-  PageCustomurlsView: (_) => PageCustomurlsView(),
-  PageAboutView: (_) => PageAboutView(),
-  PageCustomurlsForm: (_) => PageCustomurlsForm(),
-}.map((key, value) => MapEntry(key.toString(), value));
+/// 針對 Web 平台或路徑原因如需讓路徑固定, 請將改為 false, 且注意無法同頁面命名
+const bool _useIndexPrefix = true;
 
-/// 路由集中管理器
-/// @author xbaistack
-final class MyRouter {
-  MyRouter._();
+class _RouteEntry {
+  final String route;
+  final WidgetBuilder builder;
+  const _RouteEntry(this.route, this.builder);
+}
 
+final Map<Type, _RouteEntry> _routingTable = Map.fromEntries(<Type, WidgetBuilder>{
+  _InitialPage: (_) => const _InitialPage(),
+  // menu_scanner/
+  PageImageScan: (_) => const PageImageScan(),
+  // menu_creator/
+  PageQrcodeForm: (_) => const PageQrcodeForm(),
+  PageBarcodeForm: (_) => const PageBarcodeForm(),
+  // menu_history/
+  PageItemView: (_) => const PageItemView(),
+  PageCodeView: (_) => const PageCodeView(),
+  // menu_settings/
+  PageCustomurlsView: (_) => const PageCustomurlsView(),
+  PageAboutView: (_) => const PageAboutView(),
+  PageCustomurlsForm: (_) => const PageCustomurlsForm(),
+}.entries.mapIndexed((index, entry) => MapEntry(
+  entry.key, _RouteEntry(
+    '/${_useIndexPrefix ? '$index-' : ''}${entry.key}',
+    entry.value))));
+
+String _pageTypeName(Type pageType) {
+  final _RouteEntry? routeEntry = _routingTable[pageType];
+  assert(routeEntry != null, '_routingTable not included Type<$pageType>, Please register $pageType Route.');
+  return routeEntry!.route;
+}
+
+/// 基於 Navigator 1.0 設計的頁面路由器,
+/// 不用自行維護路由命名, 統一採用 [Type] 路由, 可接受同頁面命名
+///
+/// - [PA] 只有在帶參數路由且鏈式調用時指定所前往的頁面型別時, [_instance] 才會儲存 [PA]
+final class MyRouter<PA extends RouterBridge> {
   static final navigatorKey = GlobalKey<NavigatorState>();
-  static BuildContext get context => navigatorKey.currentContext!;
-  static NavigatorState get navigator => navigatorKey.currentState!;
+  static final String initialRoute = _pageTypeName(_InitialPage);
+  static final Map<String, WidgetBuilder> routes = _routingTable.map((k, v) => MapEntry(v.route, v.builder));
 
-  /// 单实例对象
-  static final MyRouter _instance = MyRouter._();
-
-  /// 路由默认主页
-  static final String $INDEX = _typeName(_$HOME_);
-
-  static final $ROUTES = _$ROUTES_;
-
-  /// 用于临时接收路由参数,当路由关闭后会自动销毁对应参数
-  ///
-  /// * @param [arguments] 对应的路由参数
-  /// * @return [MyRouter] 返回当前管理对象,以便于设置了参数后可以继续调用实例方法。
-  static MyRouter _withArguments(dynamic arguments) =>
-      _instance.._arguments = arguments;
-
-  /// 通过反射类型查找对应的路由页面对象,此方法可以利用编辑器的提示功能方便的设置路由参数。
-  /// 只有当需要设置路由参数时调用此方法,普通跳转请调用 [routeTo] 方法。
-  ///
-  /// * @param [context] 上下文构建对象
-  /// * @return [RT] 页面路由类型 (Route Type)
-  static RT of<RT extends RouterBridge>(BuildContext context) {
-    assert(RT != RouterBridge<dynamic>, "You must specify the route type, for example: of<Page>(context)");
-    final String name = _typeName(RT);
-    assert(hasName(name), "Route \"$RT\" is not registered.");
-    _instance._context = context;
-    _instance._routeName = name;
-    final WidgetBuilder builder = _$ROUTES_[name]!;
-    return builder.call(context) as RT;
+  static Route<T> onGenerateRoute<T>(RouteSettings settings) {
+    final WidgetBuilder builder = routes[settings.name] ?? routes[initialRoute]!;
+    return MaterialPageRoute<T>(builder: builder, settings: settings);
   }
 
-  /// 替换页面或跳转，不应把参数，如有参数请在参数，请通过 [of] 方法进行跳转。
+  static Route<T> onUnknownRoute<T>(RouteSettings settings) => MyRouter.onGenerateRoute(settings);
+
+  /// 不帶路由參數地 push 新頁面, 如有參數請透過 [routeToPass]
   ///
-  /// * @param [context] 上下文构建对象
-  /// * @param [router] 页面路由类型，对页面页面必须是入 [RouterBridge] 对象。
-  /// * @return [Future] 异步 Future 对象，用于接收页面返回值。
-  static Future<T?> routeTo<T extends Object?>(BuildContext context, Type router) {
-    assert(router == RouterBridge<dynamic>, "Your route must be of type RouterBridge");
-    final String name = _typeName(router);
-    assert(hasName(name), "Route \"$router\" is not registered.");
-    return Navigator.pushNamed<T>(context, name);
+  /// * @param [context]
+  /// * @param [pageType] 頁面型別, 頁面不管是否可以或需要路由參數
+  /// * @return [Future] 用於接收頁面跳回時的回傳
+  static Future<R?> routeTo<R extends Object?>(BuildContext context, Type pageType) =>
+      Navigator.pushNamed<R>(context, _pageTypeName(pageType));
+
+  /// 帶路由參數地 push 新頁面, 如無參數轉請透過 [routeTo]
+  ///
+  /// 平替鏈式寫法: [of] 建立臨時實例後, [_to] 帶參數 push 頁面, 請參照 [RoutableContext]
+  ///
+  /// * @param [context]
+  /// * @param [args] 攜帶過去的路由參數
+  /// * @return [Future] 用於接收頁面跳回時的回傳
+  static Future<R?> routeToPass<R extends Object?, P extends RouterBridge<A>, A>(BuildContext context, A args) {
+    assert(P != RouterBridge<dynamic>, 'Routing parameters cannot be specified as dynamic.');
+    return Navigator.pushNamed<R>(context, _pageTypeName(P), arguments: args);
   }
 
-  /// 检测是否包含某路由定之类型
-  ///
-  /// * @param [route] 所由的南面类型
-  /// * @return [bool] 检测结果
-  static bool hasRouter(Type route) => hasName(_typeName(route));
+  /// 臨時實例位址, 生命週期僅從每次的 [of] 到 [_to] 為止
+  static MyRouter? _instance;
 
-  /// 检测是否包含指定路由名
-  ///
-  /// * @param [routeName] 定义的路由类型名
-  /// * @return [bool] 检测结果
-  static bool hasName(String routeName) => _$ROUTES_.containsKey(routeName);
+  final BuildContext _context;
 
-  /// 用干构建页面未知路由，当面路由找不到时会进入到此方法中。
-  /// 参数 [settings] 路由的配置参数。
-  ///
-  /// * @param [settings] 路由配置参数
-  /// * @return [CupertinoPageRoute] 页面路由对象
-  static CupertinoPageRoute onUnknownRoute<T>(RouteSettings settings) =>
-      MyRouter.onGenerateRoute(settings);
+  const MyRouter._(this._context);
 
-  /// 用于构建页面路由,参数 [settings] 是路由的配置参数。
-  ///* @param [settings] 路由配置参数
-  /// * @return [CupertinoPageRoute] 页面略由对象
-  static CupertinoPageRoute onGenerateRoute<T>(RouteSettings settings) {
-    final WidgetBuilder builder = _$ROUTES_[settings.name] ?? _$ROUTES_[$INDEX]!;
-    return CupertinoPageRoute<T>(builder: builder, settings: settings);
+  /// 透過泛型型別尋找對應頁面型別並建立實例, 只在需要路由參數方法時呼叫, 否則請透過 [routeTo]
+  ///
+  /// * @param [context]
+  /// * @return [P] 頁面實例
+  static P of<P extends RouterBridge>(BuildContext context) {
+    assert(P != RouterBridge<dynamic>, 'You must specify the route type, for example: of<Page>(context)');
+    final String route = _pageTypeName(P);
+    final WidgetBuilder builder = routes[route]!;
+    _instance = MyRouter<P>._(context);
+    return builder(context) as P;
   }
 
-  /// 临时变量
-  Object? _arguments;
-  String? _routeName;
-  BuildContext? _context;
-
-  /// 重置临时变量
-  void _resetVariables() {
-    _context = null;
-    _arguments = null;
-    _routeName = null;
-  }
-
-  /// 通过 [of] 找到路由对象并设置参数后,需要使用此方法执行页面跳转
+  /// 先 [of] 後, 使用該方法代理執行 [routeToPass],
+  /// 該方法只有在 [RouterBridge] 實例才有呼叫的渠道
   ///
-  /// * @return [Future] 异步 Future 对象,用于接收页面返回值。
-  Future<T?> to<T extends Object?>() {
-    assert(_context != null);
-    assert(_routeName != null);
-    return Navigator.pushNamed<T>(
-      _context!,
-      _routeName!,
-      arguments: _arguments,
-    ).whenComplete(_resetVariables);
+  /// * @param [args] 傳遞的頁面參數
+  /// * @return [Future] 用於接收頁面跳回時的回傳
+  Future<R?> _to<R extends Object?, A>(A args) {
+    _instance = null;
+    return routeToPass<R, PA, dynamic>(_context, args);
   }
 }
 
-/// 路由桥接混入类，专门用于桥接路由跳转中的参数处理部分，
-/// 使得路由跳转时更便利的感知页面需要接收的参数类型。
-/// @author tangxbai
-mixin RouterBridge<RT_ARG_TYPE> {
-  MyRouter arguments(RT_ARG_TYPE args) => MyRouter._withArguments(args);
+extension RoutableContext on BuildContext {
+  Future<R?> routeTo<R extends Object?>(Type pageType) => MyRouter.routeTo<R>(this, pageType);
 
-  RT_ARG_TYPE? argumentOf(BuildContext context) {
+  /// 用法:  [RoutableContext].[routeOf]\<[P]\>().toPass(args);
+  P routeOf<P extends RouterBridge>() {
+    assert(P != RouterBridge<dynamic>, 'You must specify the route type, for example: context.routeOf<Page>()');
+    return MyRouter.of<P>(this);
+  }
+}
+
+/// with 於可帶路由參數的頁面型別,
+/// 專門用於橋接路由跳轉中的參數處理, 使得路由跳轉時更便利地感知頁面需要接收的參數型別
+mixin RouterBridge<A> {
+  Future<R?> toPass<R>(A args) => MyRouter._instance!._to<R, A>(args);
+
+  A? getArgs(BuildContext context) {
     final Object? arguments = ModalRoute.of(context)?.settings.arguments;
-    return arguments == null ? null : arguments as RT_ARG_TYPE;
-  }
-}
-
-extension Context on BuildContext {
-  Future<T?> routeTo<T extends Object?>(Type router) =>
-      Navigator.pushNamed(this, _typeName(router));
-
-  RT routeOf<RT extends RouterBridge>() {
-    assert(RT != RouterBridge<dynamic>, "You must specify the route type, for example: \"context.routeOf<Page>()\";");
-    return MyRouter.of<RT>(this);
+    return arguments == null ? null : arguments as A;
   }
 }

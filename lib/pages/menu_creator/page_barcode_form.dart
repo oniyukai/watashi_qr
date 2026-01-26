@@ -16,7 +16,7 @@ class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
 
 class _PageBarcodeFormState extends State<PageBarcodeForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryFormat _historyFormat = widget.argumentOf(context)!;
+  late final HistoryFormat _historyFormat = widget.getArgs(context)!;
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -28,7 +28,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocale.titleBarCodeCreator.s),
+        title: Text(DictKey.titleBarCodeCreator.s),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
