@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
@@ -38,35 +38,21 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   }?.s ?? '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
-    final String upperContents = contents.toUpperCase();
     switch (format) {
       case .qrCode:
       case .dataMatrix:
       case .aztec:
       case .pdf417:
       case null:
-        if (upperContents.startsWith('BEGIN:VCARD\n')) {
-          return contact;
-        } else if (upperContents.startsWith('MAILTO:') || upperContents.startsWith('MATMSG:')) {
-          return mail;
-        } else if (upperContents.startsWith('SMSTO:')) {
-          return sms;
-        } else if (upperContents.startsWith('TEL:')) {
-          return phone;
-        } else if (upperContents.startsWith('GEO:')) {
-          return location;
-        } else if (upperContents.startsWith('BEGIN:VEVENT\n')) {
-          return event;
-        } else if (upperContents.startsWith('WIFI:')) {
-          return wifi;
-        } else if (UrlValidator().isURL(
-            contents,
-            protocols: const <String?>['http', 'https'],
-            requireProtocol: true)) {
-          return website;
-        } else {
-          return text;
-        }
+        if (ContactAnalyzer(contents).checkType) return contact;
+        if (MailAnalyzer(contents).checkType) return mail;
+        if (SmsAnalyzer(contents).checkType) return sms;
+        if (PhoneAnalyzer(contents).checkType) return phone;
+        if (LocationAnalyzer(contents).checkType) return location;
+        if (EventAnalyzer(contents).checkType) return event;
+        if (WifiAnalyzer(contents).checkType) return wifi;
+        if (WebsiteAnalyzer(contents).checkType) return website;
+        return text;
       case .ean13:
       case .ean8:
       case .upcE:

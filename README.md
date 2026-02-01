@@ -2,7 +2,7 @@
 
 <h2 align="center">Watashi QR</h2>
 
-<h4 align="center">An open-source Flutter app that allows you to read and generate barcodes for Android and iOS.</h4>
+<h4 align="center">A Flutter app for Android and iOS that can read and generate barcodes.</h4>
 
 [![GitHub License](https://img.shields.io/github/license/oniyukai/watashi_qr)](https://github.com/oniyukai/watashi_qr/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/oniyukai/watashi_qr.svg)](https://github.com/oniyukai/watashi_qr)
@@ -49,10 +49,29 @@ If you like Watashi QR, you can support me via [Liberapay](https://liberapay.com
 
 ## Licences
 
-The project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0).
+<details>
+<summary>GNU General Public License v3.0</summary>
+
+```text
+Copyright (C) 2025  ONIYUKAI  https://github.com/oniyukai/watashi_qr
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+```
+</details>
 
 ## Acknowledgements
 
 Thanks to [いらすとや](https://www.irasutoya.com/). This project icon uses material from いらすとや.
 
-Thanks to [BarcodeScanner](https://gitlab.com/Atharok/BarcodeScanner). The Inspiration and languageKey of this project.
+Thanks to [BarcodeScanner](https://gitlab.com/Atharok/BarcodeScanner). The Inspiration of this project.

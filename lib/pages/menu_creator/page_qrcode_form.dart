@@ -224,7 +224,7 @@ class _StateContact extends _FormState {
       spacing: 8.0,
       children: [
         // ElevatedButton(
-        //   onPressed: _importContactFromContact, // todo
+        //   onPressed: // todo: _importContactFromContact,
         //   child: Text(AppLocale.qrCodeTypeNameGenerateFromContact.s),
         // ),
         ElevatedButton(

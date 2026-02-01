@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -30,11 +31,10 @@ class FlashlightButton extends StatelessWidget {
           .on => Icons.flash_on,
           .off || .unavailable => Icons.flash_off,
         };
-        final Future<void> Function()? onPressed = (
-            state.isInitialized &&
+        final AsyncCallback? onPressed = state.isInitialized &&
             state.isRunning &&
             state.torchState != .unavailable
-        ) ? controller.toggleTorch : null;
+            ? controller.toggleTorch : null;
         return IconButton(
           icon: Icon(iconData),
           onPressed: onPressed,

@@ -242,9 +242,9 @@ class _PageItemViewState extends State<PageItemView> {
     if (_historyType != .website) PressButtonGrid(
       iconData: Icons.search,
       description: DictKey.actionWebSearchLabel.s,
-      onTap: () async {
+      onTap: () {
         final SearchEngine searchEngine = context.readPrefs.get(.selectedSearchEngine);
-        await Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
+        return Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
       },
     ),
 
@@ -335,19 +335,18 @@ class _PageItemViewState extends State<PageItemView> {
       iconData: Icons.mail_outline,
       description: DictKey.actionSendMailLabel.s,
       onTap: () {
-        final analyzed = MailAnalyzer(_historyItem.contents).parse;
-        if ((analyzed.email ?? analyzed.subject ?? analyzed.message) == null) return;
+        final parseValue = MailAnalyzer(_historyItem.contents).parseValue;
         final Uri uri = Uri(
           scheme: 'mailto',
-          path: analyzed.email,
+          path: parseValue.email,
           queryParameters: {
-            'subject': analyzed.subject,
-            'body': analyzed.message,
+            'subject': parseValue.subject,
+            'body': parseValue.message,
           },
         );
-        Utils.openUrlInBrowser(uri.toString());
+        return Utils.openUrlInBrowser(uri.toString());
       },
-    ), // todo: 檢視方式
+    ),
 
     if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
       iconData: Icons.sms_outlined,
@@ -356,23 +355,23 @@ class _PageItemViewState extends State<PageItemView> {
         String? phone;
         String? message;
         if (_historyType == .sms) {
-          final analyzed = SmsAnalyzer(_historyItem.contents).parse;
-          phone = analyzed.phone;
-          message = analyzed.message;
+          final parseValue = SmsAnalyzer(_historyItem.contents).parseValue;
+          phone = parseValue.phone;
+          message = parseValue.message;
         } else if (_historyType == .phone) {
-          phone = _historyItem.contents.substring(4);
+          final parseValue = PhoneAnalyzer(_historyItem.contents).parseValue;
+          phone = parseValue.phone;
         }
-        if (phone == null) return;
         final Uri uri = Uri(
           scheme: 'smsto',
           path: phone,
-          queryParameters: (message != null)
-              ? {'body': message}
-              : null,
+          queryParameters: {
+            'body': ?message,
+          },
         );
-        Utils.openUrlInBrowser(uri.toString());
+        return Utils.openUrlInBrowser(uri.toString());
       },
-    ), // todo: 檢視方式
+    ),
 
     if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
       iconData: Icons.call,
@@ -380,20 +379,21 @@ class _PageItemViewState extends State<PageItemView> {
       onTap: () {
         String? phone;
         if (_historyType == .sms) {
-          final analyzed = SmsAnalyzer(_historyItem.contents).parse;
-          phone = analyzed.phone;
+          final parseValue = SmsAnalyzer(_historyItem.contents).parseValue;
+          phone = parseValue.phone;
         } else if (_historyType == .phone) {
-          phone = _historyItem.contents.substring(4);
+          final parseValue = PhoneAnalyzer(_historyItem.contents).parseValue;
+          phone = parseValue.phone;
         }
-        if (phone != null) Utils.openUrlInBrowser('tel:$phone');
+        return Utils.openUrlInBrowser('tel:$phone');
       },
-    ), // todo: 檢視方式
+    ),
 
     if (_historyType == .location) PressButtonGrid(
       iconData: Icons.location_on,
       description: DictKey.actionShowLocation.s,
-      onTap: () => Utils.openUrlInBrowser('geo:${_historyItem.contents.substring(4)}'),
-    ), // todo: 檢視方式
+      onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
+    ),
 
     // if (_historyType == .event) PressButtonGrid(
     //   iconData: Icons.event,
@@ -407,10 +407,10 @@ class _PageItemViewState extends State<PageItemView> {
           ? DictKey.menuItemHistoryDeleteFromHistory.s
           : DictKey.menuItemHistoryAddInHistory.s,
       onTap: () {
-        Utils.showToast(_isWillExist
+        setState(() => _isWillExist = !_isWillExist);
+        return Utils.showToast(_isWillExist
             ? DictKey.menuItemHistoryRemovedFromHistory.s
             : DictKey.menuItemHistoryAddedInHistory.s);
-        setState(() => _isWillExist = !_isWillExist);
       },
     ),
   ];

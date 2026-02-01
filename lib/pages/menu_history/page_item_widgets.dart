@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
@@ -8,7 +10,7 @@ import 'package:flutter/services.dart';
 class PressButtonGrid extends StatelessWidget {
   final IconData iconData;
   final String description;
-  final VoidCallback? onTap;
+  final AsyncValueGetter onTap;
 
   const PressButtonGrid({
     super.key,
@@ -22,7 +24,13 @@ class PressButtonGrid extends StatelessWidget {
     return Card(
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
-        onTap: onTap,
+        onTap: () async {
+          try {
+            await onTap();
+          } catch (e) {
+            Utils.showToast(e.toString());
+          }
+        },
         title: Icon(iconData),
         subtitle: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -53,15 +61,16 @@ class AnalyzedContentItem extends StatelessWidget {
     String? error;
     try {
       entryList = switch (type) {
-        .text || .website || .product || .industrial || null => _TextAnalyzer(contents),
-        .contact => _ContactAnalyzer(contents),
+        .text || .product || .industrial || null => _TextAnalyzer(contents),
+        .contact => ContactAnalyzer(contents),
         .mail => MailAnalyzer(contents),
         .sms => SmsAnalyzer(contents),
-        .phone => _PhoneAnalyzer(contents),
-        .location => _LocationAnalyzer(contents),
-        .event => _EventAnalyzer(contents),
-        .wifi => _WifiAnalyzer(contents),
-      }.getEntryList().where((e) => e.value?.isNotEmpty == true);
+        .phone => PhoneAnalyzer(contents),
+        .location => LocationAnalyzer(contents),
+        .event => EventAnalyzer(contents),
+        .wifi => WifiAnalyzer(contents),
+        .website => WebsiteAnalyzer(contents),
+      }._getEntryList().where((e) => e.value?.isNotEmpty == true);
     } catch (e) {
       error = e.toString();
     }
@@ -90,112 +99,123 @@ class AnalyzedContentItem extends StatelessWidget {
 }
 
 class _TextAnalyzer {
-  final String _contents;
+  final String _text;
 
-  const _TextAnalyzer(this._contents);
+  _TextAnalyzer(this._text);
+
+  String get _upper => _text.toUpperCase();
+
+  bool get checkType {
+    try {
+      if (!_checkType) return false;
+      _parse();
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+    return true;
+  }
+
+  bool get _checkType => true;
+
+  List<MapEntry<String, String?>> _getEntryList() => const [];
 
   dynamic _parse() => true;
-
-  List<MapEntry<String, String?>> getEntryList() {
-    assert(_parse());
-    return const [];
-  }
 }
 
-class _ContactAnalyzer extends _TextAnalyzer {
-  _ContactAnalyzer(super._contents);
-  late final parse = _parse();
+class ContactAnalyzer extends _TextAnalyzer {
+  ContactAnalyzer(super._text);
+
+  late final _parseValue = _parse();
+
+  @override
+  bool get _checkType => _upper.startsWith('BEGIN:VCARD\n');
+
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixContactNameLabel.s, _parseValue.name),
+    MapEntry(DictKey.matrixContactOrganisationLabel.s, _parseValue.organisation),
+    MapEntry(DictKey.matrixContactJobTitleLabel.s, _parseValue.jobTitle),
+    MapEntry(DictKey.matrixUriUrlLabel.s, _parseValue.website),
+    MapEntry(DictKey.matrixContactMailLabel.s, _parseValue.mail),
+    MapEntry(DictKey.matrixContactPhoneLabel.s, _parseValue.phone),
+    MapEntry(DictKey.matrixContactAddressLabel.s, _parseValue.address),
+    MapEntry(DictKey.matrixContactNotesLabel.s, _parseValue.notes),
+  ];
 
   @override
   ({String name, String organisation, String jobTitle, String website,
   String mail, String phone, String address, String notes}) _parse() {
-    String name = '';
-    String organisation = '';
-    String jobTitle = '';
-    String website = '';
-    String mail = '';
-    String phone = '';
-    String address = '';
-    String notes = '';
-    for (final i in _contents.split('\n')) {
-      final String upperI = i.toUpperCase();
-      if (upperI.startsWith('FN:') ){
-        if (name.isNotEmpty) name += '\n';
-        name += i.substring(3);
-      } else if (upperI.startsWith('ORG:') ) {
-        if (organisation.isNotEmpty) organisation += '\n';
-        organisation += i.substring(4);
-      } else if (upperI.startsWith('TITLE:') ) {
-        if (jobTitle.isNotEmpty) jobTitle += '\n';
-        jobTitle += i.substring(6);
-      } else if (upperI.startsWith('URL:') ) {
-        if (website.isNotEmpty) website += '\n';
-        website += i.substring(4);
-      } else if (upperI.startsWith('EMAIL') ) {
-        if (mail.isNotEmpty) mail += '\n';
-        mail += i.split(':').last;
-      } else if (upperI.startsWith('TEL') ) {
-        if (phone.isNotEmpty) phone += '\n';
-        phone += i.split(':').last;
-      } else if (upperI.startsWith('ADR:') ) {
-        if (address.isNotEmpty) address += '\n';
-        address += i.substring(4).split(';').where((split) => split.isNotEmpty).join('\n');
-      } else if (upperI.startsWith('NOTE:') ) {
-        if (notes.isNotEmpty) notes += '\n';
-        notes += i.substring(5);
-      }
+    final List<String> name = [];
+    final List<String> organisation = [];
+    final List<String> jobTitle = [];
+    final List<String> website = [];
+    final List<String> mail = [];
+    final List<String> phone = [];
+    final List<String> address = [];
+    final List<String> notes = [];
+    for (final String subText in _text.split('\n')) {
+      final List<String> subParts = subText.split(':');
+      if (subParts.length <= 1) continue;
+      final String upperFirst = subParts.removeAt(0).toUpperCase();
+      final String subValue = subParts.join(':');
+      if (upperFirst == 'FN') name.add(subValue);
+      if (upperFirst == 'ORG') organisation.add(subValue);
+      if (upperFirst == 'TITLE') jobTitle.add(subValue);
+      if (upperFirst == 'URL') website.add(subValue);
+      if (upperFirst.startsWith('EMAIL')) mail.add(subValue);
+      if (upperFirst.startsWith('TEL')) phone.add(subValue);
+      if (upperFirst.startsWith('ADR')) address.add(subValue.split(';').where((sp) => sp.isNotEmpty).join(' '));
+      if (upperFirst == 'NOTE') notes.add(subValue);
     }
     return (
-    name: name,
-    organisation: organisation,
-    jobTitle: jobTitle,
-    website: website,
-    mail: mail,
-    phone: phone,
-    address: address,
-    notes: notes,
+    name: name.join('\n'),
+    organisation: organisation.join('\n'),
+    jobTitle: jobTitle.join('\n'),
+    website: website.join('\n'),
+    mail: mail.join('\n'),
+    phone: phone.join('\n'),
+    address: address.join('\n'),
+    notes: notes.join('\n'),
     );
   }
-
-  @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixContactNameLabel.s, parse.name),
-    MapEntry(DictKey.matrixContactOrganisationLabel.s, parse.organisation),
-    MapEntry(DictKey.matrixContactJobTitleLabel.s, parse.jobTitle),
-    MapEntry(DictKey.matrixUriUrlLabel.s, parse.website),
-    MapEntry(DictKey.matrixContactMailLabel.s, parse.mail),
-    MapEntry(DictKey.matrixContactPhoneLabel.s, parse.phone),
-    MapEntry(DictKey.matrixContactAddressLabel.s, parse.address),
-    MapEntry(DictKey.matrixContactNotesLabel.s, parse.notes),
-  ];
-} // todo 重構解析
+}
 
 class MailAnalyzer extends _TextAnalyzer {
-  MailAnalyzer(super._contents);
-  late final parse = _parse();
+  MailAnalyzer(super._text);
+
+  late final parseValue = _parse();
+
+  @override
+  bool get _checkType => _upper.startsWith('MAILTO:') || _upper.startsWith('MATMSG:');
+
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixEmailRecipientLabel.s, parseValue.email),
+    MapEntry(DictKey.matrixSubjectLabel.s, parseValue.subject),
+    MapEntry(DictKey.matrixBodyLabel.s, parseValue.message),
+  ];
 
   @override
   ({String? email, String? subject, String? message}) _parse() {
     String? email;
     String? subject;
     String? message;
-    if (_contents.toUpperCase().startsWith('MAILTO:')) {
-      final substring = _contents.substring(7);
-      final Uri uri = Uri.parse('mailto:$substring');
+    if (_upper.startsWith('MATMSG:')) {
+      for (final String subText in _text.substring(7).split(';')) {
+        final List<String> subParts = subText.split(':');
+        if (subParts.length <= 1) continue;
+        final String upperFirst = subParts.removeAt(0).toUpperCase();
+        final String subValue = subParts.join(':');
+        if (upperFirst.startsWith('TO')) email = subValue;
+        if (upperFirst.startsWith('SUB')) subject = subValue;
+        if (upperFirst.startsWith('BODY')) message = subValue;
+      }
+    } else if (_upper.startsWith('MAILTO:')) {
+      final Uri uri = Uri.parse(_text);
       email = uri.path;
       subject = uri.queryParameters['subject'];
       message = uri.queryParameters['body'];
-    } else {
-      for (final i in _contents.substring(7).split(';')) {
-        final String upperI = i.toUpperCase();
-        if (upperI.startsWith('TO:')) {
-          email = i.substring(3);
-        } else if (upperI.startsWith('SUB:')) {
-          subject = i.substring(4);
-        } else if (upperI.startsWith('BODY:')) {
-          message = i.substring(5);
-        }
-      }
     }
     return (
     email: email,
@@ -203,86 +223,85 @@ class MailAnalyzer extends _TextAnalyzer {
     message: message,
     );
   }
-
-  @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixEmailRecipientLabel.s, parse.email),
-    MapEntry(DictKey.matrixSubjectLabel.s, parse.subject),
-    MapEntry(DictKey.matrixBodyLabel.s, parse.message),
-  ];
-} // todo 重構解析
+}
 
 class SmsAnalyzer extends _TextAnalyzer {
-  SmsAnalyzer(super._contents);
-  late final parse = _parse();
+  SmsAnalyzer(super._text);
+
+  late final parseValue = _parse();
+
+  @override
+  bool get _checkType => _upper.startsWith('SMSTO:');
+
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parseValue.phone),
+    MapEntry(DictKey.matrixBodyLabel.s, parseValue.message),
+  ];
 
   @override
   ({String phone, String? message}) _parse() {
+    final Uri uri = Uri.parse(_text);
     String? phone;
     String? message;
-    final substring = _contents.substring(6);
-    final Uri uri = Uri.parse('smsto:$substring');
-    final uriPhone = uri.path;
-    final uriMessage = uri.queryParameters['body'];
-    if (uriMessage == null) {
-      for (final i in substring.split(':')){
-        if (phone == null) {
-          phone = i;
-        } else {
-          message = i;
-        }
-      }
+    for (final String subText in uri.path.split(':')) {
+      if (phone == null) {phone = subText; continue;}
+      if (message == null) {message = subText; continue;}
     }
     return (
-    phone: phone ?? uriPhone,
-    message: uriMessage ?? message,
+    phone: phone ?? uri.path,
+    message: message ?? uri.queryParameters['body'],
     );
   }
+}
+
+class PhoneAnalyzer extends _TextAnalyzer {
+  PhoneAnalyzer(super._text);
+
+  late final parseValue = _parse();
 
   @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parse.phone),
-    MapEntry(DictKey.matrixBodyLabel.s, parse.message),
-  ];
-} // todo 重構解析
+  bool get _checkType => _upper.startsWith('TEL:');
 
-class _PhoneAnalyzer extends _TextAnalyzer {
-  _PhoneAnalyzer(super._contents);
-  late final parse = _parse();
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parseValue.phone),
+  ];
 
   @override
   ({String phone}) _parse() => (
-  phone: _contents.substring(4),
+  phone: _text.substring(4),
   );
+}
+
+class LocationAnalyzer extends _TextAnalyzer {
+  LocationAnalyzer(super._text);
+
+  late final _parseValue = _parse();
 
   @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parse.phone),
-  ];
-} // todo 重構解析
+  bool get _checkType => _upper.startsWith('GEO:');
 
-class _LocationAnalyzer extends _TextAnalyzer {
-  _LocationAnalyzer(super._contents);
-  late final parse = _parse();
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixLocalisationLatitudeLabel.s, _parseValue.latitude),
+    MapEntry(DictKey.matrixLocalisationLongitudeLabel.s, _parseValue.longitude),
+    MapEntry(DictKey.matrixLocalisationAltitudeLabel.s, _parseValue.height),
+    MapEntry(DictKey.matrixLocalisationQueryLabel.s, _parseValue.request),
+  ];
 
   @override
   ({String? latitude, String? longitude, String? height, String? request}) _parse() {
+    final Uri uri = Uri.parse(_text);
+    final String? request = uri.queryParameters['q'];
     String? latitude;
     String? longitude;
     String? height;
-    String? request;
-    final substring = _contents.substring(4);
-    final temp = substring.split('?');
-    for (final i in temp.first.split(',')){
-      if (latitude == null) {
-        latitude = i;
-      } else if (longitude == null) {
-        longitude = i;
-      } else {
-        height = i;
-      }
+    for (final String subText in uri.path.split(',')) {
+      if (latitude == null) {latitude = subText; continue;}
+      if (longitude == null) {longitude = subText; continue;}
+      if (height == null) {height = subText; continue;}
     }
-    if (temp.length >= 2) request = temp.last.substring(2);
     return (
     latitude: latitude,
     longitude: longitude,
@@ -290,19 +309,24 @@ class _LocationAnalyzer extends _TextAnalyzer {
     request: request,
     );
   }
+}
+
+class EventAnalyzer extends _TextAnalyzer {
+  EventAnalyzer(super._text);
+
+  late final _parseValue = _parse();
 
   @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixLocalisationLatitudeLabel.s, parse.latitude),
-    MapEntry(DictKey.matrixLocalisationLongitudeLabel.s, parse.longitude),
-    MapEntry(DictKey.matrixLocalisationAltitudeLabel.s, parse.height),
-    MapEntry(DictKey.matrixLocalisationQueryLabel.s, parse.request),
-  ];
-} // todo 重構解析
+  bool get _checkType => _upper.startsWith('BEGIN:VEVENT\n');
 
-class _EventAnalyzer extends _TextAnalyzer {
-  _EventAnalyzer(super._contents);
-  late final parse = _parse();
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixAgendaNameEventLabel.s, _parseValue.summary),
+    MapEntry(DictKey.matrixAgendaStartDateEventLabel.s, _parseValue.startDate),
+    MapEntry(DictKey.matrixAgendaEndDateEventLabel.s, _parseValue.endDate),
+    MapEntry(DictKey.matrixAgendaPlaceEventLabel.s, _parseValue.location),
+    MapEntry(DictKey.matrixAgendaDescriptionEventLabel.s, _parseValue.description),
+  ];
 
   @override
   ({String? summary, String? startDate, String? endDate, String? location, String? description}) _parse() {
@@ -311,23 +335,16 @@ class _EventAnalyzer extends _TextAnalyzer {
     String? endDate;
     String? location;
     String? description;
-    for (final i in _contents.split('\n')){
-      final String upperI = i.toUpperCase();
-      if (upperI.startsWith('SUMMARY:') ){
-        summary = i.substring(8);
-      } else if (upperI.startsWith('DTSTART') ) {
-        final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
-        final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
-        startDate = formatter.format(dateTime);
-      } else if (upperI.startsWith('DTEND') ) {
-        final DateTime dateTime = DateTime.parse(i.split(':').last).toLocal();
-        final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
-        endDate = formatter.format(dateTime);
-      } else if (upperI.startsWith('LOCATION:') ) {
-        location = i.substring(9);
-      } else if (upperI.startsWith('DESCRIPTION:') ) {
-        description = i.substring(12);
-      }
+    for (final String subText in _text.split('\n')) {
+      final List<String> subParts = subText.split(':');
+      if (subParts.length <= 1) continue;
+      final String upperFirst = subParts.removeAt(0).toUpperCase();
+      final String subValue = subParts.join(':');
+      if (upperFirst.startsWith('SUMMARY')) summary = subValue;
+      if (upperFirst.startsWith('DTSTART')) startDate = Utils.formatUnixTimes(DateTime.parse(subValue).millisecondsSinceEpoch);
+      if (upperFirst.startsWith('DTEND')) endDate = Utils.formatUnixTimes(DateTime.parse(subValue).millisecondsSinceEpoch);
+      if (upperFirst.startsWith('LOCATION')) location = subValue;
+      if (upperFirst.startsWith('DESCRIPTION')) description = subValue;
     }
     return (
     summary: summary,
@@ -337,20 +354,23 @@ class _EventAnalyzer extends _TextAnalyzer {
     description: description,
     );
   }
+}
+
+class WifiAnalyzer extends _TextAnalyzer {
+  WifiAnalyzer(super._text);
+
+  late final _parseValue = _parse();
 
   @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixAgendaNameEventLabel.s, parse.summary),
-    MapEntry(DictKey.matrixAgendaStartDateEventLabel.s, parse.startDate),
-    MapEntry(DictKey.matrixAgendaEndDateEventLabel.s, parse.endDate),
-    MapEntry(DictKey.matrixAgendaPlaceEventLabel.s, parse.location),
-    MapEntry(DictKey.matrixAgendaDescriptionEventLabel.s, parse.description),
-  ];
-} // todo 重構解析
+  bool get _checkType => _upper.startsWith('WIFI:');
 
-class _WifiAnalyzer extends _TextAnalyzer {
-  _WifiAnalyzer(super._contents);
-  late final parse = _parse();
+  @override
+  List<MapEntry<String, String?>> _getEntryList() => [
+    MapEntry(DictKey.matrixWifiSsidLabel.s, _parseValue.ssid),
+    MapEntry(DictKey.matrixWifiPasswordLabel.s, _parseValue.password),
+    MapEntry(DictKey.matrixWifiEncryptionLabel.s, _parseValue.security),
+    MapEntry(DictKey.matrixWifiIsHiddenLabel.s, _parseValue.hide),
+  ];
 
   @override
   ({String? ssid, String? password, String? security, String? hide}) _parse() {
@@ -358,18 +378,15 @@ class _WifiAnalyzer extends _TextAnalyzer {
     String? password;
     String? security;
     String? hide;
-    for (final i in _contents.substring(5).split(';')){
-      final String upperI = i.toUpperCase();
-      final String? substring = i.length>2 ? i.substring(2) : null;
-      if (upperI.startsWith('S:') ){
-        ssid = substring;
-      } else if (upperI.startsWith('P:') ) {
-        password = substring;
-      } else if (upperI.startsWith('T:') ) {
-        security = substring;
-      } else if (upperI.startsWith('H:') ) {
-        hide = substring;
-      }
+    for (final String subText in _text.substring(5).split(';')) {
+      final List<String> subParts = subText.split(':');
+      if (subParts.length <= 1) continue;
+      final String upperFirst = subParts.removeAt(0).toUpperCase();
+      final String subValue = subParts.join(':');
+      if (upperFirst.startsWith('S')) ssid = subValue;
+      if (upperFirst.startsWith('P')) password = subValue;
+      if (upperFirst.startsWith('T')) security = subValue;
+      if (upperFirst.startsWith('H')) hide = subValue;
     }
     return (
     ssid: ssid,
@@ -378,12 +395,15 @@ class _WifiAnalyzer extends _TextAnalyzer {
     hide: hide,
     );
   }
+}
+
+class WebsiteAnalyzer extends _TextAnalyzer {
+  WebsiteAnalyzer(super._text);
 
   @override
-  List<MapEntry<String, String?>> getEntryList() => [
-    MapEntry(DictKey.matrixWifiSsidLabel.s, parse.ssid),
-    MapEntry(DictKey.matrixWifiPasswordLabel.s, parse.password),
-    MapEntry(DictKey.matrixWifiEncryptionLabel.s, parse.security),
-    MapEntry(DictKey.matrixWifiIsHiddenLabel.s, parse.hide),
-  ];
-} // todo重構解析
+  bool get _checkType => UrlValidator().isURL(
+      _text,
+      protocols: const <String?>['http', 'https'],
+      requireProtocol: true
+  );
+}

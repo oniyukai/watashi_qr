@@ -48,9 +48,9 @@ async {
         ),
         child: Column(
           children: [
-            if (title != null) title,
+            ?title,
             if (title != null) const SizedBox(height: 16),
-            if (content != null) content,
+            ?content,
             if (content != null) const SizedBox(height: 16),
             Row(
               mainAxisAlignment: .spaceAround,
