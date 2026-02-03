@@ -26,12 +26,12 @@ class ItemTile extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      contentPadding: const EdgeInsets.all(8),
+      shape: RoundedRectangleBorder(borderRadius: .circular(12.0)),
+      contentPadding: const .all(8),
       minTileHeight: 40,
       minVerticalPadding: 0,
       selected: selected == true,
-      selectedTileColor: theme.colorScheme.primaryContainer,
+      selectedTileColor: colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: onLongPress,
       leading: (myIconData != null) ? Container(

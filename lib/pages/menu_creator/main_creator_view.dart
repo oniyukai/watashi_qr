@@ -54,7 +54,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String? contents = clipboardData?.text;
     if (contents == null || contents.isEmpty) {
-      Utils.showToast('${DictKey.clipboardEmpty.s}\n${DictKey.qrCodeTextGeneratorHintTextInputEditText.s}');
+      Utils.showToast('${DictKey.commonUiClipboardEmpty.s}\n${DictKey.creatorHintText.s}');
       return;
     }
     await MainCreatorView.createRouteTo(context, contents, .qrCode);
@@ -73,17 +73,17 @@ class _MainCreatorViewState extends State<MainCreatorView> {
       child: Scrollbar(
         controller: _scrollController,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const .symmetric(horizontal: 16.0),
           controller: _scrollController,
           children: [
             const SizedBox(height: 16),
             ExpandableCard(
-              title: DictKey.titleQrCodeCreator.s,
+              title: DictKey.navTitleCreateQrCode.s,
               myIconData: HistoryFormat.qrCode.myIconData,
               expandedChild: Column(
                 children: [
                   ItemTile(
-                    title: DictKey.createQrFromClipboard.s,
+                    title: DictKey.navCreateFromClipboard.s,
                     myIconData: const MyIconData(Icons.content_copy),
                     onTap: _createQrFromClipboard,
                   ),
@@ -99,7 +99,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
             ),
             const SizedBox(height: 16),
             ExpandableCard(
-              title: DictKey.titleBarCodeCreator.s,
+              title: DictKey.navTitleCreateBarCode.s,
               myIconData: .barcode,
               expandedChild: Column(
                 children: [

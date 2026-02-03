@@ -88,7 +88,7 @@ class _PageItemViewState extends State<PageItemView> {
 
   Future<void> _pressCopyContents() async {
     await Clipboard.setData(ClipboardData(text: _historyItem.contents));
-    Utils.showToast(DictKey.barcodeCopiedLabel.s);
+    Utils.showToast(DictKey.analysisStatusCopied.s);
   }
 
   @override
@@ -101,10 +101,10 @@ class _PageItemViewState extends State<PageItemView> {
       body: SafeArea(
         child: Scrollbar(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const .symmetric(horizontal: 16.0),
             children: [
               ExpandableCard(
-                title: DictKey.barCodeContentLabel.s,
+                title: DictKey.analysisLabelContent.s,
                 myIconData: _historyItem.getTypeIconData,
                 initialExpanded: true,
                 expandedChild: AnalyzedContentItem(
@@ -118,13 +118,13 @@ class _PageItemViewState extends State<PageItemView> {
                   children: [
                     ListTile(
                       minTileHeight: 0,
-                      contentPadding: const EdgeInsets.only(left: 16, top: 8),
+                      contentPadding: const .only(left: 16, top: 8),
                       leading: MyIcon(_historyItem.getFormatIconData),
-                      title: Text(DictKey.aboutBarcodeInformationLabel.s),
+                      title: Text(DictKey.analysisGroupInfo.s),
                     ),
                     ListTile(
                       minVerticalPadding: 0,
-                      contentPadding: const EdgeInsets.only(right: 16, left: 16, bottom: 8),
+                      contentPadding: const .only(right: 16, left: 16, bottom: 8),
                       subtitle: Column(
                         crossAxisAlignment: .start,
                         children: [
@@ -132,24 +132,24 @@ class _PageItemViewState extends State<PageItemView> {
                             mainAxisAlignment: .spaceBetween,
                             children: [
                               SelectableText(
-                                DictKey.aboutBarcodeFormatLabel.s +
+                                DictKey.analysisLabelFormat.s +
                                 HistoryFormat.localeStrFromName(_historyItem.format)
                               ),
                               SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
                             ],
                           ),
                           SelectableText(
-                            DictKey.aboutBarcodeOriginLabel.s +
+                            DictKey.analysisLabelOrigin.s +
                             HistoryOrigin.localeStrFromName(_historyItem.origin)
                           ),
                           if (_historyItem.getErrorLevel != .none) SelectableText(
-                            '${DictKey.qrCodeErrorCorrectionLevelLabel.s}: '
+                            '${DictKey.settingOptionQrErrorCorrectionLevel.s}: '
                             '${HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel)}',
                           ),
                           if (_historyItem.notes.isNotEmpty) Row(
                             crossAxisAlignment: .start,
                             children: [
-                              SelectableText('${DictKey.matrixContactNotesLabel.s}: '),
+                              SelectableText('${DictKey.analysisContactNotes.s}: '),
                               Expanded(
                                 child: SelectableText(
                                   _historyItem.notes,
@@ -170,32 +170,32 @@ class _PageItemViewState extends State<PageItemView> {
               const SizedBox(height: 8),
               Card(
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding: const .symmetric(horizontal: 16),
                   leading: const Icon(MaterialCommunityIcons.barcode_scan),
                   onTap: () => context.routeOf<PageCodeView>().toPass(_historyItem),
                   trailing: Row(
                     mainAxisSize: .min,
                     children: [
                       IconButton(
-                        padding: const EdgeInsets.all(0),
+                        padding: const .all(0),
                         visualDensity: .compact,
                         onPressed: _pressItemFavorite,
                         icon: Icon(_historyItem.isFavorite ? Icons.favorite : Icons.favorite_outline),
                       ),
                       IconButton(
-                        padding: const EdgeInsets.all(0),
+                        padding: const .all(0),
                         visualDensity: .compact,
                         onPressed: _pressShareContents,
                         icon: const Icon(Icons.share),
                       ),
                       IconButton(
-                        padding: const EdgeInsets.all(0),
+                        padding: const .all(0),
                         visualDensity: .compact,
                         onPressed: _pressModifyContents,
                         icon: const Icon(Icons.edit),
                       ),
                       IconButton(
-                        padding: const EdgeInsets.all(0),
+                        padding: const .all(0),
                         visualDensity: .compact,
                         onPressed: _pressCopyContents,
                         icon: const Icon(Icons.copy),
@@ -207,7 +207,7 @@ class _PageItemViewState extends State<PageItemView> {
               const SizedBox(height: 4),
               ListTile(
                 minTileHeight: 0,
-                subtitle: Text(DictKey.actionsLabel.s),
+                subtitle: Text(DictKey.commonUiActions.s),
               ),
               Builder(
                 builder: (context) {
@@ -241,7 +241,7 @@ class _PageItemViewState extends State<PageItemView> {
   List<PressButtonGrid> _getActionGridList() => [
     if (_historyType != .website) PressButtonGrid(
       iconData: Icons.search,
-      description: DictKey.actionWebSearchLabel.s,
+      description: DictKey.actionWebSearch.s,
       onTap: () {
         final SearchEngine searchEngine = context.readPrefs.get(.selectedSearchEngine);
         return Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
@@ -256,10 +256,10 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (context.readPrefs.get<List<CustomSearchUrl>>(.customSearchUrls).isNotEmpty) PressButtonGrid(
       iconData: Icons.search,
-      description: DictKey.customSearchUrls.s,
+      description: DictKey.settingOptionCustomSearch.s,
       onTap: () => showMyDialog(
         context: context,
-        title: DictKey.customSearchUrls.s,
+        title: DictKey.settingOptionCustomSearch.s,
         noCancelButton: true,
         content: Scrollbar(
           child: SingleChildScrollView(
@@ -297,7 +297,7 @@ class _PageItemViewState extends State<PageItemView> {
             initialValue: _historyItem.notes,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.format_size),
-              labelText: DictKey.barcodeTextCompositionLabel.s,
+              labelText: DictKey.barcodeCompositionText.s,
             ),
           ),
         ),
@@ -333,7 +333,7 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (_historyType == .mail) PressButtonGrid(
       iconData: Icons.mail_outline,
-      description: DictKey.actionSendMailLabel.s,
+      description: DictKey.actionSendMail.s,
       onTap: () {
         final parseValue = MailAnalyzer(_historyItem.contents).parseValue;
         final Uri uri = Uri(
@@ -350,7 +350,7 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
       iconData: Icons.sms_outlined,
-      description: DictKey.actionSendSmsLabel.s,
+      description: DictKey.actionSendSms.s,
       onTap: () {
         String? phone;
         String? message;
@@ -375,7 +375,7 @@ class _PageItemViewState extends State<PageItemView> {
 
     if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
       iconData: Icons.call,
-      description: DictKey.actionCallPhoneLabel.s,
+      description: DictKey.actionCallPhone.s,
       onTap: () {
         String? phone;
         if (_historyType == .sms) {
@@ -404,13 +404,13 @@ class _PageItemViewState extends State<PageItemView> {
     PressButtonGrid(
       iconData: _isWillExist ? Icons.delete_forever : Icons.add,
       description: _isWillExist
-          ? DictKey.menuItemHistoryDeleteFromHistory.s
-          : DictKey.menuItemHistoryAddInHistory.s,
+          ? DictKey.historyMenuDelete.s
+          : DictKey.historyMenuAdd.s,
       onTap: () {
         setState(() => _isWillExist = !_isWillExist);
         return Utils.showToast(_isWillExist
-            ? DictKey.menuItemHistoryRemovedFromHistory.s
-            : DictKey.menuItemHistoryAddedInHistory.s);
+            ? DictKey.historyStatusAdded.s
+            : DictKey.historyStatusRemoved.s);
       },
     ),
   ];

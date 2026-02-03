@@ -75,7 +75,7 @@ class DatabaseServices {
 
   static Future<void> shareHistoryBoxToJson() async {
     if (_historyBox.isEmpty()) {
-      await Utils.showToast(DictKey.labelHistoryEmpty.s);
+      await Utils.showToast(DictKey.historyStatusEmpty.s);
       return;
     }
     final Directory tempDir = await getTemporaryDirectory();
@@ -85,20 +85,20 @@ class DatabaseServices {
 
   static Future<void> exportHistoryBoxToJson() async {
     if (_historyBox.isEmpty()) {
-      await Utils.showToast(DictKey.labelHistoryEmpty.s);
+      await Utils.showToast(DictKey.historyStatusEmpty.s);
       return;
     }
     final Directory? directory = await getDownloadsDirectory();
     final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
-      await Utils.showToast('${DictKey.cancelLabel.s}\nUnable to get storage directory.');
+      await Utils.showToast('${DictKey.commonUiCancel.s}\nUnable to get storage directory.');
       return;
     }
     final File? file = await _getHistoryBoxJsonFile(directoryPath);
     if (file != null) {
-      await Utils.showToast('${DictKey.snackBarMessageFileExportSuccess.s}\n${file.path}');
+      await Utils.showToast('${DictKey.historyDataExportSuccess.s}\n${file.path}');
     } else {
-      await Utils.showToast(DictKey.snackBarMessageFileExportError.s);
+      await Utils.showToast(DictKey.historyDataExportError.s);
     }
   }
 
@@ -106,7 +106,7 @@ class DatabaseServices {
     try {
       if (_historyBox.isEmpty()) return null;
       final String jsonString = jsonEncode(getItems());
-      final DateTime now = DateTime.now();
+      final DateTime now = .now();
       final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
       final String filePath = p.join(directory, 'qr_$formattedDateTime.json');
       final File file = File(filePath);
@@ -124,7 +124,7 @@ class DatabaseServices {
         allowedExtensions: const ["json"],
       );
       if (result == null) {
-        await Utils.showToast(DictKey.cancelLabel.s);
+        await Utils.showToast(DictKey.commonUiCancel.s);
         return;
       }
 
@@ -157,11 +157,11 @@ class DatabaseServices {
         }
       }
       _historyBox.putMany(itemsToProcess.values.toList());
-      final String endTip = '${DictKey.snackBarMessageFileImportSuccess.s}'
+      final String endTip = '${DictKey.historyDataImportSuccess.s}'
           '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
       await Utils.showToast(endTip, true);
     } catch (e) {
-      await Utils.showToast('${DictKey.snackBarMessageFileImportError.s}\n$e', true);
+      await Utils.showToast('${DictKey.historyDataImportError.s}\n$e', true);
     }
   }
 }

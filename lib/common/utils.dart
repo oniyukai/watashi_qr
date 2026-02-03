@@ -22,7 +22,7 @@ class Utils {
 
   /// 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
   static String formatUnixTimes(int unixTime) {
-    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime);
+    final DateTime dateTime = .fromMillisecondsSinceEpoch(unixTime);
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
   }
@@ -60,7 +60,7 @@ class Utils {
 
   /// 在預設瀏覽器開啟網站
   static Future<void> openUrlInBrowser(String url) async {
-    final Uri uri = Uri.parse(url);
+    final Uri uri = .parse(url);
     if (!await launchUrl(uri, mode: .externalApplication)) {
       await showToast('Could not launch $url');
     }
@@ -71,12 +71,12 @@ class Utils {
   /// 鎖定螢幕轉向
   static Future<void> lockCurrentOrientation(BuildContext context) async {
     if (isPortrait(context)) {
-      await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+      await SystemChrome.setPreferredOrientations(const [
         .portraitUp,
         .portraitDown,
       ]);
     } else {
-      await SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+      await SystemChrome.setPreferredOrientations(const [
         .landscapeLeft,
         .landscapeRight,
       ]);
@@ -85,7 +85,7 @@ class Utils {
 
   /// 恢復允許螢幕所有旋轉方向
   static Future<void> unlockCurrentOrientation() =>
-      SystemChrome.setPreferredOrientations(const <DeviceOrientation>[
+      SystemChrome.setPreferredOrientations(const [
         .portraitUp,
         .portraitDown, // 考量平板向下也可以
         .landscapeLeft,

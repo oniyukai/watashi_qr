@@ -19,7 +19,7 @@ async {
       actions: [
         if (!noCancelButton) TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(DictKey.cancelLabel.s),
+          child: Text(DictKey.commonUiCancel.s),
         ),
         if (actions != null) ...actions,
       ],
@@ -40,7 +40,7 @@ async {
     isScrollControlled: true,
     builder: (context) => SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.only(
+        padding: .only(
           left: 16,
           right: 16,
           top: 16,
@@ -56,7 +56,7 @@ async {
               mainAxisAlignment: .spaceAround,
               children: [
                 if (!noCancelButton) ElevatedButton(
-                  child: Text(DictKey.cancelLabel.s),
+                  child: Text(DictKey.commonUiCancel.s),
                   onPressed: () => Navigator.pop(context),
                 ),
                 if (actions != null) ...actions,

@@ -5,8 +5,8 @@ typedef DictInstance = Map<DictKey, String?>;
 extension StaticString on DictKey {
   static const String
       appName = 'Watashi QR',
-      appVersion = '1.2.0.alpha',
-      appVersionTag = 'v1.1.alpha_25.12.09',
+      appVersion = '1.2.0',
+      appVersionTag = 'v1.1_26.02.01',
       pngSuffix = 'png',
       jpgSuffix = 'jpg',
       svgSuffix = 'svg',
@@ -29,141 +29,205 @@ extension StaticString on DictKey {
 }
 
 enum DictKey {
-  // Permission Denied
-  cameraPermissionDenied,
-  // Menu Item
-  titleScan,
-  titleHistory,
-  titleGenerate,
-  titleSettings,
-  titleQrCodeCreator,
-  titleBarCodeCreator,
-  createQrFromClipboard,
-  shareToThisAppLabel,
-  // Barcode Type
-  barcodeQrCodeLabel,
-  barcodeDataMatrixLabel,
-  barcodePdf417Label,
-  barcodeAztecLabel,
-  barcodeEan13Label,
-  barcodeEan8Label,
-  barcodeUpcALabel,
-  barcodeUpcELabel,
-  barcodeCode128Label,
-  barcodeCode93Label,
-  barcodeCode39Label,
-  barcodeCodabarLabel,
-  barcodeItfLabel,
-  // QR Type
-  qrCodeTypeNameText,
-  qrCodeTypeNameWebSite,
-  qrCodeTypeNameContact,
-  qrCodeTypeNameMail,
-  qrCodeTypeNameSms,
-  qrCodeTypeNamePhone,
-  qrCodeTypeNameLocation,
-  qrCodeTypeNameEvent,
-  qrCodeTypeNameWifi,
-  // Product Type
-  barCodeTypeProduct,
-  barCodeTypeIndustrial,
-  // Error Correction Level
-  qrCodeErrorCorrectionLevelLabel,
-  qrCodeErrorCorrectionLevelSettingsLabel,
-  qrCodeErrorCorrectionLevelNameLow,
-  qrCodeErrorCorrectionLevelNameMedium,
-  qrCodeErrorCorrectionLevelNameQuartile,
-  qrCodeErrorCorrectionLevelNameHigh,
-  // History
-  labelHistoryEmpty,
-  popupMessageConfirmationDeleteHistory,
-  popupMessageConfirmationDeleteSelectedItemsHistory,
-  menuItemHistoryDeleteFromHistory,
-  menuItemHistoryRemovedFromHistory,
-  menuItemHistoryAddInHistory,
-  menuItemHistoryAddedInHistory,
-  menuItemHistoryAddFavorite,
-  menuItemHistoryRemoveFavorite,
-  deleteLabel,
-  cancelLabel,
-  // Export File
-  exportJsonLabel,
-  importJsonLabel,
-  shareJsonLabel,
-  snackBarMessageFileExportSuccess,
-  snackBarMessageFileExportError,
-  snackBarMessageFileImportSuccess,
-  snackBarMessageFileImportError,
-  // CaptureActivity
-  // BarcodeAnalysisActivity
-  scanErrorLabel,
-  aboutBarcodeInformationLabel,
-  aboutBarcodeFormatLabel,
-  aboutBarcodeOriginLabel,
-  // Matrix Barcode
-  barCodeContentLabel,
-  // Matrix Barcode Contact Analysis
-  matrixContactNameLabel,
-  matrixContactOrganisationLabel,
-  matrixContactJobTitleLabel,
-  matrixContactPhoneLabel,
-  matrixContactMailLabel,
-  matrixContactAddressLabel,
-  matrixContactNotesLabel,
-  // Matrix Barcode Agenda Analysis
-  matrixAgendaNameEventLabel,
-  matrixAgendaStartDateEventLabel,
-  matrixAgendaEndDateEventLabel,
-  matrixAgendaPlaceEventLabel,
-  matrixAgendaDescriptionEventLabel,
-  // Matrix Barcode Phone Analysis
-  matrixPhoneTelNumberLabel,
-  // Matrix Barcode Email Analysis
-  matrixEmailRecipientLabel,
-  matrixSubjectLabel,
-  matrixBodyLabel,
-  // Matrix Barcode Wi-Fi Analysis
-  matrixWifiSsidLabel,
-  matrixWifiPasswordLabel,
-  matrixWifiEncryptionLabel,
-  matrixWifiIsHiddenLabel,
-  // Matrix Barcode URL Analysis
-  matrixUriUrlLabel,
-  // Matrix Barcode URI UPI Analysis
-  // Matrix Barcode URL Localisation Analysis
-  matrixLocalisationLatitudeLabel,
-  matrixLocalisationLongitudeLabel,
-  matrixLocalisationAltitudeLabel,
-  matrixLocalisationQueryLabel,
-  // Barcode Description
-  barcodeCode39DescriptionLabel,
-  barcodeCode93DescriptionLabel,
-  barcodeCode128DescriptionLabel,
-  barcodeItfDescriptionLabel,
-  barcodeCodabarDescriptionLabel,
-  barcodeUpcADescriptionLabel,
-  barcodeUpcEDescriptionLabel,
-  barcodeEan13DescriptionLabel,
-  barcodeEan8DescriptionLabel,
-  // Barcode Composition
-  barcodeTextCompositionLabel,
-  barcodeTextNoSpecialCompositionLabel,
-  barcodeTextUpperNoSpecialCompositionLabel,
-  barcodeDigitsCompositionLabel,
-  barcodeEvenDigitsCompositionLabel,
-  barcode7Digits1CheckCompositionLabel,
-  barcode11Digits1CheckCompositionLabel,
-  barcode12Digits1CheckCompositionLabel,
-  // SnackBar Feedback
-  snackBarMessageSaveBitmapOk,
-  snackBarMessageSaveBitmapError,
-  // Actions
-  actionsLabel,
-  barcodeCopiedLabel,
-  actionWebSearchLabel,
-  actionSendMailLabel,
-  actionSendSmsLabel,
-  actionCallPhoneLabel,
+  // ===== Common: Basic UI & Permissions =====
+  commonPermCameraDenied,
+  commonUiDelete,
+  commonUiCancel,
+  commonUiBegin,
+  commonUiEnd,
+  commonUiActions,
+  commonUiExamples,
+  commonUiClipboardEmpty,
+
+  // ===== Nav: Navigation & Page Titles =====
+  navTitleScan,
+  navTitleGenerate,
+  navTitleHistory,
+  navTitleSettings,
+  navTitleCreateQrCode,
+  navTitleCreateBarCode,
+
+  // --- Creator Entry ---
+  navCreateFromClipboard,
+  navShareToAppLabel,
+
+  // ===== Barcode: Formats, Types & Specs =====
+  // --- Formats ---
+  barcodeFormatQrCode,
+  barcodeFormatDataMatrix,
+  barcodeFormatAztec,
+  barcodeFormatPdf417,
+  barcodeFormatEan13,
+  barcodeFormatEan8,
+  barcodeFormatUpcA,
+  barcodeFormatUpcE,
+  barcodeFormatCode128,
+  barcodeFormatCode93,
+  barcodeFormatCode39,
+  barcodeFormatCodabar,
+  barcodeFormatItf,
+
+  // --- Types ---
+  barcodeTypeText,
+  barcodeTypeWebsite,
+  barcodeTypeContact,
+  barcodeTypeMail,
+  barcodeTypeSms,
+  barcodeTypePhone,
+  barcodeTypeLocation,
+  barcodeTypeEvent,
+  barcodeTypeWifi,
+  barcodeTypeProduct,
+  barcodeTypeIndustrial,
+
+  // ===== History: Records Management =====
+  historyStatusEmpty,
+  historyDialogDeleteAll,
+  historyDialogDeleteSelected,
+  historyMenuDelete,
+  historyStatusRemoved,
+  historyMenuAdd,
+  historyStatusAdded,
+  historyMenuFavAdd,
+  historyMenuFavRemove,
+
+  // --- Data Exchange ---
+  historyDataExportJson,
+  historyDataImportJson,
+  historyDataShareJson,
+  historyDataExportSuccess,
+  historyDataExportError,
+  historyDataImportSuccess,
+  historyDataImportError,
+
+  // ===== Analysis: Scan Result Details =====
+  analysisScanError,
+  analysisGroupInfo,
+  analysisLabelFormat,
+  analysisLabelOrigin,
+  analysisLabelContent,
+  analysisStatusCopied,
+
+  // --- Contact Detail ---
+  analysisContactName,
+  analysisContactOrganisation,
+  analysisContactJobTitle,
+  analysisContactPhone,
+  analysisContactMail,
+  analysisContactAddress,
+  analysisContactNotes,
+
+  // --- Event Detail ---
+  analysisEventName,
+  analysisEventStart,
+  analysisEventEnd,
+  analysisEventPlace,
+  analysisEventDescription,
+
+  // --- Comms Detail ---
+  analysisPhoneNumber,
+  analysisMailRecipient,
+  analysisMailSubject,
+  analysisMailBody,
+
+  // --- Network & Geo Detail ---
+  analysisWifiSsid,
+  analysisWifiPassword,
+  analysisWifiEncryption,
+  analysisWifiIsHidden,
+  analysisUriUrl,
+  analysisGeoLatitude,
+  analysisGeoLongitude,
+  analysisGeoAltitude,
+  analysisGeoQuery,
+
+  // ===== Creator: Forms & Hints =====
+  // --- Hints ---
+  creatorHintText,
+  creatorHintPhone,
+  creatorHintUrl,
+  creatorHintMessage,
+
+  // --- Contact Creator ---
+  creatorContactFromBook,
+  creatorContactFromVcard,
+  creatorContactHintName,
+  creatorContactHintFirstName,
+  creatorContactHintWebSite,
+  creatorContactHintMail1,
+  creatorContactHintMail2,
+  creatorContactHintMail3,
+  creatorContactHintPhone1,
+  creatorContactHintPhone2,
+  creatorContactHintPhone3,
+  creatorContactHintStreetAddress,
+  creatorContactHintPostalCode,
+  creatorContactHintCity,
+  creatorContactHintCountry,
+  creatorContactHintRegion,
+  creatorContactHintNotes,
+
+  // --- Spinner Options ---
+  creatorOptionMobile,
+  creatorOptionFax,
+  creatorOptionHome,
+  creatorOptionWork,
+  creatorOptionOther,
+
+  // --- Mail Creator ---
+  creatorMailHintEmail,
+  creatorMailHintSubject,
+
+  // --- Geo Creator ---
+  creatorGeoHintLatitude,
+  creatorGeoHintLongitude,
+  creatorGeoHintAltitude,
+  creatorGeoHintQuery,
+
+  // --- Wifi Creator ---
+  creatorWifiHintSsid,
+  creatorWifiHintPassword,
+  creatorWifiHintHide,
+  creatorWifiEncryptionWep,
+  creatorWifiEncryptionWpa,
+  creatorWifiEncryptionSae,
+  creatorWifiEncryptionNone,
+
+  // --- Event Creator ---
+  creatorEventHintSummary,
+  creatorEventHintPlace,
+  creatorEventHintDescription,
+  creatorEventOptionAllDay,
+
+  // ===== Barcode Specs: Rule & Description =====
+  // --- Descriptions ---
+  barcodeDescriptionEan13,
+  barcodeDescriptionEan8,
+  barcodeDescriptionUpcA,
+  barcodeDescriptionUpcE,
+  barcodeDescriptionCode128,
+  barcodeDescriptionCode93,
+  barcodeDescriptionCode39,
+  barcodeDescriptionCodabar,
+  barcodeDescriptionItf,
+
+  // --- Rule Composition ---
+  barcodeCompositionText,
+  barcodeCompositionTextSimple,
+  barcodeCompositionTextUpperSimple,
+  barcodeCompositionDigits,
+  barcodeCompositionEvenDigitNumbers,
+  barcodeComposition7Digits1Check,
+  barcodeComposition11Digits1Check,
+  barcodeComposition12Digits1Check,
+
+  // ===== Action: Interaction & Feedback =====
+  actionStatusImageSaveOk,
+  actionStatusImageSaveError,
+  actionWebSearch,
+  actionSendMail,
+  actionSendSms,
+  actionCallPhone,
   actionAddToCalendar,
   actionAddToContacts,
   actionShareVcfFile,
@@ -171,139 +235,88 @@ enum DictKey {
   actionOpenLink,
   actionModifyBarcode,
   actionModifyNotes,
-  // Wi-Fi Connection
-  // QR Code Generator
-  // Barcode Generator Errors
-  errorBarcodeNoneCharacterMessage,
-  errorBarcodeNotANumberMessage,
-  errorBarcodeWrongLengthMessage,
-  errorBarcodeWrongKeyMessage,
-  errorBarcodeEncodingIso88591ErrorMessage,
-  errorBarcodeEncodingUsAsciiErrorMessage,
-  errorBarcode93RegexErrorMessage,
-  errorBarcode39RegexErrorMessage,
-  errorBarcodeCodabarRegexErrorMessage,
-  errorBarcodeItfErrorMessage,
-  errorBarcodeUpcENotStartWith0ErrorMessage,
-  errorBarcodeQrUrlFormatMessage,
-  errorBarcodeQrPhoneNumberMissingMessage,
-  // Action Barcode Generated
-  clipboardEmpty,
-  // Barcode Image Editor
-  // Form
-  qrCodeTextGeneratorHintTextInputEditText,
-  qrCodeTextGeneratorHintPhoneInputEditText,
-  qrCodeTextGeneratorHintUrlInputEditText,
-  qrCodeTextInputEditTextHintMessage,
-  // Contact Creator
-  qrCodeTypeNameGenerateFromContact,
-  qrCodeImportContactFromVcard,
-  qrCodeTextInputEditTextHintName,
-  qrCodeTextInputEditTextHintFirstName,
-  qrCodeTextInputEditTextHintWebSite,
-  qrCodeTextInputEditTextHintMail1,
-  qrCodeTextInputEditTextHintMail2,
-  qrCodeTextInputEditTextHintMail3,
-  qrCodeTextInputEditTextHintPhone1,
-  qrCodeTextInputEditTextHintPhone2,
-  qrCodeTextInputEditTextHintPhone3,
-  qrCodeTextInputEditTextHintStreetAddress,
-  qrCodeTextInputEditTextHintPostalCode,
-  qrCodeTextInputEditTextHintCity,
-  qrCodeTextInputEditTextHintCountry,
-  qrCodeTextInputEditTextHintRegion,
-  qrCodeTextInputEditTextHintNotes,
-  spinnerTypeMobile,
-  spinnerTypeFax,
-  spinnerTypeHome,
-  spinnerTypeWork,
-  spinnerTypeOther,
-  // Mail Creator
-  qrCodeTextInputEditTextHintEmail,
-  qrCodeTextInputEditTextHintEmailSubject,
-  // Geo Localisation Creator
-  qrCodeTextInputEditTextHintLocalisationLatitude,
-  qrCodeTextInputEditTextHintLocalisationLongitude,
-  qrCodeTextInputEditTextHintLocalisationHeight,
-  qrCodeTextInputEditTextHintLocalisationRequest,
-  // Wifi Creator
-  qrCodeTextInputEditTextHintWifiSsid,
-  qrCodeTextInputEditTextHintWifiPassword,
-  qrCodeTextInputEditTextHintWifiHide,
-  spinnerWifiEncryptionWep,
-  spinnerWifiEncryptionWpa,
-  spinnerWifiEncryptionSae,
-  spinnerWifiEncryptionNone,
-  // Event Creator
-  qrCodeTextInputEditTextHintAgendaEventName,
-  qrCodeTextInputEditTextHintAgendaPlace,
-  qrCodeTextInputEditTextHintAgendaDescription,
-  checkBoxEventAllOfDay,
-  beginLabel,
-  endLabel,
-  // URL
-  // Custom search URL
-  customSearchUrls,
-  customSearchUrlsAddUrl,
-  customSearchUrlsModifyUrl,
-  customSearchUrlsListIsEmptyMessage,
-  popupMessageConfirmationDeletedAllCustomUrls,
-  customUrlDeleted,
-  customUrlAdded,
-  customUrlUpdated,
-  customSearchUrlsAddInfo,
-  examples,
-  customSearchUrlsErrorUrl,
+
+  // --- Validation Errors ---
   errorEmptyFields,
-  // API Base URL
-  // URL Engines
-  // E-Commerce Engines
-  // API Product Engines
-  // API Sources Links
-  // API Sources Description
-  // Preferences
-  preferencesDefault,
-  // Appearance Settings
-  preferencesAppearanceTitle,
-  preferencesThemeLabel,
-  preferencesSwitchSystemThemeLabel,
-  preferencesSwitchLightThemeLabel,
-  preferencesSwitchDarkThemeLabel,
-  preferencesColor,
-  preferencesColorMaterialYou,
-  preferencesColorBlue,
-  preferencesColorOrange,
-  preferencesColorGreen,
-  preferencesColorRed,
-  preferencesColorPurple,
-  // Languages Settings
-  preferencesLanguagesTitle,
-  preferencesLanguagesChange,
-  // Scan Settings
-  preferencesScanTitle,
-  preferencesSwitchScanAutoOpenWebsiteLabel,
-  preferencesSwitchScanContinuousScanLabel,
-  preferencesSwitchScanVibrateLabel,
-  preferencesSwitchScanBipLabel,
-  preferencesSwitchScanScreenRotationLabel,
-  preferencesSwitchScanBarcodeCopiedLabel,
-  preferencesSwitchScanUseFrontCameraLabel,
-  // Barcode Generation Settings
-  preferencesBarcodeGenerationTitle,
-  // History settings-->
-  preferencesSwitchScanAddBarcodeToTheHistoryLabel,
-  preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel,
-  preferencesSwitchHistorySaveDuplicatesLabel,
-  // Search Engine Settings
-  preferencesSearchTitle,
-  preferencesSearchEngine,
-  // Settings: Additional options
-  // About Settings
-  preferencesAboutTitle,
-  preferencesAboutOpenSourceLibrariesLabel,
-  preferencesApplicationVersionLabel,
-  preferencesApplicationVersionTagLabel,
-  preferencesSourceCodeLabel;
+  errorInvalidValue,
+  errorNotNumber,
+  errorWrongLength,
+  errorWrongCheckDigit,
+  errorUnsupportedCharsIso88591,
+  errorUnsupportedCharsAscii,
+  errorRegexCode93,
+  errorRegexCode39,
+  errorRegexCodabar,
+  errorItfEvenDigit,
+  errorUpcEStartZero,
+  errorUrlFormat,
+  errorPhoneNumber,
+
+  // ===== Setting: Sections & Options =====
+  settingOptionDefault,
+
+  // --- Appearance ---
+  settingGroupAppearance,
+  settingOptionTheme,
+  settingOptionThemeSystem,
+  settingOptionThemeLight,
+  settingOptionThemeDark,
+  settingOptionColor,
+  settingOptionColorMaterialYou,
+  settingOptionColorBlue,
+  settingOptionColorOrange,
+  settingOptionColorGreen,
+  settingOptionColorRed,
+  settingOptionColorPurple,
+
+  // --- Languages ---
+  settingGroupLanguages,
+  settingOptionLanguagesChange,
+
+  // --- Scan ---
+  settingGroupScan,
+  settingOptionScanAutoOpenWebsite,
+  settingOptionScanContinuousScan,
+  settingOptionScanVibrate,
+  settingOptionScanBip,
+  settingOptionScanLockOrient,
+  settingOptionScanAutoCopy,
+  settingOptionScanUseFrontCamera,
+
+  // --- Generation ---
+  settingGroupGeneration,
+  settingOptionQrErrorCorrectionLevel,
+  settingDialogQrErrorCorrectionLevelTitle,
+  settingOptionQrErrorCorrectionLevelLow,
+  settingOptionQrErrorCorrectionLevelMedium,
+  settingOptionQrErrorCorrectionLevelQuartile,
+  settingOptionQrErrorCorrectionLevelHigh,
+
+  // --- History Logic ---
+  settingOptionHistoryAddScan,
+  settingOptionHistoryAddCreate,
+  settingOptionHistoryAddWithDuplicates,
+
+  // --- Search ---
+  settingGroupSearch,
+  settingOptionSearchEngine,
+  settingOptionCustomSearch,
+  settingOptionCustomSearchAdd,
+  settingOptionCustomSearchEdit,
+  settingOptionCustomSearchEmpty,
+  settingOptionCustomSearchClearAll,
+  settingOptionCustomSearchDeleted,
+  settingOptionCustomSearchAdded,
+  settingOptionCustomSearchUpdated,
+  settingOptionCustomSearchInfo,
+  settingErrorCustomUrl,
+
+  // --- About ---
+  settingGroupAbout,
+  settingOptionLicenses,
+  settingOptionVersion,
+  settingOptionVersionTag,
+  settingOptionSourceCode;
 
   String get s => _instance[this] ?? '<$name>';
 

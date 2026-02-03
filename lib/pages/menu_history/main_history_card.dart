@@ -26,7 +26,7 @@ class MainHistoryCard extends StatelessWidget {
     return Card(
       elevation: 0,
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+        contentPadding: const .symmetric(horizontal: 12.0),
         selected: selected,
         tileColor: colorScheme.primaryContainer.withValues(alpha: 0.25),
         selectedTileColor: colorScheme.primaryContainer,

@@ -26,7 +26,7 @@ class ListTileText extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
-      contentPadding: isSection ? const EdgeInsets.only(top: 16, left: 16) : null,
+      contentPadding: isSection ? const .only(top: 16, left: 16) : null,
       leading: SizedBox(width: 48, child: Icon(iconData)),
       shape: shape,
       minTileHeight: isSection ? 0 : null,
@@ -127,7 +127,7 @@ class ListTilePicker<T> extends StatelessWidget {
                     RadioListTile(
                       title: Text(entry.value),
                       value: entry.key,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                      shape: RoundedRectangleBorder(borderRadius: .circular(12.0)),
                     ),
                 ],
               ),

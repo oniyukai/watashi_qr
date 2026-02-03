@@ -23,7 +23,7 @@ class PressButtonGrid extends StatelessWidget {
   Widget build(context) {
     return Card(
       child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
+        contentPadding: const .all(12),
         onTap: () async {
           try {
             await onTap();
@@ -33,7 +33,7 @@ class PressButtonGrid extends StatelessWidget {
         },
         title: Icon(iconData),
         subtitle: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const .symmetric(vertical: 4),
           child: Text(
             description,
             textAlign: .center,
@@ -62,6 +62,7 @@ class AnalyzedContentItem extends StatelessWidget {
     try {
       entryList = switch (type) {
         .text || .product || .industrial || null => _TextAnalyzer(contents),
+        .website => WebsiteAnalyzer(contents),
         .contact => ContactAnalyzer(contents),
         .mail => MailAnalyzer(contents),
         .sms => SmsAnalyzer(contents),
@@ -69,7 +70,6 @@ class AnalyzedContentItem extends StatelessWidget {
         .location => LocationAnalyzer(contents),
         .event => EventAnalyzer(contents),
         .wifi => WifiAnalyzer(contents),
-        .website => WebsiteAnalyzer(contents),
       }._getEntryList().where((e) => e.value?.isNotEmpty == true);
     } catch (e) {
       error = e.toString();
@@ -83,9 +83,12 @@ class AnalyzedContentItem extends StatelessWidget {
             title: entry.value!,
             description: entry.key,
             trailing: IconButton(
-              padding: const EdgeInsets.all(0),
+              padding: const .all(0),
               visualDensity: .compact,
-              onPressed: () => Clipboard.setData(ClipboardData(text: entry.value!)),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: entry.value!));
+                Utils.showToast(DictKey.analysisStatusCopied.s);
+              },
               icon: const Icon(Icons.copy),
             ),
           ),
@@ -123,6 +126,17 @@ class _TextAnalyzer {
   dynamic _parse() => true;
 }
 
+class WebsiteAnalyzer extends _TextAnalyzer {
+  WebsiteAnalyzer(super._text);
+
+  @override
+  bool get _checkType => UrlValidator().isURL(
+      _text,
+      protocols: const <String?>['http', 'https'],
+      requireProtocol: true
+  );
+}
+
 class ContactAnalyzer extends _TextAnalyzer {
   ContactAnalyzer(super._text);
 
@@ -133,14 +147,14 @@ class ContactAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixContactNameLabel.s, _parseValue.name),
-    MapEntry(DictKey.matrixContactOrganisationLabel.s, _parseValue.organisation),
-    MapEntry(DictKey.matrixContactJobTitleLabel.s, _parseValue.jobTitle),
-    MapEntry(DictKey.matrixUriUrlLabel.s, _parseValue.website),
-    MapEntry(DictKey.matrixContactMailLabel.s, _parseValue.mail),
-    MapEntry(DictKey.matrixContactPhoneLabel.s, _parseValue.phone),
-    MapEntry(DictKey.matrixContactAddressLabel.s, _parseValue.address),
-    MapEntry(DictKey.matrixContactNotesLabel.s, _parseValue.notes),
+    MapEntry(DictKey.analysisContactName.s, _parseValue.name),
+    MapEntry(DictKey.analysisContactOrganisation.s, _parseValue.organisation),
+    MapEntry(DictKey.analysisContactJobTitle.s, _parseValue.jobTitle),
+    MapEntry(DictKey.analysisUriUrl.s, _parseValue.website),
+    MapEntry(DictKey.analysisContactMail.s, _parseValue.mail),
+    MapEntry(DictKey.analysisContactPhone.s, _parseValue.phone),
+    MapEntry(DictKey.analysisContactAddress.s, _parseValue.address),
+    MapEntry(DictKey.analysisContactNotes.s, _parseValue.notes),
   ];
 
   @override
@@ -191,9 +205,9 @@ class MailAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixEmailRecipientLabel.s, parseValue.email),
-    MapEntry(DictKey.matrixSubjectLabel.s, parseValue.subject),
-    MapEntry(DictKey.matrixBodyLabel.s, parseValue.message),
+    MapEntry(DictKey.analysisMailRecipient.s, parseValue.email),
+    MapEntry(DictKey.analysisMailSubject.s, parseValue.subject),
+    MapEntry(DictKey.analysisMailBody.s, parseValue.message),
   ];
 
   @override
@@ -212,7 +226,7 @@ class MailAnalyzer extends _TextAnalyzer {
         if (upperFirst.startsWith('BODY')) message = subValue;
       }
     } else if (_upper.startsWith('MAILTO:')) {
-      final Uri uri = Uri.parse(_text);
+      final Uri uri = .parse(_text);
       email = uri.path;
       subject = uri.queryParameters['subject'];
       message = uri.queryParameters['body'];
@@ -235,13 +249,13 @@ class SmsAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parseValue.phone),
-    MapEntry(DictKey.matrixBodyLabel.s, parseValue.message),
+    MapEntry(DictKey.analysisPhoneNumber.s, parseValue.phone),
+    MapEntry(DictKey.analysisMailBody.s, parseValue.message),
   ];
 
   @override
   ({String phone, String? message}) _parse() {
-    final Uri uri = Uri.parse(_text);
+    final Uri uri = .parse(_text);
     String? phone;
     String? message;
     for (final String subText in uri.path.split(':')) {
@@ -265,7 +279,7 @@ class PhoneAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixPhoneTelNumberLabel.s, parseValue.phone),
+    MapEntry(DictKey.analysisPhoneNumber.s, parseValue.phone),
   ];
 
   @override
@@ -284,15 +298,15 @@ class LocationAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixLocalisationLatitudeLabel.s, _parseValue.latitude),
-    MapEntry(DictKey.matrixLocalisationLongitudeLabel.s, _parseValue.longitude),
-    MapEntry(DictKey.matrixLocalisationAltitudeLabel.s, _parseValue.height),
-    MapEntry(DictKey.matrixLocalisationQueryLabel.s, _parseValue.request),
+    MapEntry(DictKey.analysisGeoLatitude.s, _parseValue.latitude),
+    MapEntry(DictKey.analysisGeoLongitude.s, _parseValue.longitude),
+    MapEntry(DictKey.analysisGeoAltitude.s, _parseValue.height),
+    MapEntry(DictKey.analysisGeoQuery.s, _parseValue.request),
   ];
 
   @override
   ({String? latitude, String? longitude, String? height, String? request}) _parse() {
-    final Uri uri = Uri.parse(_text);
+    final Uri uri = .parse(_text);
     final String? request = uri.queryParameters['q'];
     String? latitude;
     String? longitude;
@@ -321,11 +335,11 @@ class EventAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixAgendaNameEventLabel.s, _parseValue.summary),
-    MapEntry(DictKey.matrixAgendaStartDateEventLabel.s, _parseValue.startDate),
-    MapEntry(DictKey.matrixAgendaEndDateEventLabel.s, _parseValue.endDate),
-    MapEntry(DictKey.matrixAgendaPlaceEventLabel.s, _parseValue.location),
-    MapEntry(DictKey.matrixAgendaDescriptionEventLabel.s, _parseValue.description),
+    MapEntry(DictKey.analysisEventName.s, _parseValue.summary),
+    MapEntry(DictKey.analysisEventStart.s, _parseValue.startDate),
+    MapEntry(DictKey.analysisEventEnd.s, _parseValue.endDate),
+    MapEntry(DictKey.analysisEventPlace.s, _parseValue.location),
+    MapEntry(DictKey.analysisEventDescription.s, _parseValue.description),
   ];
 
   @override
@@ -366,10 +380,10 @@ class WifiAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.matrixWifiSsidLabel.s, _parseValue.ssid),
-    MapEntry(DictKey.matrixWifiPasswordLabel.s, _parseValue.password),
-    MapEntry(DictKey.matrixWifiEncryptionLabel.s, _parseValue.security),
-    MapEntry(DictKey.matrixWifiIsHiddenLabel.s, _parseValue.hide),
+    MapEntry(DictKey.analysisWifiSsid.s, _parseValue.ssid),
+    MapEntry(DictKey.analysisWifiPassword.s, _parseValue.password),
+    MapEntry(DictKey.analysisWifiEncryption.s, _parseValue.security),
+    MapEntry(DictKey.analysisWifiIsHidden.s, _parseValue.hide),
   ];
 
   @override
@@ -395,15 +409,4 @@ class WifiAnalyzer extends _TextAnalyzer {
     hide: hide,
     );
   }
-}
-
-class WebsiteAnalyzer extends _TextAnalyzer {
-  WebsiteAnalyzer(super._text);
-
-  @override
-  bool get _checkType => UrlValidator().isURL(
-      _text,
-      protocols: const <String?>['http', 'https'],
-      requireProtocol: true
-  );
 }

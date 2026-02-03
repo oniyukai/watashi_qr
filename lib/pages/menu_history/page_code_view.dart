@@ -44,7 +44,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory? initialDir = await getDownloadsDirectory();
       final String? dir = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDir?.path);
       if (dir == null) {
-        Utils.showToast('${DictKey.cancelLabel.s}\nUnable to get storage directory.');
+        Utils.showToast('${DictKey.commonUiCancel.s}\nUnable to get storage directory.');
         return;
       }
       const double width = 1024.0;
@@ -58,9 +58,9 @@ class _PageCodeViewState extends State<PageCodeView> {
           await file.writeAsBytes(img.encodeJpg(_getBarcodeImage(width)));
         default: throw 'Unsupported file format: $fileSuffix';
       }
-      Utils.showToast(DictKey.snackBarMessageSaveBitmapOk.s);
+      Utils.showToast(DictKey.actionStatusImageSaveOk.s);
     } catch (e) {
-      Utils.showToast('${DictKey.snackBarMessageSaveBitmapError.s}\n$e', true);
+      Utils.showToast('${DictKey.actionStatusImageSaveError.s}\n$e', true);
     }
   }
 
@@ -98,7 +98,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const .symmetric(horizontal: 16.0),
           child: Flex(
             direction: isPortrait ? .vertical : .horizontal,
             children: [
@@ -107,7 +107,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                 child: Card(
                   color: Colors.white,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                    padding: const .fromLTRB(24, 24, 24, 24),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final double width = isPortrait
@@ -140,7 +140,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                     ),
                     const SizedBox(height: 8),
                     if (_historyFormat == .qrCode) Text(
-                      '${DictKey.qrCodeErrorCorrectionLevelLabel.s}: '
+                      '${DictKey.settingOptionQrErrorCorrectionLevel.s}: '
                       '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}',
                       textAlign: .center,
                     ),

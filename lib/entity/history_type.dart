@@ -23,17 +23,17 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
   const HistoryType(this.myIconData);
 
   static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    text => DictKey.qrCodeTypeNameText,
-    website => DictKey.qrCodeTypeNameWebSite,
-    contact => DictKey.qrCodeTypeNameContact,
-    mail => DictKey.qrCodeTypeNameMail,
-    sms => DictKey.qrCodeTypeNameSms,
-    phone => DictKey.qrCodeTypeNamePhone,
-    location => DictKey.qrCodeTypeNameLocation,
-    event => DictKey.qrCodeTypeNameEvent,
-    wifi => DictKey.qrCodeTypeNameWifi,
-    product => DictKey.barCodeTypeProduct,
-    industrial => DictKey.barCodeTypeIndustrial,
+    text => DictKey.barcodeTypeText,
+    website => DictKey.barcodeTypeWebsite,
+    contact => DictKey.barcodeTypeContact,
+    mail => DictKey.barcodeTypeMail,
+    sms => DictKey.barcodeTypeSms,
+    phone => DictKey.barcodeTypePhone,
+    location => DictKey.barcodeTypeLocation,
+    event => DictKey.barcodeTypeEvent,
+    wifi => DictKey.barcodeTypeWifi,
+    product => DictKey.barcodeTypeProduct,
+    industrial => DictKey.barcodeTypeIndustrial,
     null => null,
   }?.s ?? '?$n';
 
@@ -44,6 +44,7 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
       case .aztec:
       case .pdf417:
       case null:
+        if (WebsiteAnalyzer(contents).checkType) return website;
         if (ContactAnalyzer(contents).checkType) return contact;
         if (MailAnalyzer(contents).checkType) return mail;
         if (SmsAnalyzer(contents).checkType) return sms;
@@ -51,7 +52,6 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
         if (LocationAnalyzer(contents).checkType) return location;
         if (EventAnalyzer(contents).checkType) return event;
         if (WifiAnalyzer(contents).checkType) return wifi;
-        if (WebsiteAnalyzer(contents).checkType) return website;
         return text;
       case .ean13:
       case .ean8:

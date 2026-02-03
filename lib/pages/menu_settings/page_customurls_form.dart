@@ -35,10 +35,10 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
     final String formUrl = _formKey.currentState!.value['formUrl'];
     if (_args.index == null) {
       _args.items.insert(0, CustomSearchUrl(title: formTitle, url: formUrl));
-      Utils.showToast(DictKey.customUrlAdded.s);
+      Utils.showToast(DictKey.settingOptionCustomSearchAdded.s);
     } else {
       _args.items[_args.index!] = CustomSearchUrl(title: formTitle, url: formUrl);
-      Utils.showToast(DictKey.customUrlUpdated.s);
+      Utils.showToast(DictKey.settingOptionCustomSearchUpdated.s);
     }
     await context.readPrefs.update(.customSearchUrls, _args.items);
   }
@@ -49,8 +49,8 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text(argItem == null
-            ? DictKey.customSearchUrlsAddUrl.s
-            : DictKey.customSearchUrlsModifyUrl.s
+            ? DictKey.settingOptionCustomSearchAdd.s
+            : DictKey.settingOptionCustomSearchEdit.s
         ),
         actions: [
           IconButton(
@@ -62,7 +62,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
       body: SafeArea(
         child: Scrollbar(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const .symmetric(horizontal: 16.0),
             children: [
               const SizedBox(height: 16),
               FormBuilder(
@@ -76,11 +76,9 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       initialValue: argItem?.title,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
-                        labelText: DictKey.matrixContactNameLabel.s,
+                        labelText: DictKey.analysisContactName.s,
                       ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-                      ]),
+                      validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
                     ),
                     const SizedBox(height: 16),
                     FormBuilderTextField(
@@ -90,20 +88,20 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       initialValue: argItem?.url,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
-                        labelText: DictKey.matrixUriUrlLabel.s,
+                        labelText: DictKey.analysisUriUrl.s,
                       ),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-                        FormBuilderValidators.startsWith('http', errorText: DictKey.errorBarcodeQrUrlFormatMessage.s),
-                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: DictKey.customSearchUrlsErrorUrl.s),
-                        FormBuilderValidators.url(errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
+                        FormBuilderValidators.startsWith('http', errorText: DictKey.errorUrlFormat.s),
+                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: DictKey.settingErrorCustomUrl.s),
+                        FormBuilderValidators.url(errorText: DictKey.errorInvalidValue.s),
                       ]),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-              SelectableText('${DictKey.customSearchUrlsAddInfo.s}\n\n${DictKey.examples.s} ${StaticString.googleUrl}'),
+              SelectableText('${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.commonUiExamples.s} ${StaticString.googleUrl}'),
               const SizedBox(height: 16),
             ],
           ),

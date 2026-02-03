@@ -53,24 +53,24 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
 
   Future<void> _pressDelete() => showMyDialog(
     context: context,
-    title: DictKey.deleteLabel.s,
+    title: DictKey.commonUiDelete.s,
     content: Text(isSelectionMode
-        ? DictKey.popupMessageConfirmationDeleteSelectedItemsHistory.s
-        : DictKey.popupMessageConfirmationDeletedAllCustomUrls.s
+        ? DictKey.historyDialogDeleteSelected.s
+        : DictKey.settingOptionCustomSearchClearAll.s
     ),
     actions: [
       TextButton(
-        child: Text(DictKey.deleteLabel.s),
+        child: Text(DictKey.commonUiDelete.s),
         onPressed: () async {
           Navigator.pop(context);
           if (isSelectionMode) {
             _customSearchUrls = _customSearchUrls.whereIndexed((i, e) => !selectedObjects.contains(i)).toList();
-            await context.readPrefs.update(.customSearchUrls, _customSearchUrls, false);
+            await context.readPrefs.update(.customSearchUrls, _customSearchUrls);
             exitSelectionMode();
           } else {
             await context.readPrefs.update(.customSearchUrls, _customSearchUrls..clear());
           }
-          Utils.showToast(DictKey.customUrlDeleted.s);
+          Utils.showToast(DictKey.settingOptionCustomSearchDeleted.s);
         },
       ),
     ],
@@ -78,13 +78,13 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
 
   @override
   Widget build(context) {
-    _customSearchUrls = context.readPrefs.get(.customSearchUrls);
+    _customSearchUrls = context.watchPrefs.get(.customSearchUrls);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
-          ? Theme.of(context).colorScheme.primary.withValues(alpha:0.25)
+          ? Theme.of(context).colorScheme.inversePrimary
           : null,
-        title: Text(DictKey.customSearchUrls.s),
+        title: Text(DictKey.settingOptionCustomSearch.s),
         actions: [
           if (!isSelectionMode) IconButton(
             icon: const Icon(Icons.add),
@@ -101,7 +101,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
       body: SafeArea(
         child: Scrollbar(
           child: _customSearchUrls.isEmpty
-            ? Center(child: Text(DictKey.customSearchUrlsListIsEmptyMessage.s))
+            ? Center(child: Text(DictKey.settingOptionCustomSearchEmpty.s))
             : ListView.builder(
             addAutomaticKeepAlives: false,
             addRepaintBoundaries: false,

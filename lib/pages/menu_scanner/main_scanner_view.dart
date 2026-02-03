@@ -122,7 +122,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     final BarcodeFormat scannerFormat = capture.barcodes.first.format;
     final String? contents = capture.barcodes.first.rawValue;
     if (contents == null || contents.isEmpty) {
-      Utils.showToast(DictKey.scanErrorLabel.s);
+      Utils.showToast(DictKey.analysisScanError.s);
       _enableDetect = true;
       return;
     }
@@ -198,7 +198,6 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
 
   @override
   Widget build(context) {
-    DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return SafeArea(
       child: Stack(
@@ -244,7 +243,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
           Align(
             alignment: isPortrait ? .topLeft : .topRight,
             child: Card(
-              margin: const EdgeInsets.all(16.0),
+              margin: const .all(16.0),
               child: IconButton(
                 icon: const Icon(MaterialCommunityIcons.arrow_expand),
                 onPressed: _resetScanWindow,
@@ -254,7 +253,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
           Align(
             alignment: isPortrait ? .topRight : .bottomRight,
             child: Card(
-              margin: const EdgeInsets.all(16.0),
+              margin: const .all(16.0),
               child: Flex(
                 direction: isPortrait ? .horizontal : .vertical,
                 mainAxisSize: .min,
@@ -272,7 +271,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
           Align(
             alignment: isPortrait ? .bottomCenter : .centerLeft,
             child: Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const .all(16.0),
               width: isPortrait ? null : 100,
               height: isPortrait ? 100 : null,
               child: RotatedBox(

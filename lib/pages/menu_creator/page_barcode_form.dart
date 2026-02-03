@@ -28,7 +28,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(DictKey.titleBarCodeCreator.s),
+        title: Text(DictKey.navTitleCreateBarCode.s),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -39,7 +39,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
       body: SafeArea(
         child: Scrollbar(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const .symmetric(horizontal: 16.0),
             children: [
               ItemTile(
                 title: HistoryFormat.localeStrFromName(_historyFormat.name),

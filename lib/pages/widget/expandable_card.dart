@@ -70,7 +70,7 @@ class _ExpandableCardState extends State<ExpandableCard>
       child: Column(
         children: [
           ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            contentPadding: const .symmetric(horizontal: 16),
             leading: MyIcon(widget.myIconData),
             title: Text(widget.title),
             trailing: RotationTransition(
@@ -81,14 +81,14 @@ class _ExpandableCardState extends State<ExpandableCard>
           ),
           if (widget.collapsedChild != null && !_isExpanded)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+              padding: const .fromLTRB(16, 4, 16, 16),
               child: widget.collapsedChild,
             ),
           SizeTransition(
             sizeFactor: _expandAnimation,
             axisAlignment: -1,
             child: (widget.expandedChild == null) ? null : Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+              padding: const .fromLTRB(16, 4, 16, 16),
               child: widget.expandedChild,
             ),
           ),

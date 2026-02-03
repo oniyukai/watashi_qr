@@ -12,9 +12,9 @@ enum ThemeOption {
   const ThemeOption([this.brightness]);
 
   static Map<ThemeOption, String> get optionMap => <ThemeOption, String>{
-    sys: DictKey.preferencesSwitchSystemThemeLabel.s,
-    light: DictKey.preferencesSwitchLightThemeLabel.s,
-    dark: DictKey.preferencesSwitchDarkThemeLabel.s,
+    sys: DictKey.settingOptionThemeSystem.s,
+    light: DictKey.settingOptionThemeLight.s,
+    dark: DictKey.settingOptionThemeDark.s,
   };
 }
 
@@ -31,12 +31,12 @@ enum ColorOption {
   const ColorOption([this.color]);
 
   static Map<ColorOption, String> get optionMap => <ColorOption, String>{
-    sys: DictKey.preferencesColorMaterialYou.s,
-    blue: DictKey.preferencesColorBlue.s,
-    orange: DictKey.preferencesColorOrange.s,
-    green: DictKey.preferencesColorGreen.s,
-    red: DictKey.preferencesColorRed.s,
-    purple: DictKey.preferencesColorPurple.s,
+    sys: DictKey.settingOptionColorMaterialYou.s,
+    blue: DictKey.settingOptionColorBlue.s,
+    orange: DictKey.settingOptionColorOrange.s,
+    green: DictKey.settingOptionColorGreen.s,
+    red: DictKey.settingOptionColorRed.s,
+    purple: DictKey.settingOptionColorPurple.s,
   };
 }
 
@@ -47,8 +47,8 @@ ThemeData appTheme (
 {
   final ThemeOption selectedTheme = context.readPrefs.get(.selectedTheme);
   final ColorOption selectedColor = context.readPrefs.get(.selectedColor);
-  final Brightness brightness = selectedTheme.brightness ?? View.of(context).platformDispatcher.platformBrightness;
-  final MaterialColor seedColor = selectedColor.color ?? Colors.blue; // <--sys顏色不支援時會用到
+  final Brightness brightness = selectedTheme.brightness ?? MediaQuery.platformBrightnessOf(context);
+  final MaterialColor seedColor = selectedColor.color ?? Colors.blue; // <- sys顏色不支援時會用到
   late final ColorScheme colorScheme;
 
   if (selectedColor == .sys && brightness == .light && lightDynamic != null) {
@@ -56,7 +56,7 @@ ThemeData appTheme (
   } else if (selectedColor == .sys && brightness == .dark && darkDynamic != null) {
     colorScheme = darkDynamic;
   } else {
-    colorScheme = ColorScheme.fromSeed(
+    colorScheme = .fromSeed(
       seedColor: seedColor,
       brightness: brightness,
     );
@@ -66,8 +66,8 @@ ThemeData appTheme (
     useMaterial3: true,
     colorScheme: colorScheme,
     scrollbarTheme: ScrollbarThemeData(
-      thumbColor: WidgetStateProperty.all(colorScheme.primary.withValues(alpha:0.5)),
-      radius: const Radius.circular(10.0),
+      thumbColor: .all(colorScheme.secondaryContainer),
+      radius: const .circular(10.0),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(),

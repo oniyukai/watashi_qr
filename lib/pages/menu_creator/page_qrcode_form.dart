@@ -35,7 +35,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(DictKey.titleQrCodeCreator.s),
+        title: Text(DictKey.navTitleCreateQrCode.s),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -46,7 +46,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
       body: SafeArea(
         child: Scrollbar(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const .symmetric(horizontal: 16.0),
             children: [
               ItemTile(
                 title: HistoryType.localeStrFromName(_historyType.name),
@@ -143,12 +143,12 @@ class _StateWebsite extends _FormState {
       autovalidateMode: .onUserInteraction,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.web),
-        labelText: DictKey.qrCodeTextGeneratorHintUrlInputEditText.s,
+        labelText: DictKey.creatorHintUrl.s,
       ),
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-        FormBuilderValidators.startsWith('http', errorText: DictKey.errorBarcodeQrUrlFormatMessage.s),
-        FormBuilderValidators.url(errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
+        FormBuilderValidators.startsWith('http', errorText: DictKey.errorUrlFormat.s),
+        FormBuilderValidators.url(errorText: DictKey.errorInvalidValue.s),
       ]),
     );
   }
@@ -207,14 +207,14 @@ class _StateContact extends _FormState {
         allowedExtensions: const ["vcf"],
       );
       if (result == null) {
-        Utils.showToast(DictKey.cancelLabel.s);
+        Utils.showToast(DictKey.commonUiCancel.s);
         return;
       }
       final File file = File(result.files.single.path!);
       final String vCardString = await file.readAsString();
       await MainCreatorView.createRouteTo(context, vCardString, .qrCode);
     } catch (e) {
-      Utils.showToast('${DictKey.snackBarMessageFileImportError.s}\n$e', true);
+      Utils.showToast('${DictKey.historyDataImportError.s}\n$e', true);
     }
   }
 
@@ -229,34 +229,34 @@ class _StateContact extends _FormState {
         // ),
         ElevatedButton(
           onPressed: _importContactFromVcard,
-          child: Text(DictKey.qrCodeImportContactFromVcard.s),
+          child: Text(DictKey.creatorContactFromVcard.s),
         ),
         FormBuilderTextField(
           name: 'name',
           keyboardType: .name,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintName.s,
+            labelText: DictKey.creatorContactHintName.s,
           ),
         ),
         FormBuilderTextField(
           name: 'firstname',
           keyboardType: .name,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintFirstName.s,
+            labelText: DictKey.creatorContactHintFirstName.s,
           ),
         ),
         FormBuilderTextField(
           name: 'organisation',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.matrixContactOrganisationLabel.s,
+            labelText: DictKey.analysisContactOrganisation.s,
           ),
         ),
         FormBuilderTextField(
           name: 'jobTitle',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.matrixContactJobTitleLabel.s,
+            labelText: DictKey.analysisContactJobTitle.s,
           ),
         ),
         FormBuilderTextField(
@@ -264,13 +264,13 @@ class _StateContact extends _FormState {
           keyboardType: .url,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.web),
-            labelText: DictKey.qrCodeTextInputEditTextHintWebSite.s,
+            labelText: DictKey.creatorContactHintWebSite.s,
           ),
         ),
         ...<int, String>{
-          0: DictKey.qrCodeTextInputEditTextHintMail1.s,
-          1: DictKey.qrCodeTextInputEditTextHintMail2.s,
-          2: DictKey.qrCodeTextInputEditTextHintMail3.s,
+          0: DictKey.creatorContactHintMail1.s,
+          1: DictKey.creatorContactHintMail2.s,
+          2: DictKey.creatorContactHintMail3.s,
         }.entries.map((entry) => Row(
           spacing: 4.0,
           children: [
@@ -292,9 +292,9 @@ class _StateContact extends _FormState {
                 initialSelection: _mailType[entry.key],
                 inputDecorationTheme: const InputDecorationTheme(),
                 dropdownMenuEntries: [
-                  DropdownMenuEntry(value: 'home', label: DictKey.spinnerTypeHome.s),
-                  DropdownMenuEntry(value: 'work', label: DictKey.spinnerTypeWork.s),
-                  DropdownMenuEntry(value: 'other', label: DictKey.spinnerTypeOther.s),
+                  DropdownMenuEntry(value: 'home', label: DictKey.creatorOptionHome.s),
+                  DropdownMenuEntry(value: 'work', label: DictKey.creatorOptionWork.s),
+                  DropdownMenuEntry(value: 'other', label: DictKey.creatorOptionOther.s),
                 ],
                 onSelected: (value) {
                   if (value != null) _mailType[entry.key] = value;
@@ -304,9 +304,9 @@ class _StateContact extends _FormState {
           ],
         ),),
         ...<int, String>{
-          0: DictKey.qrCodeTextInputEditTextHintPhone1.s,
-          1: DictKey.qrCodeTextInputEditTextHintPhone2.s,
-          2: DictKey.qrCodeTextInputEditTextHintPhone3.s,
+          0: DictKey.creatorContactHintPhone1.s,
+          1: DictKey.creatorContactHintPhone2.s,
+          2: DictKey.creatorContactHintPhone3.s,
         }.entries.map((entry) => Row(
           spacing: 4.0,
           children: [
@@ -328,11 +328,11 @@ class _StateContact extends _FormState {
                 initialSelection: _phoneType[entry.key],
                 inputDecorationTheme: const InputDecorationTheme(),
                 dropdownMenuEntries: [
-                  DropdownMenuEntry(value: 'cell', label: DictKey.spinnerTypeMobile.s),
-                  DropdownMenuEntry(value: 'home', label: DictKey.spinnerTypeHome.s),
-                  DropdownMenuEntry(value: 'work', label: DictKey.spinnerTypeWork.s),
-                  DropdownMenuEntry(value: 'fax', label: DictKey.spinnerTypeFax.s),
-                  DropdownMenuEntry(value: 'other', label: DictKey.spinnerTypeOther.s),
+                  DropdownMenuEntry(value: 'cell', label: DictKey.creatorOptionMobile.s),
+                  DropdownMenuEntry(value: 'home', label: DictKey.creatorOptionHome.s),
+                  DropdownMenuEntry(value: 'work', label: DictKey.creatorOptionWork.s),
+                  DropdownMenuEntry(value: 'fax', label: DictKey.creatorOptionFax.s),
+                  DropdownMenuEntry(value: 'other', label: DictKey.creatorOptionOther.s),
                 ],
                 onSelected: (value) {
                   if (value != null) _phoneType[entry.key] = value;
@@ -345,42 +345,42 @@ class _StateContact extends _FormState {
           name: 'streetAddress',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintStreetAddress.s,
+            labelText: DictKey.creatorContactHintStreetAddress.s,
           ),
         ),
         FormBuilderTextField(
           name: 'city',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintCity.s,
+            labelText: DictKey.creatorContactHintCity.s,
           ),
         ),
         FormBuilderTextField(
           name: 'region',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintRegion.s,
+            labelText: DictKey.creatorContactHintRegion.s,
           ),
         ),
         FormBuilderTextField(
           name: 'postalCode',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintPostalCode.s,
+            labelText: DictKey.creatorContactHintPostalCode.s,
           ),
         ),
         FormBuilderTextField(
           name: 'country',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintCountry.s,
+            labelText: DictKey.creatorContactHintCountry.s,
           ),
         ),
         FormBuilderTextField(
           name: 'notes',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintNotes.s,
+            labelText: DictKey.creatorContactHintNotes.s,
           ),
         ),
       ],
@@ -411,11 +411,11 @@ class _StateMail extends _FormState {
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.mail_outline),
-            labelText: DictKey.qrCodeTextInputEditTextHintEmail.s,
+            labelText: DictKey.creatorMailHintEmail.s,
           ),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-            FormBuilderValidators.email(errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
+            FormBuilderValidators.email(errorText: DictKey.errorInvalidValue.s),
           ]),
         ),
         FormBuilderTextField(
@@ -423,7 +423,7 @@ class _StateMail extends _FormState {
           keyboardType: .text,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.format_size),
-            labelText: DictKey.qrCodeTextInputEditTextHintEmailSubject.s,
+            labelText: DictKey.creatorMailHintSubject.s,
           ),
         ),
         FormBuilderTextField(
@@ -432,7 +432,7 @@ class _StateMail extends _FormState {
           maxLines: null,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.format_size),
-            labelText: DictKey.qrCodeTextInputEditTextHintMessage.s,
+            labelText: DictKey.creatorHintMessage.s,
           ),
         ),
       ],
@@ -457,11 +457,11 @@ class _StateSms extends _FormState {
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.call),
-            labelText: DictKey.qrCodeTextGeneratorHintPhoneInputEditText.s,
+            labelText: DictKey.creatorHintPhone.s,
           ),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-            FormBuilderValidators.phoneNumber(errorText: DictKey.errorBarcodeQrPhoneNumberMissingMessage.s),
+            FormBuilderValidators.phoneNumber(errorText: DictKey.errorPhoneNumber.s),
           ]),
         ),
         FormBuilderTextField(
@@ -471,11 +471,9 @@ class _StateSms extends _FormState {
           maxLines: null,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.format_size),
-            labelText: DictKey.qrCodeTextInputEditTextHintMessage.s,
+            labelText: DictKey.creatorHintMessage.s,
           ),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-          ]),
+          validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
         ),
       ],
     );
@@ -496,11 +494,11 @@ class _StatePhone extends _FormState {
       autovalidateMode: .onUserInteraction,
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.call),
-        labelText: DictKey.qrCodeTextGeneratorHintPhoneInputEditText.s,
+        labelText: DictKey.creatorHintPhone.s,
       ),
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-        FormBuilderValidators.phoneNumber(errorText: DictKey.errorBarcodeQrPhoneNumberMissingMessage.s),
+        FormBuilderValidators.phoneNumber(errorText: DictKey.errorPhoneNumber.s),
       ]),
     );
   }
@@ -530,12 +528,12 @@ class _StateLocation extends _FormState {
           keyboardType: .number,
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintLocalisationLatitude.s,
+            labelText: DictKey.creatorGeoHintLatitude.s,
           ),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-            FormBuilderValidators.numeric(errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
-            FormBuilderValidators.between(-90,90, errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
+            FormBuilderValidators.numeric(errorText: DictKey.errorInvalidValue.s),
+            FormBuilderValidators.between(-90,90, errorText: DictKey.errorInvalidValue.s),
           ]),
         ),
         FormBuilderTextField(
@@ -543,12 +541,12 @@ class _StateLocation extends _FormState {
           keyboardType: .number,
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintLocalisationLongitude.s,
+            labelText: DictKey.creatorGeoHintLongitude.s,
           ),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-            FormBuilderValidators.numeric(errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
-            FormBuilderValidators.between(-180.0, 180.0, errorText: DictKey.errorBarcodeNoneCharacterMessage.s),
+            FormBuilderValidators.numeric(errorText: DictKey.errorInvalidValue.s),
+            FormBuilderValidators.between(-180.0, 180.0, errorText: DictKey.errorInvalidValue.s),
           ]),
         ),
         FormBuilderTextField(
@@ -556,21 +554,15 @@ class _StateLocation extends _FormState {
           keyboardType: .number,
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintLocalisationHeight.s,
+            labelText: DictKey.creatorGeoHintAltitude.s,
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty || double.tryParse(value) != null) {
-              return null;
-            } else {
-              return DictKey.errorBarcodeNoneCharacterMessage.s;
-            }
-          },
+          validator: FormBuilderValidators.numeric(errorText: DictKey.errorInvalidValue.s, checkNullOrEmpty: false),
         ),
         FormBuilderTextField(
           name: 'request',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.qrCodeTextInputEditTextHintLocalisationRequest.s,
+            labelText: DictKey.creatorGeoHintQuery.s,
           ),
         ),
       ],
@@ -640,25 +632,23 @@ class _StateEvent extends _FormState {
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.format_size),
-            labelText: DictKey.qrCodeTextInputEditTextHintAgendaEventName.s,
+            labelText: DictKey.creatorEventHintSummary.s,
           ),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-          ]),
+          validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
         ),
         const SizedBox(height: 4),
         ListTileSwitch(
-          text: DictKey.checkBoxEventAllOfDay.s,
+          text: DictKey.creatorEventOptionAllDay.s,
           iconData: Icons.history_toggle_off,
           initialValue: _isAllDay,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(64.0)),
+          shape: RoundedRectangleBorder(borderRadius: .circular(64.0)),
           onToggle: (value) {
             setState(() => _isAllDay = value);
           },
         ),
         ListTile(
           minTileHeight: 0,
-          subtitle: Text(DictKey.beginLabel.s),
+          subtitle: Text(DictKey.commonUiBegin.s),
         ),
         Row(
           children: [
@@ -666,7 +656,7 @@ class _StateEvent extends _FormState {
               child: FormBuilderDateTimePicker(
                 name: 'beginDate',
                 inputType: .date,
-                initialValue: DateTime.now(),
+                initialValue: .now(),
                 format: DateFormat('yyyy-MM-dd'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.event),
@@ -681,7 +671,7 @@ class _StateEvent extends _FormState {
                 child: FormBuilderDateTimePicker(
                   name: 'beginTime',
                   inputType: .time,
-                  initialValue: DateTime.now(),
+                  initialValue: .now(),
                   format: DateFormat('HH:mm'),
                   decoration: const InputDecoration(
                     icon: Icon(Icons.schedule),
@@ -695,7 +685,7 @@ class _StateEvent extends _FormState {
         const SizedBox(height: 4),
         ListTile(
           minTileHeight: 0,
-          subtitle: Text(DictKey.endLabel.s),
+          subtitle: Text(DictKey.commonUiEnd.s),
         ),
         Row(
           children: [
@@ -703,7 +693,7 @@ class _StateEvent extends _FormState {
               child: FormBuilderDateTimePicker(
                 name: 'endDate',
                 inputType: .date,
-                initialValue: DateTime.now(),
+                initialValue: .now(),
                 format: DateFormat('yyyy-MM-dd'),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.event),
@@ -719,7 +709,7 @@ class _StateEvent extends _FormState {
                   name: 'endTime',
                   inputType: .time,
                   format: DateFormat('HH:mm'),
-                  initialValue: DateTime.now(),
+                  initialValue: .now(),
                   decoration: const InputDecoration(
                     icon: Icon(Icons.schedule),
                     border: UnderlineInputBorder(),
@@ -735,7 +725,7 @@ class _StateEvent extends _FormState {
           keyboardType: .text,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.location_on),
-            labelText: DictKey.qrCodeTextInputEditTextHintAgendaPlace.s,
+            labelText: DictKey.creatorEventHintPlace.s,
           ),
         ),
         const SizedBox(height: 16),
@@ -744,7 +734,7 @@ class _StateEvent extends _FormState {
           keyboardType: .text,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.format_size),
-            labelText: DictKey.qrCodeTextInputEditTextHintAgendaDescription.s,
+            labelText: DictKey.creatorEventHintDescription.s,
           ),
         ),
       ],
@@ -774,21 +764,19 @@ class _StateWifi extends _FormState {
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.format_size),
-            labelText: DictKey.qrCodeTextInputEditTextHintWifiSsid.s,
+            labelText: DictKey.creatorWifiHintSsid.s,
           ),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-          ]),
+          validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
         ),
         DropdownMenu(
           initialSelection: _securityType,
           expandedInsets: .zero,
           inputDecorationTheme: const InputDecorationTheme(),
           dropdownMenuEntries: [
-            DropdownMenuEntry(value: 'WEP', label: DictKey.spinnerWifiEncryptionWep.s),
-            DropdownMenuEntry(value: 'WPA', label: DictKey.spinnerWifiEncryptionWpa.s),
-            DropdownMenuEntry(value: 'SAE', label: DictKey.spinnerWifiEncryptionSae.s),
-            DropdownMenuEntry(value: 'nopass', label: DictKey.spinnerWifiEncryptionNone.s),
+            DropdownMenuEntry(value: 'WEP', label: DictKey.creatorWifiEncryptionWep.s),
+            DropdownMenuEntry(value: 'WPA', label: DictKey.creatorWifiEncryptionWpa.s),
+            DropdownMenuEntry(value: 'SAE', label: DictKey.creatorWifiEncryptionSae.s),
+            DropdownMenuEntry(value: 'nopass', label: DictKey.creatorWifiEncryptionNone.s),
           ],
           onSelected: (value) {
             if (value != null) setState(() => _securityType = value);
@@ -800,17 +788,15 @@ class _StateWifi extends _FormState {
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.password),
-            labelText: DictKey.qrCodeTextInputEditTextHintWifiPassword.s,
+            labelText: DictKey.creatorWifiHintPassword.s,
           ),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-          ]),
+          validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
         ),
         ListTileSwitch(
-          text: DictKey.qrCodeTextInputEditTextHintWifiHide.s,
+          text: DictKey.creatorWifiHintHide.s,
           iconData: Icons.visibility_off_outlined,
           initialValue: _isHide,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(64.0)),
+          shape: RoundedRectangleBorder(borderRadius: .circular(64.0)),
           onToggle: (value) {
             setState(() => _isHide = value);
           },

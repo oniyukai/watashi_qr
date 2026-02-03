@@ -112,7 +112,7 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
   Widget build(context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(DictKey.titleScan.s),
+        title: Text(DictKey.navTitleScan.s),
         actions: [
           if (_barcodeCapture?.barcodes.isNotEmpty == true) IconButton(
             icon: const Icon(Icons.check),

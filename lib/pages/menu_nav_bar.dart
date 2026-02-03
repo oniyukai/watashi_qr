@@ -60,22 +60,22 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: DictKey.titleScan.s
+          label: DictKey.navTitleScan.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: DictKey.titleGenerate.s
+          label: DictKey.navTitleGenerate.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: DictKey.titleHistory.s
+          label: DictKey.navTitleHistory.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: DictKey.titleSettings.s
+          label: DictKey.navTitleSettings.s
         ),
       ],
     );
@@ -87,26 +87,27 @@ class _MenuNavBarState extends State<MenuNavBar> {
       onDestinationSelected: state.updateIndex,
       labelType: .all,
       groupAlignment: 1.0,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       destinations: [
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: Text(DictKey.titleScan.s)
+          label: Text(DictKey.navTitleScan.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: Text(DictKey.titleGenerate.s)
+          label: Text(DictKey.navTitleGenerate.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: Text(DictKey.titleHistory.s)
+          label: Text(DictKey.navTitleHistory.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: Text(DictKey.titleSettings.s)
+          label: Text(DictKey.navTitleSettings.s)
         ),
       ],
     );

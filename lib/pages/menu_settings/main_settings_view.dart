@@ -29,122 +29,121 @@ class _MainSettingsPage extends State<MainSettingsView> {
 
   @override
   Widget build(context) {
-    DictKey.load(context);
     return SafeArea(
       child: Scrollbar(
         controller: _scrollController,
         child: Consumer<PrefsProvider>(
           builder: (context, prefs, child) => ListView(
             children: [
-              ListTileText(text: DictKey.preferencesAppearanceTitle.s, isSection: true),
+              ListTileText(text: DictKey.settingGroupAppearance.s, isSection: true),
               ListTilePicker(
-                text: DictKey.preferencesColor.s,
+                text: DictKey.settingOptionColor.s,
                 selectedOption: prefs.get(.selectedColor),
                 optionMap: ColorOption.optionMap,
                 onChanged: (value) => prefs.update(.selectedColor, value),
               ),
               ListTilePicker(
-                text: DictKey.preferencesThemeLabel.s,
+                text: DictKey.settingOptionTheme.s,
                 selectedOption: prefs.get(.selectedTheme),
                 optionMap: ThemeOption.optionMap,
                 onChanged: (value) => prefs.update(.selectedTheme, value),
               ),
               ListTilePicker(
-                text: DictKey.preferencesLanguagesTitle.s,
-                dialogText: DictKey.preferencesLanguagesChange.s,
+                text: DictKey.settingGroupLanguages.s,
+                dialogText: DictKey.settingOptionLanguagesChange.s,
                 selectedOption: prefs.get(.selectedLanguage),
                 optionMap: LocaleOption.optionMap,
                 onChanged: (value) => prefs.update(.selectedLanguage, value),
               ),
 
-              ListTileText(text: DictKey.preferencesScanTitle.s, isSection: true),
+              ListTileText(text: DictKey.settingGroupScan.s, isSection: true),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanAutoOpenWebsiteLabel.s,
+                text: DictKey.settingOptionScanAutoOpenWebsite.s,
                 iconData: Icons.open_in_browser,
                 initialValue: prefs.get(.isAutoOpenWebsite),
                 enabled: !prefs.get(.isContinuousScan),
                 onToggle: (value) => prefs.update(.isAutoOpenWebsite, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanContinuousScanLabel.s,
+                text: DictKey.settingOptionScanContinuousScan.s,
                 iconData: Icons.fast_forward,
                 initialValue: prefs.get(.isContinuousScan),
                 onToggle: (value) => prefs.update(.isContinuousScan, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanVibrateLabel.s,
+                text: DictKey.settingOptionScanVibrate.s,
                 iconData: Icons.vibration,
                 initialValue: prefs.get(.isVibrateOnScan),
                 onToggle: (value) => prefs.update(.isVibrateOnScan, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanBipLabel.s,
+                text: DictKey.settingOptionScanBip.s,
                 iconData: Icons.volume_up,
                 initialValue: prefs.get(.isBipOnScan),
                 onToggle: (value) => prefs.update(.isBipOnScan, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanScreenRotationLabel.s,
+                text: DictKey.settingOptionScanLockOrient.s,
                 iconData: Icons.screen_rotation,
                 initialValue: prefs.get(.isScreenRotation),
                 onToggle: (value) => prefs.update(.isScreenRotation, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanBarcodeCopiedLabel.s,
+                text: DictKey.settingOptionScanAutoCopy.s,
                 iconData: Icons.content_copy,
                 initialValue: prefs.get(.isBarcodeCopied),
                 onToggle: (value) => prefs.update(.isBarcodeCopied, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanUseFrontCameraLabel.s,
+                text: DictKey.settingOptionScanUseFrontCamera.s,
                 iconData: Icons.camera_front,
                 initialValue: prefs.get(.isUseFrontCamera),
                 onToggle: (value) => prefs.update(.isUseFrontCamera, value),
               ),
 
-              ListTileText(text: DictKey.preferencesBarcodeGenerationTitle.s, isSection: true),
+              ListTileText(text: DictKey.settingGroupGeneration.s, isSection: true),
               ListTilePicker(
-                text: DictKey.qrCodeErrorCorrectionLevelLabel.s,
-                dialogText: DictKey.qrCodeErrorCorrectionLevelSettingsLabel.s,
+                text: DictKey.settingOptionQrErrorCorrectionLevel.s,
+                dialogText: DictKey.settingDialogQrErrorCorrectionLevelTitle.s,
                 selectedOption: prefs.get(.selectedQRErrorLevel),
                 optionMap: HistoryErrorLevel.optionMap,
                 onChanged: (value) => prefs.update(.selectedQRErrorLevel, value),
               ),
 
-              ListTileText(text: DictKey.titleHistory.s, isSection: true),
+              ListTileText(text: DictKey.navTitleHistory.s, isSection: true),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchScanAddBarcodeToTheHistoryLabel.s,
+                text: DictKey.settingOptionHistoryAddScan.s,
                 iconData: Icons.qr_code_scanner,
                 initialValue: prefs.get(.isScanAddHistory),
                 onToggle: (value) => prefs.update(.isScanAddHistory, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel.s,
+                text: DictKey.settingOptionHistoryAddCreate.s,
                 iconData: Icons.edit,
                 initialValue: prefs.get(.isCreateAddHistory),
                 onToggle: (value) => prefs.update(.isCreateAddHistory, value),
               ),
               ListTileSwitch(
-                text: DictKey.preferencesSwitchHistorySaveDuplicatesLabel.s,
+                text: DictKey.settingOptionHistoryAddWithDuplicates.s,
                 iconData: Icons.filter_2,
                 initialValue: prefs.get(.isSaveDuplicates),
                 onToggle: (value) => prefs.update(.isSaveDuplicates, value),
               ),
 
-              ListTileText(text: DictKey.preferencesSearchTitle.s, isSection: true),
+              ListTileText(text: DictKey.settingGroupSearch.s, isSection: true),
               ListTilePicker(
-                text: DictKey.preferencesSearchEngine.s,
+                text: DictKey.settingOptionSearchEngine.s,
                 selectedOption: prefs.get(.selectedSearchEngine),
                 optionMap: SearchEngine.optionMap,
                 onChanged: (value) => prefs.update(.selectedSearchEngine, value),
               ),
               ListTileText(
-                text: DictKey.customSearchUrls.s,
+                text: DictKey.settingOptionCustomSearch.s,
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.routeTo(PageCustomurlsView),
               ),
 
-              ListTileText(text: DictKey.preferencesAboutTitle.s, isSection: true),
+              ListTileText(text: DictKey.settingGroupAbout.s, isSection: true),
               ListTileText(
                 text: StaticString.appName,
                 trailing: const Icon(Icons.chevron_right),

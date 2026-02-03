@@ -7,7 +7,7 @@ import 'package:watashi_qr/locale/app_language.dart';
 
 Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
   final String errorMessage = switch (error.errorCode) {
-    .permissionDenied => DictKey.cameraPermissionDenied.s,
+    .permissionDenied => DictKey.commonPermCameraDenied.s,
     _ => error.errorCode.message,
   };
   return Center(
@@ -199,7 +199,7 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
                     },
                     onPanEnd: (details) => widget.onPanEnd(),
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const .all(16.0),
                       child: RotatedBox(
                         quarterTurns: 1,
                         child: Icon(
