@@ -19,6 +19,7 @@ class _PageAboutViewState extends State<PageAboutView> {
         title: Text(DictKey.settingGroupAbout.s),
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: ListView(
             children: [

@@ -60,11 +60,11 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: ListView(
-            padding: const .symmetric(horizontal: 16.0),
+            padding: const .all(16.0),
             children: [
-              const SizedBox(height: 16),
               FormBuilder(
                 key: _formKey,
                 child: Column(
@@ -102,7 +102,6 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
               ),
               const SizedBox(height: 16),
               SelectableText('${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.commonUiExamples.s} ${StaticString.googleUrl}'),
-              const SizedBox(height: 16),
             ],
           ),
         ),

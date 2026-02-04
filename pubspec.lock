@@ -394,10 +394,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_form_builder
-      sha256: ec74389c4af2361a5e9fe9a36fcfe722698be3f681d713cb3ebe099ae15ed863
+      sha256: "5a0aaed73604686929f176b6b373899c4ab0fad461a971c6a66bfd9f6ad8dbce"
       url: "https://pub.dev"
     source: hosted
-    version: "10.2.0"
+    version: "10.3.0+1"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -465,10 +465,10 @@ packages:
     dependency: "direct main"
     description:
       name: form_builder_validators
-      sha256: "1b03c74d1db740890e6af803b43e5ebe56f8fa1ff5609cbf744e8d980dc5f8c6"
+      sha256: cd9a06b35abaed8bf050467c1239e3ee1c8795f42d4cb6568c08dbb8a4d6bd36
       url: "https://pub.dev"
     source: hosted
-    version: "11.2.0"
+    version: "11.3.0"
   glob:
     dependency: transitive
     description:
@@ -489,10 +489,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
-      sha256: "5d309c86e7ce34cd8e37aa71cb30cb652d3829b900ab145e4d9da564b31d59f7"
+      sha256: "7a08a0d684cb3b8fb604b78455d5d352f502b68079f7b80b831c62220ab0a4f6"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   http:
     dependency: transitive
     description:

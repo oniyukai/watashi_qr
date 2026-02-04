@@ -264,10 +264,14 @@ enum DictKey {
   settingOptionColor,
   settingOptionColorMaterialYou,
   settingOptionColorBlue,
-  settingOptionColorOrange,
-  settingOptionColorGreen,
-  settingOptionColorRed,
+  settingOptionColorViolet,
   settingOptionColorPurple,
+  settingOptionColorPink,
+  settingOptionColorDeepOrange,
+  settingOptionColorOrange,
+  settingOptionColorYellow,
+  settingOptionColorGreen,
+  settingOptionColorTeal,
 
   // --- Languages ---
   settingGroupLanguages,

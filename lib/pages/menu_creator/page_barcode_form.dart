@@ -37,9 +37,10 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: ListView(
-            padding: const .symmetric(horizontal: 16.0),
+            padding: const .fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(
                 title: HistoryFormat.localeStrFromName(_historyFormat.name),
@@ -58,7 +59,6 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
                 _historyFormat.description ?? '',
                 softWrap: true,
               ),
-              const SizedBox(height: 16),
             ],
           ),
         ),

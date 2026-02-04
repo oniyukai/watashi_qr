@@ -87,7 +87,7 @@ class Utils {
   static Future<void> unlockCurrentOrientation() =>
       SystemChrome.setPreferredOrientations(const [
         .portraitUp,
-        .portraitDown, // 考量平板向下也可以
+        .portraitDown,
         .landscapeLeft,
         .landscapeRight,
       ]);

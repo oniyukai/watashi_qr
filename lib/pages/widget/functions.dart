@@ -39,32 +39,25 @@ async {
     context: context,
     isScrollControlled: true,
     builder: (context) => SingleChildScrollView(
-      child: Padding(
-        padding: .only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Column(
-          children: [
-            ?title,
-            if (title != null) const SizedBox(height: 16),
-            ?content,
-            if (content != null) const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: .spaceAround,
-              children: [
-                if (!noCancelButton) ElevatedButton(
-                  child: Text(DictKey.commonUiCancel.s),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                if (actions != null) ...actions,
-              ],
-            ),
-            if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),
-          ],
-        ),
+      padding: .fromLTRB(16.0, 16.0, 16.0, MediaQuery.of(context).viewInsets.bottom),
+      child: Column(
+        children: [
+          ?title,
+          if (title != null) const SizedBox(height: 16),
+          ?content,
+          if (content != null) const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: .spaceAround,
+            children: [
+              if (!noCancelButton) ElevatedButton(
+                child: Text(DictKey.commonUiCancel.s),
+                onPressed: () => Navigator.pop(context),
+              ),
+              if (actions != null) ...actions,
+            ],
+          ),
+          if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),
+        ],
       ),
     ),
   );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/pages/widget/functions.dart';
 
 class ListTileText extends StatelessWidget {
@@ -85,8 +86,9 @@ class ListTilePicker<T> extends StatelessWidget {
   final IconData? iconData;
   final String? dialogText;
   final T selectedOption;
-  final Map<T, String> optionMap;  // 現在開放<T>是因為新版Prefs對SharedPreferences不再限定於特定型別
+  final Map<T, String> optionMap;
   final ValueChanged<T> onChanged;
+  final Widget Function(Radio<T>, bool)? leadingBuilder;
   final ShapeBorder? shape;
 
   const ListTilePicker({
@@ -97,8 +99,16 @@ class ListTilePicker<T> extends StatelessWidget {
     required this.selectedOption,
     required this.optionMap,
     required this.onChanged,
+    this.leadingBuilder,
     this.shape,
   });
+
+  void _onChanged(BuildContext context, T? value) {
+    if (value != null && value != selectedOption) {
+      onChanged(value);
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(context) {
@@ -114,25 +124,84 @@ class ListTilePicker<T> extends StatelessWidget {
           child: SingleChildScrollView(
             child: RadioGroup<T>(
               groupValue: selectedOption,
-              onChanged: (value) {
-                if (value != null) {
-                  onChanged(value);
-                  Navigator.pop(context);
-                }
-              },
+              onChanged: (value) => _onChanged(context, value),
               child: Column(
                 mainAxisSize: .min,
                 children: [
-                  for (final MapEntry<T, String> entry in optionMap.entries)
-                    RadioListTile(
-                      title: Text(entry.value),
-                      value: entry.key,
+                  for (final T value in optionMap.keys)
+                    ListTile(
+                      leading: (leadingBuilder ?? (radio, selected) => radio)(
+                        Radio(
+                            value: value,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        value == selectedOption,
+                      ),
+                      title: Text(optionMap[value]!),
                       shape: RoundedRectangleBorder(borderRadius: .circular(12.0)),
+                      onTap: () => _onChanged(context, value),
                     ),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class ColorfulRadio extends StatelessWidget {
+  final Radio<ColorOption> radio;
+  final bool selected;
+
+  const ColorfulRadio(this.radio, this.selected, {super.key});
+
+  @override
+  Widget build(context) {
+    final ColorScheme? colorScheme = radio.value.color == null
+        ? MyAppTheme.dynamicColorScheme
+        : .fromSeed(seedColor: radio.value.color!);
+    if (colorScheme == null) return radio;
+    final Color topColor = colorScheme.primaryContainer;
+    final Color bottomLeftColor = colorScheme.tertiaryContainer;
+    final Color bottomRightColor = colorScheme.primary;
+    return Padding(
+      padding: const .symmetric(vertical: 8),
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Stack(
+          children: [
+            ClipOval(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: topColor,
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            color: bottomLeftColor,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            color: bottomRightColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (selected) radio,
+          ],
         ),
       ),
     );

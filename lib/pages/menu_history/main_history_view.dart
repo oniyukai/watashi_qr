@@ -158,6 +158,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           controller: _scrollController,
           child: Builder(
@@ -172,7 +173,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
               return ListView.builder(
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: false,
-                padding: const EdgeInsets.all(4.0),
+                padding: const .fromLTRB(4.0, 4.0, 4.0, 16.0),
                 controller: _scrollController,
                 itemCount: _historyItems.length,
                 itemBuilder: (context, index) {

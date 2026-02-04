@@ -30,25 +30,28 @@ class _MainSettingsPage extends State<MainSettingsView> {
   @override
   Widget build(context) {
     return SafeArea(
+      top: false,
+      bottom: false,
       child: Scrollbar(
         controller: _scrollController,
         child: Consumer<PrefsProvider>(
           builder: (context, prefs, child) => ListView(
             children: [
               ListTileText(text: DictKey.settingGroupAppearance.s, isSection: true),
-              ListTilePicker(
+              ListTilePicker<ColorOption>(
                 text: DictKey.settingOptionColor.s,
                 selectedOption: prefs.get(.selectedColor),
                 optionMap: ColorOption.optionMap,
+                leadingBuilder: (radio, selected) => ColorfulRadio(radio, selected),
                 onChanged: (value) => prefs.update(.selectedColor, value),
               ),
-              ListTilePicker(
+              ListTilePicker<ThemeOption>(
                 text: DictKey.settingOptionTheme.s,
                 selectedOption: prefs.get(.selectedTheme),
                 optionMap: ThemeOption.optionMap,
                 onChanged: (value) => prefs.update(.selectedTheme, value),
               ),
-              ListTilePicker(
+              ListTilePicker<LocaleOption>(
                 text: DictKey.settingGroupLanguages.s,
                 dialogText: DictKey.settingOptionLanguagesChange.s,
                 selectedOption: prefs.get(.selectedLanguage),
@@ -102,7 +105,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
               ),
 
               ListTileText(text: DictKey.settingGroupGeneration.s, isSection: true),
-              ListTilePicker(
+              ListTilePicker<HistoryErrorLevel>(
                 text: DictKey.settingOptionQrErrorCorrectionLevel.s,
                 dialogText: DictKey.settingDialogQrErrorCorrectionLevelTitle.s,
                 selectedOption: prefs.get(.selectedQRErrorLevel),
@@ -131,7 +134,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
               ),
 
               ListTileText(text: DictKey.settingGroupSearch.s, isSection: true),
-              ListTilePicker(
+              ListTilePicker<SearchEngine>(
                 text: DictKey.settingOptionSearchEngine.s,
                 selectedOption: prefs.get(.selectedSearchEngine),
                 optionMap: SearchEngine.optionMap,

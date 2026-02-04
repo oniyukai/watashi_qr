@@ -16,7 +16,7 @@ void main() {
   for (final dictKey in DictKey.values) {
     String encode = jsonEncode(mapEn[dictKey]);
     if (encode.startsWith('"') && encode.endsWith('"')) {
-      encode = '\'${encode.substring(1, encode.length-1)}\'';
+      encode = '\'${encode.substring(1, encode.length - 1)}\'';
     }
     encode = encode
         .replaceAll('\\"', '"')

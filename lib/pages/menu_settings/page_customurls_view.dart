@@ -99,13 +99,14 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: _customSearchUrls.isEmpty
             ? Center(child: Text(DictKey.settingOptionCustomSearchEmpty.s))
             : ListView.builder(
             addAutomaticKeepAlives: false,
             addRepaintBoundaries: false,
-            padding: const EdgeInsets.all(16.0),
+            padding: const .all(16.0),
             itemCount: _customSearchUrls.length,
             itemBuilder: (context, index) {
               final CustomSearchUrl item = _customSearchUrls[index];

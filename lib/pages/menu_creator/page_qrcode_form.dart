@@ -44,9 +44,10 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: ListView(
-            padding: const .symmetric(horizontal: 16.0),
+            padding: const .fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(
                 title: HistoryType.localeStrFromName(_historyType.name),
@@ -60,7 +61,6 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
                   valueDecodeChange: (valueDecode) => _valueDecode = valueDecode,
                 ),
               ),
-              const SizedBox(height: 16),
             ],
           ),
         ),

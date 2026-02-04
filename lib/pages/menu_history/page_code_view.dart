@@ -107,7 +107,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                 child: Card(
                   color: Colors.white,
                   child: Padding(
-                    padding: const .fromLTRB(24, 24, 24, 24),
+                    padding: const .all(24.0),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final double width = isPortrait
@@ -145,7 +145,6 @@ class _PageCodeViewState extends State<PageCodeView> {
                       textAlign: .center,
                     ),
                     Text(_historyFormat?.description ?? ''),
-                    const SizedBox(height: 16),
                   ],
                 ),
               ),

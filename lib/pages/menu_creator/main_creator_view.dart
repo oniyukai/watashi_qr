@@ -70,13 +70,14 @@ class _MainCreatorViewState extends State<MainCreatorView> {
   Widget build(context) {
     DictKey.load(context);
     return SafeArea(
+      top: false,
+      bottom: false,
       child: Scrollbar(
         controller: _scrollController,
         child: ListView(
-          padding: const .symmetric(horizontal: 16.0),
+          padding: const .fromLTRB(16.0, 40.0, 16.0, 16.0),
           controller: _scrollController,
           children: [
-            const SizedBox(height: 16),
             ExpandableCard(
               title: DictKey.navTitleCreateQrCode.s,
               myIconData: HistoryFormat.qrCode.myIconData,
@@ -114,14 +115,13 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            // const SizedBox(height: 16),
             // Center( // todo?: 有緣或許有分享到該程式的功能
             //   child: Text(AppLocale.shareToThisAppLabel.s,
             //       softWrap: true,
             //       style: theme.textTheme.bodyMedium
             //   ),
             // ),
-            // const SizedBox(height: 16),
           ],
         ),
       ),

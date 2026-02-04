@@ -11,7 +11,7 @@ import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:intl/intl.dart';
 
-class DatabaseServices {
+final class DatabaseServices {
   const DatabaseServices._();
 
   static late final Store _store;

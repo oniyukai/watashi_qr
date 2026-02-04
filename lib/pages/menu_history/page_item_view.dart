@@ -99,9 +99,10 @@ class _PageItemViewState extends State<PageItemView> {
         title: Text(HistoryType.localeStrFromName(_historyItem.type)),
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: ListView(
-            padding: const .symmetric(horizontal: 16.0),
+            padding: const .fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ExpandableCard(
                 title: DictKey.analysisLabelContent.s,
@@ -230,7 +231,6 @@ class _PageItemViewState extends State<PageItemView> {
                   );
                 },
               ),
-              const SizedBox(height: 8),
             ],
           ),
         ),

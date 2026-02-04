@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:watashi_locale/watashi_locale.dart';
@@ -12,6 +13,8 @@ import 'package:watashi_qr/common/database_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(MyAppTheme.systemOverlayStyle);
   await PrefsProvider.init();
   await DatabaseServices.init();
   runApp(
@@ -48,12 +51,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(context) {
     return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+      builder: (lightDynamic, darkDynamic) {
         return Consumer<PrefsProvider>(
           builder: (context, prefs, child) {
             return MaterialApp(
               title: StaticString.appName,
-              theme: appTheme(context, lightDynamic, darkDynamic),
+              theme: MyAppTheme.themeData(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
               locale: prefs.get<LocaleOption>(.selectedLanguage).locale,

@@ -58,7 +58,6 @@ enum PrefsEnum {
   isSaveDuplicates,
   selectedSearchEngine,
   customSearchUrls,
-
   scannerWindowWidthPortrait,
   scannerWindowHeightPortrait,
   scannerWindowWidthLandscape,

@@ -143,7 +143,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
-      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await Future<void>.delayed(const Duration(milliseconds: 1600));
     } else if (isAutoOpenWebsite && item.getType == .website) {
       await Utils.openUrlInBrowser(item.contents);
       await Future<void>.delayed(const Duration(milliseconds: 1600));
@@ -199,95 +199,97 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   @override
   Widget build(context) {
     final bool isPortrait = Utils.isPortrait(context);
-    return SafeArea(
-      child: Stack(
-        fit: .expand,
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              _scanWindow = Rect.fromCenter(
-                center: Size(constraints.maxWidth, constraints.maxHeight).center(.zero),
-                width: _scanWindow.width,
-                height: _scanWindow.height,
-              );
-              return Stack(
-                fit: .expand,
-                children: [
-                  Transform.scale(
-                    scaleX: _isUseFrontCamera ? -1 : 1,
-                    child: MobileScanner(
-                      scanWindow: _scanWindow,
-                      controller: _scannerController,
-                      errorBuilder: scannerErrorBuilder,
-                      onDetect: _scannerOnDetect,
-                    ),
-                  ),
-                  Transform.scale( // todo debug: 字體水平相反
-                    scaleX: _isUseFrontCamera ? -1 : 1,
-                    child: BarcodeOverlay( // todo debug: 套件該組件並沒有處理完轉向問題 v7.1.4問題更嚴重了
-                      controller: _scannerController,
-                      boxFit: .cover,
-                      color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),
-                    ),
-                  ),
-                  MyScanWindowOverlay(
-                    controller: _scannerController,
+    return Stack(
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            _scanWindow = Rect.fromCenter(
+              center: Size(constraints.maxWidth, constraints.maxHeight).center(.zero),
+              width: _scanWindow.width,
+              height: _scanWindow.height,
+            );
+            return Stack(
+              children: [
+                Transform.scale(
+                  scaleX: _isUseFrontCamera ? -1 : 1,
+                  child: MobileScanner(
                     scanWindow: _scanWindow,
-                    onPanUpdate: _updateScanWindow,
-                    onPanEnd: _saveScanWindow,
+                    controller: _scannerController,
+                    errorBuilder: scannerErrorBuilder,
+                    onDetect: _scannerOnDetect,
                   ),
-                ],
-              );
-            },
-          ),
-          Align(
-            alignment: isPortrait ? .topLeft : .topRight,
-            child: Card(
-              margin: const .all(16.0),
-              child: IconButton(
-                icon: const Icon(MaterialCommunityIcons.arrow_expand),
-                onPressed: _resetScanWindow,
+                ),
+                Transform.scale( // todo debug: 自拍字體水平相反
+                  scaleX: _isUseFrontCamera ? -1 : 1,
+                  child: BarcodeOverlay( // todo debug: 套件該組件並沒有處理完轉向問題
+                    controller: _scannerController,
+                    boxFit: .cover,
+                    color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),
+                  ),
+                ),
+                MyScanWindowOverlay(
+                  controller: _scannerController,
+                  scanWindow: _scanWindow,
+                  onPanUpdate: _updateScanWindow,
+                  onPanEnd: _saveScanWindow,
+                ),
+              ],
+            );
+          },
+        ),
+        Align(
+          alignment: isPortrait ? .bottomCenter : .centerLeft,
+          child: Container(
+            padding: const .all(32.0),
+            width: isPortrait ? null : 100,
+            height: isPortrait ? 100 : null,
+            child: RotatedBox(
+              quarterTurns: isPortrait ? 0 : 3,
+              child: Slider(
+                value: _zoomLevel,
+                min: 0.0,
+                max: 1.0,
+                onChanged: _setZoomLevel,
+                onChangeEnd: _saveZoomLevel,
               ),
             ),
           ),
-          Align(
-            alignment: isPortrait ? .topRight : .bottomRight,
-            child: Card(
-              margin: const .all(16.0),
-              child: Flex(
-                direction: isPortrait ? .horizontal : .vertical,
-                mainAxisSize: .min,
-                children: [
-                  FlashlightButton(_scannerController),
-                  IconButton(
-                    splashRadius: 16,
-                    icon: const Icon(Icons.photo),
-                    onPressed: _goPageImageScan,
+        ),
+        SafeArea(
+          child: Stack(
+            children: [
+              Align(
+                alignment: isPortrait ? .topLeft : .topRight,
+                child: Card(
+                  margin: const .all(16.0),
+                  child: IconButton(
+                    icon: const Icon(MaterialCommunityIcons.arrow_expand),
+                    onPressed: _resetScanWindow,
                   ),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: isPortrait ? .bottomCenter : .centerLeft,
-            child: Container(
-              padding: const .all(16.0),
-              width: isPortrait ? null : 100,
-              height: isPortrait ? 100 : null,
-              child: RotatedBox(
-                quarterTurns: isPortrait ? 0 : 3,
-                child: Slider(
-                  value: _zoomLevel,
-                  min: 0.0,
-                  max: 1.0,
-                  onChanged: _setZoomLevel,
-                  onChangeEnd: _saveZoomLevel,
                 ),
               ),
-            ),
+              Align(
+                alignment: isPortrait ? .topRight : .bottomRight,
+                child: Card(
+                  margin: const .all(16.0),
+                  child: Flex(
+                    direction: isPortrait ? .horizontal : .vertical,
+                    mainAxisSize: .min,
+                    children: [
+                      FlashlightButton(_scannerController),
+                      IconButton(
+                        splashRadius: 16,
+                        icon: const Icon(Icons.photo),
+                        onPressed: _goPageImageScan,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

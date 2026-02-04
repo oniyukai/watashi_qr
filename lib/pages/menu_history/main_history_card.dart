@@ -35,15 +35,15 @@ class MainHistoryCard extends StatelessWidget {
         minTileHeight: 40,
         horizontalTitleGap: 8,
         leading: Container(
-          width: 40.0,
-          height: 40.0,
+          padding: const .symmetric(vertical: 8),
           decoration: BoxDecoration(
             shape: .circle,
             color: historyItem.isFavorite
                 ? colorScheme.tertiary
                 : colorScheme.primary
           ),
-          child: Center(
+          child: AspectRatio(
+            aspectRatio: 1.0,
             child: MyIcon(
               historyItem.getTypeIconData,
               color: colorScheme.onPrimary,
