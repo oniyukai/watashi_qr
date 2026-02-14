@@ -34,21 +34,32 @@ class _MenuNavBarState extends State<MenuNavBar> {
     MainHistoryView(),
     MainSettingsView(),
   ];
+  bool _canPop = false;
 
   @override
   Widget build(context) {
     DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Consumer<MenuNavBarProvider>(
-      builder: (context, state, child) => Scaffold(
-        bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
-        body: Row(
-          children: [
-            if (!isPortrait) _buildSideNavigationBar(state),
-            Expanded(child: IndexedStack(index: state.currentIndex, children: _pages)),
-          ],
+      builder: (context, state, child) => PopScope(
+        canPop: _canPop,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          setState(() => _canPop = true);
+          Utils.showToast(DictKey.navUiPopExitApp.s);
+          await Future.delayed(const .new(seconds: 2));
+          if (mounted) setState(() => _canPop = false);
+        },
+        child: Scaffold(
+          bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
+          body: Row(
+            children: [
+              if (!isPortrait) _buildSideNavigationBar(state),
+              Expanded(child: IndexedStack(index: state.currentIndex, children: _pages)),
+            ],
+          ),
         ),
-      )
+      ),
     );
   }
 
@@ -60,12 +71,12 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: DictKey.navTitleScan.s
+          label: DictKey.navTitleScanner.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: DictKey.navTitleGenerate.s
+          label: DictKey.navTitleCreator.s
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.history),
@@ -92,12 +103,12 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: Text(DictKey.navTitleScan.s)
+          label: Text(DictKey.navTitleScanner.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: Text(DictKey.navTitleGenerate.s)
+          label: Text(DictKey.navTitleCreator.s)
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.history),

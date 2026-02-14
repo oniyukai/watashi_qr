@@ -133,7 +133,7 @@ String? barcodeValidator(String? value, HistoryFormat? format) {
     ],
     .itf => [
       onlyNumbers,
-      (_) => validator((value.length % 2) == 0, DictKey.errorItfEvenDigit.s),
+      (_) => validator((value.length % 2) == 0, DictKey.errorItfEvenLength.s),
       (_) => maxLength(40),
     ],
   };

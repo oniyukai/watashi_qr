@@ -62,7 +62,6 @@ class HistoryItem {
   };
 }
 
-
 enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   L(.low),
   M(.medium),
@@ -84,7 +83,6 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
   };
 }
 
-
 enum HistoryOrigin { // !! 改變name會影響之後HistoryItem儲存的值
   S(Icons.fullscreen), // scanner
   C(Icons.edit_outlined); // creator
@@ -94,8 +92,8 @@ enum HistoryOrigin { // !! 改變name會影響之後HistoryItem儲存的值
   const HistoryOrigin(this.iconData);
 
   static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    S => DictKey.navTitleScan,
-    C => DictKey.navTitleGenerate,
+    S => DictKey.navTitleScanner,
+    C => DictKey.navTitleCreator,
     null => null,
   }?.s ?? '?$n';
 }

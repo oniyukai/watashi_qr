@@ -30,7 +30,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   late final HistoryItem _historyItem = widget.getArgs(context)!;
   late final HistoryFormat? _historyFormat = _historyItem.getFormat;
   late final HistoryErrorLevel _historyErrorLevel = _initErrorLevel();
-  late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat!);
+  late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
 
   HistoryErrorLevel _initErrorLevel() {
     final HistoryErrorLevel? historyErrorLevel = _historyItem.getErrorLevel;
@@ -44,7 +44,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory? initialDir = await getDownloadsDirectory();
       final String? dir = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDir?.path);
       if (dir == null) {
-        Utils.showToast('${DictKey.commonUiCancel.s}\nUnable to get storage directory.');
+        Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
         return;
       }
       const double width = 1024.0;
@@ -60,7 +60,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       }
       Utils.showToast(DictKey.actionStatusImageSaveOk.s);
     } catch (e) {
-      Utils.showToast('${DictKey.actionStatusImageSaveError.s}\n$e', true);
+      Utils.showToast('${DictKey.actionStatusImageSaveError.s}  $e', true);
     }
   }
 
@@ -69,7 +69,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory tempDir = await getTemporaryDirectory();
       final File file = File(p.join(tempDir.path, 'barcode.png'));
       await file.writeAsBytes(img.encodePng(_getBarcodeImage(1024.0)));
-      await Utils.share(ShareParams(files: [XFile(file.path)]));
+      await Utils.share(.new(files: [XFile(file.path)]));
     } catch (e) {
       Utils.showToast(e.toString());
     }
@@ -127,7 +127,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                   ),
                 ),
               ),
-              isPortrait ? const SizedBox(height: 24) : const SizedBox(width: 24),
+              const SizedBox.square(dimension: 24),
               Expanded(
                 flex: 1,
                 child: ListView(
@@ -140,8 +140,8 @@ class _PageCodeViewState extends State<PageCodeView> {
                     ),
                     const SizedBox(height: 8),
                     if (_historyFormat == .qrCode) Text(
-                      '${DictKey.settingOptionQrErrorCorrectionLevel.s}: '
-                      '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}',
+                      '${DictKey.analysisLabelErrorLevel.s}'
+                      '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}\n',
                       textAlign: .center,
                     ),
                     Text(_historyFormat?.description ?? ''),

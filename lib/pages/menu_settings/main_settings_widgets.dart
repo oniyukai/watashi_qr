@@ -45,7 +45,6 @@ class ListTileText extends StatelessWidget {
   }
 }
 
-
 class ListTileSwitch extends StatelessWidget {
   final String text;
   final bool initialValue;
@@ -79,7 +78,6 @@ class ListTileSwitch extends StatelessWidget {
     );
   }
 }
-
 
 class ListTilePicker<T> extends StatelessWidget {
   final String text;
@@ -150,7 +148,6 @@ class ListTilePicker<T> extends StatelessWidget {
     );
   }
 }
-
 
 class ColorfulRadio extends StatelessWidget {
   final Radio<ColorOption> radio;

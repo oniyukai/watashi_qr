@@ -29,27 +29,24 @@ extension StaticString on DictKey {
 }
 
 enum DictKey {
-  // ===== Common: Basic UI & Permissions =====
-  commonPermCameraDenied,
-  commonUiDelete,
+  // ===== Common: Basic UI & Label =====
+  commonLabelCameraDenied,
+  commonLabelDelete,
   commonUiCancel,
-  commonUiBegin,
-  commonUiEnd,
-  commonUiActions,
-  commonUiExamples,
-  commonUiClipboardEmpty,
+  commonUiCopied,
 
   // ===== Nav: Navigation & Page Titles =====
-  navTitleScan,
-  navTitleGenerate,
+  navUiPopExitApp,
+  navTitleScanner,
+  navTitleCreator,
   navTitleHistory,
   navTitleSettings,
   navTitleCreateQrCode,
   navTitleCreateBarCode,
 
   // --- Creator Entry ---
-  navCreateFromClipboard,
-  navShareToAppLabel,
+  navLabelCreateFromClipboard,
+  navLabelShareToApp,
 
   // ===== Barcode: Formats, Types & Specs =====
   // --- Formats ---
@@ -102,18 +99,24 @@ enum DictKey {
 
   // ===== Analysis: Scan Result Details =====
   analysisScanError,
+  analysisLabelContent,
   analysisGroupInfo,
   analysisLabelFormat,
   analysisLabelOrigin,
-  analysisLabelContent,
-  analysisStatusCopied,
+  analysisLabelErrorLevel,
+  analysisLabelNotes,
+  analysisLabelActions,
+
+  // --- Comms Detail ---
+  analysisEmail,
+  analysisPhone,
+  analysisMessage,
 
   // --- Contact Detail ---
   analysisContactName,
   analysisContactOrganisation,
   analysisContactJobTitle,
-  analysisContactPhone,
-  analysisContactMail,
+  analysisContactWebSite,
   analysisContactAddress,
   analysisContactNotes,
 
@@ -124,28 +127,27 @@ enum DictKey {
   analysisEventPlace,
   analysisEventDescription,
 
-  // --- Comms Detail ---
-  analysisPhoneNumber,
-  analysisMailRecipient,
+  // --- Mail Detail ---
   analysisMailSubject,
-  analysisMailBody,
 
-  // --- Network & Geo Detail ---
+  // --- Network Detail ---
   analysisWifiSsid,
   analysisWifiPassword,
   analysisWifiEncryption,
   analysisWifiIsHidden,
-  analysisUriUrl,
+
+  // --- Geo Detail ---
   analysisGeoLatitude,
   analysisGeoLongitude,
   analysisGeoAltitude,
   analysisGeoQuery,
 
   // ===== Creator: Forms & Hints =====
-  // --- Hints ---
-  creatorHintText,
-  creatorHintPhone,
+  // --- Comms ---
+  creatorUiClipboardEmpty,
   creatorHintUrl,
+  creatorHintEmail,
+  creatorHintPhone,
   creatorHintMessage,
 
   // --- Contact Creator ---
@@ -153,13 +155,9 @@ enum DictKey {
   creatorContactFromVcard,
   creatorContactHintName,
   creatorContactHintFirstName,
+  creatorContactHintOrganisation,
+  creatorContactHintJobTitle,
   creatorContactHintWebSite,
-  creatorContactHintMail1,
-  creatorContactHintMail2,
-  creatorContactHintMail3,
-  creatorContactHintPhone1,
-  creatorContactHintPhone2,
-  creatorContactHintPhone3,
   creatorContactHintStreetAddress,
   creatorContactHintPostalCode,
   creatorContactHintCity,
@@ -168,14 +166,13 @@ enum DictKey {
   creatorContactHintNotes,
 
   // --- Spinner Options ---
-  creatorOptionMobile,
-  creatorOptionFax,
-  creatorOptionHome,
-  creatorOptionWork,
-  creatorOptionOther,
+  creatorContactOptionMobile,
+  creatorContactOptionFax,
+  creatorContactOptionHome,
+  creatorContactOptionWork,
+  creatorContactOptionOther,
 
   // --- Mail Creator ---
-  creatorMailHintEmail,
   creatorMailHintSubject,
 
   // --- Geo Creator ---
@@ -198,9 +195,15 @@ enum DictKey {
   creatorEventHintPlace,
   creatorEventHintDescription,
   creatorEventOptionAllDay,
+  creatorEventLabelBegin,
+  creatorEventLabelEnd,
 
   // ===== Barcode Specs: Rule & Description =====
   // --- Descriptions ---
+  barcodeDescriptionQrCode,
+  barcodeDescriptionDataMatrix,
+  barcodeDescriptionAztec,
+  barcodeDescriptionPdf417,
   barcodeDescriptionEan13,
   barcodeDescriptionEan8,
   barcodeDescriptionUpcA,
@@ -216,7 +219,7 @@ enum DictKey {
   barcodeCompositionTextSimple,
   barcodeCompositionTextUpperSimple,
   barcodeCompositionDigits,
-  barcodeCompositionEvenDigitNumbers,
+  barcodeCompositionEvenLengthNumbers,
   barcodeComposition7Digits1Check,
   barcodeComposition11Digits1Check,
   barcodeComposition12Digits1Check,
@@ -247,14 +250,12 @@ enum DictKey {
   errorRegexCode93,
   errorRegexCode39,
   errorRegexCodabar,
-  errorItfEvenDigit,
+  errorItfEvenLength,
   errorUpcEStartZero,
   errorUrlFormat,
   errorPhoneNumber,
 
   // ===== Setting: Sections & Options =====
-  settingOptionDefault,
-
   // --- Appearance ---
   settingGroupAppearance,
   settingOptionTheme,
@@ -276,6 +277,7 @@ enum DictKey {
   // --- Languages ---
   settingGroupLanguages,
   settingOptionLanguagesChange,
+  settingOptionLanguagesDefault,
 
   // --- Scan ---
   settingGroupScan,
@@ -287,8 +289,8 @@ enum DictKey {
   settingOptionScanAutoCopy,
   settingOptionScanUseFrontCamera,
 
-  // --- Generation ---
-  settingGroupGeneration,
+  // --- Create ---
+  settingGroupCreate,
   settingOptionQrErrorCorrectionLevel,
   settingDialogQrErrorCorrectionLevelTitle,
   settingOptionQrErrorCorrectionLevelLow,
@@ -308,11 +310,13 @@ enum DictKey {
   settingOptionCustomSearchAdd,
   settingOptionCustomSearchEdit,
   settingOptionCustomSearchEmpty,
+  settingOptionCustomSearchClearSelected,
   settingOptionCustomSearchClearAll,
   settingOptionCustomSearchDeleted,
   settingOptionCustomSearchAdded,
   settingOptionCustomSearchUpdated,
   settingOptionCustomSearchInfo,
+  settingOptionCustomSearchExample,
   settingErrorCustomUrl,
 
   // --- About ---

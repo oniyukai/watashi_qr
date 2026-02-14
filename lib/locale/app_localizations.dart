@@ -21,7 +21,7 @@ enum LocaleOption {
   Locale get locale => _locale ?? WidgetsBinding.instance.platformDispatcher.locale;
 
   static Map<LocaleOption, String> get optionMap => <LocaleOption, String>{
-    sys: DictKey.settingOptionDefault.s,
+    sys: DictKey.settingOptionLanguagesDefault.s,
     en: StaticString.localeLanguageEn,
     ja: StaticString.localeLanguageJa,
     zhHans: StaticString.localeLanguageZhHans,
@@ -29,9 +29,9 @@ enum LocaleOption {
   };
 
   static final dictDelegate = WatashiDictDelegate(
-    defaultLocaleAgent: LocaleAgentGetDict(LocaleOption.en, LocaleOption.en._locale, LocaleOption.en.maps),
-    localeAgents: LocaleOption.values.map((e) => LocaleAgentGetDict(e, e._locale, e.maps)),
-    dictKeys: DictKey.values,
-    packager: (e) => e,
+    defaultCandidate: DictLocaleCandidate(LocaleOption.en, LocaleOption.en._locale, LocaleOption.en.maps),
+    localeCandidates: LocaleOption.values.map((e) => DictLocaleCandidate(e, e._locale, e.maps)),
+    dictKeys: DictKey.values.toSet(),
+    dictWrap: (e) => e,
   );
 }

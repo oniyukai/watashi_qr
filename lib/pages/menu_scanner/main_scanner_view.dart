@@ -46,7 +46,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     _scannerController.dispose();
     _audioPlayer.dispose();
     _setOrientationLock(false);
@@ -60,7 +60,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     _viewEntryExitEvent(context.watch<MenuNavBarProvider>().onScanner);
   }
 
-  Future<void> _viewEntryExitEvent(bool onScanner) async {
+  void _viewEntryExitEvent(bool onScanner) {
     if (_enableDetect && onScanner) {
       _setOrientationLock(_isScreenRotation = context.readPrefs.get(.isScreenRotation));
       _loadOrientationLengthStartScan();
@@ -83,7 +83,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
         : .scannerWindowHeightLandscape
     );
     _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.4;
-    _scanWindow = Rect.fromCenter(
+    _scanWindow = .fromCenter(
       center: _scanWindow.center,
       width: width >= 0 ? width : _defaultScanWindowSize,
       height: height >= 0 ? height : _defaultScanWindowSize,
@@ -128,8 +128,8 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     }
     if (isVibrateOnScan) Utils.deviceVibrate();
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
-    if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: contents));
-    final HistoryFormat? format = HistoryFormat.fromScannerFormat(scannerFormat);
+    if (isBarcodeCopied) Clipboard.setData(.new(text: contents));
+    final HistoryFormat? format = .fromScannerFormat(scannerFormat);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
@@ -143,10 +143,10 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
-      await Future<void>.delayed(const Duration(milliseconds: 1600));
+      await Future.delayed(const .new(milliseconds: 1600));
     } else if (isAutoOpenWebsite && item.getType == .website) {
       await Utils.openUrlInBrowser(item.contents);
-      await Future<void>.delayed(const Duration(milliseconds: 1600));
+      await Future.delayed(const .new(milliseconds: 1600));
     } else {
       await context.routeOf<PageItemView>().toPass(item);
     }
@@ -154,7 +154,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   void _updateScanWindow(double width, double height) {
-    setState(() => _scanWindow = Rect.fromCenter(
+    setState(() => _scanWindow = .fromCenter(
       center: _scanWindow.center,
       width: width,
       height: height,
@@ -175,35 +175,35 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     );
   }
 
-  Future<void> _resetScanWindow() async {
+  Future<void> _resetScanWindow() {
     _updateScanWindow(_defaultScanWindowSize, _defaultScanWindowSize);
-    await _saveScanWindow();
+    return _saveScanWindow();
   }
 
   Future<void> _goPageImageScan() async {
     _viewEntryExitEvent(_enableDetect = false);
-    await context.routeOf<PageImageScan>()
-        .toPass((PageImageScanArgs(controller: _scannerController)));
-    await _viewEntryExitEvent(_enableDetect = true);
+    await context.routeOf<PageImageScan>().toPass((.new(controller: _scannerController)));
+    _viewEntryExitEvent(_enableDetect = true);
   }
 
-  Future<void> _setZoomLevel(double zoomLevel) async {
+  Future<void> _setZoomLevel(double zoomLevel) {
     setState(() => _zoomLevel = zoomLevel);
-    await _scannerController.setZoomScale(zoomLevel);
+    return _scannerController.setZoomScale(zoomLevel);
   }
 
-  Future<void> _saveZoomLevel(double zoomLevel) async {
-    await context.readPrefs.update(.scannerZoomLevel, zoomLevel, false);
+  Future<void> _saveZoomLevel(double zoomLevel) {
+    return context.readPrefs.update(.scannerZoomLevel, zoomLevel, false);
   }
 
   @override
   Widget build(context) {
+    DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Stack(
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            _scanWindow = Rect.fromCenter(
+            _scanWindow = .fromCenter(
               center: Size(constraints.maxWidth, constraints.maxHeight).center(.zero),
               width: _scanWindow.width,
               height: _scanWindow.height,

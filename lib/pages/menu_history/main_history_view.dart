@@ -59,8 +59,8 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
   Future<void> _pressSelectedCopy() async {
     final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
     final String combinedText = items.map((item) => item.contents).join('\n');
-    await Clipboard.setData(ClipboardData(text: combinedText));
-    Utils.showToast(DictKey.analysisStatusCopied.s);
+    await Clipboard.setData(.new(text: combinedText));
+    Utils.showToast(DictKey.commonUiCopied.s);
     exitSelectionMode();
   }
 
@@ -81,6 +81,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
 
   @override
   Widget build(context) {
+    DictKey.load(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
@@ -101,12 +102,12 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
             icon: const Icon(Icons.delete_forever),
             onPressed: () async => showMyDialog(
               context: context,
-              title: DictKey.commonUiDelete.s,
+              title: DictKey.commonLabelDelete.s,
               content: Text(DictKey.historyDialogDeleteSelected.s),
               actions: [
                 TextButton(
                   onPressed: _pressSelectedDelete,
-                  child: Text(DictKey.commonUiDelete.s),
+                  child: Text(DictKey.commonLabelDelete.s),
                 ),
               ],
             ),
@@ -145,12 +146,12 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
             icon: const Icon(Icons.delete_forever),
             onPressed: () async => showMyDialog(
               context: context,
-              title: DictKey.commonUiDelete.s,
+              title: DictKey.commonLabelDelete.s,
               content: Text(DictKey.historyDialogDeleteAll.s),
               actions: [
                 TextButton(
                   onPressed: _pressDeleteAll,
-                  child: Text(DictKey.commonUiDelete.s),
+                  child: Text(DictKey.commonLabelDelete.s),
                 ),
               ],
             ),

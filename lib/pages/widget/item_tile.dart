@@ -35,13 +35,13 @@ class ItemTile extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       leading: (myIconData != null) ? Container(
-        width: 40.0,
-        height: 40.0,
+        padding: const .symmetric(vertical: 8),
         decoration: BoxDecoration(
           shape: .circle,
           color: colorScheme.primary
         ),
-        child: Center(
+        child: AspectRatio(
+          aspectRatio: 1.0,
           child: MyIcon(
             myIconData,
             color: colorScheme.onPrimary,

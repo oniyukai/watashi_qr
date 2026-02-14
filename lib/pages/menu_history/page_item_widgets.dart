@@ -86,8 +86,8 @@ class AnalyzedContentItem extends StatelessWidget {
               padding: const .all(0),
               visualDensity: .compact,
               onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: entry.value!));
-                Utils.showToast(DictKey.analysisStatusCopied.s);
+                await Clipboard.setData(.new(text: entry.value!));
+                Utils.showToast(DictKey.commonUiCopied.s);
               },
               icon: const Icon(Icons.copy),
             ),
@@ -150,9 +150,9 @@ class ContactAnalyzer extends _TextAnalyzer {
     MapEntry(DictKey.analysisContactName.s, _parseValue.name),
     MapEntry(DictKey.analysisContactOrganisation.s, _parseValue.organisation),
     MapEntry(DictKey.analysisContactJobTitle.s, _parseValue.jobTitle),
-    MapEntry(DictKey.analysisUriUrl.s, _parseValue.website),
-    MapEntry(DictKey.analysisContactMail.s, _parseValue.mail),
-    MapEntry(DictKey.analysisContactPhone.s, _parseValue.phone),
+    MapEntry(DictKey.analysisContactWebSite.s, _parseValue.website),
+    MapEntry(DictKey.analysisEmail.s, _parseValue.mail),
+    MapEntry(DictKey.analysisPhone.s, _parseValue.phone),
     MapEntry(DictKey.analysisContactAddress.s, _parseValue.address),
     MapEntry(DictKey.analysisContactNotes.s, _parseValue.notes),
   ];
@@ -205,9 +205,9 @@ class MailAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.analysisMailRecipient.s, parseValue.email),
+    MapEntry(DictKey.analysisEmail.s, parseValue.email),
     MapEntry(DictKey.analysisMailSubject.s, parseValue.subject),
-    MapEntry(DictKey.analysisMailBody.s, parseValue.message),
+    MapEntry(DictKey.analysisMessage.s, parseValue.message),
   ];
 
   @override
@@ -249,8 +249,8 @@ class SmsAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.analysisPhoneNumber.s, parseValue.phone),
-    MapEntry(DictKey.analysisMailBody.s, parseValue.message),
+    MapEntry(DictKey.analysisPhone.s, parseValue.phone),
+    MapEntry(DictKey.analysisMessage.s, parseValue.message),
   ];
 
   @override
@@ -279,7 +279,7 @@ class PhoneAnalyzer extends _TextAnalyzer {
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
-    MapEntry(DictKey.analysisPhoneNumber.s, parseValue.phone),
+    MapEntry(DictKey.analysisPhone.s, parseValue.phone),
   ];
 
   @override

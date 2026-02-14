@@ -34,7 +34,7 @@ class _ExpandableCardState extends State<ExpandableCard>
     _isExpanded = widget.initialExpanded ?? false;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: const .new(milliseconds: 200),
     );
     _arrowAnimation = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
     _expandAnimation = CurvedAnimation(

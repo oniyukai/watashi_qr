@@ -35,17 +35,11 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
     WatashiLocale.register([LocaleOption.dictDelegate]);
-  }
-
-  @override
-  void dispose() {
-    DatabaseServices.dispose();
-    super.dispose();
   }
 
   @override

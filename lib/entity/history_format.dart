@@ -88,10 +88,14 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code93 => DictKey.barcodeCompositionTextUpperSimple,
     code39 => DictKey.barcodeCompositionTextUpperSimple,
     codabar => DictKey.barcodeCompositionDigits,
-    itf => DictKey.barcodeCompositionEvenDigitNumbers,
+    itf => DictKey.barcodeCompositionEvenLengthNumbers,
   }.s;
 
-  String? get description => switch (this) {
+  String get description => switch (this) {
+    qrCode => DictKey.barcodeDescriptionQrCode,
+    dataMatrix => DictKey.barcodeDescriptionDataMatrix,
+    aztec => DictKey.barcodeDescriptionAztec,
+    pdf417 => DictKey.barcodeDescriptionPdf417,
     ean13 => DictKey.barcodeDescriptionEan13,
     ean8 => DictKey.barcodeDescriptionEan8,
     upcA => DictKey.barcodeDescriptionUpcA,
@@ -101,6 +105,5 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     code39 => DictKey.barcodeDescriptionCode39,
     codabar => DictKey.barcodeDescriptionCodabar,
     itf => DictKey.barcodeDescriptionItf,
-    qrCode || dataMatrix || aztec || pdf417 => null,
-  }?.s;
+  }.s;
 }

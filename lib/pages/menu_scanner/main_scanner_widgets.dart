@@ -7,14 +7,13 @@ import 'package:watashi_qr/locale/app_language.dart';
 
 Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
   final String errorMessage = switch (error.errorCode) {
-    .permissionDenied => DictKey.commonPermCameraDenied.s,
+    .permissionDenied => DictKey.commonLabelCameraDenied.s,
     _ => error.errorCode.message,
   };
   return Center(
     child: Text('$errorMessage\n\n${error.errorDetails?.message ?? ''}'),
   );
 }
-
 
 class FlashlightButton extends StatelessWidget {
   final MobileScannerController controller;
@@ -44,11 +43,10 @@ class FlashlightButton extends StatelessWidget {
   }
 }
 
-
 class MyScanWindowOverlay extends StatefulWidget {
   final MobileScannerController controller;
   final Rect scanWindow;
-  final void Function(double width, double height) onPanUpdate; //Function請使用setState()來更新scanWindow
+  final void Function(double width, double height) onPanUpdate; // Function請使用setState()來更新scanWindow
   final VoidCallback onPanEnd;
 
   const MyScanWindowOverlay({

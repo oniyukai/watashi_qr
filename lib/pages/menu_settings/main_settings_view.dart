@@ -29,6 +29,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
 
   @override
   Widget build(context) {
+    DictKey.load(context);
     return SafeArea(
       top: false,
       bottom: false,
@@ -104,7 +105,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 onToggle: (value) => prefs.update(.isUseFrontCamera, value),
               ),
 
-              ListTileText(text: DictKey.settingGroupGeneration.s, isSection: true),
+              ListTileText(text: DictKey.settingGroupCreate.s, isSection: true),
               ListTilePicker<HistoryErrorLevel>(
                 text: DictKey.settingOptionQrErrorCorrectionLevel.s,
                 dialogText: DictKey.settingDialogQrErrorCorrectionLevelTitle.s,

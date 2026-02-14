@@ -31,29 +31,29 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageItemViewState extends State<PageItemView> {
-  final _formKey = GlobalKey<FormBuilderState>();
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryItem _historyItem = widget.getArgs(context)!;
-  late final HistoryFormat? _historyFormat = _historyItem.getFormat;
   late HistoryType? _historyType = _historyItem.getType;
-  late bool _isWillExist = _historyItem.id > 0;
+  late bool _isExistBefore = _historyItem.id > 0;
+  late bool _isWillExist = _isExistBefore;
 
-  @override
-  void dispose() {
+  void _syncToDatabase() {
     if (_historyItem.id > 0 && _isWillExist) {
       DatabaseServices.updateItem(_historyItem);
     } else if (_historyItem.id > 0) {
-      DatabaseServices.deleteItem(_historyItem.id);
+      if (DatabaseServices.deleteItem(_historyItem.id)) _historyItem.id = 0;
     } else if (_isWillExist) {
-      DatabaseServices.addItem(_historyItem);
+      _historyItem.id = DatabaseServices.addItem(_historyItem, _isExistBefore);
+      if (_historyItem.id > 0) _isExistBefore = true;
     }
-    super.dispose();
   }
 
-  void _pressItemFavorite() => setState(() {
-    _historyItem.isFavorite = !_historyItem.isFavorite;
-  });
+  void _pressItemFavorite() {
+    setState(() => _historyItem.isFavorite = !_historyItem.isFavorite);
+    _syncToDatabase();
+  }
 
-  Future<void> _pressShareContents() => Utils.share(ShareParams(text: _historyItem.contents));
+  Future<void> _pressShareContents() => Utils.share(.new(text: _historyItem.contents));
 
   Future<void> _pressModifyContents() => showMyBottomSheet(
     context: context,
@@ -67,7 +67,7 @@ class _PageItemViewState extends State<PageItemView> {
     content: FormBuilder(
       key: _formKey,
       child: BarcodeField(
-        format: _historyFormat,
+        format: _historyItem.getFormat,
         name: 'modifyContents',
         initialValue: _historyItem.contents,
       ),
@@ -78,17 +78,18 @@ class _PageItemViewState extends State<PageItemView> {
         onPressed: () {
           if (_formKey.currentState?.saveAndValidate() != true) return;
           _historyItem.contents = _formKey.currentState!.value['modifyContents'];
-          _historyItem.type = HistoryType.fromDistinguish(_historyFormat, _historyItem.contents).name;
+          _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, _historyItem.contents).name;
           _historyType = _historyItem.getType;
           Navigator.pop(context);
+          _syncToDatabase();
         },
       ),
     ],
   );
 
   Future<void> _pressCopyContents() async {
-    await Clipboard.setData(ClipboardData(text: _historyItem.contents));
-    Utils.showToast(DictKey.analysisStatusCopied.s);
+    await Clipboard.setData(.new(text: _historyItem.contents));
+    Utils.showToast(DictKey.commonUiCopied.s);
   }
 
   @override
@@ -144,13 +145,13 @@ class _PageItemViewState extends State<PageItemView> {
                             HistoryOrigin.localeStrFromName(_historyItem.origin)
                           ),
                           if (_historyItem.getErrorLevel != .none) SelectableText(
-                            '${DictKey.settingOptionQrErrorCorrectionLevel.s}: '
-                            '${HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel)}',
+                            DictKey.analysisLabelErrorLevel.s +
+                            HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel),
                           ),
                           if (_historyItem.notes.isNotEmpty) Row(
                             crossAxisAlignment: .start,
                             children: [
-                              SelectableText('${DictKey.analysisContactNotes.s}: '),
+                              SelectableText(DictKey.analysisLabelNotes.s),
                               Expanded(
                                 child: SelectableText(
                                   _historyItem.notes,
@@ -208,7 +209,7 @@ class _PageItemViewState extends State<PageItemView> {
               const SizedBox(height: 4),
               ListTile(
                 minTileHeight: 0,
-                subtitle: Text(DictKey.commonUiActions.s),
+                subtitle: Text(DictKey.analysisLabelActions.s),
               ),
               Builder(
                 builder: (context) {
@@ -304,10 +305,11 @@ class _PageItemViewState extends State<PageItemView> {
         actions: [
           ElevatedButton(
             child: Text(DictKey.actionModifyNotes.s),
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState?.saveAndValidate() != true) return;
-              _historyItem.notes = _formKey.currentState!.value['modifyNotes'];
+              _historyItem.notes = _formKey.currentState!.value['modifyNotes'] ?? '';
               Navigator.pop(context);
+              _syncToDatabase();
             },
           ),
         ],
@@ -327,7 +329,7 @@ class _PageItemViewState extends State<PageItemView> {
         final Directory tempDir = await getTemporaryDirectory();
         final File file = File(p.join(tempDir.path, 'contact.vcf'));
         await file.writeAsString(_historyItem.contents);
-        await Utils.share(ShareParams(files: [XFile(file.path)]));
+        await Utils.share(.new(files: [XFile(file.path)]));
       },
     ),
 
@@ -408,6 +410,7 @@ class _PageItemViewState extends State<PageItemView> {
           : DictKey.historyMenuAdd.s,
       onTap: () {
         setState(() => _isWillExist = !_isWillExist);
+        _syncToDatabase();
         return Utils.showToast(_isWillExist
             ? DictKey.historyStatusAdded.s
             : DictKey.historyStatusRemoved.s);

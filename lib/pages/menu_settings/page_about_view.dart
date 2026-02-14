@@ -23,9 +23,8 @@ class _PageAboutViewState extends State<PageAboutView> {
         child: Scrollbar(
           child: ListView(
             children: [
-              SizedBox(
-                width: 64,
-                height: 64,
+              SizedBox.square(
+                dimension: 64,
                 child: Image(
                   image: AssetImage(p.join('assets/', 'appicon.png')),
                 ),

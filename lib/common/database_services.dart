@@ -23,16 +23,14 @@ final class DatabaseServices {
     _historyBox = _store.box<HistoryItem>();
   }
 
-  static void dispose() => _store.close();
-
   static Stream<List<HistoryItem>> get historyItemsStream =>
       _applyOrder(_historyBox.query())
           .watch(triggerImmediately: true)
           .map((query) => query.find());
 
-  static int addItem(HistoryItem item) {
+  static int addItem(HistoryItem item, [bool force = false]) {
     assert(item.id == 0);
-    if (PrefsEnum.isSaveDuplicates.get()) return _historyBox.put(item, mode: .insert);
+    if (force || PrefsEnum.isSaveDuplicates.get()) return _historyBox.put(item, mode: .insert);
     final Query<HistoryItem> query = _applyOrder(_historyBox
         .query(HistoryItem_.format.equals(item.format).and(HistoryItem_.contents.equals(item.contents)))
     ).build();
@@ -46,6 +44,10 @@ final class DatabaseServices {
     deleteItem(latestDuplicate.id);
     return _historyBox.put(item, mode: .insert);
   }
+
+  static int updateItem(HistoryItem item) => _historyBox.put(item, mode: .update);
+
+  static List<int> updateItems(List<HistoryItem> items) => _historyBox.putMany(items, mode: .update);
 
   // static HistoryItem? getItem(int id) => _historyBox.get(id);
 
@@ -63,10 +65,6 @@ final class DatabaseServices {
           .order(HistoryItem_.isFavorite, flags: Order.descending)
           .order(HistoryItem_.unixTime, flags: Order.descending);
 
-  static int updateItem(HistoryItem item) => _historyBox.put(item, mode: .update);
-
-  static List<int> updateItems(List<HistoryItem> items) => _historyBox.putMany(items, mode: .update);
-
   static bool deleteItem(int id) => _historyBox.remove(id);
 
   static int deleteItems(List<int> ids) => _historyBox.removeMany(ids);
@@ -80,7 +78,7 @@ final class DatabaseServices {
     }
     final Directory tempDir = await getTemporaryDirectory();
     final File? file = await _getHistoryBoxJsonFile(tempDir.path);
-    if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
+    if (file != null) await Utils.share(.new(files: [XFile(file.path)]));
   }
 
   static Future<void> exportHistoryBoxToJson() async {
@@ -91,12 +89,12 @@ final class DatabaseServices {
     final Directory? directory = await getDownloadsDirectory();
     final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
-      await Utils.showToast('${DictKey.commonUiCancel.s}\nUnable to get storage directory.');
+      await Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
       return;
     }
     final File? file = await _getHistoryBoxJsonFile(directoryPath);
     if (file != null) {
-      await Utils.showToast('${DictKey.historyDataExportSuccess.s}\n${file.path}');
+      await Utils.showToast('${DictKey.historyDataExportSuccess.s}  ${file.path}');
     } else {
       await Utils.showToast(DictKey.historyDataExportError.s);
     }
@@ -157,11 +155,10 @@ final class DatabaseServices {
         }
       }
       _historyBox.putMany(itemsToProcess.values.toList());
-      final String endTip = '${DictKey.historyDataImportSuccess.s}'
-          '\nTotal ${jsonData.length} Items, Added: $added, Replaced: $replaced';
+      final String endTip = '${DictKey.historyDataImportSuccess.s}  Total:${jsonData.length}, Added:$added, Replaced:$replaced';
       await Utils.showToast(endTip, true);
     } catch (e) {
-      await Utils.showToast('${DictKey.historyDataImportError.s}\n$e', true);
+      await Utils.showToast('${DictKey.historyDataImportError.s}  $e', true);
     }
   }
 }

@@ -69,14 +69,14 @@ class Utils {
     openUrlInBrowser(searchUrl.replaceAll(StaticString.searchReplaceWord, Uri.encodeComponent(keyWord)));
 
   /// 鎖定螢幕轉向
-  static Future<void> lockCurrentOrientation(BuildContext context) async {
+  static Future<void> lockCurrentOrientation(BuildContext context) {
     if (isPortrait(context)) {
-      await SystemChrome.setPreferredOrientations(const [
+      return SystemChrome.setPreferredOrientations(const [
         .portraitUp,
         .portraitDown,
       ]);
     } else {
-      await SystemChrome.setPreferredOrientations(const [
+      return SystemChrome.setPreferredOrientations(const [
         .landscapeLeft,
         .landscapeRight,
       ]);

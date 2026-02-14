@@ -51,7 +51,7 @@ String _pageTypeName(Type pageType) {
 ///
 /// - [PA] 只有在帶參數路由且鏈式調用時指定所前往的頁面型別時, [_instance] 才會儲存 [PA]
 final class MyRouter<PA extends RouterBridge> {
-  static final navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final String initialRoute = _pageTypeName(_InitialPage);
   static final Map<String, WidgetBuilder> routes = _routingTable.map((k, v) => MapEntry(v.route, v.builder));
 

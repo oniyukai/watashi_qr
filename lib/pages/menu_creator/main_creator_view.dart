@@ -19,12 +19,9 @@ import 'package:watashi_qr/pages/widget/my_icon.dart';
 class MainCreatorView extends StatefulWidget {
   const MainCreatorView({super.key});
 
-  static Future<void> createRouteTo(BuildContext context, String contents, HistoryFormat format) async {
+  static Future createRouteTo(BuildContext context, String contents, HistoryFormat format) {
     final String? validatorMsg = barcodeValidator(contents, format);
-    if (validatorMsg != null) {
-      Utils.showToast(validatorMsg);
-      return;
-    }
+    if (validatorMsg != null) return Utils.showToast(validatorMsg);
     final bool isCreateAddHistory = context.readPrefs.get(.isCreateAddHistory);
     final HistoryErrorLevel selectedQRErrorLevel = format == .qrCode
         ? context.readPrefs.get(.selectedQRErrorLevel)
@@ -40,7 +37,7 @@ class MainCreatorView extends StatefulWidget {
       notes: '',
     );
     if (isCreateAddHistory) item.id = DatabaseServices.addItem(item);
-    await context.routeOf<PageCodeView>().toPass(item);
+    return context.routeOf<PageCodeView>().toPass(item);
   }
 
   @override
@@ -54,7 +51,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
     final ClipboardData? clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     final String? contents = clipboardData?.text;
     if (contents == null || contents.isEmpty) {
-      Utils.showToast('${DictKey.commonUiClipboardEmpty.s}\n${DictKey.creatorHintText.s}');
+      Utils.showToast(DictKey.creatorUiClipboardEmpty.s);
       return;
     }
     await MainCreatorView.createRouteTo(context, contents, .qrCode);
@@ -84,7 +81,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
               expandedChild: Column(
                 children: [
                   ItemTile(
-                    title: DictKey.navCreateFromClipboard.s,
+                    title: DictKey.navLabelCreateFromClipboard.s,
                     myIconData: const MyIconData(Icons.content_copy),
                     onTap: _createQrFromClipboard,
                   ),

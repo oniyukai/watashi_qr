@@ -23,12 +23,23 @@ class PageQrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
 class _PageQrcodeFormState extends State<PageQrcodeForm> {
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryType _historyType = widget.getArgs(context)!;
-  late String Function(Map<String, dynamic> valueMap) _valueDecode;
+  late final _FormState _formState = switch (_historyType) {
+    .text => _StateText(),
+    .website => _StateWebsite(),
+    .contact => _StateContact(),
+    .mail => _StateMail(),
+    .sms => _StateSms(),
+    .phone => _StatePhone(),
+    .location => _StateLocation(),
+    .event => _StateEvent(),
+    .wifi => _StateWifi(),
+    .product || .industrial => _StateUnsupported(),
+  }..context = context;
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
     final Map<String, dynamic> valueMap = _formKey.currentState!.value;
-    await MainCreatorView.createRouteTo(context, _valueDecode(valueMap), .qrCode);
+    await MainCreatorView.createRouteTo(context, _formState.valueDecode(valueMap), .qrCode);
   }
 
   @override
@@ -56,9 +67,8 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
               const SizedBox(height: 16),
               FormBuilder(
                 key: _formKey,
-                child: _TypeSwitchForm(
-                  historyType: _historyType,
-                  valueDecodeChange: (valueDecode) => _valueDecode = valueDecode,
+                child: StatefulBuilder(
+                  builder: _formState.build,
                 ),
               ),
             ],
@@ -69,59 +79,34 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
   }
 }
 
-class _TypeSwitchForm extends StatefulWidget {
-  final HistoryType historyType;
-  final ValueChanged<String Function(Map<String, dynamic> valueMap)> valueDecodeChange;
+abstract class _FormState {
+  late final BuildContext context;
 
-  const _TypeSwitchForm({
-    required this.historyType,
-    required this.valueDecodeChange,
-  });
+  String valueDecode(Map<String, dynamic> valueMap);
 
-  @override
-  State<_TypeSwitchForm> createState() {
-    // 為了替換Big switch且簡潔StatefulWidget，目前沒有辦法的辦法
-    final _FormState widgetState = switch (historyType) {
-      .text => _StateText(),
-      .website => _StateWebsite(),
-      .contact => _StateContact(),
-      .mail => _StateMail(),
-      .sms => _StateSms(),
-      .phone => _StatePhone(),
-      .location => _StateLocation(),
-      .event => _StateEvent(),
-      .wifi => _StateWifi(),
-      .product || .industrial => _StateUnsupported(),
-    };
-    valueDecodeChange(widgetState._valueDecode);
-    return widgetState;
-  }
-}
-
-abstract class _FormState extends State<_TypeSwitchForm> {
-  String _valueDecode(Map<String, dynamic> valueMap);
+  Widget build(BuildContext context, StateSetter setState);
 }
 
 class _StateUnsupported extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     return StaticString.nullString;
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return const Text('Unsupported');
   }
 }
 
 class _StateText extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     return valueMap['text'];
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return BarcodeField(
       format: .qrCode,
       name: 'text',
@@ -131,12 +116,12 @@ class _StateText extends _FormState {
 
 class _StateWebsite extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     return valueMap['website'];
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return FormBuilderTextField(
       name: 'website',
       keyboardType: .url,
@@ -159,7 +144,7 @@ class _StateContact extends _FormState {
   final List<String> _phoneType = ['cell', 'cell', 'cell'];
 
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     final String name = valueMap['name'] ?? '';
     final String firstname = valueMap['firstname'] ?? '';
     final String organisation = valueMap['organisation'] ?? '';
@@ -214,12 +199,12 @@ class _StateContact extends _FormState {
       final String vCardString = await file.readAsString();
       await MainCreatorView.createRouteTo(context, vCardString, .qrCode);
     } catch (e) {
-      Utils.showToast('${DictKey.historyDataImportError.s}\n$e', true);
+      Utils.showToast('${DictKey.historyDataImportError.s}  $e', true);
     }
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return Column(
       spacing: 8.0,
       children: [
@@ -249,14 +234,14 @@ class _StateContact extends _FormState {
           name: 'organisation',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.analysisContactOrganisation.s,
+            labelText: DictKey.creatorContactHintOrganisation.s,
           ),
         ),
         FormBuilderTextField(
           name: 'jobTitle',
           keyboardType: .text,
           decoration: InputDecoration(
-            labelText: DictKey.analysisContactJobTitle.s,
+            labelText: DictKey.creatorContactHintJobTitle.s,
           ),
         ),
         FormBuilderTextField(
@@ -267,21 +252,17 @@ class _StateContact extends _FormState {
             labelText: DictKey.creatorContactHintWebSite.s,
           ),
         ),
-        ...<int, String>{
-          0: DictKey.creatorContactHintMail1.s,
-          1: DictKey.creatorContactHintMail2.s,
-          2: DictKey.creatorContactHintMail3.s,
-        }.entries.map((entry) => Row(
+        ...List.generate(3, (index) => Row(
           spacing: 4.0,
           children: [
             Expanded(
               flex: 7,
               child: FormBuilderTextField(
-                name: 'email${entry.key}',
+                name: 'email$index',
                 keyboardType: .emailAddress,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.mail_outline),
-                  labelText: entry.value,
+                  labelText: '${DictKey.creatorHintEmail.s} ${index+1}',
                 ),
               ),
             ),
@@ -289,35 +270,31 @@ class _StateContact extends _FormState {
               flex: 4,
               child: DropdownMenu(
                 expandedInsets: .zero,
-                initialSelection: _mailType[entry.key],
+                initialSelection: _mailType[index],
                 inputDecorationTheme: const InputDecorationTheme(),
                 dropdownMenuEntries: [
-                  DropdownMenuEntry(value: 'home', label: DictKey.creatorOptionHome.s),
-                  DropdownMenuEntry(value: 'work', label: DictKey.creatorOptionWork.s),
-                  DropdownMenuEntry(value: 'other', label: DictKey.creatorOptionOther.s),
+                  DropdownMenuEntry(value: 'home', label: DictKey.creatorContactOptionHome.s),
+                  DropdownMenuEntry(value: 'work', label: DictKey.creatorContactOptionWork.s),
+                  DropdownMenuEntry(value: 'other', label: DictKey.creatorContactOptionOther.s),
                 ],
                 onSelected: (value) {
-                  if (value != null) _mailType[entry.key] = value;
+                  if (value != null) _mailType[index] = value;
                 },
               ),
             ),
           ],
-        ),),
-        ...<int, String>{
-          0: DictKey.creatorContactHintPhone1.s,
-          1: DictKey.creatorContactHintPhone2.s,
-          2: DictKey.creatorContactHintPhone3.s,
-        }.entries.map((entry) => Row(
+        )),
+        ...List.generate(3, (index) => Row(
           spacing: 4.0,
           children: [
             Expanded(
               flex: 7,
               child: FormBuilderTextField(
-                name: 'phone${entry.key}',
+                name: 'phone$index',
                 keyboardType: .phone,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.call),
-                  labelText: entry.value,
+                  labelText: '${DictKey.creatorHintPhone.s} ${index+1}',
                 ),
               ),
             ),
@@ -325,22 +302,22 @@ class _StateContact extends _FormState {
               flex: 4,
               child: DropdownMenu(
                 expandedInsets: .zero,
-                initialSelection: _phoneType[entry.key],
+                initialSelection: _phoneType[index],
                 inputDecorationTheme: const InputDecorationTheme(),
                 dropdownMenuEntries: [
-                  DropdownMenuEntry(value: 'cell', label: DictKey.creatorOptionMobile.s),
-                  DropdownMenuEntry(value: 'home', label: DictKey.creatorOptionHome.s),
-                  DropdownMenuEntry(value: 'work', label: DictKey.creatorOptionWork.s),
-                  DropdownMenuEntry(value: 'fax', label: DictKey.creatorOptionFax.s),
-                  DropdownMenuEntry(value: 'other', label: DictKey.creatorOptionOther.s),
+                  DropdownMenuEntry(value: 'cell', label: DictKey.creatorContactOptionMobile.s),
+                  DropdownMenuEntry(value: 'home', label: DictKey.creatorContactOptionHome.s),
+                  DropdownMenuEntry(value: 'work', label: DictKey.creatorContactOptionWork.s),
+                  DropdownMenuEntry(value: 'fax', label: DictKey.creatorContactOptionFax.s),
+                  DropdownMenuEntry(value: 'other', label: DictKey.creatorContactOptionOther.s),
                 ],
                 onSelected: (value) {
-                  if (value != null) _phoneType[entry.key] = value;
+                  if (value != null) _phoneType[index] = value;
                 },
               ),
             ),
           ],
-        ),),
+        )),
         FormBuilderTextField(
           name: 'streetAddress',
           keyboardType: .text,
@@ -390,7 +367,7 @@ class _StateContact extends _FormState {
 
 class _StateMail extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     final String email = valueMap['email'];
     final String subject = valueMap['subject'] ?? '';
     final String message = valueMap['message'] ?? '';
@@ -401,7 +378,7 @@ class _StateMail extends _FormState {
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return Column(
       spacing: 16.0,
       children: [
@@ -411,7 +388,7 @@ class _StateMail extends _FormState {
           autovalidateMode: .onUserInteraction,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.mail_outline),
-            labelText: DictKey.creatorMailHintEmail.s,
+            labelText: DictKey.creatorHintEmail.s,
           ),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
@@ -442,12 +419,12 @@ class _StateMail extends _FormState {
 
 class _StateSms extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     return 'SMSTO:${valueMap['phone']}:${valueMap['message']}';
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return Column(
       spacing: 16.0,
       children: [
@@ -482,12 +459,12 @@ class _StateSms extends _FormState {
 
 class _StatePhone extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     return 'tel:${valueMap['phone']}';
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return FormBuilderTextField(
       name: 'phone',
       keyboardType: .phone,
@@ -506,7 +483,7 @@ class _StatePhone extends _FormState {
 
 class _StateLocation extends _FormState {
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     final String latitude = valueMap['latitude'];
     final String longitude = valueMap['longitude'];
     final String height = valueMap['height'] ?? '';
@@ -519,7 +496,7 @@ class _StateLocation extends _FormState {
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return Column(
       spacing: 16.0,
       children: [
@@ -574,7 +551,7 @@ class _StateEvent extends _FormState {
   bool _isAllDay = false;
 
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     final String summary = valueMap['summary'];
     final DateTime beginDate = valueMap['beginDate'];
     final DateTime endDate = valueMap['endDate'];
@@ -582,7 +559,7 @@ class _StateEvent extends _FormState {
     final DateTime? endTime = valueMap['endTime'];
     final String location = valueMap['location'] ?? '';
     final String description = valueMap['description'] ?? '';
-    final DateFormat dateFormat = _isAllDay ? DateFormat("';VALUE=DATE:'yyyyMMdd") : DateFormat("':'yyyyMMdd'T'HHmm00'Z'");
+    final DateFormat dateFormat = DateFormat(_isAllDay ? "';VALUE=DATE:'yyyyMMdd" : "':'yyyyMMdd'T'HHmm00'Z'");
     late DateTime beginDateTime;
     late DateTime endDateTime;
 
@@ -623,7 +600,7 @@ class _StateEvent extends _FormState {
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return Column(
       children: [
         FormBuilderTextField(
@@ -648,7 +625,7 @@ class _StateEvent extends _FormState {
         ),
         ListTile(
           minTileHeight: 0,
-          subtitle: Text(DictKey.commonUiBegin.s),
+          subtitle: Text(DictKey.creatorEventLabelBegin.s),
         ),
         Row(
           children: [
@@ -685,7 +662,7 @@ class _StateEvent extends _FormState {
         const SizedBox(height: 4),
         ListTile(
           minTileHeight: 0,
-          subtitle: Text(DictKey.commonUiEnd.s),
+          subtitle: Text(DictKey.creatorEventLabelEnd.s),
         ),
         Row(
           children: [
@@ -747,14 +724,14 @@ class _StateWifi extends _FormState {
   bool _isHide = false;
 
   @override
-  String _valueDecode(valueMap) {
+  String valueDecode(valueMap) {
     final String ssid = valueMap['ssid'];
     final String password = _securityType != 'nopass' ? valueMap['password'] : '';
     return 'WIFI:S:$ssid;T:$_securityType;P:$password;H:$_isHide;';
   }
 
   @override
-  Widget build(context) {
+  Widget build(context, setState) {
     return Column(
       spacing: 16.0,
       children: [

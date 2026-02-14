@@ -53,14 +53,14 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
 
   Future<void> _pressDelete() => showMyDialog(
     context: context,
-    title: DictKey.commonUiDelete.s,
+    title: DictKey.commonLabelDelete.s,
     content: Text(isSelectionMode
-        ? DictKey.historyDialogDeleteSelected.s
+        ? DictKey.settingOptionCustomSearchClearSelected.s
         : DictKey.settingOptionCustomSearchClearAll.s
     ),
     actions: [
       TextButton(
-        child: Text(DictKey.commonUiDelete.s),
+        child: Text(DictKey.commonLabelDelete.s),
         onPressed: () async {
           Navigator.pop(context);
           if (isSelectionMode) {
@@ -88,7 +88,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
         actions: [
           if (!isSelectionMode) IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => context.routeOf<PageCustomurlsForm>().toPass(PageCustomurlsFormArgs(
+            onPressed: () => context.routeOf<PageCustomurlsForm>().toPass(.new(
               items: _customSearchUrls,
             )),
           ),
@@ -120,7 +120,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionM
                     if (isSelectionMode) {
                       toggleSelection(index);
                     } else {
-                      context.routeOf<PageCustomurlsForm>().toPass(PageCustomurlsFormArgs(
+                      context.routeOf<PageCustomurlsForm>().toPass(.new(
                         index: index,
                         items: _customSearchUrls,
                       ));

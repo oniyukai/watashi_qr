@@ -88,7 +88,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                       initialValue: argItem?.url,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
-                        labelText: DictKey.analysisUriUrl.s,
+                        labelText: DictKey.creatorHintUrl.s,
                       ),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
@@ -101,7 +101,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              SelectableText('${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.commonUiExamples.s} ${StaticString.googleUrl}'),
+              SelectableText('${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.settingOptionCustomSearchExample.s} ${StaticString.googleUrl}'),
             ],
           ),
         ),

@@ -53,27 +53,25 @@ class MyIcon extends StatelessWidget {
   Widget build(context) {
     final IconThemeData iconTheme = IconTheme.of(context);
     final double iconSize = size ?? iconTheme.size ?? kDefaultFontSize;
-    if (myIconData?.iconData != null) {
-      return Icon(
-        myIconData!.iconData,
-        color: color,
-        size: iconSize,
-        semanticLabel: semanticLabel,
-        textDirection: textDirection,
-        shadows: shadows,
-      );
-    } else if (myIconData?.svgString != null) {
-      return SvgPicture.string(
-        myIconData!.svgString!,
-        colorFilter: ColorFilter.mode(
-          color ?? iconTheme.color ?? Theme.of(context).colorScheme.error,
-          .srcIn,
+    return myIconData?.svgString != null ? SizedBox.square(
+      dimension: iconSize,
+      child: Center(
+        child: SvgPicture.string(
+          myIconData!.svgString!,
+          colorFilter: .mode(
+            color ?? iconTheme.color ?? Theme.of(context).colorScheme.error,
+                .srcIn,
+          ),
+          semanticsLabel: semanticLabel,
         ),
-        width: iconSize,
-        height: iconSize,
-        semanticsLabel: semanticLabel,
-      );
-    }
-    return Icon(null, size: iconSize, semanticLabel: semanticLabel);
+      ),
+    ) : Icon(
+      myIconData?.iconData,
+      color: color,
+      size: iconSize,
+      semanticLabel: semanticLabel,
+      textDirection: textDirection,
+      shadows: shadows,
+    );
   }
 }
