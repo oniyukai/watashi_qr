@@ -50,7 +50,7 @@ enum PrefsEnum {
   isContinuousScan,
   isVibrateOnScan,
   isBipOnScan,
-  isScreenRotation,
+  isLockScreenRotation,
   isBarcodeCopied,
   isUseFrontCamera,
   selectedQRErrorLevel,
@@ -88,7 +88,7 @@ enum PrefsEnum {
       isContinuousScan => PrefDef._same(false),
       isVibrateOnScan => PrefDef._same(true),
       isBipOnScan => PrefDef._same(false),
-      isScreenRotation => PrefDef._same(false),
+      isLockScreenRotation => PrefDef._same(false),
       isBarcodeCopied => PrefDef._same(false),
       isUseFrontCamera => PrefDef._same(false),
       selectedQRErrorLevel => PrefDef<HistoryErrorLevel, String>._(

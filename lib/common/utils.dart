@@ -2,7 +2,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:vibration/vibration.dart';
@@ -45,7 +44,7 @@ class Utils {
   /// 嗶的一聲
   static Future<void> audioPlayBeep(AudioPlayer audioPlayer) async {
     try {
-      await audioPlayer.play(AssetSource(p.join('assets/', 'short_beep_tone.mp3')));
+      await audioPlayer.play(AssetSource('short_beep_tone.mp3'));
     } catch (e) {
       await showToast(e.toString());
     }
@@ -69,7 +68,8 @@ class Utils {
     openUrlInBrowser(searchUrl.replaceAll(StaticString.searchReplaceWord, Uri.encodeComponent(keyWord)));
 
   /// 鎖定螢幕轉向
-  static Future<void> lockCurrentOrientation(BuildContext context) {
+  static Future<void> lockCurrentOrientation(BuildContext context, [DeviceOrientation? orientation]) {
+    if (orientation != null) return SystemChrome.setPreferredOrientations([orientation]);
     if (isPortrait(context)) {
       return SystemChrome.setPreferredOrientations(const [
         .portraitUp,

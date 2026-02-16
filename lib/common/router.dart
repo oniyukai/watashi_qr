@@ -12,7 +12,7 @@ import 'package:watashi_qr/pages/menu_nav_bar.dart';
 
 typedef _InitialPage = MenuNavBar;
 
-/// 針對 Web 平台或路徑原因如需讓路徑固定, 請將改為 false, 且注意無法同頁面命名
+/// 針對 Web 平台或路徑原因如需讓路徑固定, 請改為 false, 且注意無法同頁面命名
 const bool _useIndexPrefix = true;
 
 class _RouteEntry {

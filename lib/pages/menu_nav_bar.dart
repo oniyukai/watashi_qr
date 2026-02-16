@@ -20,10 +20,9 @@ class MenuNavBarProvider extends ChangeNotifier {
   bool get onScanner => _currentIndex == 0;
 
   void updateIndex(int index) {
-    if (_currentIndex != index) {
-      _currentIndex = index;
-      notifyListeners();
-    }
+    if (_currentIndex == index) return;
+    _currentIndex = index;
+    notifyListeners();
   }
 }
 

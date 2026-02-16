@@ -130,8 +130,8 @@ class ListTilePicker<T> extends StatelessWidget {
                     ListTile(
                       leading: (leadingBuilder ?? (radio, selected) => radio)(
                         Radio(
-                            value: value,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          value: value,
+                          materialTapTargetSize: .shrinkWrap,
                         ),
                         value == selectedOption,
                       ),

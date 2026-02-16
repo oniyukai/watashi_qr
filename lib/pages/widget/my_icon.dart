@@ -36,7 +36,6 @@ class MyIcon extends StatelessWidget {
   final Color? color;
   final double? size;
   final String? semanticLabel;
-  final TextDirection? textDirection;
   final List<Shadow>? shadows;
 
   const MyIcon(
@@ -45,7 +44,6 @@ class MyIcon extends StatelessWidget {
     this.color,
     this.size,
     this.semanticLabel,
-    this.textDirection,
     this.shadows,
   });
 
@@ -60,7 +58,7 @@ class MyIcon extends StatelessWidget {
           myIconData!.svgString!,
           colorFilter: .mode(
             color ?? iconTheme.color ?? Theme.of(context).colorScheme.error,
-                .srcIn,
+            BlendMode.srcIn,
           ),
           semanticsLabel: semanticLabel,
         ),
@@ -70,7 +68,6 @@ class MyIcon extends StatelessWidget {
       color: color,
       size: iconSize,
       semanticLabel: semanticLabel,
-      textDirection: textDirection,
       shadows: shadows,
     );
   }

@@ -25,9 +25,7 @@ class _PageAboutViewState extends State<PageAboutView> {
             children: [
               SizedBox.square(
                 dimension: 64,
-                child: Image(
-                  image: AssetImage(p.join('assets/', 'appicon.png')),
-                ),
+                child: Image.asset(p.join('assets/', 'appicon.png')),
               ),
               const SizedBox(height: 16),
               Text(
