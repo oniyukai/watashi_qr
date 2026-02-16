@@ -15,8 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(MyAppTheme.systemOverlayStyle);
-  await PrefsProvider.init();
-  await DatabaseServices.init();
+  await Future.wait([PrefsProvider.init(), DatabaseServices.init()]);
   runApp(
     MultiProvider(
       providers: [
@@ -46,14 +45,15 @@ class _MyAppState extends State<MyApp> {
   Widget build(context) {
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
-        return Consumer<PrefsProvider>(
-          builder: (context, prefs, child) {
+        return ListenableBuilder(
+          listenable: context.readPrefs.listens(const [.selectedColor, .selectedTheme, .selectedLanguage]),
+          builder: (context, child) {
             return MaterialApp(
               title: StaticString.appName,
               theme: MyAppTheme.themeData(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
-              locale: prefs.get<LocaleOption>(.selectedLanguage).locale,
+              locale: context.readPrefs.get<LocaleOption>(.selectedLanguage).locale,
               localizationsDelegates: WatashiLocale.localizationsDelegates,
               supportedLocales: WatashiLocale.supportedLocales,
 

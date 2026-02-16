@@ -148,7 +148,9 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       await Utils.openUrlInBrowser(item.contents);
       await Future.delayed(const .new(milliseconds: 1600));
     } else {
+      _viewEntryExitEvent(false);
       await context.routeOf<PageItemView>().toPass(item);
+      _viewEntryExitEvent(_enableDetect = true);
     }
     _enableDetect = true;
   }
@@ -221,7 +223,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                 ),
                 Transform.scale( // todo debug: 自拍字體水平相反
                   scaleX: _isUseFrontCamera ? -1 : 1,
-                  child: BarcodeOverlay( // todo debug: 套件該組件並沒有處理完轉向問題
+                  child: BarcodeOverlay( // debug: 套件該組件並沒有處理完轉向問題
                     controller: _scannerController,
                     boxFit: .cover,
                     color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),

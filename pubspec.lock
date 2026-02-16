@@ -149,10 +149,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: ac78098de97893812b7aff1154f29008fa2464cad9e8e7044d39bc905dad4fbc
+      sha256: "39ad4ca8a2876779737c60e4228b4bcd35d4352ef7e14e47514093edc012c734"
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.0"
+    version: "2.11.1"
   built_collection:
     dependency: transitive
     description:
@@ -317,10 +317,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: d07d37192dbf97461359c1518788f203b0c9102cfd2c35a716b823741219542c
+      sha256: "6d7fd89431262d8f3125e81b50d3847a091d846eafcd4fdb88dd06f36d705a45"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.5"
+    version: "2.2.0"
   file:
     dependency: transitive
     description:
@@ -394,10 +394,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_form_builder
-      sha256: "5a0aaed73604686929f176b6b373899c4ab0fad461a971c6a66bfd9f6ad8dbce"
+      sha256: "1233251b4bc1d5deb245745d2a89dcebf4cdd382e1ec3f21f1c6703b700e574f"
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.0+1"
+    version: "10.3.0+2"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -689,10 +689,10 @@ packages:
     dependency: "direct main"
     description:
       name: mobile_scanner
-      sha256: c6184bf2913dd66be244108c9c27ca04b01caf726321c44b0e7a7a1e32d41044
+      sha256: "5e7e09d904dc01de071b79b3f3789b302b0ed3c9c963109cd3f83ad90de62ecf"
       url: "https://pub.dev"
     source: hosted
-    version: "7.1.4"
+    version: "7.1.2"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -817,10 +817,10 @@ packages:
     dependency: transitive
     description:
       name: petitparser
-      sha256: "1a97266a94f7350d30ae522c0af07890c70b8e62c71e8e3920d1db4d23c057d1"
+      sha256: "91bd59303e9f769f108f8df05e371341b15d59e995e6806aefab827b58336675"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.1"
+    version: "7.0.2"
   platform:
     dependency: transitive
     description:
@@ -1086,10 +1086,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: cfde38aa257dae62ffe79c87fab20165dfdf6988c1d31b58ebf59b9106062aad
+      sha256: "580fe5dfb51671ae38191d316e027f6b76272b026370708c2d898799750a02b0"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.6"
+    version: "6.4.1"
   url_launcher_linux:
     dependency: transitive
     description:
