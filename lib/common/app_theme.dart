@@ -1,81 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:flutter/services.dart';
+import 'package:watashi_qr/common/prefs.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
 enum ThemeOption {
   sys,
-  light(Brightness.light),
-  dark(Brightness.dark);
+  light(.light),
+  dark(.dark);
 
-  const ThemeOption([this.brightness]);
   final Brightness? brightness;
 
-  static Map<String, String> optionMap(Language localeStr) => <String, String>{
-    sys.name: localeStr.preferencesSwitchSystemThemeLabel,
-    light.name: localeStr.preferencesSwitchLightThemeLabel,
-    dark.name: localeStr.preferencesSwitchDarkThemeLabel,
+  const ThemeOption([this.brightness]);
+
+  static Map<ThemeOption, String> get optionMap => <ThemeOption, String>{
+    sys: DictKey.settingOptionThemeSystem.s,
+    light: DictKey.settingOptionThemeLight.s,
+    dark: DictKey.settingOptionThemeDark.s,
   };
 }
 
 enum ColorOption {
   sys,
   blue(Colors.blue),
+  violet(Color(0xFF6750A4)),
+  purple(Colors.purple),
+  pink(Colors.pink),
+  deepOrange(Colors.deepOrange),
   orange(Colors.orange),
+  yellow(Colors.yellow),
   green(Colors.green),
-  red(Colors.red),
-  purple(Colors.purple);
+  teal(Colors.teal);
+
+  final Color? color;
 
   const ColorOption([this.color]);
-  final MaterialColor? color;
 
-  static Map<String, String> optionMap(Language localeStr) => <String, String>{
-    sys.name: localeStr.preferencesColorMaterialYou,
-    blue.name: localeStr.preferencesColorBlue,
-    orange.name: localeStr.preferencesColorOrange,
-    green.name: localeStr.preferencesColorGreen,
-    red.name: localeStr.preferencesColorRed,
-    purple.name: localeStr.preferencesColorPurple,
+  static Map<ColorOption, String> get optionMap => <ColorOption, String>{
+    sys: DictKey.settingOptionColorMaterialYou.s,
+    blue: DictKey.settingOptionColorBlue.s,
+    violet: DictKey.settingOptionColorViolet.s,
+    purple: DictKey.settingOptionColorPurple.s,
+    pink: DictKey.settingOptionColorPink.s,
+    deepOrange: DictKey.settingOptionColorDeepOrange.s,
+    orange: DictKey.settingOptionColorOrange.s,
+    yellow: DictKey.settingOptionColorYellow.s,
+    green: DictKey.settingOptionColorGreen.s,
+    teal: DictKey.settingOptionColorTeal.s,
   };
 }
 
-ThemeData appTheme (
-    BuildContext context,
-    String selectedTheme,
-    String selectedColor,
-    ColorScheme? lightDynamic,
-    ColorScheme? darkDynamic
-    ){
-  final Brightness brightness = ThemeOption.values.fromName(selectedTheme)?.brightness
-      ?? View.of(context).platformDispatcher.platformBrightness;
-  final MaterialColor seedColor = ColorOption.values.fromName(selectedColor)?.color
-      ?? Colors.blue; // <--sys顏色不支援時會用到
-  late final ColorScheme colorScheme;
+final class MyAppTheme {
+  const MyAppTheme._();
 
-  if (selectedColor==ColorOption.sys.name && lightDynamic!=null && brightness==Brightness.light){
-    colorScheme = lightDynamic;
-  } else if (selectedColor==ColorOption.sys.name && darkDynamic!=null && brightness==Brightness.dark){
-    colorScheme = darkDynamic;
-  } else {
-    colorScheme = ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: brightness,
+  static late ColorScheme? dynamicColorScheme;
+
+  static const systemOverlayStyle = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemStatusBarContrastEnforced: false,
+    systemNavigationBarContrastEnforced: false,
+  );
+
+  static ThemeData themeData(
+      BuildContext context,
+      ColorScheme? lightDynamic,
+      ColorScheme? darkDynamic,)
+  {
+    dynamicColorScheme = lightDynamic ?? darkDynamic;
+    final Color? seedColor = context.readPrefs.get<ColorOption>(.selectedColor).color;
+    final Brightness brightness = context.readPrefs.get<ThemeOption>(.selectedTheme).brightness
+        ?? MediaQuery.platformBrightnessOf(context);
+    late final ColorScheme colorScheme;
+    if (seedColor == null && brightness == .light && lightDynamic != null) {
+      colorScheme = lightDynamic;
+    } else if (seedColor == null && brightness == .dark && darkDynamic != null) {
+      colorScheme = darkDynamic;
+    } else {
+      colorScheme = .fromSeed(
+        seedColor: seedColor ?? Colors.blue, // <- sys顏色不支援時會用到
+        brightness: brightness,
+      );
+    }
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      appBarTheme: const AppBarTheme(
+        systemOverlayStyle: systemOverlayStyle,
+      ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: .all(colorScheme.secondaryContainer),
+        radius: const .circular(10.0),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(),
+      ),
+      cardTheme: const CardThemeData(
+        clipBehavior: .antiAlias,
+      ),
     );
   }
-
-  return ThemeData(
-    useMaterial3: true,
-    colorScheme: colorScheme,
-    scrollbarTheme: ScrollbarThemeData(
-      thumbColor: WidgetStateProperty.all(colorScheme.primary.withValues(alpha:0.5)),
-      radius: Radius.circular(10.0),
-    ),
-    inputDecorationTheme: const InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      ),
-    ),
-    cardTheme: const CardThemeData(
-      clipBehavior: Clip.antiAlias,
-    ),
-  );
 }

@@ -1,147 +1,142 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:string_validator/string_validator.dart';
-import 'package:barcode/barcode.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
 class BarcodeField extends StatelessWidget {
+  final HistoryFormat? format;
+  final String name;
+  final String? initialValue;
+
   const BarcodeField({
     super.key,
     required this.format,
     required this.name,
-    required this.formKey,
     this.initialValue,
   });
 
-  final HistoryFormat? format;
-  final String name;
-  final GlobalKey<FormBuilderState> formKey;
-  final String? initialValue;
-
   @override
-  Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
-    final isNumbers = format?.isNumbers ?? false;
+  Widget build(context) {
+    final int? maxLines = const <HistoryFormat?>[
+      .qrCode, .dataMatrix, .aztec, .pdf417, .code128, null,
+    ].contains(format) ? null : 1;
+    final bool isNumbers = const <HistoryFormat>[
+      .ean13, .ean8, .upcA, .upcE, .itf
+    ].contains(format);
     return FormBuilderTextField(
       name: name,
-      maxLines: _allowLineBreaks,
+      keyboardType: isNumbers ? .number : null,
+      autovalidateMode: .onUserInteraction,
+      maxLines: maxLines,
       initialValue: initialValue,
       decoration: InputDecoration(
         prefixIcon: Icon(isNumbers ? Icons.pin_outlined : Icons.format_size),
-        labelText: format?.composition(localeStr) ?? localeStr.barcodeTextCompositionLabel,
+        labelText: format?.composition ?? DictKey.barcodeCompositionText.s,
         errorMaxLines: 8,
       ),
-      keyboardType: isNumbers ? TextInputType.number : null,
-      validator: (value) => barcodeValidator(value, format, localeStr),
-      onEditingComplete: () {
-        formKey.currentState?.fields[name]?.validate();
-      },
+      validator: (value) => barcodeValidator(value, format),
     );
   }
-
-  int? get _allowLineBreaks => const <HistoryFormat>{
-    HistoryFormat.qrCode,
-    HistoryFormat.dataMatrix,
-    HistoryFormat.aztec,
-    HistoryFormat.pdf417,
-    HistoryFormat.code128
-  }.contains(format) ? null : 1;
 }
 
-extension _HistoryFormatForValid on HistoryFormat {
-  bool get isNumbers => const <HistoryFormat>{
-    HistoryFormat.ean13,
-    HistoryFormat.ean8,
-    HistoryFormat.upcA,
-    HistoryFormat.upcE,
-    HistoryFormat.codebar,
-    HistoryFormat.itf
-  }.contains(this);
+final RegExp _onlyNumbersRegex = RegExp(r'^[0-9]+$');
+final RegExp _code128Regex = RegExp(r'^[\x00-\x7F]+$');
 
-  int? get maxLength => const <HistoryFormat, int>{
-    HistoryFormat.qrCode: 2953,
-    HistoryFormat.pdf417: 990,
-    HistoryFormat.aztec: 2335,
-    HistoryFormat.dataMatrix: 1559,
-    HistoryFormat.code128: 2046,
-    HistoryFormat.code93: 47,
-    HistoryFormat.code39: 43,
-    HistoryFormat.codebar: 20,
-    HistoryFormat.itf: 20,
-  }[this];
-
-  int? get hardLength => const <HistoryFormat, int>{
-    HistoryFormat.ean13: 13,
-    HistoryFormat.ean8: 8,
-    HistoryFormat.upcA: 12,
-    HistoryFormat.upcE: 8,
-  }[this];
-
-  String? encodingErrorMessage(Language localeStr) => <HistoryFormat, String>{
-    HistoryFormat.aztec: localeStr.errorBarcodeEncodingIso88591ErrorMessage,
-    HistoryFormat.dataMatrix: localeStr.errorBarcodeEncodingIso88591ErrorMessage,
-    HistoryFormat.code128: localeStr.errorBarcodeEncodingUsAsciiErrorMessage,
-    HistoryFormat.code93: localeStr.errorBarcode93RegexErrorMessage,
-    HistoryFormat.code39: localeStr.errorBarcode39RegexErrorMessage,
-  }[this];
-
-  bool get hasCheckDigit => const <HistoryFormat>{
-    HistoryFormat.ean13,
-    HistoryFormat.ean8,
-    HistoryFormat.upcA,
-    HistoryFormat.upcE,
-  }.contains(this);
-}
-
-String? barcodeValidator(String? value, HistoryFormat? format, Language localeStr){
-  if (value==null || value.replaceAll('\n', '').replaceAll(' ', '').isEmpty) {
-    return localeStr.errorEmptyFields;
+String? barcodeValidator(String? value, HistoryFormat? format) {
+  if (value == null || value.trim().isEmpty) {
+    return DictKey.errorEmptyFields.s;
   } else if (format == null) {
     return null;
   }
 
-  final bool isNumbers = format.isNumbers;
-  final int? maxLength = format.maxLength;
-  final int? hardLength = format.hardLength;
-  final String? encodingErrorMessage = format.encodingErrorMessage(localeStr);
-  final barcodeFunc = format.barcodeFunc;
-
-  if (isNumbers && !value.isNumeric) {
-    return localeStr.errorBarcodeNotANumberMessage;
-  }
-  if (format == HistoryFormat.upcE && value[0] != '0') {
-    return localeStr.errorBarcodeUpcENotStartWith0ErrorMessage;
-  }
-  if (format == HistoryFormat.itf && (value.length % 2) != 0) {
-    return localeStr.errorBarcodeItfErrorMessage;
-  }
-  if (maxLength != null && value.length > maxLength) {
-    return '${localeStr.errorBarcodeWrongLengthMessage}< $maxLength';
-  }
-  if (hardLength != null && value.length != hardLength) {
-    return '${localeStr.errorBarcodeWrongLengthMessage}$hardLength';
-  }
-  if (encodingErrorMessage != null && !barcodeFunc().isValid(value)) {
-    return encodingErrorMessage;
-  }
-  if (format.hasCheckDigit) {
-    final String checkDigit = _trytoFindCheck(value, format.barcodeFunc);
-    if (value[value.length - 1] != checkDigit) {
-      return '${localeStr.errorBarcodeWrongKeyMessage}$checkDigit';
+  bool notYetVerified = true;
+  late final onlyNumbers = FormBuilderValidators.match(_onlyNumbersRegex, errorText: DictKey.errorNotNumber.s);
+  String? validator(bool passConditions, String? errorText) => passConditions ? null : errorText;
+  String? hardLength(int length) => validator(value.length == length, '${DictKey.errorWrongLength.s}== $length');
+  String? maxLength(int length) => validator(value.length <= length, '${DictKey.errorWrongLength.s}<= $length');
+  String? maxByteLength(int length) => validator(utf8.encode(value).length <= length, '${DictKey.errorWrongLength.s}<= $length (Bytes)');
+  String? tryVerify([String? errorText]) {
+    notYetVerified = false;
+    try {
+      format.barcodeFunc().verify(value);
+    } catch (e) {
+      return errorText ?? e.toString();
     }
+    return null;
   }
-  if (format == HistoryFormat.code128 && !value.isAscii) {
-    return localeStr.errorBarcodeEncodingUsAsciiErrorMessage;
+  String? tryCheckDigit() {
+    String? errorText = tryVerify();
+    final String valueNoCheck = value.substring(0, value.length - 1);
+    for (int i = 0; i < 10 && errorText != null; i += 1) {
+      if (format.barcodeFunc().isValid('$valueNoCheck$i')) {
+        errorText = '${DictKey.errorWrongCheckDigit.s}$i';
+        break;
+      }
+    }
+    return errorText;
   }
-  return null;
-}
 
-String _trytoFindCheck(String value, Barcode Function() codeType) {
-  final valueNoCheck = value.substring(0, value.length - 1);
-  for (int i=0; i < 10; i++) {
-    final bool isValid = codeType().isValid('$valueNoCheck$i');
-    if (isValid) return i.toString();
-  }
-  return value[value.length - 1];
+  final List<FormFieldValidator<String>> validators = switch (format) {
+    .qrCode => [
+      (_) => maxByteLength(2953),
+    ],
+    .dataMatrix => [
+      (_) => maxByteLength(1556),
+      (_) => tryVerify(DictKey.errorUnsupportedCharsIso88591.s),
+    ],
+    .aztec => [
+      (_) => maxByteLength(1914),
+      (_) => tryVerify(DictKey.errorUnsupportedCharsIso88591.s),
+    ],
+    .pdf417 => [
+      (_) => maxByteLength(1108),
+    ],
+    .ean13 => [
+      onlyNumbers,
+      (_) => hardLength(13),
+      (_) => tryCheckDigit(),
+    ],
+    .ean8 => [
+      onlyNumbers,
+      (_) => hardLength(8),
+      (_) => tryCheckDigit(),
+    ],
+    .upcA => [
+      onlyNumbers,
+      (_) => hardLength(12),
+      (_) => tryCheckDigit(),
+    ],
+    .upcE => [
+      onlyNumbers,
+      FormBuilderValidators.startsWith('0', errorText: DictKey.errorUpcEStartZero.s),
+      (_) => hardLength(8),
+      (_) => tryCheckDigit(),
+    ],
+    .code128 => [
+      (_) => maxLength(2046),
+      (_) => tryVerify(DictKey.errorUnsupportedCharsAscii.s),
+      FormBuilderValidators.match(_code128Regex, errorText: DictKey.errorUnsupportedCharsAscii.s),
+    ],
+    .code93 => [
+      (_) => maxLength(47),
+      (_) => tryVerify(DictKey.errorRegexCode93.s),
+    ],
+    .code39 => [
+      (_) => maxLength(43),
+      (_) => tryVerify(DictKey.errorRegexCode39.s),
+    ],
+    .codabar => [
+      (_) => maxLength(40),
+      (_) => tryVerify(DictKey.errorRegexCodabar.s),
+    ],
+    .itf => [
+      onlyNumbers,
+      (_) => validator((value.length % 2) == 0, DictKey.errorItfEvenLength.s),
+      (_) => maxLength(40),
+    ],
+  };
+  final String? validatorMsg = FormBuilderValidators.compose(validators)(value);
+  return validatorMsg ?? (notYetVerified ? tryVerify(value) : null);
 }

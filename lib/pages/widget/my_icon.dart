@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MyIconData {
+  final IconData? iconData;
+  final String? svgString;
+
   const MyIconData(
     this.iconData, {
     this.svgString,
   });
 
-  final IconData? iconData;
-  final String? svgString;
-
   static const MyIconData
-        barcode = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      barcode = MyIconData(null, svgString: '''<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3 3H5V21H3V3Z" fill="white"/>
 <path d="M12 3H13V21H12V3Z" fill="white"/>
 <path d="M7 3H10V21H7V3Z" fill="white"/>
@@ -32,6 +32,13 @@ class MyIconData {
 
 
 class MyIcon extends StatelessWidget {
+  final MyIconData? myIconData;
+  final Color? color;
+  final double? size;
+  final String? semanticLabel;
+  final TextDirection? textDirection;
+  final List<Shadow>? shadows;
+
   const MyIcon(
     this.myIconData, {
     super.key,
@@ -42,40 +49,29 @@ class MyIcon extends StatelessWidget {
     this.shadows,
   });
 
-  final MyIconData? myIconData;
-  final Color? color;
-  final double? size;
-  final String? semanticLabel;
-  final TextDirection? textDirection;
-  final List<Shadow>? shadows;
-
   @override
-  Widget build(BuildContext context) {
-
+  Widget build(context) {
     final IconThemeData iconTheme = IconTheme.of(context);
     final double iconSize = size ?? iconTheme.size ?? kDefaultFontSize;
-
-    if (myIconData?.iconData != null) {
-      return Icon(
-        myIconData!.iconData,
-        color: color,
-        size: iconSize,
-        semanticLabel: semanticLabel,
-        textDirection: textDirection,
-        shadows: shadows,
-      );
-    } else if (myIconData?.svgString != null) {
-      return SvgPicture.string(
-        myIconData!.svgString!, //myIconData!.svgString!,
-        colorFilter: ColorFilter.mode(
-          color ?? iconTheme.color ?? Colors.red,
-          BlendMode.srcIn,
+    return myIconData?.svgString != null ? SizedBox.square(
+      dimension: iconSize,
+      child: Center(
+        child: SvgPicture.string(
+          myIconData!.svgString!,
+          colorFilter: .mode(
+            color ?? iconTheme.color ?? Theme.of(context).colorScheme.error,
+                .srcIn,
+          ),
+          semanticsLabel: semanticLabel,
         ),
-        width: iconSize,
-        height: iconSize,
-        semanticsLabel: semanticLabel,
-      );
-    }
-    return Semantics(label: semanticLabel, child: SizedBox(width: iconSize, height: iconSize));
+      ),
+    ) : Icon(
+      myIconData?.iconData,
+      color: color,
+      size: iconSize,
+      semanticLabel: semanticLabel,
+      textDirection: textDirection,
+      shadows: shadows,
+    );
   }
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
+import 'package:path/path.dart' as p;
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/widget/expandable_card.dart';
@@ -26,94 +27,126 @@ class PageCodeView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageCodeViewState extends State<PageCodeView> {
-  late HistoryItem _historyItem;
-  late HistoryFormat? _historyFormat;
-  late HistoryErrorLevel? _historyErrorLevel;
-  late Language _localeStr;
+  late final HistoryItem _historyItem = widget.getArgs(context)!;
+  late final HistoryFormat? _historyFormat = _historyItem.getFormat;
+  late final HistoryErrorLevel _historyErrorLevel = _initErrorLevel();
+  late String? _validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat);
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final argument = widget.argumentOf(context);
-    _localeStr = Language.of(context);
-    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
-    _historyItem = argument;
-    _historyFormat = _historyItem.getFormat;
-    _historyErrorLevel = HistoryErrorLevel.fromName(_historyItem.errorLevel);
-    if (_historyErrorLevel == HistoryErrorLevel.none || _historyErrorLevel == null) {
-      _historyErrorLevel = HistoryErrorLevel.fromName(context.readSettings.selectedQRErrorLevel);
+  HistoryErrorLevel _initErrorLevel() {
+    final HistoryErrorLevel? historyErrorLevel = _historyItem.getErrorLevel;
+    return (historyErrorLevel == .none || historyErrorLevel == null)
+        ? context.readPrefs.get<HistoryErrorLevel>(.selectedQRErrorLevel)
+        : historyErrorLevel;
+  }
+
+  Future<void> _pressExport(String fileSuffix) async {
+    try {
+      final Directory? initialDir = await getDownloadsDirectory();
+      final String? dir = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDir?.path);
+      if (dir == null) {
+        Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
+        return;
+      }
+      const double width = 1024.0;
+      final File file = File(p.join(dir, 'barcode.$fileSuffix'));
+      switch (fileSuffix) {
+        case StaticString.svgSuffix:
+          await file.writeAsString(_getBarcodeSvg(width));
+        case StaticString.pngSuffix:
+          await file.writeAsBytes(img.encodePng(_getBarcodeImage(width)));
+        case StaticString.jpgSuffix:
+          await file.writeAsBytes(img.encodeJpg(_getBarcodeImage(width)));
+        default: throw 'Unsupported file format: $fileSuffix';
+      }
+      Utils.showToast(DictKey.actionStatusImageSaveOk.s);
+    } catch (e) {
+      Utils.showToast('${DictKey.actionStatusImageSaveError.s}  $e', true);
+    }
+  }
+
+  Future<void> _pressShare() async {
+    try {
+      final Directory tempDir = await getTemporaryDirectory();
+      final File file = File(p.join(tempDir.path, 'barcode.png'));
+      await file.writeAsBytes(img.encodePng(_getBarcodeImage(1024.0)));
+      await Utils.share(.new(files: [XFile(file.path)]));
+    } catch (e) {
+      Utils.showToast(e.toString());
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    final isPortrait = Utils.isPortrait(context);
-    final validatorMsg = barcodeValidator(_historyItem.contents, _historyFormat, _localeStr);
+  Widget build(context) {
+    final bool isPortrait = Utils.isPortrait(context);
+    final double longestSide = MediaQuery.of(context).size.longestSide;
     return Scaffold(
       appBar: AppBar(
-        title: Text(HistoryFormat.localeStrFromName(_historyItem.format, _localeStr)),
-        actions: (validatorMsg == null) ? [
+        title: Text(HistoryFormat.localeStrFromName(_historyItem.format)),
+        actions: _historyFormat != null && _validatorMsg == null ? [
           MyMenuButton(
             icon: const Icon(Icons.save),
-            optionMap: const {
-              Language.pngLabel: null,
-              Language.jpgLabel: null,
-              Language.svgLabel: null
-            },
-            onSelectedEnd: (int option) => _exportImage(const <String>[
-              Language.pngLabel, Language.jpgLabel, Language.svgLabel
-            ][option]),
+            items: [
+              for (final String suffix in const [StaticString.pngSuffix, StaticString.jpgSuffix, StaticString.svgSuffix])
+                MyMenuItem(text: suffix.toUpperCase(), onTap: () => _pressExport(suffix)),
+            ],
           ),
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () => _shareImage(), // 匯出PNG
+            onPressed: _pressShare,
           ),
         ] : null,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const .symmetric(horizontal: 16.0),
           child: Flex(
-            direction: isPortrait ? Axis.vertical : Axis.horizontal,
+            direction: isPortrait ? .vertical : .horizontal,
             children: [
-              Card(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      double length = isPortrait ? constraints.maxWidth : constraints.maxHeight;
-                      length = isPortrait ? length*0.8 : length;
-                      length = min(length, (!isPortrait ? constraints.maxWidth : constraints.maxHeight)/1.618);
-                      return Center(
-                        child: (validatorMsg == null)
-                            ? _getSvgPicture(length) //todo debug: 不如預期地能夠限制長邊比例
-                            : Text(validatorMsg, style: TextStyle(color: Colors.grey)
-                        ),
-                      );
-                    },
+              if (_historyFormat != null) Expanded(
+                flex: isPortrait ? 0 : 1,
+                child: Card(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const .all(24.0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double width = isPortrait
+                            ? min(constraints.biggest.shortestSide * 0.8, longestSide * 0.5)
+                            : constraints.biggest.shortestSide;
+                        Widget? svgWidget;
+                        try {
+                          if (_validatorMsg == null) svgWidget = SvgPicture.string(_getBarcodeSvg(width));
+                        } catch (e) {
+                          _validatorMsg = e.toString();
+                        }
+                        return Center(
+                          child: svgWidget ?? Text(_validatorMsg!, style: const TextStyle(color: Colors.grey))
+                        );
+                      },
+                    ),
                   ),
-                )
+                ),
               ),
-              isPortrait ? const SizedBox(height: 24) : const SizedBox(width: 24),
+              const SizedBox.square(dimension: 24),
               Expanded(
+                flex: 1,
                 child: ListView(
                   children: [
                     ExpandableCard(
-                      title: HistoryType.localeStrFromName(_historyItem.type, _localeStr),
+                      title: HistoryType.localeStrFromName(_historyItem.type),
                       myIconData: _historyItem.getTypeIconData,
                       initialExpanded: true,
                       expandedChild: SelectableText(_historyItem.contents),
                     ),
                     const SizedBox(height: 8),
-                    if (_historyFormat == HistoryFormat.qrCode || _historyFormat == null)
-                      Center(child: Text('${_localeStr.qrCodeErrorCorrectionLevelLabel}: ${
-                        HistoryErrorLevel.localeStrFromName(_historyErrorLevel?.name, _localeStr)
-                      }')),
-                    Text(_historyFormat?.description(_localeStr) ?? ''),
-                    const SizedBox(height: 16),
+                    if (_historyFormat == .qrCode) Text(
+                      '${DictKey.analysisLabelErrorLevel.s}'
+                      '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}\n',
+                      textAlign: .center,
+                    ),
+                    Text(_historyFormat?.description ?? ''),
                   ],
-                )
+                ),
               ),
             ],
           ),
@@ -122,90 +155,25 @@ class _PageCodeViewState extends State<PageCodeView> {
     );
   }
 
-  Widget _getSvgPicture(double length) {
-    try {
-      return SvgPicture.string(_getBarcodeSvg(length));
-    } catch (e) {
-      return Text(e.toString(), style: TextStyle(color: Colors.grey));
-    }
+  String _getBarcodeSvg(double width) =>
+      _getBarcode().toSvg(_historyItem.contents, width: width, height: _getHeight(width));
+
+  img.Image _getBarcodeImage(double width) {
+    final img.Image image = img.Image(width: width.round(), height: _getHeight(width).round());
+    img.fill(image, color: img.ColorRgb8(255, 255, 255));
+    drawBarcode(image, _getBarcode(), _historyItem.contents, font: img.arial48);
+    return image;
   }
 
-  Future<void> _exportImage(String option) async {
-    try {
-      final Directory? directory = await getDownloadsDirectory();
-      final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
-      if (directoryPath == null) {
-        return Utils.showToast('${_localeStr.cancelLabel}\nUnable to get storage directory.');
-      }
-      final String filePath = '$directoryPath/barcode.$option';
-      final file = File(filePath);
+  Barcode _getBarcode() => _historyFormat == .qrCode || _historyFormat == null
+      ? Barcode.qrCode(errorCorrectLevel: _historyErrorLevel.barcodeQRCorrectionLevel ?? .low)
+      : _historyFormat.barcodeFunc();
 
-      if (option == Language.svgLabel) {
-        final String svg = _getBarcodeSvg();
-        await file.writeAsString(svg);
-      } else {
-        final barcodeImage = _getBarcodeImage();
-        file.writeAsBytesSync(option==Language.pngLabel ? img.encodePng(barcodeImage) : img.encodeJpg(barcodeImage));
-      }
-
-      Utils.showToast(_localeStr.snackBarMessageSaveBitmapOk);
-    } catch (e) {
-      Utils.showToast('${_localeStr.snackBarMessageSaveBitmapError}\n$e', true);
-    }
-  }
-
-  Future<void> _shareImage() async {
-    try {
-      final Directory tempDir = await getTemporaryDirectory();
-      final String filePath = '${tempDir.path}/barcode.png';
-      final File file = File(filePath);
-      final barcodeImage = _getBarcodeImage();
-      file.writeAsBytesSync(img.encodePng(barcodeImage));
-      await Utils.share(ShareParams(files: [XFile(filePath)]));
-    } catch (e) {
-      Utils.showToast(e.toString());
-    }
-  }
-
-  img.Image _getBarcodeImage(){
-    final barcodeImage = img.Image(width: 1024, height: _getHeight(1024.0).toInt());
-    img.fill(barcodeImage, color: img.ColorRgb8(255, 255, 255));
-    drawBarcode(barcodeImage, _getBarcode(), _historyItem.contents, font: img.arial48);
-    return barcodeImage;
-  }
-
-  String _getBarcodeSvg([double length = 1024]) {
-    final Barcode barcode = _getBarcode();
-    final double height = _getHeight(length);
-    return barcode.toSvg(_historyItem.contents, width: length, height: height);
-  }
-
-  double _getHeight(double width) {
-    switch (_historyFormat) {
-      case HistoryFormat.qrCode:
-      case HistoryFormat.aztec:
-      case HistoryFormat.dataMatrix:
-        return width;
-      case HistoryFormat.pdf417:
-      case HistoryFormat.ean13:
-      case HistoryFormat.ean8:
-      case HistoryFormat.upcA:
-      case HistoryFormat.upcE:
-      case HistoryFormat.code128:
-      case HistoryFormat.code93:
-      case HistoryFormat.code39:
-      case HistoryFormat.codebar:
-      case HistoryFormat.itf:
-        return width/2.718;
-      default:
-        return width;
-    }
-  }
-
-  Barcode _getBarcode() {
-    final level = _historyErrorLevel?.barcodeQRCorrectionLevel ?? BarcodeQRCorrectionLevel.low;
-    return (_historyFormat == null || _historyFormat == HistoryFormat.qrCode)
-        ? Barcode.qrCode(errorCorrectLevel: level)
-        : _historyFormat!.barcodeFunc();
-  }
+  double _getHeight(double width) => switch (_historyFormat) {
+    .qrCode || .dataMatrix || .aztec || null => width,
+    .pdf417 || .ean13 || .ean8 ||
+    .upcA || .upcE || .code128 ||
+    .code93 || .code39 || .codabar ||
+    .itf => width/2.718,
+  };
 }

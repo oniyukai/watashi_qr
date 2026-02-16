@@ -1,137 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 
-class PageCustomurlsForm extends StatefulWidget with RouterBridge<String> {
+class PageCustomurlsForm extends StatefulWidget with RouterBridge<PageCustomurlsFormArgs> {
   const PageCustomurlsForm({super.key});
 
   @override
   State<PageCustomurlsForm> createState() => _PageCustomurlsFormState();
 }
 
+class PageCustomurlsFormArgs {
+  final int? index;
+  final List<CustomSearchUrl> items;
+
+  const PageCustomurlsFormArgs({
+    this.index,
+    required this.items,
+  });
+}
+
 class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
-  final _formKey = GlobalKey<FormBuilderState>();
-  String _title = '';
-  String _url = '';
-  bool _isAddorModify = true; // true:Add, false:Modify
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
+  late final PageCustomurlsFormArgs _args = widget.getArgs(context)!;
+
+  Future<void> _pressCheck() async {
+    if (_formKey.currentState?.saveAndValidate() != true) return;
+    Navigator.pop(context);
+    final String formTitle = _formKey.currentState!.value['formTitle'];
+    final String formUrl = _formKey.currentState!.value['formUrl'];
+    if (_args.index == null) {
+      _args.items.insert(0, CustomSearchUrl(title: formTitle, url: formUrl));
+      Utils.showToast(DictKey.settingOptionCustomSearchAdded.s);
+    } else {
+      _args.items[_args.index!] = CustomSearchUrl(title: formTitle, url: formUrl);
+      Utils.showToast(DictKey.settingOptionCustomSearchUpdated.s);
+    }
+    await context.readPrefs.update(.customSearchUrls, _args.items);
+  }
 
   @override
-  Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
-    final theme = Theme.of(context);
-    final argument = widget.argumentOf(context);
-    final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-    if (argument == null) throw 'widget.argumentOf(context) connot be null.';
-    if (argument != '') {
-      final List<String> parts = argument.split(Language.separationObject);
-      _title = parts[0];
-      _url = parts[1];
-      _isAddorModify = false;
-    }
-
+  Widget build(context) {
+    final CustomSearchUrl? argItem = _args.index == null ? null : _args.items[_args.index!];
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          (argument == '')
-            ? localeStr.customSearchUrlsAddUrl
-            : localeStr.customSearchUrlsModifyUrl
+        title: Text(argItem == null
+            ? DictKey.settingOptionCustomSearchAdd.s
+            : DictKey.settingOptionCustomSearchEdit.s
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
-            onPressed: () {
-              if (_formKey.currentState?.saveAndValidate() ?? false) {
-                String formTitle = _formKey.currentState?.value['formTitle'];
-                formTitle = formTitle.replaceAll('<>', ' ');
-                final formUrl = _formKey.currentState?.value['formUrl'];
-                if (_isDuplicatedTitle(formTitle, customSearchUrls)) {
-                  Utils.showToast(localeStr.customSearchUrlsisDuplicated);
-                  return;
-                }
-                if (_isAddorModify) {
-                  customSearchUrls.add('$formTitle${Language.separationObject}$formUrl');
-                  Utils.showToast(localeStr.customUrlAdded);
-                } else {
-                  for (int i = 0; i<customSearchUrls.length; i++) {
-                    if (customSearchUrls[i].startsWith('$_title${Language.separationObject}')) {
-                      customSearchUrls[i] = '$formTitle${Language.separationObject}$formUrl';
-                    }
-                  }
-                  Utils.showToast(localeStr.customUrlUpdated);
-                }
-                context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
-                Navigator.pop(context);
-              }
-            },
-          )
+            onPressed: _pressCheck,
+          ),
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const .all(16.0),
             children: [
-              const SizedBox(height: 16),
               FormBuilder(
-                key:_formKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     FormBuilderTextField(
                       name: 'formTitle',
-                      initialValue: _title,
-                      maxLines: null,
+                      keyboardType: .text,
+                      autovalidateMode: .onUserInteraction,
+                      initialValue: argItem?.title,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.format_size),
-                        labelText: localeStr.matrixContactNameLabel,
+                        labelText: DictKey.analysisContactName.s,
                       ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                      ]),
-                      keyboardType: TextInputType.text,
+                      validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
                     ),
                     const SizedBox(height: 16),
                     FormBuilderTextField(
                       name: 'formUrl',
-                      initialValue: _url,
-                      maxLines: null,
+                      keyboardType: .url,
+                      autovalidateMode: .onUserInteraction,
+                      initialValue: argItem?.url,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.web),
-                        labelText: localeStr.matrixUriUrlLabel,
+                        labelText: DictKey.creatorHintUrl.s,
                       ),
                       validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: localeStr.errorEmptyFields),
-                        FormBuilderValidators.contains('{code}', errorText: localeStr.customSearchUrlsErrorUrl),
-                        FormBuilderValidators.startsWith('http', errorText: localeStr.errorBarcodeQrUrlFormatMessage),
-                        FormBuilderValidators.url(errorText: localeStr.errorBarcodeNoneCharacterMessage),
+                        FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
+                        FormBuilderValidators.startsWith('http', errorText: DictKey.errorUrlFormat.s),
+                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: DictKey.settingErrorCustomUrl.s),
+                        FormBuilderValidators.url(errorText: DictKey.errorInvalidValue.s),
                       ]),
-                      keyboardType: TextInputType.url,
                     ),
                   ],
-                )
+                ),
               ),
               const SizedBox(height: 16),
-              SelectableText('${localeStr.customSearchUrlsAddInfo}\n\n${localeStr.examples} ${Language.googleUrl}',
-                style: theme.textTheme.bodyMedium
-              ),
-              const SizedBox(height: 16),
+              SelectableText('${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.settingOptionCustomSearchExample.s} ${StaticString.googleUrl}'),
             ],
           ),
         ),
       ),
     );
-  }
-  
-  bool _isDuplicatedTitle(String formTitle, List<String> customSearchUrls) {
-    if (_title == formTitle) return false;
-    for (int i = 0; i<customSearchUrls.length; i++) {
-      if (customSearchUrls[i].startsWith('$formTitle${Language.separationObject}')) {
-        return true;
-      }
-    }
-    return false;
   }
 }

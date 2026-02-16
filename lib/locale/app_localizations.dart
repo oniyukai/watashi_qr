@@ -1,61 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/locale/en.dart';
-import 'package:watashi_qr/locale/ja.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/locale/zh_hans.dart';
-import 'package:watashi_qr/locale/zh_hant.dart';
-
-class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
-
-  const AppLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) => const <String>['en', 'ja', 'zh'].contains(locale.languageCode);
-
-  @override
-  Future<Language> load(Locale locale) async {
-    return switch (locale.languageCode) {
-      'en' => En(),
-      'ja' => Ja(),
-      'zh' => (locale.scriptCode == 'Hans') ? ZhHans() : ZhHant(),
-      _ => En(),
-    };
-  }
-
-  @override
-  bool shouldReload(covariant LocalizationsDelegate<Language> old) => false;
-}
+import 'package:watashi_locale/watashi_locale.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/locale/map_en.dart';
+import 'package:watashi_qr/locale/map_ja.dart';
+import 'package:watashi_qr/locale/map_zh_hans.dart';
+import 'package:watashi_qr/locale/map_zh_hant.dart';
 
 enum LocaleOption {
-  sys,
-  en(Locale('en')),
-  ja(Locale('ja')),
-  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans')),
-  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
+  sys(null, []),
+  en(Locale('en'), [mapEn]),
+  ja(Locale('ja'), [mapJa, mapEn]),
+  zhHans(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans', countryCode: 'CN'), [mapZhHans, mapZhHant, mapEn]),
+  zhHant(Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'), [mapZhHant, mapEn]);
 
-  final Locale? locale;
-  const LocaleOption([this.locale]);
+  final Locale? _locale;
+  final List<DictInstance> maps;
 
-  static Locale localeFromName(String n) => values.fromName(n)?.locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+  const LocaleOption(this._locale, this.maps);
 
-  static Map<String, String> optionMap(Language localeStr) => <String, String>{
-    sys.name: localeStr.preferencesDefault,
-    en.name: Language.localeLanguageEn,
-    ja.name: Language.localeLanguageJa,
-    zhHans.name: Language.localeLanguageZhHans,
-    zhHant.name: Language.localeLanguageZhHant,
+  Locale get locale => _locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+
+  static Map<LocaleOption, String> get optionMap => <LocaleOption, String>{
+    sys: DictKey.settingOptionLanguagesDefault.s,
+    en: StaticString.localeLanguageEn,
+    ja: StaticString.localeLanguageJa,
+    zhHans: StaticString.localeLanguageZhHans,
+    zhHant: StaticString.localeLanguageZhHant,
   };
 
-  static const Iterable<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    AppLocalizationsDelegate(),
-    ...GlobalMaterialLocalizations.delegates,
-  ];
-
-  static Iterable<Locale> supportedLocales = LocaleOption.values
-      .where((option) => option.locale != null)
-      .map((option) => option.locale!);
+  static final dictDelegate = WatashiDictDelegate(
+    defaultCandidate: DictLocaleCandidate(LocaleOption.en, LocaleOption.en._locale, LocaleOption.en.maps),
+    localeCandidates: LocaleOption.values.map((e) => DictLocaleCandidate(e, e._locale, e.maps)),
+    dictKeys: DictKey.values.toSet(),
+    dictWrap: (e) => e,
+  );
 }
-
-// 如果要修改語言設定的代碼大致只需要本頁即可

@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:watashi_locale/watashi_locale.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
-import 'package:watashi_qr/locale/language.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HiveService.hiveInit();
-  await Utils.init();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(MyAppTheme.systemOverlayStyle);
+  await Future.wait([PrefsProvider.init(), DatabaseServices.init()]);
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MenuNavBarProvider()),
-        ChangeNotifierProvider(create: (context) => SettingsProvider()),
+        ChangeNotifierProvider(create: (context) => PrefsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -32,50 +34,35 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-
+class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WatashiLocale.register([LocaleOption.dictDelegate]);
   }
 
   @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.detached) {
-      HiveService.hiveClose();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic){
-        return Consumer<SettingsProvider>(
-          builder: (context, settings, child) {
+      builder: (lightDynamic, darkDynamic) {
+        return ListenableBuilder(
+          listenable: context.readPrefs.listens(const [.selectedColor, .selectedTheme, .selectedLanguage]),
+          builder: (context, child) {
             return MaterialApp(
-
-              title: Language.appName,
-              theme: appTheme(context, settings.selectedTheme, settings.selectedColor, lightDynamic, darkDynamic),
+              title: StaticString.appName,
+              theme: MyAppTheme.themeData(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
-              locale: LocaleOption.localeFromName(settings.selectedLanguage),
-              localizationsDelegates: LocaleOption.localizationsDelegates,
-              supportedLocales: LocaleOption.supportedLocales,
+              locale: context.readPrefs.get<LocaleOption>(.selectedLanguage).locale,
+              localizationsDelegates: WatashiLocale.localizationsDelegates,
+              supportedLocales: WatashiLocale.supportedLocales,
 
-              routes: MyRouter.ROUTES,
               navigatorKey: MyRouter.navigatorKey,
+              routes: MyRouter.routes,
               onGenerateRoute: MyRouter.onGenerateRoute,
-
+              onUnknownRoute: MyRouter.onUnknownRoute,
             );
-          }
+          },
         );
       },
     );

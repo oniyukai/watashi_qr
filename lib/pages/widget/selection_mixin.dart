@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
-mixin SelectionMixin<T extends StatefulWidget, E> on State<T> {
+mixin SelectionMixin<T> {
   bool _isSelectionMode = false;
-  final Set<E> _selectedObjects = <E>{};
+  final Set<T> _selectedObjects = <T>{};
   bool get isSelectionMode => _isSelectionMode;
-  Set<E> get selectedObjects => _selectedObjects;
+  Set<T> get selectedObjects => _selectedObjects.toSet();
 
-  void enterSelectionMode(E item) {
+  void setState(VoidCallback fn);
+
+  void enterSelectionMode(T item) {
     if (_isSelectionMode == true) {
       toggleSelection(item);
     } else {
@@ -24,7 +26,7 @@ mixin SelectionMixin<T extends StatefulWidget, E> on State<T> {
     });
   }
 
-  void toggleSelection(E item) {
+  void toggleSelection(T item) {
     setState(() {
       if (_selectedObjects.contains(item)) {
         _selectedObjects.remove(item);

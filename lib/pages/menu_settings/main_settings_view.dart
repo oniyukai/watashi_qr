@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:watashi_qr/entity/history_item.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/common/app_theme.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_widgets.dart';
 
@@ -21,159 +22,140 @@ class _MainSettingsPage extends State<MainSettingsView> {
   final ScrollController _scrollController = ScrollController();
 
   @override
-  Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
-    final trailingIcon = Icon((Directionality.of(context) == TextDirection.ltr)
-        ? Icons.chevron_right
-        : Icons.chevron_left
-    );
-    return Scaffold(
-      body: SafeArea(
-        child: Scrollbar(
-          controller: _scrollController,
-          child: Consumer<SettingsProvider>(
-            builder: (context, settings, child) => ListView(
-              children: [
-                ListTileText(str: localeStr.preferencesAppearanceTitle, isSection: true),
-                ListTilePicker(
-                  str: localeStr.preferencesColor,
-                  selectedOption: settings.selectedColor,
-                  optionMap: ColorOption.optionMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedColor, value),
-                ),
-                ListTilePicker(
-                  str: localeStr.preferencesThemeLabel,
-                  selectedOption: settings.selectedTheme,
-                  optionMap: ThemeOption.optionMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedTheme, value),
-                ),
-                ListTilePicker(
-                  str: localeStr.preferencesLanguagesTitle,
-                  dialogTitleStr: localeStr.preferencesLanguagesChange,
-                  selectedOption: settings.selectedLanguage,
-                  optionMap: LocaleOption.optionMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedLanguage, value),
-                ),
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
-                ListTileText(str: localeStr.preferencesScanTitle, isSection: true),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanAutoOpenWebsiteLabel,
-                  iconData: Icons.open_in_browser,
-                  initialValue: settings.isAutoOpenWebsite,
-                  enabled: !settings.isContinuousScan,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isAutoOpenWebsite, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanContinuousScanLabel,
-                  iconData: Icons.fast_forward,
-                  initialValue: settings.isContinuousScan,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isContinuousScan, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanVibrateLabel,
-                  iconData: Icons.vibration,
-                  initialValue: settings.isVibrateOnScan,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isVibrateOnScan, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanBipLabel,
-                  iconData: Icons.volume_up,
-                  initialValue: settings.isBipOnScan,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isBipOnScan, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanScreenRotationLabel,
-                  iconData: Icons.screen_rotation,
-                  initialValue: settings.isScreenRotation,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isScreenRotation, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanBarcodeCopiedLabel,
-                  iconData: Icons.content_copy,
-                  initialValue: settings.isBarcodeCopied,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isBarcodeCopied, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanUseFrontcameraLabel,
-                  iconData: Icons.camera_front,
-                  initialValue: settings.isUseFrontcamera,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isUseFrontcamera, value);
-                  },
-                ),
+  @override
+  Widget build(context) {
+    DictKey.load(context);
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: Scrollbar(
+        controller: _scrollController,
+        child: Consumer<PrefsProvider>(
+          builder: (context, prefs, child) => ListView(
+            children: [
+              ListTileText(text: DictKey.settingGroupAppearance.s, isSection: true),
+              ListTilePicker<ColorOption>(
+                text: DictKey.settingOptionColor.s,
+                selectedOption: prefs.get(.selectedColor),
+                optionMap: ColorOption.optionMap,
+                leadingBuilder: (radio, selected) => ColorfulRadio(radio, selected),
+                onChanged: (value) => prefs.update(.selectedColor, value),
+              ),
+              ListTilePicker<ThemeOption>(
+                text: DictKey.settingOptionTheme.s,
+                selectedOption: prefs.get(.selectedTheme),
+                optionMap: ThemeOption.optionMap,
+                onChanged: (value) => prefs.update(.selectedTheme, value),
+              ),
+              ListTilePicker<LocaleOption>(
+                text: DictKey.settingGroupLanguages.s,
+                dialogText: DictKey.settingOptionLanguagesChange.s,
+                selectedOption: prefs.get(.selectedLanguage),
+                optionMap: LocaleOption.optionMap,
+                onChanged: (value) => prefs.update(.selectedLanguage, value),
+              ),
 
-                ListTileText(str: localeStr.preferencesBarcodeGenerationTitle, isSection: true),
-                ListTilePicker(
-                  str: localeStr.qrCodeErrorCorrectionLevelLabel,
-                  dialogTitleStr: localeStr.qrCodeErrorCorrectionLevelSettingsLabel,
-                  selectedOption: settings.selectedQRErrorLevel,
-                  optionMap: HistoryErrorLevel.optionMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(
-                    PreferenceKey.selectedQRErrorLevel, value
-                  ),
-                ),
+              ListTileText(text: DictKey.settingGroupScan.s, isSection: true),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanAutoOpenWebsite.s,
+                iconData: Icons.open_in_browser,
+                initialValue: prefs.get(.isAutoOpenWebsite),
+                enabled: !prefs.get(.isContinuousScan),
+                onToggle: (value) => prefs.update(.isAutoOpenWebsite, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanContinuousScan.s,
+                iconData: Icons.fast_forward,
+                initialValue: prefs.get(.isContinuousScan),
+                onToggle: (value) => prefs.update(.isContinuousScan, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanVibrate.s,
+                iconData: Icons.vibration,
+                initialValue: prefs.get(.isVibrateOnScan),
+                onToggle: (value) => prefs.update(.isVibrateOnScan, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanBip.s,
+                iconData: Icons.volume_up,
+                initialValue: prefs.get(.isBipOnScan),
+                onToggle: (value) => prefs.update(.isBipOnScan, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanLockOrient.s,
+                iconData: Icons.screen_rotation,
+                initialValue: prefs.get(.isScreenRotation),
+                onToggle: (value) => prefs.update(.isScreenRotation, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanAutoCopy.s,
+                iconData: Icons.content_copy,
+                initialValue: prefs.get(.isBarcodeCopied),
+                onToggle: (value) => prefs.update(.isBarcodeCopied, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionScanUseFrontCamera.s,
+                iconData: Icons.camera_front,
+                initialValue: prefs.get(.isUseFrontCamera),
+                onToggle: (value) => prefs.update(.isUseFrontCamera, value),
+              ),
 
-                ListTileText(str: localeStr.titleHistory, isSection: true),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchScanAddBarcodeToTheHistoryLabel,
-                  iconData: Icons.qr_code_scanner,
-                  initialValue: settings.isScanAddHistory,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isScanAddHistory, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchBarcodeGenerationAddBarcodeToTheHistoryLabel,
-                  iconData: Icons.edit,
-                  initialValue: settings.isCreateAddHistory,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isCreateAddHistory, value);
-                  },
-                ),
-                ListTileSwitch(
-                  str: localeStr.preferencesSwitchHistorySaveDuplicatesLabel,
-                  iconData: Icons.filter_2,
-                  initialValue: settings.isSaveDuplicates,
-                  onToggle: (bool value) {
-                    settings.updateSetting(PreferenceKey.isSaveDuplicates, value);
-                  },
-                ),
+              ListTileText(text: DictKey.settingGroupCreate.s, isSection: true),
+              ListTilePicker<HistoryErrorLevel>(
+                text: DictKey.settingOptionQrErrorCorrectionLevel.s,
+                dialogText: DictKey.settingDialogQrErrorCorrectionLevelTitle.s,
+                selectedOption: prefs.get(.selectedQRErrorLevel),
+                optionMap: HistoryErrorLevel.optionMap,
+                onChanged: (value) => prefs.update(.selectedQRErrorLevel, value),
+              ),
 
-                ListTileText(str: localeStr.preferencesSearchTitle, isSection: true),
-                ListTilePicker(
-                  str: localeStr.preferencesSearchEngine,
-                  selectedOption: settings.selectedSearchEngine,
-                  optionMap: SearchEngine.optionMap(localeStr),
-                  onChanged: (value) => settings.updateSetting(PreferenceKey.selectedSearchEngine, value),
-                ),
-                ListTileText(
-                  str: localeStr.customSearchUrls,
-                  trailing: trailingIcon,
-                  onTap:() => context.routeTo(PageCustomurlsView),
-                ),
+              ListTileText(text: DictKey.navTitleHistory.s, isSection: true),
+              ListTileSwitch(
+                text: DictKey.settingOptionHistoryAddScan.s,
+                iconData: Icons.qr_code_scanner,
+                initialValue: prefs.get(.isScanAddHistory),
+                onToggle: (value) => prefs.update(.isScanAddHistory, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionHistoryAddCreate.s,
+                iconData: Icons.edit,
+                initialValue: prefs.get(.isCreateAddHistory),
+                onToggle: (value) => prefs.update(.isCreateAddHistory, value),
+              ),
+              ListTileSwitch(
+                text: DictKey.settingOptionHistoryAddWithDuplicates.s,
+                iconData: Icons.filter_2,
+                initialValue: prefs.get(.isSaveDuplicates),
+                onToggle: (value) => prefs.update(.isSaveDuplicates, value),
+              ),
 
-                ListTileText(str: localeStr.preferencesAboutTitle, isSection: true),
-                ListTileText(
-                  str: Language.appName,
-                  trailing: trailingIcon,
-                  onTap:() => context.routeTo(PageAboutView)
-                ),
-              ],
-            )
-          )
-        )
+              ListTileText(text: DictKey.settingGroupSearch.s, isSection: true),
+              ListTilePicker<SearchEngine>(
+                text: DictKey.settingOptionSearchEngine.s,
+                selectedOption: prefs.get(.selectedSearchEngine),
+                optionMap: SearchEngine.optionMap,
+                onChanged: (value) => prefs.update(.selectedSearchEngine, value),
+              ),
+              ListTileText(
+                text: DictKey.settingOptionCustomSearch.s,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.routeTo(PageCustomurlsView),
+              ),
+
+              ListTileText(text: DictKey.settingGroupAbout.s, isSection: true),
+              ListTileText(
+                text: StaticString.appName,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.routeTo(PageAboutView),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

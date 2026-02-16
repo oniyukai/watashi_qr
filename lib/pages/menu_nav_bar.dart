@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_creator/main_creator_view.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_view.dart';
 import 'package:watashi_qr/pages/menu_scanner/main_scanner_view.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_view.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/common/utils.dart';
 
 class MenuNavBar extends StatefulWidget {
@@ -20,86 +20,106 @@ class MenuNavBarProvider extends ChangeNotifier {
   bool get onScanner => _currentIndex == 0;
 
   void updateIndex(int index) {
-    _currentIndex = index;
-    notifyListeners();
+    if (_currentIndex != index) {
+      _currentIndex = index;
+      notifyListeners();
+    }
   }
 }
 
 class _MenuNavBarState extends State<MenuNavBar> {
-
-  final List<Widget> _pages = const <Widget>[
+  final List<Widget> _pages = const [
     MainScannerView(),
     MainCreatorView(),
     MainHistoryView(),
     MainSettingsView(),
   ];
+  bool _canPop = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
+    DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Consumer<MenuNavBarProvider>(
-      builder: (context, state, _) => Scaffold(
-        bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
-        body: Row(
-          children: [
-            if (!isPortrait) _buildSideNavigationBar(state),
-            Expanded(child: IndexedStack(index: state.currentIndex, children: _pages)),
-          ],
+      builder: (context, state, child) => PopScope(
+        canPop: _canPop,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          setState(() => _canPop = true);
+          Utils.showToast(DictKey.navUiPopExitApp.s);
+          await Future.delayed(const .new(seconds: 2));
+          if (mounted) setState(() => _canPop = false);
+        },
+        child: Scaffold(
+          bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
+          body: Row(
+            children: [
+              if (!isPortrait) _buildSideNavigationBar(state),
+              Expanded(child: IndexedStack(index: state.currentIndex, children: _pages)),
+            ],
+          ),
         ),
-      )
+      ),
     );
   }
 
   Widget _buildBottomNavigationBar(MenuNavBarProvider state) {
-    final localeStr = Language.of(context);
     return NavigationBar(
       selectedIndex: state.currentIndex,
-      onDestinationSelected: (int index) => state.updateIndex(index),
-      destinations: <NavigationDestination>[
+      onDestinationSelected: state.updateIndex,
+      destinations: [
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: localeStr.titleScan),
+          label: DictKey.navTitleScanner.s
+        ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: localeStr.titleGenerate),
+          label: DictKey.navTitleCreator.s
+        ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: localeStr.titleHistory),
+          label: DictKey.navTitleHistory.s
+        ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: localeStr.titleSettings),
+          label: DictKey.navTitleSettings.s
+        ),
       ],
     );
   }
 
   Widget _buildSideNavigationBar(MenuNavBarProvider state) {
-    final localeStr = Language.of(context);
     return NavigationRail(
       selectedIndex: state.currentIndex,
-      onDestinationSelected: (index) => state.updateIndex(index),
-      labelType: NavigationRailLabelType.all,
+      onDestinationSelected: state.updateIndex,
+      labelType: .all,
       groupAlignment: 1.0,
-      destinations: <NavigationRailDestination>[
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+      destinations: [
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: Text(localeStr.titleScan)),
+          label: Text(DictKey.navTitleScanner.s)
+        ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: Text(localeStr.titleGenerate)),
+          label: Text(DictKey.navTitleCreator.s)
+        ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: Text(localeStr.titleHistory)),
+          label: Text(DictKey.navTitleHistory.s)
+        ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: Text(localeStr.titleSettings)),
+          label: Text(DictKey.navTitleSettings.s)
+        ),
       ],
     );
   }

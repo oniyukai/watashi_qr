@@ -1,75 +1,63 @@
-
 import 'package:flutter/material.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 
-void showMyDialog({
+Future<void> showMyDialog({
   required BuildContext context,
-  required String titleStr,
+  required String title,
   required Widget content,
   bool noCancelButton = false,
-  List<Widget>? actions,
-}) {
-  showDialog(
+  List<Widget>? actions,})
+async {
+  await showDialog(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Center(
-          child: Text(titleStr, style:Theme.of(context).textTheme.titleMedium),
+    builder: (context) => AlertDialog(
+      title: Text(title,
+        style:Theme.of(context).textTheme.titleMedium,
+        textAlign: .center
+      ),
+      content: content,
+      actions: [
+        if (!noCancelButton) TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(DictKey.commonUiCancel.s),
         ),
-        content: content,
-        actions: <Widget>[
-          if (!noCancelButton) TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(Language.of(context).cancelLabel),
-          ),
-          if (actions != null) ...actions,
-        ],
-      );
-    },
+        if (actions != null) ...actions,
+      ],
+    ),
   );
 }
 
-
-void showMyBottomSheet({
+Future<void> showMyBottomSheet({
   required BuildContext context,
   Widget? title,
   Widget? content,
   bool noCancelButton = false,
-  List<Widget>? actions,
-}) {
-  showModalBottomSheet(
+  List<Widget>? actions,})
+async {
+  await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    builder: (BuildContext context) {
-      return SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
+    builder: (context) => SingleChildScrollView(
+      padding: .fromLTRB(16.0, 16.0, 16.0, MediaQuery.of(context).viewInsets.bottom),
+      child: Column(
+        children: [
+          ?title,
+          if (title != null) const SizedBox(height: 16),
+          ?content,
+          if (content != null) const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: .spaceAround,
             children: [
-              if (title != null) title,
-              if (title != null) const SizedBox(height: 16),
-              if (content != null) content,
-              if (content != null) const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  if (!noCancelButton) ElevatedButton(
-                    child: Text(Language.of(context).cancelLabel),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  if (actions != null) ...actions,
-                ],
+              if (!noCancelButton) ElevatedButton(
+                child: Text(DictKey.commonUiCancel.s),
+                onPressed: () => Navigator.pop(context),
               ),
-              if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),
+              if (actions != null) ...actions,
             ],
           ),
-        ),
-      );
-    },
+          if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),
+        ],
+      ),
+    ),
   );
 }

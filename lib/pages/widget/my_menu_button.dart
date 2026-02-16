@@ -1,30 +1,50 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+class MyMenuItem {
+  final String? text;
+  final IconData? iconData;
+  final VoidCallback? onTap;
+
+  const MyMenuItem({
+    this.text,
+    this.iconData,
+    this.onTap,
+  });
+}
+
 class MyMenuButton extends StatelessWidget {
+  final List<MyMenuItem> items;
+  final Widget? icon;
+  final ValueChanged<int>? onSelectedEnd;
+
   const MyMenuButton({
     super.key,
+    required this.items,
     this.icon,
-    required this.optionMap,
     this.onSelectedEnd,
   });
 
-  final Widget? icon;
-  final Map<String, void Function()?> optionMap;
-  final void Function(int value)? onSelectedEnd;
-
   @override
-  Widget build(BuildContext context) {
-    final entries = optionMap.entries.toList();
+  Widget build(context) {
     return PopupMenuButton<int>(
       icon: icon ?? const Icon(Icons.more_vert),
-      itemBuilder: (BuildContext context) => List.generate(
-        optionMap.length,
-        (value) => PopupMenuItem<int>(
-          value: value,
-          child: Text(entries[value].key),
-      )),
-      onSelected: (int value) {
-        final func = entries[value].value;
+      itemBuilder: (context) => items.mapIndexed((index, item) {
+        assert (item.text != null || item.iconData != null);
+        return PopupMenuItem<int>(
+          value: index,
+          child: Row(
+            mainAxisSize: .min,
+            children: [
+              if (item.iconData != null) Icon(item.iconData),
+              if (item.iconData != null) const SizedBox(width: 8),
+              if (item.text != null) Text(item.text!),
+            ],
+          ),
+        );
+      }).toList(),
+      onSelected: (value) {
+        final VoidCallback? func = items[value].onTap;
         if (func != null) func();
         if (onSelectedEnd != null) onSelectedEnd!(value);
       },

@@ -1,14 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:watashi_qr/common/hive_service.dart';
+import 'package:watashi_qr/common/database_services.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/functions.dart';
 import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_card.dart';
-import 'package:watashi_qr/locale/language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
@@ -19,16 +19,73 @@ class MainHistoryView extends StatefulWidget {
   State<MainHistoryView> createState() => _MainHistoryViewState();
 }
 
-class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<MainHistoryView, dynamic> {
+class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<int> {
   final ScrollController _scrollController = ScrollController();
+  late final StreamSubscription<List<HistoryItem>> _historySubscription;
+  List<HistoryItem> _historyItems = const [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
   @override
-  Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+  void initState() {
+    super.initState();
+    _historySubscription = DatabaseServices.historyItemsStream.listen(
+      (data) => setState(() {
+        _historyItems = data;
+        _isLoading = false;
+        _errorMessage = null;
+      }),
+      onError: (e) => setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    _historySubscription.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _pressSelectedDelete() {
+    Navigator.pop(context);
+    DatabaseServices.deleteItems(selectedObjects.toList());
+    Utils.showToast(DictKey.historyStatusRemoved.s);
+    exitSelectionMode();
+  }
+
+  Future<void> _pressSelectedCopy() async {
+    final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
+    final String combinedText = items.map((item) => item.contents).join('\n');
+    await Clipboard.setData(.new(text: combinedText));
+    Utils.showToast(DictKey.commonUiCopied.s);
+    exitSelectionMode();
+  }
+
+  void _pressSelectedFavorite(int option) {
+    final List<HistoryItem> selectedItems = DatabaseServices.getItems(selectedObjects.toList());
+    for (final HistoryItem item in selectedItems) {
+      item.isFavorite = option == 0;
+    }
+    DatabaseServices.updateItems(selectedItems);
+    exitSelectionMode();
+  }
+
+  void _pressDeleteAll() {
+    Navigator.pop(context);
+    DatabaseServices.clearHistoryBox();
+    Utils.showToast(DictKey.historyStatusRemoved.s);
+  }
+
+  @override
+  Widget build(context) {
+    DictKey.load(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
-          ? colorScheme.primary.withValues(alpha:0.25)
+          ? Theme.of(context).colorScheme.inversePrimary
           : null,
         leading: isSelectionMode
           ? IconButton(
@@ -36,128 +93,106 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<M
             onPressed: exitSelectionMode,
           )
           : null,
-        title: ValueListenableBuilder(
-          valueListenable: HiveService.getListenable,
-          builder: (context, Box box, _) {
-            return isSelectionMode
-              ? Text('${selectedObjects.length}/${box.length}')
-              : Text('${box.length}');
-          }
-        ),
-        actions: [
-          if (isSelectionMode) ...[
-            IconButton(
-              icon: const Icon(Icons.delete_forever),
-              onPressed: () => showMyDialog(
-                context: context,
-                titleStr: localeStr.deleteLabel,
-                content: Text(localeStr.popupMessageConfirmationDeleteSelectedItemsHistory),
-                actions: [
-                  TextButton(
-                    child: Text(localeStr.deleteLabel),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      HiveService.deleteItems(selectedObjects);
-                      Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
-                      exitSelectionMode();
-                    },
-                  ),
-                ]
+        title: isSelectionMode
+            ? Text('${selectedObjects.length}/${_historyItems.length}')
+            : Text('${_historyItems.length}'),
+        actions: isSelectionMode
+            ? [
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            onPressed: () async => showMyDialog(
+              context: context,
+              title: DictKey.commonLabelDelete.s,
+              content: Text(DictKey.historyDialogDeleteSelected.s),
+              actions: [
+                TextButton(
+                  onPressed: _pressSelectedDelete,
+                  child: Text(DictKey.commonLabelDelete.s),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.content_copy),
+            onPressed: _pressSelectedCopy,
+          ),
+          MyMenuButton(
+            items: [
+              MyMenuItem(text: DictKey.historyMenuFavAdd.s),
+              MyMenuItem(text: DictKey.historyMenuFavRemove.s),
+            ],
+            onSelectedEnd: _pressSelectedFavorite,
+          ),
+        ]
+            : [
+          MyMenuButton(
+            icon: const Icon(Icons.swap_vert),
+            items: [
+              MyMenuItem(
+                text: DictKey.historyDataShareJson.s,
+                onTap: DatabaseServices.shareHistoryBoxToJson,
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.content_copy),
-              onPressed: () {
-                final List<HistoryItem> items = HiveService.getReversedList(
-                  sortF: true,
-                  list: HiveService.getItems(selectedObjects),
-                );
-                final String combinedText = items.map((item) => item.contents).join('\n');
-                Clipboard.setData(ClipboardData(text: combinedText));
-                Utils.showToast(localeStr.barcodeCopiedLabel);
-                exitSelectionMode();
-              },
-            ),
-            MyMenuButton(
-              optionMap: {
-                localeStr.menuItemHistoryAddFavorite: null,
-                localeStr.menuItemHistoryRemoveFavorite: null,
-              },
-              onSelectedEnd: (int option) {
-                for (final key in selectedObjects){
-                  final HistoryItem? item = HiveService.getItem(key);
-                  if (item == null) continue;
-                  item.isFavorite = (option == 0);
-                  HiveService.updateItem(key, item);
-                }
-                exitSelectionMode();
-              },
-            ),
-          ] else ...[
-            MyMenuButton(
-              icon: const Icon(Icons.swap_vert),
-              optionMap: {
-                localeStr.shareJsonLabel: () => HiveService.shareHistoriesToJson(localeStr),
-                localeStr.exportJsonLabel: () => HiveService.exportHistoriesToJson(localeStr),
-                localeStr.importJsonLabel: () => HiveService.importHistoriesFromJson(localeStr),
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete_forever),
-              onPressed: () => showMyDialog(
-                context: context,
-                titleStr: localeStr.deleteLabel,
-                content: Text(localeStr.popupMessageConfirmationDeleteHistory),
-                actions: [
-                  TextButton(
-                    child: Text(localeStr.deleteLabel),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      HiveService.clearHistories();
-                      Utils.showToast(localeStr.menuItemHistoryRemovedFromHistory);
-                      // setState( (){} );
-                    },
-                  ),
-                ]
+              MyMenuItem(
+                text: DictKey.historyDataExportJson.s,
+                onTap: DatabaseServices.exportHistoryBoxToJson,
               ),
+              MyMenuItem(
+                text: DictKey.historyDataImportJson.s,
+                onTap: DatabaseServices.importHistoryBoxFromJson,
+              ),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            onPressed: () async => showMyDialog(
+              context: context,
+              title: DictKey.commonLabelDelete.s,
+              content: Text(DictKey.historyDialogDeleteAll.s),
+              actions: [
+                TextButton(
+                  onPressed: _pressDeleteAll,
+                  child: Text(DictKey.commonLabelDelete.s),
+                ),
+              ],
             ),
-          ],
+          ),
         ],
       ),
-
-      body: SafeArea(child: Scrollbar(
-        controller: _scrollController,
-        child: ValueListenableBuilder(
-          valueListenable: HiveService.getListenable,
-          builder: (context, Box box, _) {
-            final List<HistoryItem> historiesList = HiveService.getReversedList(sortF: true);
-            if (historiesList.isEmpty) return Center(child: Text(localeStr.labelHistoryEmpty));
-            return ListView.builder(
-              addAutomaticKeepAlives: false,
-              addRepaintBoundaries: false,
-              padding: const EdgeInsets.all(4.0),
-              controller: _scrollController,
-              itemCount: historiesList.length,
-              itemBuilder: (context, index) {
-                final item = historiesList[index];
-                final key = item.key;
-                return MainHistoryCard(
-                  historyItem: item,
-                  selected: selectedObjects.contains(key),
-                  onTap: () {
-                    if (isSelectionMode) {
-                      toggleSelection(key);
-                    } else {
-                      context.routeOf<PageItemView>().arguments(item).to();
-                    }
-                  },
-                  onLongPress: () => enterSelectionMode(key),
-                );
-              },
-            );
-          }
+      body: SafeArea(
+        bottom: false,
+        child: Scrollbar(
+          controller: _scrollController,
+          child: Builder(
+            builder: (context) {
+              if (_isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (_errorMessage != null) {
+                return Center(child: Text(_errorMessage!));
+              } else if (_historyItems.isEmpty) {
+                return Center(child: Text(DictKey.historyStatusEmpty.s));
+              }
+              return ListView.builder(
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: false,
+                padding: const .fromLTRB(4.0, 4.0, 4.0, 16.0),
+                controller: _scrollController,
+                itemCount: _historyItems.length,
+                itemBuilder: (context, index) {
+                  final HistoryItem item = _historyItems[index];
+                  return MainHistoryCard(
+                    historyItem: item,
+                    selected: selectedObjects.contains(item.id),
+                    onTap: isSelectionMode
+                        ? () => toggleSelection(item.id)
+                        : () => context.routeOf<PageItemView>().toPass(item),
+                    onLongPress: () => enterSelectionMode(item.id),
+                  );
+                },
+              );
+            },
+          ),
         ),
-      ))
+      ),
     );
   }
 }

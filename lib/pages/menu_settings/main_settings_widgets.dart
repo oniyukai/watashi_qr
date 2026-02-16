@@ -1,35 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/pages/widget/functions.dart';
 
 class ListTileText extends StatelessWidget {
-  const ListTileText({
-    super.key,
-    required this.str,
-    this.isSection = false,
-    this.trailing,
-    this.onTap,
-  });
-
-  final String str;
+  final String text;
+  final String? subText;
   final bool isSection;
   final Widget? trailing;
-  final void Function()? onTap;
+  final IconData? iconData;
+  final VoidCallback? onTap;
+  final ShapeBorder? shape;
+
+  const ListTileText({
+    super.key,
+    required this.text,
+    this.subText,
+    this.isSection = false,
+    this.trailing,
+    this.iconData,
+    this.onTap,
+    this.shape,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
+  Widget build(context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
-      contentPadding: isSection ? const EdgeInsets.only(top: 16, left: 16) : null,
-      leading: const SizedBox(width: 48),
-
+      contentPadding: isSection ? const .only(top: 16, left: 16) : null,
+      leading: SizedBox(width: 48, child: Icon(iconData)),
+      shape: shape,
       minTileHeight: isSection ? 0 : null,
       title: Text(
-        str,
+        text,
         style: TextStyle(
           fontSize: isSection ? theme.textTheme.titleSmall?.fontSize : null,
         ),
       ),
+      subtitle: subText == null ? null : Text(subText!),
       textColor: isSection ? colorScheme.primary : null,
       trailing: trailing,
       onTap: onTap,
@@ -37,89 +45,160 @@ class ListTileText extends StatelessWidget {
   }
 }
 
-
 class ListTileSwitch extends StatelessWidget {
-  final String str;
+  final String text;
   final bool initialValue;
-  final void Function(bool value) onToggle;
+  final ValueChanged<bool> onToggle;
   final IconData? iconData;
   final bool enabled;
+  final ShapeBorder? shape;
 
   const ListTileSwitch({
     super.key,
-    required this.str,
+    required this.text,
     required this.initialValue,
     required this.onToggle,
     this.iconData,
     this.enabled = true,
+    this.shape,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
-      title: Text(str),
+      title: Text(text),
       enabled: enabled,
-      onTap: ()=>onToggle(!initialValue),
+      shape: shape,
+      onTap: () => onToggle(!initialValue),
       trailing: Switch.adaptive(
         value: initialValue,
-        onChanged: (bool value) {
-          if (enabled) onToggle(value);
-        },
-        activeColor: enabled ? null : Colors.grey,
+        onChanged: enabled ? onToggle : null,
       ),
     );
   }
 }
 
-
-class ListTilePicker extends StatelessWidget {
-  final String str;
+class ListTilePicker<T> extends StatelessWidget {
+  final String text;
   final IconData? iconData;
-  final String? dialogTitleStr;
-  final String selectedOption;
-  final Map<String, String> optionMap;  // 只能是String key是因為SharedPreferences並不支援所有類與enum
-  final void Function(String value) onChanged;
+  final String? dialogText;
+  final T selectedOption;
+  final Map<T, String> optionMap;
+  final ValueChanged<T> onChanged;
+  final Widget Function(Radio<T>, bool)? leadingBuilder;
+  final ShapeBorder? shape;
 
   const ListTilePicker({
     super.key,
-    required this.str,
+    required this.text,
     this.iconData,
-    this.dialogTitleStr,
+    this.dialogText,
     required this.selectedOption,
     required this.optionMap,
     required this.onChanged,
+    this.leadingBuilder,
+    this.shape,
   });
 
+  void _onChanged(BuildContext context, T? value) {
+    if (value != null && value != selectedOption) {
+      onChanged(value);
+      Navigator.pop(context);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
-      title: Text(str),
-      subtitle: Text(optionMap[selectedOption] ?? selectedOption),
-      onTap: () => showMyDialog(
+      title: Text(text),
+      subtitle: Text('${optionMap[selectedOption] ?? selectedOption}'),
+      shape: shape,
+      onTap: () async => showMyDialog(
         context: context,
-        titleStr: dialogTitleStr ?? str,
+        title: dialogText ?? text,
         content: Scrollbar(
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: optionMap.entries
-                  .map((entry) => RadioListTile(
-                title: Text(entry.value),
-                value: entry.key,
-                groupValue: selectedOption,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-                onChanged: (value) {
-                  if (value != null) {
-                    onChanged(value);
-                    Navigator.pop(context);
-                  }
-                },
-              ))
-                  .toList(),
+            child: RadioGroup<T>(
+              groupValue: selectedOption,
+              onChanged: (value) => _onChanged(context, value),
+              child: Column(
+                mainAxisSize: .min,
+                children: [
+                  for (final T value in optionMap.keys)
+                    ListTile(
+                      leading: (leadingBuilder ?? (radio, selected) => radio)(
+                        Radio(
+                            value: value,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        value == selectedOption,
+                      ),
+                      title: Text(optionMap[value]!),
+                      shape: RoundedRectangleBorder(borderRadius: .circular(12.0)),
+                      onTap: () => _onChanged(context, value),
+                    ),
+                ],
+              ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ColorfulRadio extends StatelessWidget {
+  final Radio<ColorOption> radio;
+  final bool selected;
+
+  const ColorfulRadio(this.radio, this.selected, {super.key});
+
+  @override
+  Widget build(context) {
+    final ColorScheme? colorScheme = radio.value.color == null
+        ? MyAppTheme.dynamicColorScheme
+        : .fromSeed(seedColor: radio.value.color!);
+    if (colorScheme == null) return radio;
+    final Color topColor = colorScheme.primaryContainer;
+    final Color bottomLeftColor = colorScheme.tertiaryContainer;
+    final Color bottomRightColor = colorScheme.primary;
+    return Padding(
+      padding: const .symmetric(vertical: 8),
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: Stack(
+          children: [
+            ClipOval(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: topColor,
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            color: bottomLeftColor,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            color: bottomRightColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (selected) radio,
+          ],
         ),
       ),
     );

@@ -1,9 +1,10 @@
+import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_provider.dart';
-import 'package:watashi_qr/locale/language.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/pages/widget/functions.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -16,100 +17,119 @@ class PageCustomurlsView extends StatefulWidget {
   State<PageCustomurlsView> createState() => _PageCustomurlsViewState();
 }
 
-class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<PageCustomurlsView, String>  {
+class CustomSearchUrl {
+  final String title;
+  final String url;
+
+  const CustomSearchUrl({
+    required this.title,
+    required this.url,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'url': url,
+  };
+
+  factory CustomSearchUrl.fromString(String jsonString) {
+    String? title;
+    String? url;
+    try {
+      final Map<String, dynamic> json = jsonDecode(jsonString);
+      title = json['title'];
+      url = json['url'];
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return CustomSearchUrl(
+      title: title ?? StaticString.nullString,
+      url: url ?? StaticString.nullString,
+    );
+  }
+}
+
+class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<int> {
+  List<CustomSearchUrl> _customSearchUrls = [];
+
+  Future<void> _pressDelete() => showMyDialog(
+    context: context,
+    title: DictKey.commonLabelDelete.s,
+    content: Text(isSelectionMode
+        ? DictKey.settingOptionCustomSearchClearSelected.s
+        : DictKey.settingOptionCustomSearchClearAll.s
+    ),
+    actions: [
+      TextButton(
+        child: Text(DictKey.commonLabelDelete.s),
+        onPressed: () async {
+          Navigator.pop(context);
+          if (isSelectionMode) {
+            _customSearchUrls = _customSearchUrls.whereIndexed((i, e) => !selectedObjects.contains(i)).toList();
+            await context.readPrefs.update(.customSearchUrls, _customSearchUrls);
+            exitSelectionMode();
+          } else {
+            await context.readPrefs.update(.customSearchUrls, _customSearchUrls..clear());
+          }
+          Utils.showToast(DictKey.settingOptionCustomSearchDeleted.s);
+        },
+      ),
+    ],
+  );
+
   @override
-  Widget build(BuildContext context) {
-    final localeStr = Language.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+  Widget build(context) {
+    _customSearchUrls = context.watchPrefs.get(.customSearchUrls);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
-          ? colorScheme.primary.withValues(alpha:0.25)
+          ? Theme.of(context).colorScheme.inversePrimary
           : null,
-        title: Text(localeStr.customSearchUrls),
+        title: Text(DictKey.settingOptionCustomSearch.s),
         actions: [
-          IconButton(
+          if (!isSelectionMode) IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => context.routeOf<PageCustomurlsForm>()
-              .arguments('')
-              .to(),
+            onPressed: () => context.routeOf<PageCustomurlsForm>().toPass(.new(
+              items: _customSearchUrls,
+            )),
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () => showMyDialog(
-              context: context,
-              titleStr: localeStr.deleteLabel,
-              content: Text(
-                isSelectionMode
-                  ? localeStr.popupMessageConfirmationDeleteSelectedItemsHistory
-                  : localeStr.popupMessageConfirmationDeleteHistory
-              ),
-              actions: [
-                TextButton(
-                  child: Text(localeStr.deleteLabel),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    if (isSelectionMode) {
-                      final List<String> customSearchUrls = context.readSettings.customSearchUrls;
-                      customSearchUrls.removeWhere((searchUrl) {
-                        for (final title in selectedObjects) {
-                          if (searchUrl.startsWith('$title${Language.separationObject}')) {
-                            return true;
-                          }
-                        }
-                        return false;
-                      });
-                      context.readSettings.updateSetting(PreferenceKey.customSearchUrls, customSearchUrls);
-                      exitSelectionMode();
-                    } else {
-                      context.readSettings.updateSetting(PreferenceKey.customSearchUrls, <String>[]);
-                    }
-                    Utils.showToast(localeStr.customUrlDeleted);
-                  },
-                ),
-              ]
-            ),
+            onPressed: _pressDelete,
           ),
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: Scrollbar(
-          child: Consumer<SettingsProvider>(
-            builder:(context, settings, child) {
-              if (settings.customSearchUrls.isEmpty) {
-                return Center(child: Text(localeStr.customSearchUrlsListIsEmptyMessage));
-              }
-              return ListView.builder(
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: false,
-                padding: const EdgeInsets.all(16.0),
-                itemCount: settings.customSearchUrls.length,
-                itemBuilder: (context, index) {
-                  final String searchUrl = settings.customSearchUrls[index];
-                  final List<String> parts = searchUrl.split(Language.separationObject);
-                  final String title = parts[0];
-                  final String url = parts[1];
-                  return Card(
-                    elevation: 0,
-                    child: ItemTile(
-                      title: title,
-                      description: url,
-                      selected: selectedObjects.contains(title),
-                      onTap: () {
-                        if (isSelectionMode) {
-                          toggleSelection(title);
-                        } else {
-                          context.routeOf<PageCustomurlsForm>()
-                              .arguments(searchUrl)
-                              .to();
-                        }
-                      },
-                      onLongPress: () => enterSelectionMode(title),
-                    ),
-                  );
-                }
+          child: _customSearchUrls.isEmpty
+            ? Center(child: Text(DictKey.settingOptionCustomSearchEmpty.s))
+            : ListView.builder(
+            addAutomaticKeepAlives: false,
+            addRepaintBoundaries: false,
+            padding: const .all(16.0),
+            itemCount: _customSearchUrls.length,
+            itemBuilder: (context, index) {
+              final CustomSearchUrl item = _customSearchUrls[index];
+              return Card(
+                elevation: 0,
+                child: ItemTile(
+                  title: item.title,
+                  description: item.url,
+                  selected: selectedObjects.contains(index),
+                  onTap: () {
+                    if (isSelectionMode) {
+                      toggleSelection(index);
+                    } else {
+                      context.routeOf<PageCustomurlsForm>().toPass(.new(
+                        index: index,
+                        items: _customSearchUrls,
+                      ));
+                    }
+                  },
+                  onLongPress: () => enterSelectionMode(index),
+                ),
               );
-            }
+            },
           ),
         ),
       ),

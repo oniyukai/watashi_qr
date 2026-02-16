@@ -1,51 +1,54 @@
 name: watashi_qr
-description: "An Barcode Sannner App."
+description: A Flutter app for Android and iOS that can read and generate barcodes.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.1.3+5
+version: 1.2.0+6
 
 environment:
-  sdk: ^3.7.2
+  sdk: ^3.10.8
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
 
   cupertino_icons: ^1.0.8
-  shared_preferences: ^2.5.3
-  provider: ^6.1.2
-  url_launcher: ^6.3.1
-  dynamic_color: ^1.7.0
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
+  shared_preferences: ^2.5.4
+  provider: ^6.1.5
+  collection: ^1.19.1
+  url_launcher: ^6.3.2
+  dynamic_color: ^1.8.1
+  path: ^1.9.1
   path_provider: ^2.1.5
-  file_picker: ^9.2.3
+  file_picker: ^10.3.10
   intl: ^0.20.2
-  fluttertoast: ^8.2.11
+  fluttertoast: ^9.0.0
   flutter_vector_icons: ^2.0.0
-  flutter_form_builder: ^10.0.1
-  form_builder_validators: ^11.1.1
-  string_validator: ^1.1.0
+  flutter_form_builder: ^10.2.0
+  form_builder_validators: ^11.2.0
   barcode: ^2.2.9
-  share_plus: ^11.0.0
-  flutter_svg: ^2.0.17
-  image: ^4.5.2
+  share_plus: ^12.0.1
+  flutter_svg: ^2.2.3
+  image: ^4.5.4
   barcode_image: ^2.0.3
-  mobile_scanner: ^7.0.1
-  image_picker: ^1.1.2
+  mobile_scanner: 7.1.2
+  image_picker: ^1.2.1
   crop_your_image: ^2.0.0
-  vibration: ^3.1.3
-  audioplayers: ^6.2.0
+  vibration: 3.1.5
+  audioplayers: ^6.5.1
+  objectbox: ^5.2.0
+  objectbox_flutter_libs: any
+  watashi_locale:
+    git:
+      url: https://github.com/oniyukai/watashi_locale.git
+      ref: main
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^6.0.0
-  build_runner: ^2.4.14
-  hive_generator: ^2.0.1
-  flutter_launcher_icons: ^0.14.3
+  flutter_launcher_icons: ^0.14.4
+  build_runner: ^2.11.1
+  objectbox_generator: any
 
 flutter:
   uses-material-design: true
@@ -57,3 +60,6 @@ flutter_launcher_icons:
   android: 'ic_launcher'
   ios: true
   image_path: 'assets/appicon.png'
+
+objectbox:
+  output_dir: entity

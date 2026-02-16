@@ -1,30 +1,27 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:watashi_qr/main.dart';
+import 'package:watashi_qr/locale/app_language.dart';
+import 'package:watashi_qr/locale/map_en.dart';
+import 'package:watashi_qr/locale/map_ja.dart';
+import 'package:watashi_qr/locale/map_zh_hans.dart';
+import 'package:watashi_qr/locale/map_zh_hant.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  for (final map in const [mapEn, mapJa, mapZhHans, mapZhHant]) {
+    final entries = map.entries.where((e) => e.value != null);
+    debugPrint('${entries.length / DictKey.values.length * 100.0} %');
+  }
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  for (final dictKey in DictKey.values) {
+    String encode = jsonEncode(mapEn[dictKey]);
+    if (encode.startsWith('"') && encode.endsWith('"')) {
+      encode = '\'${encode.substring(1, encode.length - 1)}\''
+          .replaceAll('\\"', '"')
+          .replaceAll('\$', '\\\$')
+          .replaceAll(StaticString.searchReplaceWord, '\${StaticString.searchReplaceWord}');
+    }
+    // debugPrint('  .${dictKey.name}: $encode,');
+  }
+  // debugPrint('};');
 }
