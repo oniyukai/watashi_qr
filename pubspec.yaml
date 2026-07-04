@@ -1,5 +1,5 @@
 name: watashi_qr
-description: A Flutter app for Android and iOS that can read and generate barcodes.
+description: A Flutter app for Android and iOS that can read and create barcodes.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.2.0+6
 

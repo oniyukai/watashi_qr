@@ -33,7 +33,7 @@ class HistoryItem {
   @Transient() HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
   @Transient() MyIconData get getFormatIconData => getFormat?.myIconData ?? const MyIconData(Icons.help_center_outlined);
   @Transient() HistoryType? get getType => HistoryType.values.fromName(type);
-  @Transient() MyIconData get getTypeIconData => getType?.myIconData ?? const MyIconData(Icons.help_center);
+  @Transient() IconData get getTypeIconData => getType?.iconData ?? Icons.help_center;
   @Transient() HistoryErrorLevel? get getErrorLevel => HistoryErrorLevel.values.fromName(errorLevel);
   @Transient() HistoryOrigin? get getOrigin => HistoryOrigin.values.fromName(origin);
 

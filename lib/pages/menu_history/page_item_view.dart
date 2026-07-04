@@ -107,7 +107,7 @@ class _PageItemViewState extends State<PageItemView> {
             children: [
               ExpandableCard(
                 title: DictKey.analysisLabelContent.s,
-                myIconData: _historyItem.getTypeIconData,
+                myIconData: MyIconData(_historyItem.getTypeIconData),
                 initialExpanded: true,
                 expandedChild: AnalyzedContentItem(
                   contents: _historyItem.contents,

@@ -1,8 +1,8 @@
-<p align="center"><img alt="" src="assets/appicon.png" width="64"><p>
+<p align="center"><img alt="" src="assets/appicon.png" width="64"></p>
 
 <h2 align="center">Watashi QR</h2>
 
-<h4 align="center">A Flutter app for Android and iOS that can read and generate barcodes.</h4>
+<h4 align="center">A Flutter app for Android and iOS that can read and create barcodes.</h4>
 
 [![GitHub License](https://img.shields.io/github/license/oniyukai/watashi_qr)](https://github.com/oniyukai/watashi_qr/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/oniyukai/watashi_qr.svg)](https://github.com/oniyukai/watashi_qr)
@@ -16,11 +16,11 @@ Different barcode formats are supported:
 
 ## Features
 
-- [x] Simply point the camera of your smartphone at the barcode and you will receive the information immediately. You can also scan the barcode from a picture in your smartphone.
+- [x] Simply point the camera of your smartphone at the barcode, and you will receive the information immediately. You can also scan the barcode from a picture in your smartphone.
 - [x] Scanning frame with adjustable width and length.
 - [x] Support continuous scanning, automatic website opening, front and rear camera selection.
 - [x] With a simple scan, you can read business cards, open URLs, (todo: add a contact, add an event to the calendar).
-- [x] Generate your own barcodes.
+- [x] Create your own barcodes.
 - [x] Keep track of all scanned barcodes with the history tool.
 - [x] History favorites and item notes.
 - [x] Customize the interface with different colors, light themes or dark themes. The interface is built with Material 3 and is compatible with Material You, which adjusts the colors to the wallpaper of devices running Android 12 or later.

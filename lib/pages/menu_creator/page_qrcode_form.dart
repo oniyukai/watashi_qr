@@ -12,6 +12,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_widgets.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class PageQrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
   const PageQrcodeForm({super.key});
@@ -62,7 +63,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             children: [
               ItemTile(
                 title: HistoryType.localeStrFromName(_historyType.name),
-                myIconData: _historyType.myIconData,
+                myIconData: MyIconData(_historyType.iconData),
               ),
               const SizedBox(height: 16),
               FormBuilder(
@@ -189,7 +190,7 @@ class _StateContact extends _FormState {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: .custom,
-        allowedExtensions: const ["vcf"],
+        allowedExtensions: const ['vcf'],
       );
       if (result == null) {
         Utils.showToast(DictKey.commonUiCancel.s);

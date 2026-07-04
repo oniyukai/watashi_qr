@@ -89,7 +89,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                     if (!const <HistoryType>[.product, .industrial].contains(type))
                       ItemTile(
                         title: HistoryType.localeStrFromName(type.name),
-                        myIconData: type.myIconData,
+                        myIconData: MyIconData(type.iconData),
                         onTap: () => context.routeOf<PageQrcodeForm>().toPass(type),
                       ),
                 ],

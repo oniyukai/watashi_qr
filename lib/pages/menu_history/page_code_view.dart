@@ -9,6 +9,7 @@ import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
+import 'package:watashi_qr/pages/widget/my_icon.dart';
 import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/widget/expandable_card.dart';
 import 'package:file_picker/file_picker.dart';
@@ -134,7 +135,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                   children: [
                     ExpandableCard(
                       title: HistoryType.localeStrFromName(_historyItem.type),
-                      myIconData: _historyItem.getTypeIconData,
+                      myIconData: MyIconData(_historyItem.getTypeIconData),
                       initialExpanded: true,
                       expandedChild: SelectableText(_historyItem.contents),
                     ),
