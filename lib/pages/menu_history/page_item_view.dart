@@ -220,6 +220,7 @@ class _PageItemViewState extends State<PageItemView> {
                     children: List.generate(rowCount, (rowIndex) {
                       return IntrinsicHeight(
                         child: Row(
+                          crossAxisAlignment: .stretch,
                           children: List.generate(crossAxisCount, (columnIndex) {
                             final int index = rowIndex * crossAxisCount + columnIndex;
                             return index < actionGrids.length

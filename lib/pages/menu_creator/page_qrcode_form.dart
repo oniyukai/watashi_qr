@@ -188,7 +188,7 @@ class _StateContact extends _FormState {
 
   Future<void> _importContactFromVcard() async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.pickFiles(
         type: .custom,
         allowedExtensions: const ['vcf'],
       );

@@ -54,7 +54,7 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
 
               locale: context.readPrefs.get<LocaleOption>(.selectedLanguage).locale,
-              localizationsDelegates: WatashiLocale.localizationsDelegates,
+              localizationsDelegates: WatashiLocale.getDelegates(),
               supportedLocales: WatashiLocale.supportedLocales,
 
               navigatorKey: MyRouter.navigatorKey,

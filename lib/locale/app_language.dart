@@ -5,8 +5,8 @@ typedef DictInstance = Map<DictKey, String?>;
 extension StaticString on DictKey {
   static const String
       appName = 'Watashi QR',
-      appVersion = '1.2.0',
-      appVersionTag = 'v1.1_26.02.17',
+      appVersion = '1.2.1',
+      appVersionTag = 'v1.1_26.07.05+7',
       pngSuffix = 'png',
       jpgSuffix = 'jpg',
       svgSuffix = 'svg',

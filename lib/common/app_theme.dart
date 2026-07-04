@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
-// todo: 鎖定字體
-
 enum ThemeOption {
   sys,
   light(.light),

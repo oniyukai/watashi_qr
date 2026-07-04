@@ -43,7 +43,7 @@ class _PageCodeViewState extends State<PageCodeView> {
   Future<void> _pressExport(String fileSuffix) async {
     try {
       final Directory? initialDir = await getDownloadsDirectory();
-      final String? dir = await FilePicker.platform.getDirectoryPath(initialDirectory:initialDir?.path);
+      final String? dir = await FilePicker.getDirectoryPath(initialDirectory:initialDir?.path);
       if (dir == null) {
         Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
         return;

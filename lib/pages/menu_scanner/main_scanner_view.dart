@@ -225,7 +225,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                 ),
                 Transform.scale( // todo debug: 自拍字體水平相反
                   scaleX: _isUseFrontCamera ? -1 : 1,
-                  child: BarcodeOverlay( // debug: 套件該組件並沒有處理完轉向問題
+                  child: BarcodeOverlay(
                     controller: _scannerController,
                     boxFit: .cover,
                     color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),

@@ -1,40 +1,40 @@
 name: watashi_qr
 description: A Flutter app for Android and iOS that can read and create barcodes.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.2.0+6
+version: 1.2.1+7
 
 environment:
-  sdk: ^3.10.8
+  sdk: ^3.12.2
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-  shared_preferences: ^2.5.4
+  cupertino_icons: ^1.0.9
+  shared_preferences: ^2.5.5
   provider: ^6.1.5
   collection: ^1.19.1
   url_launcher: ^6.3.2
   dynamic_color: ^1.8.1
   path: ^1.9.1
-  path_provider: ^2.1.5
-  file_picker: ^10.3.10
+  path_provider: ^2.1.6
+  file_picker: ^12.0.0-beta.7
   intl: ^0.20.2
-  fluttertoast: ^9.0.0
+  fluttertoast: ^9.1.0
   flutter_vector_icons: ^2.0.0
-  flutter_form_builder: ^10.2.0
-  form_builder_validators: ^11.2.0
+  flutter_form_builder: ^10.3.0
+  form_builder_validators: ^11.3.0
   barcode: ^2.2.9
-  share_plus: ^12.0.1
-  flutter_svg: ^2.2.3
-  image: ^4.5.4
+  share_plus: ^13.2.0
+  flutter_svg: ^2.3.0
+  image: ^4.9.1
   barcode_image: ^2.0.3
-  mobile_scanner: 7.1.2
-  image_picker: ^1.2.1
+  mobile_scanner: ^7.2.0
+  image_picker: ^1.2.3
   crop_your_image: ^2.0.0
-  vibration: 3.1.5
-  audioplayers: ^6.5.1
-  objectbox: ^5.2.0
+  vibration: ^3.2.0
+  audioplayers: ^6.8.1
+  objectbox: ^5.3.2
   objectbox_flutter_libs: any
   watashi_locale:
     git:
@@ -47,7 +47,7 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
-  build_runner: ^2.11.1
+  build_runner: ^2.15.0
   objectbox_generator: any
 
 flutter:
@@ -57,7 +57,7 @@ flutter:
     - assets/
 
 flutter_launcher_icons:
-  android: 'ic_launcher'
+  android: true
   ios: true
   image_path: 'assets/appicon.png'
 

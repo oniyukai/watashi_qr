@@ -85,7 +85,7 @@ abstract final class DatabaseServices {
       return;
     }
     final Directory? directory = await getDownloadsDirectory();
-    final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
+    final String? directoryPath = await FilePicker.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
       await Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
       return;
@@ -115,7 +115,7 @@ abstract final class DatabaseServices {
 
   static Future<void> importHistoryBoxFromJson() async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.pickFiles(
         type: .custom,
         allowedExtensions: const ['json'],
       );

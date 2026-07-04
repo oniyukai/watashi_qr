@@ -21,7 +21,7 @@ async {
           onPressed: () => Navigator.pop(context),
           child: Text(DictKey.commonUiCancel.s),
         ),
-        if (actions != null) ...actions,
+        ...?actions,
       ],
     ),
   );
@@ -52,7 +52,7 @@ async {
                 child: Text(DictKey.commonUiCancel.s),
                 onPressed: () => Navigator.pop(context),
               ),
-              if (actions != null) ...actions,
+              ...?actions,
             ],
           ),
           if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),

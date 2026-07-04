@@ -54,7 +54,7 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     .code93 => code93,
     .code39 => code39,
     .codabar => codabar,
-    .itf => itf,
+    .itf || .itf2of5 || .itf2of5WithChecksum || .itf14 => itf,
     .unknown || .all => null,
   };
 
