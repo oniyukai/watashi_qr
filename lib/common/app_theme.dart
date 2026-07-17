@@ -100,5 +100,3 @@ abstract final class MyAppTheme {
     );
   }
 }
-
-// todo: 確定安卓的圖示是圓的

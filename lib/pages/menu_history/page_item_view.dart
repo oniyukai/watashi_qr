@@ -46,10 +46,11 @@ class _PageItemViewState extends State<PageItemView> {
       _historyItem.id = DatabaseServices.addItem(_historyItem, _isExistBefore);
       if (_historyItem.id > 0) _isExistBefore = true;
     }
+    setState(() {});
   }
 
   void _pressItemFavorite() {
-    setState(() => _historyItem.isFavorite = !_historyItem.isFavorite);
+    _historyItem.isFavorite = !_historyItem.isFavorite;
     _syncToDatabase();
   }
 
@@ -410,7 +411,7 @@ class _PageItemViewState extends State<PageItemView> {
           ? DictKey.historyMenuDelete.s
           : DictKey.historyMenuAdd.s,
       onTap: () {
-        setState(() => _isWillExist = !_isWillExist);
+        _isWillExist = !_isWillExist;
         _syncToDatabase();
         return Utils.showToast(_isWillExist
             ? DictKey.historyStatusAdded.s

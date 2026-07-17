@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
 abstract final class OverlayShow {
-
   static Future<void> dialog({
     required BuildContext context,
     required String title,
