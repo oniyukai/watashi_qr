@@ -47,11 +47,11 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
 
   @override
   void dispose() {
+    super.dispose();
     _scannerController.dispose();
     _audioPlayer.dispose();
     _setOrientationLock(false);
     WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   @override
@@ -66,7 +66,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
       final bool isLockScreenRotation = context.readPrefs.get(.isLockScreenRotation);
       await _loadOrientationLengthStartScan();
       await _setOrientationLock(isLockScreenRotation);
-    } else if (_isLastTimeOnView) {
+    } else if (!onScanner && _isLastTimeOnView) {
       _isLastTimeOnView = false;
       await _scannerController.stop();
       await _setOrientationLock(false);

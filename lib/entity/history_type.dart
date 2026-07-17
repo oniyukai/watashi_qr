@@ -4,7 +4,8 @@ import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
 
-enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
+/// !! 改變name會影響之後HistoryItem儲存的值
+enum HistoryType {
   text(Icons.format_size),
   website(Icons.web),
   contact(Icons.contacts_outlined),
@@ -21,20 +22,22 @@ enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
 
   const HistoryType(this.iconData);
 
-  static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    text => DictKey.barcodeTypeText,
-    website => DictKey.barcodeTypeWebsite,
-    contact => DictKey.barcodeTypeContact,
-    mail => DictKey.barcodeTypeMail,
-    sms => DictKey.barcodeTypeSms,
-    phone => DictKey.barcodeTypePhone,
-    location => DictKey.barcodeTypeLocation,
-    event => DictKey.barcodeTypeEvent,
-    wifi => DictKey.barcodeTypeWifi,
-    product => DictKey.barcodeTypeProduct,
-    industrial => DictKey.barcodeTypeIndustrial,
-    null => null,
-  }?.s ?? '?$n';
+  static String localeStrFromName(String n) =>
+      switch (values.fromName(n)) {
+        text => DictKey.barcodeTypeText,
+        website => DictKey.barcodeTypeWebsite,
+        contact => DictKey.barcodeTypeContact,
+        mail => DictKey.barcodeTypeMail,
+        sms => DictKey.barcodeTypeSms,
+        phone => DictKey.barcodeTypePhone,
+        location => DictKey.barcodeTypeLocation,
+        event => DictKey.barcodeTypeEvent,
+        wifi => DictKey.barcodeTypeWifi,
+        product => DictKey.barcodeTypeProduct,
+        industrial => DictKey.barcodeTypeIndustrial,
+        null => null,
+      }?.s ??
+      '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     switch (format) {

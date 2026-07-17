@@ -6,10 +6,10 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/pages/widget/functions.dart';
 import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_card.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/widget/overlay_show.dart';
 import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
 class MainHistoryView extends StatefulWidget {
@@ -44,9 +44,9 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
 
   @override
   void dispose() {
+    super.dispose();
     _historySubscription.cancel();
     _scrollController.dispose();
-    super.dispose();
   }
 
   void _pressSelectedDelete() {
@@ -100,7 +100,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
             ? [
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () async => showMyDialog(
+            onPressed: () => OverlayShow.dialog(
               context: context,
               title: DictKey.commonLabelDelete.s,
               content: Text(DictKey.historyDialogDeleteSelected.s),
@@ -144,7 +144,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
           ),
           IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () async => showMyDialog(
+            onPressed: () => OverlayShow.dialog(
               context: context,
               title: DictKey.commonLabelDelete.s,
               content: Text(DictKey.historyDialogDeleteAll.s),

@@ -16,12 +16,12 @@ import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/common/prefs.dart';
-import 'package:watashi_qr/pages/widget/functions.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/pages/widget/expandable_card.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 import 'dart:io';
+import 'package:watashi_qr/pages/widget/overlay_show.dart';
 
 class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
   const PageItemView({super.key});
@@ -55,7 +55,7 @@ class _PageItemViewState extends State<PageItemView> {
 
   Future<void> _pressShareContents() => Utils.share(.new(text: _historyItem.contents));
 
-  Future<void> _pressModifyContents() => showMyBottomSheet(
+  Future<void> _pressModifyContents() => OverlayShow.bottomSheet(
     context: context,
     title: Row(
       mainAxisAlignment: .spaceBetween,
@@ -259,7 +259,7 @@ class _PageItemViewState extends State<PageItemView> {
     if (context.readPrefs.get<List<CustomSearchUrl>>(.customSearchUrls).isNotEmpty) PressButtonGrid(
       iconData: Icons.search,
       description: DictKey.settingOptionCustomSearch.s,
-      onTap: () => showMyDialog(
+      onTap: () => OverlayShow.dialog(
         context: context,
         title: DictKey.settingOptionCustomSearch.s,
         noCancelButton: true,
@@ -287,7 +287,7 @@ class _PageItemViewState extends State<PageItemView> {
     PressButtonGrid(
       iconData: Icons.edit_note,
       description: DictKey.actionModifyNotes.s,
-      onTap: () => showMyBottomSheet(
+      onTap: () => OverlayShow.bottomSheet(
         context: context,
         title: Text(DictKey.actionModifyNotes.s),
         content: FormBuilder(

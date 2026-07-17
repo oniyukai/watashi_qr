@@ -59,8 +59,8 @@ class _MainCreatorViewState extends State<MainCreatorView> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
+    _scrollController.dispose();
   }
 
   @override

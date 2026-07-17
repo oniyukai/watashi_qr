@@ -14,8 +14,7 @@ extension EnumFromName<T extends Enum> on Iterable<T> {
   T? fromName(String? n) => firstWhereOrNull((value) => value.name == n);
 }
 
-class Utils {
-  const Utils._();
+abstract final class Utils {
 
   static int get nowUnixTime => DateTime.now().millisecondsSinceEpoch;
 

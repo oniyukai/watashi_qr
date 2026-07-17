@@ -23,8 +23,8 @@ class _MainSettingsPage extends State<MainSettingsView> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
+    _scrollController.dispose();
   }
 
   @override
