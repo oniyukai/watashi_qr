@@ -9,7 +9,8 @@ import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 @Entity()
 class HistoryItem {
-  @Id() int id = 0;
+  @Id()
+  int id = 0;
   int unixTime;
   String contents;
   String format;
@@ -30,12 +31,25 @@ class HistoryItem {
     required this.notes,
   });
 
-  @Transient() HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
-  @Transient() MyIconData get getFormatIconData => getFormat?.myIconData ?? const MyIconData(Icons.help_center_outlined);
-  @Transient() HistoryType? get getType => HistoryType.values.fromName(type);
-  @Transient() MyIconData get getTypeIconData => getType?.myIconData ?? const MyIconData(Icons.help_center);
-  @Transient() HistoryErrorLevel? get getErrorLevel => HistoryErrorLevel.values.fromName(errorLevel);
-  @Transient() HistoryOrigin? get getOrigin => HistoryOrigin.values.fromName(origin);
+  @Transient()
+  HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
+
+  @Transient()
+  MyIconData get getFormatIconData =>
+      getFormat?.myIconData ?? const MyIconData(Icons.help_center_outlined);
+
+  @Transient()
+  HistoryType? get getType => HistoryType.values.fromName(type);
+
+  @Transient()
+  IconData get getTypeIconData => getType?.iconData ?? Icons.help_center;
+
+  @Transient()
+  HistoryErrorLevel? get getErrorLevel =>
+      HistoryErrorLevel.values.fromName(errorLevel);
+
+  @Transient()
+  HistoryOrigin? get getOrigin => HistoryOrigin.values.fromName(origin);
 
   @Transient()
   factory HistoryItem.fromJson(Map<String, dynamic> json) => HistoryItem(
@@ -62,7 +76,8 @@ class HistoryItem {
   };
 }
 
-enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
+/// !! 改變name會影響之後HistoryItem儲存的值
+enum HistoryErrorLevel {
   L(.low),
   M(.medium),
   Q(.quartile),
@@ -73,17 +88,20 @@ enum HistoryErrorLevel { // !! 改變name會影響之後HistoryItem儲存的值
 
   const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
 
-  static String localeStrFromName(String n) => optionMap[values.fromName(n)] ?? '?$n';
+  static String localeStrFromName(String n) =>
+      optionMap[values.fromName(n)] ?? '?$n';
 
-  static Map<HistoryErrorLevel, String> get optionMap => <HistoryErrorLevel, String>{
-    L: DictKey.settingOptionQrErrorCorrectionLevelLow.s,
-    M: DictKey.settingOptionQrErrorCorrectionLevelMedium.s,
-    Q: DictKey.settingOptionQrErrorCorrectionLevelQuartile.s,
-    H: DictKey.settingOptionQrErrorCorrectionLevelHigh.s,
-  };
+  static Map<HistoryErrorLevel, String> get optionMap =>
+      <HistoryErrorLevel, String>{
+        L: DictKey.settingOptionQrErrorCorrectionLevelLow.s,
+        M: DictKey.settingOptionQrErrorCorrectionLevelMedium.s,
+        Q: DictKey.settingOptionQrErrorCorrectionLevelQuartile.s,
+        H: DictKey.settingOptionQrErrorCorrectionLevelHigh.s,
+      };
 }
 
-enum HistoryOrigin { // !! 改變name會影響之後HistoryItem儲存的值
+/// !! 改變name會影響之後HistoryItem儲存的值
+enum HistoryOrigin {
   S(Icons.fullscreen), // scanner
   C(Icons.edit_outlined); // creator
 
@@ -91,9 +109,11 @@ enum HistoryOrigin { // !! 改變name會影響之後HistoryItem儲存的值
 
   const HistoryOrigin(this.iconData);
 
-  static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    S => DictKey.navTitleScanner,
-    C => DictKey.navTitleCreator,
-    null => null,
-  }?.s ?? '?$n';
+  static String localeStrFromName(String n) =>
+      switch (values.fromName(n)) {
+        S => DictKey.navTitleScanner,
+        C => DictKey.navTitleCreator,
+        null => null,
+      }?.s ??
+      '?$n';
 }

@@ -3,39 +3,41 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
-import 'package:watashi_qr/pages/widget/my_icon.dart';
 
-enum HistoryType { // !! 改變name會影響之後HistoryItem儲存的值
-  text(MyIconData(Icons.format_size)),
-  website(MyIconData(Icons.web)),
-  contact(MyIconData(Icons.contacts_outlined)),
-  mail(MyIconData(Icons.mail_outline)),
-  sms(MyIconData(Icons.sms_outlined)),
-  phone(MyIconData(Icons.call)),
-  location(MyIconData(Icons.location_on)),
-  event(MyIconData(Icons.event)),
-  wifi(MyIconData(Icons.wifi)),
-  product(MyIconData(Icons.sell_outlined)),
-  industrial(MyIconData(Icons.build_circle_outlined));
+/// !! 改變name會影響之後HistoryItem儲存的值
+enum HistoryType {
+  text(Icons.format_size),
+  website(Icons.web),
+  contact(Icons.contacts_outlined),
+  mail(Icons.mail_outline),
+  sms(Icons.sms_outlined),
+  phone(Icons.call),
+  location(Icons.location_on),
+  event(Icons.event),
+  wifi(Icons.wifi),
+  product(Icons.sell_outlined),
+  industrial(Icons.build_circle_outlined);
 
-  final MyIconData myIconData;
+  final IconData iconData;
 
-  const HistoryType(this.myIconData);
+  const HistoryType(this.iconData);
 
-  static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    text => DictKey.barcodeTypeText,
-    website => DictKey.barcodeTypeWebsite,
-    contact => DictKey.barcodeTypeContact,
-    mail => DictKey.barcodeTypeMail,
-    sms => DictKey.barcodeTypeSms,
-    phone => DictKey.barcodeTypePhone,
-    location => DictKey.barcodeTypeLocation,
-    event => DictKey.barcodeTypeEvent,
-    wifi => DictKey.barcodeTypeWifi,
-    product => DictKey.barcodeTypeProduct,
-    industrial => DictKey.barcodeTypeIndustrial,
-    null => null,
-  }?.s ?? '?$n';
+  static String localeStrFromName(String n) =>
+      switch (values.fromName(n)) {
+        text => DictKey.barcodeTypeText,
+        website => DictKey.barcodeTypeWebsite,
+        contact => DictKey.barcodeTypeContact,
+        mail => DictKey.barcodeTypeMail,
+        sms => DictKey.barcodeTypeSms,
+        phone => DictKey.barcodeTypePhone,
+        location => DictKey.barcodeTypeLocation,
+        event => DictKey.barcodeTypeEvent,
+        wifi => DictKey.barcodeTypeWifi,
+        product => DictKey.barcodeTypeProduct,
+        industrial => DictKey.barcodeTypeIndustrial,
+        null => null,
+      }?.s ??
+      '?$n';
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     switch (format) {

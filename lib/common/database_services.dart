@@ -11,9 +11,7 @@ import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:intl/intl.dart';
 
-final class DatabaseServices {
-  const DatabaseServices._();
-
+abstract final class DatabaseServices {
   static late final Store _store;
   static late final Box<HistoryItem> _historyBox;
 
@@ -87,7 +85,7 @@ final class DatabaseServices {
       return;
     }
     final Directory? directory = await getDownloadsDirectory();
-    final String? directoryPath = await FilePicker.platform.getDirectoryPath(initialDirectory:directory?.path);
+    final String? directoryPath = await FilePicker.getDirectoryPath(initialDirectory:directory?.path);
     if (directoryPath == null) {
       await Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
       return;
@@ -117,9 +115,9 @@ final class DatabaseServices {
 
   static Future<void> importHistoryBoxFromJson() async {
     try {
-      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.pickFiles(
         type: .custom,
-        allowedExtensions: const ["json"],
+        allowedExtensions: const ['json'],
       );
       if (result == null) {
         await Utils.showToast(DictKey.commonUiCancel.s);

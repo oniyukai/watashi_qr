@@ -1,12 +1,13 @@
+import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
-import 'package:barcode/barcode.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 
-enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
+/// !! 改變name會影響之後HistoryItem儲存的值
+enum HistoryFormat {
   qrCode(MyIconData(Icons.qr_code)),
   dataMatrix(MyIconData(MaterialCommunityIcons.data_matrix)),
   aztec(.aztec),
@@ -41,39 +42,48 @@ enum HistoryFormat { // !! 改變name會影響之後HistoryItem儲存的值
     itf => Barcode.itf,
   };
 
-  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) => switch (barcodeFormat) {
-    .qrCode => qrCode,
-    .dataMatrix => dataMatrix,
-    .aztec => aztec,
-    .pdf417 => pdf417,
-    .ean13 => ean13,
-    .ean8 => ean8,
-    .upcA => upcA,
-    .upcE => upcE,
-    .code128 => code128,
-    .code93 => code93,
-    .code39 => code39,
-    .codabar => codabar,
-    .itf => itf,
-    .unknown || .all => null,
-  };
+  static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) =>
+      switch (barcodeFormat) {
+        .qrCode => qrCode,
+        .dataMatrix => dataMatrix,
+        .aztec => aztec,
+        .pdf417 => pdf417,
+        .ean13 => ean13,
+        .ean8 => ean8,
+        .upcA => upcA,
+        .upcE => upcE,
+        .code128 => code128,
+        .code93 => code93,
+        .code39 => code39,
+        .codabar => codabar,
+        .itf || .itf2of5 || .itf2of5WithChecksum || .itf14 => itf,
+        .maxiCode ||
+        .microQrCode ||
+        .dataBar ||
+        .dataBarExpanded ||
+        .dataBarLimited ||
+        .unknown ||
+        .all => null,
+      };
 
-  static String localeStrFromName(String n) => switch (values.fromName(n)) {
-    qrCode => DictKey.barcodeFormatQrCode,
-    dataMatrix => DictKey.barcodeFormatDataMatrix,
-    aztec => DictKey.barcodeFormatAztec,
-    pdf417 => DictKey.barcodeFormatPdf417,
-    ean13 => DictKey.barcodeFormatEan13,
-    ean8 => DictKey.barcodeFormatEan8,
-    upcA => DictKey.barcodeFormatUpcA,
-    upcE => DictKey.barcodeFormatUpcE,
-    code128 => DictKey.barcodeFormatCode128,
-    code93 => DictKey.barcodeFormatCode93,
-    code39 => DictKey.barcodeFormatCode39,
-    codabar => DictKey.barcodeFormatCodabar,
-    itf => DictKey.barcodeFormatItf,
-    null => null,
-  }?.s ?? '"$n"';
+  static String localeStrFromName(String n) =>
+      switch (values.fromName(n)) {
+        qrCode => DictKey.barcodeFormatQrCode,
+        dataMatrix => DictKey.barcodeFormatDataMatrix,
+        aztec => DictKey.barcodeFormatAztec,
+        pdf417 => DictKey.barcodeFormatPdf417,
+        ean13 => DictKey.barcodeFormatEan13,
+        ean8 => DictKey.barcodeFormatEan8,
+        upcA => DictKey.barcodeFormatUpcA,
+        upcE => DictKey.barcodeFormatUpcE,
+        code128 => DictKey.barcodeFormatCode128,
+        code93 => DictKey.barcodeFormatCode93,
+        code39 => DictKey.barcodeFormatCode39,
+        codabar => DictKey.barcodeFormatCodabar,
+        itf => DictKey.barcodeFormatItf,
+        null => null,
+      }?.s ??
+      '"$n"';
 
   String get composition => switch (this) {
     qrCode => DictKey.barcodeCompositionText,

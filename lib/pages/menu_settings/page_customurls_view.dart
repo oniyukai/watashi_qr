@@ -5,9 +5,9 @@ import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';
 import 'package:watashi_qr/common/prefs.dart';
-import 'package:watashi_qr/pages/widget/functions.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/common/router.dart';
+import 'package:watashi_qr/pages/widget/overlay_show.dart';
 import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
 class PageCustomurlsView extends StatefulWidget {
@@ -51,7 +51,7 @@ class CustomSearchUrl {
 class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<int> {
   List<CustomSearchUrl> _customSearchUrls = [];
 
-  Future<void> _pressDelete() => showMyDialog(
+  Future<void> _pressDelete() => OverlayShow.dialog(
     context: context,
     title: DictKey.commonLabelDelete.s,
     content: Text(isSelectionMode

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/pages/widget/functions.dart';
+import 'package:watashi_qr/pages/widget/overlay_show.dart';
 
 class ListTileText extends StatelessWidget {
   final String text;
@@ -71,7 +71,7 @@ class ListTileSwitch extends StatelessWidget {
       enabled: enabled,
       shape: shape,
       onTap: () => onToggle(!initialValue),
-      trailing: Switch.adaptive(
+      trailing: Switch(
         value: initialValue,
         onChanged: enabled ? onToggle : null,
       ),
@@ -115,7 +115,7 @@ class ListTilePicker<T> extends StatelessWidget {
       title: Text(text),
       subtitle: Text('${optionMap[selectedOption] ?? selectedOption}'),
       shape: shape,
-      onTap: () async => showMyDialog(
+      onTap: () => OverlayShow.dialog(
         context: context,
         title: dialogText ?? text,
         content: Scrollbar(

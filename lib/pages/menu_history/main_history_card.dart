@@ -45,7 +45,7 @@ class MainHistoryCard extends StatelessWidget {
           child: AspectRatio(
             aspectRatio: 1.0,
             child: MyIcon(
-              historyItem.getTypeIconData,
+              MyIconData(historyItem.getTypeIconData),
               color: colorScheme.onPrimary,
             ),
           ),

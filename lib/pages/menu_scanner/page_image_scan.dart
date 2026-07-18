@@ -45,9 +45,9 @@ class _PageImageScanState extends State<PageImageScan> with WidgetsBindingObserv
 
   @override
   void dispose() {
+    super.dispose();
     _isInCycleCrop = false;
     WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   @override

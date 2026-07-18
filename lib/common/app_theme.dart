@@ -49,9 +49,7 @@ enum ColorOption {
   };
 }
 
-final class MyAppTheme {
-  const MyAppTheme._();
-
+abstract final class MyAppTheme {
   static late ColorScheme? dynamicColorScheme;
 
   static const systemOverlayStyle = SystemUiOverlayStyle(

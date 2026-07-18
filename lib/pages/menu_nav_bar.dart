@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_creator/main_creator_view.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_view.dart';
 import 'package:watashi_qr/pages/menu_scanner/main_scanner_view.dart';
 import 'package:watashi_qr/pages/menu_settings/main_settings_view.dart';
-import 'package:watashi_qr/common/utils.dart';
 
 class MenuNavBar extends StatefulWidget {
   const MenuNavBar({super.key});
@@ -16,7 +16,9 @@ class MenuNavBar extends StatefulWidget {
 
 class MenuNavBarProvider extends ChangeNotifier {
   int _currentIndex = 0;
+
   int get currentIndex => _currentIndex;
+
   bool get onScanner => _currentIndex == 0;
 
   void updateIndex(int index) {
@@ -50,11 +52,18 @@ class _MenuNavBarState extends State<MenuNavBar> {
           if (mounted) setState(() => _canPop = false);
         },
         child: Scaffold(
-          bottomNavigationBar: isPortrait ? _buildBottomNavigationBar(state) : null,
+          bottomNavigationBar: isPortrait
+              ? _buildBottomNavigationBar(state)
+              : null,
           body: Row(
             children: [
               if (!isPortrait) _buildSideNavigationBar(state),
-              Expanded(child: IndexedStack(index: state.currentIndex, children: _pages)),
+              Expanded(
+                child: IndexedStack(
+                  index: state.currentIndex,
+                  children: _pages,
+                ),
+              ),
             ],
           ),
         ),
@@ -70,22 +79,22 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: DictKey.navTitleScanner.s
+          label: DictKey.navTitleScanner.s,
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: DictKey.navTitleCreator.s
+          label: DictKey.navTitleCreator.s,
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: DictKey.navTitleHistory.s
+          label: DictKey.navTitleHistory.s,
         ),
         NavigationDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: DictKey.navTitleSettings.s
+          label: DictKey.navTitleSettings.s,
         ),
       ],
     );
@@ -102,22 +111,22 @@ class _MenuNavBarState extends State<MenuNavBar> {
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.qr_code_scanner),
           icon: const Icon(Icons.fullscreen),
-          label: Text(DictKey.navTitleScanner.s)
+          label: Text(DictKey.navTitleScanner.s),
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.edit),
           icon: const Icon(Icons.edit_outlined),
-          label: Text(DictKey.navTitleCreator.s)
+          label: Text(DictKey.navTitleCreator.s),
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.history),
           icon: const Icon(Icons.history),
-          label: Text(DictKey.navTitleHistory.s)
+          label: Text(DictKey.navTitleHistory.s),
         ),
         NavigationRailDestination(
           selectedIcon: const Icon(Icons.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: Text(DictKey.navTitleSettings.s)
+          label: Text(DictKey.navTitleSettings.s),
         ),
       ],
     );
