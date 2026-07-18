@@ -89,8 +89,8 @@ class _MainSettingsPage extends State<MainSettingsView> {
               ListTileSwitch(
                 text: DictKey.settingOptionScanLockOrient.s,
                 iconData: Icons.screen_rotation,
-                initialValue: prefs.get(.isLockScreenRotation),
-                onToggle: (value) => prefs.update(.isLockScreenRotation, value),
+                initialValue: prefs.get(.isLockOrient),
+                onToggle: (value) => prefs.update(.isLockOrient, value),
               ),
               ListTileSwitch(
                 text: DictKey.settingOptionScanAutoCopy.s,

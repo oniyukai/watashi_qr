@@ -141,8 +141,8 @@ class _StateWebsite extends _FormState {
 }
 
 class _StateContact extends _FormState {
-  final List<String> _mailType = ['home', 'home', 'home'];
-  final List<String> _phoneType = ['cell', 'cell', 'cell'];
+  final _mailType = <String>['home', 'home', 'home'];
+  final _phoneType = <String>['cell', 'cell', 'cell'];
 
   @override
   String valueDecode(valueMap) {
@@ -188,7 +188,7 @@ class _StateContact extends _FormState {
 
   Future<void> _importContactFromVcard() async {
     try {
-      final FilePickerResult? result = await FilePicker.pickFiles(
+      final PlatformFile? result = await FilePicker.pickFile(
         type: .custom,
         allowedExtensions: const ['vcf'],
       );
@@ -196,7 +196,7 @@ class _StateContact extends _FormState {
         Utils.showToast(DictKey.commonUiCancel.s);
         return;
       }
-      final File file = File(result.files.single.path!);
+      final File file = File(result.path!);
       final String vCardString = await file.readAsString();
       await MainCreatorView.createRouteTo(context, vCardString, .qrCode);
     } catch (e) {

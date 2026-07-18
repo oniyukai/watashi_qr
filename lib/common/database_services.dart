@@ -115,7 +115,7 @@ abstract final class DatabaseServices {
 
   static Future<void> importHistoryBoxFromJson() async {
     try {
-      final FilePickerResult? result = await FilePicker.pickFiles(
+      final PlatformFile? result = await FilePicker.pickFile(
         type: .custom,
         allowedExtensions: const ['json'],
       );
@@ -124,13 +124,13 @@ abstract final class DatabaseServices {
         return;
       }
 
-      final File file = File(result.files.single.path!);
+      final File file = File(result.path!);
       final String jsonString = await file.readAsString();
       final List<dynamic> jsonData = jsonDecode(jsonString);
       int added = 0;
       int replaced = 0;
 
-      final Map<int, HistoryItem> itemsToProcess = {};
+      final itemsToProcess = <int, HistoryItem>{};
       for (final dynamic itemJson in jsonData) {
         final HistoryItem historyItem = HistoryItem.fromJson(itemJson);
         itemsToProcess[historyItem.unixTime] = historyItem;
@@ -138,7 +138,7 @@ abstract final class DatabaseServices {
       final Query<HistoryItem> query = _historyBox
           .query(HistoryItem_.unixTime.oneOf(itemsToProcess.keys.toList()))
           .build();
-      final Map<int, int> existingTimeKeyMap = {
+      final existingTimeKeyMap = <int, int>{
         for (final HistoryItem queryItem in query.find())
           queryItem.unixTime: queryItem.id,
       };

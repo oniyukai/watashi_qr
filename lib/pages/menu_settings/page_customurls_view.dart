@@ -49,7 +49,7 @@ class CustomSearchUrl {
 }
 
 class _PageCustomurlsViewState extends State<PageCustomurlsView> with SelectionMixin<int> {
-  List<CustomSearchUrl> _customSearchUrls = [];
+  var _customSearchUrls = <CustomSearchUrl>[];
 
   Future<void> _pressDelete() => OverlayShow.dialog(
     context: context,

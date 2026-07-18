@@ -132,7 +132,7 @@ class WebsiteAnalyzer extends _TextAnalyzer {
   @override
   bool get _checkType => UrlValidator().isURL(
       _text,
-      protocols: const <String?>['http', 'https'],
+      protocols: const ['http', 'https'],
       requireProtocol: true
   );
 }
@@ -160,14 +160,14 @@ class ContactAnalyzer extends _TextAnalyzer {
   @override
   ({String name, String organisation, String jobTitle, String website,
   String mail, String phone, String address, String notes}) _parse() {
-    final List<String> name = [];
-    final List<String> organisation = [];
-    final List<String> jobTitle = [];
-    final List<String> website = [];
-    final List<String> mail = [];
-    final List<String> phone = [];
-    final List<String> address = [];
-    final List<String> notes = [];
+    final name = <String>[];
+    final organisation = <String>[];
+    final jobTitle = <String>[];
+    final website = <String>[];
+    final mail = <String>[];
+    final phone = <String>[];
+    final address = <String>[];
+    final notes = <String>[];
     for (final String subText in _text.split('\n')) {
       final List<String> subParts = subText.split(':');
       if (subParts.length <= 1) continue;

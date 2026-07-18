@@ -7,7 +7,8 @@ import 'package:watashi_qr/common/prefs.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 
-class PageCustomurlsForm extends StatefulWidget with RouterBridge<PageCustomurlsFormArgs> {
+class PageCustomurlsForm extends StatefulWidget
+    with RouterBridge<PageCustomurlsFormArgs> {
   const PageCustomurlsForm({super.key});
 
   @override
@@ -18,10 +19,7 @@ class PageCustomurlsFormArgs {
   final int? index;
   final List<CustomSearchUrl> items;
 
-  const PageCustomurlsFormArgs({
-    this.index,
-    required this.items,
-  });
+  const PageCustomurlsFormArgs({this.index, required this.items});
 }
 
 class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
@@ -37,7 +35,10 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
       _args.items.insert(0, CustomSearchUrl(title: formTitle, url: formUrl));
       Utils.showToast(DictKey.settingOptionCustomSearchAdded.s);
     } else {
-      _args.items[_args.index!] = CustomSearchUrl(title: formTitle, url: formUrl);
+      _args.items[_args.index!] = CustomSearchUrl(
+        title: formTitle,
+        url: formUrl,
+      );
       Utils.showToast(DictKey.settingOptionCustomSearchUpdated.s);
     }
     await context.readPrefs.update(.customSearchUrls, _args.items);
@@ -45,64 +46,74 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
 
   @override
   Widget build(context) {
-    final CustomSearchUrl? argItem = _args.index == null ? null : _args.items[_args.index!];
+    final CustomSearchUrl? argItem = _args.index == null
+        ? null
+        : _args.items[_args.index!];
     return Scaffold(
       appBar: AppBar(
-        title: Text(argItem == null
-            ? DictKey.settingOptionCustomSearchAdd.s
-            : DictKey.settingOptionCustomSearchEdit.s
+        title: Text(
+          argItem == null
+              ? DictKey.settingOptionCustomSearchAdd.s
+              : DictKey.settingOptionCustomSearchEdit.s,
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: _pressCheck,
-          ),
+          IconButton(icon: const Icon(Icons.check), onPressed: _pressCheck),
         ],
       ),
       body: SafeArea(
         bottom: false,
-        child: Scrollbar(
-          child: ListView(
-            padding: const .all(16.0),
-            children: [
-              FormBuilder(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    FormBuilderTextField(
-                      name: 'formTitle',
-                      keyboardType: .text,
-                      autovalidateMode: .onUserInteraction,
-                      initialValue: argItem?.title,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.format_size),
-                        labelText: DictKey.analysisContactName.s,
-                      ),
-                      validator: FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-                    ),
-                    const SizedBox(height: 16),
-                    FormBuilderTextField(
-                      name: 'formUrl',
-                      keyboardType: .url,
-                      autovalidateMode: .onUserInteraction,
-                      initialValue: argItem?.url,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.web),
-                        labelText: DictKey.creatorHintUrl.s,
-                      ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(errorText: DictKey.errorEmptyFields.s),
-                        FormBuilderValidators.startsWith('http', errorText: DictKey.errorUrlFormat.s),
-                        FormBuilderValidators.contains(StaticString.searchReplaceWord, errorText: DictKey.settingErrorCustomUrl.s),
-                        FormBuilderValidators.url(errorText: DictKey.errorInvalidValue.s),
-                      ]),
-                    ),
-                  ],
+        child: FormBuilder(
+          key: _formKey,
+          child: Scrollbar(
+            child: ListView(
+              padding: const .all(16.0),
+              children: [
+                FormBuilderTextField(
+                  name: 'formTitle',
+                  keyboardType: .text,
+                  autovalidateMode: .onUserInteraction,
+                  initialValue: argItem?.title,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.format_size),
+                    labelText: DictKey.analysisContactName.s,
+                  ),
+                  validator: FormBuilderValidators.required(
+                    errorText: DictKey.errorEmptyFields.s,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              SelectableText('${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.settingOptionCustomSearchExample.s} ${StaticString.googleUrl}'),
-            ],
+                const SizedBox(height: 16),
+                FormBuilderTextField(
+                  name: 'formUrl',
+                  keyboardType: .url,
+                  autovalidateMode: .onUserInteraction,
+                  initialValue: argItem?.url,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.web),
+                    labelText: DictKey.creatorHintUrl.s,
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                      errorText: DictKey.errorEmptyFields.s,
+                    ),
+                    FormBuilderValidators.startsWith(
+                      'http',
+                      errorText: DictKey.errorUrlFormat.s,
+                    ),
+                    FormBuilderValidators.contains(
+                      StaticString.searchReplaceWord,
+                      errorText: DictKey.settingErrorCustomUrl.s,
+                    ),
+                    FormBuilderValidators.url(
+                      errorText: DictKey.errorInvalidValue.s,
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: 16),
+                SelectableText(
+                  '${DictKey.settingOptionCustomSearchInfo.s}\n\n${DictKey.settingOptionCustomSearchExample.s} ${StaticString.googleUrl}',
+                ),
+              ],
+            ),
           ),
         ),
       ),

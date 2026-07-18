@@ -32,7 +32,7 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   );
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _enableDetect = true;
-  bool _isLockScreenRotation = true;
+  bool _isLockOrient = false;
   bool _isLastTimeOnView = false;
   Rect _scanWindow = .zero;
   late double _zoomLevel = context.readPrefs.get(.scannerZoomLevel);
@@ -61,11 +61,11 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   Future<void> _viewEntryExitEvent(bool onScanner) async {
-    if (_enableDetect && onScanner) {
+    if (_enableDetect && onScanner && !_isLastTimeOnView) {
       _isLastTimeOnView = true;
-      final bool isLockScreenRotation = context.readPrefs.get(.isLockScreenRotation);
+      final bool isLockOrient = context.readPrefs.get(.isLockOrient);
       await _loadOrientationLengthStartScan();
-      await _setOrientationLock(isLockScreenRotation);
+      await _setOrientationLock(isLockOrient);
     } else if (!onScanner && _isLastTimeOnView) {
       _isLastTimeOnView = false;
       await _scannerController.stop();
@@ -95,12 +95,13 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   Future<void> _setOrientationLock(bool toLock) async {
+    if (_isLockOrient == toLock) return;
     if (toLock) {
-      await Utils.lockCurrentOrientation(context, _scannerController.value.deviceOrientation);
-    } else if (_isLockScreenRotation) {
-      await Utils.unlockCurrentOrientation();
+      await Utils.lockOrientation(context: context, orientation: _scannerController.value.deviceOrientation);
+    } else if (_isLockOrient) {
+      await Utils.unlockOrientation();
     }
-    _isLockScreenRotation = toLock;
+    _isLockOrient = toLock;
   }
 
   @override

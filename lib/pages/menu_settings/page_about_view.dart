@@ -33,11 +33,6 @@ class _PageAboutViewState extends State<PageAboutView> {
                 style: textTheme.headlineSmall,
                 textAlign: .center,
               ),
-              Text(
-                'Copyleft 🄯 YUKAI',
-                style: textTheme.bodySmall,
-                textAlign: .center,
-              ),
               ListTile(
                 title: Text(DictKey.settingOptionVersion.s),
                 subtitle: Text(StaticString.appVersion),

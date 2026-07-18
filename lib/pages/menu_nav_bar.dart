@@ -29,7 +29,7 @@ class MenuNavBarProvider extends ChangeNotifier {
 }
 
 class _MenuNavBarState extends State<MenuNavBar> {
-  final List<Widget> _pages = const [
+  final _pages = const <Widget>[
     MainScannerView(),
     MainCreatorView(),
     MainHistoryView(),

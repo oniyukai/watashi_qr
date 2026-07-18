@@ -5,6 +5,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:watashi_locale/watashi_locale.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/app_theme.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
 import 'package:watashi_qr/common/prefs.dart';
@@ -15,7 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(MyAppTheme.systemOverlayStyle);
-  await Future.wait([PrefsProvider.init(), DatabaseServices.init()]);
+  await Future.wait([PrefsProvider.init(), DatabaseServices.init(), Utils.unlockOrientation()]);
   runApp(
     MultiProvider(
       providers: [

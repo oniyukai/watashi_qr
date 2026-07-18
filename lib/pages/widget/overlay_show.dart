@@ -7,21 +7,23 @@ abstract final class OverlayShow {
     required String title,
     required Widget content,
     bool noCancelButton = false,
-    List<Widget>? actions,})
-  {
+    List<Widget>? actions,
+  }) {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title,
-            style:Theme.of(context).textTheme.titleMedium,
-            textAlign: .center
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium,
+          textAlign: .center,
         ),
         content: content,
         actions: [
-          if (!noCancelButton) TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(DictKey.commonUiCancel.s),
-          ),
+          if (!noCancelButton)
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(DictKey.commonUiCancel.s),
+            ),
           ...?actions,
         ],
       ),
@@ -33,13 +35,18 @@ abstract final class OverlayShow {
     Widget? title,
     Widget? content,
     bool noCancelButton = false,
-    List<Widget>? actions,})
-  {
+    List<Widget>? actions,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => SingleChildScrollView(
-        padding: .fromLTRB(16.0, 16.0, 16.0, MediaQuery.of(context).viewInsets.bottom),
+        padding: .fromLTRB(
+          16.0,
+          16.0,
+          16.0,
+          MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Column(
           children: [
             ?title,
@@ -49,14 +56,16 @@ abstract final class OverlayShow {
             Row(
               mainAxisAlignment: .spaceAround,
               children: [
-                if (!noCancelButton) ElevatedButton(
-                  child: Text(DictKey.commonUiCancel.s),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                if (!noCancelButton)
+                  ElevatedButton(
+                    child: Text(DictKey.commonUiCancel.s),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ...?actions,
               ],
             ),
-            if (actions != null && actions.isNotEmpty && !noCancelButton) const SizedBox(height: 16),
+            if (actions != null && actions.isNotEmpty && !noCancelButton)
+              const SizedBox(height: 16),
           ],
         ),
       ),

@@ -136,7 +136,6 @@ class _PageCodeViewState extends State<PageCodeView> {
                     ExpandableCard(
                       title: HistoryType.localeStrFromName(_historyItem.type),
                       myIconData: MyIconData(_historyItem.getTypeIconData),
-                      initialExpanded: true,
                       expandedChild: SelectableText(_historyItem.contents),
                     ),
                     const SizedBox(height: 8),
