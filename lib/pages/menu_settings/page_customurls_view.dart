@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';

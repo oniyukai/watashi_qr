@@ -1,5 +1,5 @@
 import 'package:barcode/barcode.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 import 'package:watashi_qr/common/utils.dart';

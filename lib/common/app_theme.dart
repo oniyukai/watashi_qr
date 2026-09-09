@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/locale/app_language.dart';

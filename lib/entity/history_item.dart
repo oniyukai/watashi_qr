@@ -1,5 +1,5 @@
 import 'package:barcode/barcode.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:objectbox/objectbox.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';

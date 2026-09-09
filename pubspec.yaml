@@ -4,42 +4,46 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.2.1+7
 
 environment:
-  sdk: ^3.12.2
+  sdk: ^3.13.1
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.9
-  shared_preferences: ^2.5.5
+  material_ui: ^1.2.0
+  intl: ^0.20.2
   provider: ^6.1.5
   collection: ^1.19.1
-  url_launcher: ^6.3.2
-  dynamic_color: ^1.8.1
   path: ^1.9.1
   path_provider: ^2.1.6
-  file_picker: ^12.0.0-beta.7
-  intl: ^0.20.2
-  fluttertoast: ^9.1.0
-  flutter_vector_icons: ^2.0.0
-  flutter_form_builder: ^10.3.0
-  form_builder_validators: ^11.3.0
-  barcode: ^2.2.9
-  share_plus: ^13.2.1
-  flutter_svg: ^2.3.0
-  image: ^4.9.1
-  barcode_image: ^2.0.3
-  mobile_scanner: ^7.3.0
+  shared_preferences: ^2.5.5
+
+  share_plus: ^13.3.0
+  file_picker: ^12.2.0
   image_picker: ^1.2.3
-  crop_your_image: ^2.0.0
-  vibration: ^3.2.0
+  url_launcher: ^6.3.2
+  vibration: ^3.2.1
   audioplayers: ^6.8.1
+  fluttertoast: ^10.0.0
+
+  dynamic_color: ^2.1.0
   objectbox: ^5.3.2
   objectbox_flutter_libs: any
+
+  flutter_vector_icons: ^2.0.0
+  barcode: ^2.2.9
+  flutter_svg: ^2.3.0
+  flutter_form_builder: ^11.0.0
+  form_builder_validators: ^11.3.0
+  image: ^4.9.2
+  barcode_image: ^2.0.3
   watashi_locale:
     git:
       url: https://github.com/oniyukai/watashi_locale.git
       ref: main
+
+  mobile_scanner: ^7.4.0
+  crop_your_image: ^2.0.0
 
 dev_dependencies:
   flutter_test:

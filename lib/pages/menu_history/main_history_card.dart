@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/entity/history_item.dart';

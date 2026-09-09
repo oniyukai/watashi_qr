@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
