@@ -1,11 +1,13 @@
 import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
@@ -16,7 +18,6 @@ import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
 import 'package:watashi_qr/pages/menu_scanner/main_scanner_widgets.dart';
 import 'package:watashi_qr/pages/menu_scanner/page_image_scan.dart';
-import 'package:watashi_qr/common/prefs.dart';
 
 class MainScannerView extends StatefulWidget {
   const MainScannerView({super.key});
@@ -25,16 +26,17 @@ class MainScannerView extends StatefulWidget {
   State<MainScannerView> createState() => _MainScannerViewState();
 }
 
-class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingObserver {
+class _MainScannerViewState extends State<MainScannerView>
+    with WidgetsBindingObserver {
   final MobileScannerController _scannerController = MobileScannerController(
-    detectionSpeed: .unrestricted,
+    detectionSpeed: DetectionSpeed.unrestricted,
     autoStart: false,
   );
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _enableDetect = true;
   bool _isLockOrient = false;
   bool _isLastTimeOnView = false;
-  Rect _scanWindow = .zero;
+  Rect _scanWindow = Rect.zero;
   late double _zoomLevel = context.readPrefs.get(.scannerZoomLevel);
   late bool _isUseFrontCamera;
   late double _defaultScanWindowSize;
@@ -75,29 +77,34 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
 
   Future<void> _loadOrientationLengthStartScan() async {
     final bool isPortrait = Utils.isPortrait(context);
-    final double width = context.readPrefs.get(isPortrait
-        ? .scannerWindowWidthPortrait
-        : .scannerWindowWidthLandscape
+    final double width = context.readPrefs.get(
+      isPortrait ? .scannerWindowWidthPortrait : .scannerWindowWidthLandscape,
     );
-    final double height = context.readPrefs.get(isPortrait
-        ? .scannerWindowHeightPortrait
-        : .scannerWindowHeightLandscape
+    final double height = context.readPrefs.get(
+      isPortrait ? .scannerWindowHeightPortrait : .scannerWindowHeightLandscape,
     );
     _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.4;
-    _scanWindow = .fromCenter(
+    _scanWindow = Rect.fromCenter(
       center: _scanWindow.center,
       width: width >= 0 ? width : _defaultScanWindowSize,
       height: height >= 0 ? height : _defaultScanWindowSize,
     );
     _isUseFrontCamera = context.readPrefs.get(.isUseFrontCamera);
-    await _scannerController.start(cameraDirection: _isUseFrontCamera ? .front : .back);
+    await _scannerController.start(
+      cameraDirection: _isUseFrontCamera
+          ? CameraFacing.front
+          : CameraFacing.back,
+    );
     await _scannerController.setZoomScale(_zoomLevel);
   }
 
   Future<void> _setOrientationLock(bool toLock) async {
     if (_isLockOrient == toLock) return;
     if (toLock) {
-      await Utils.lockOrientation(context: context, orientation: _scannerController.value.deviceOrientation);
+      await Utils.lockOrientation(
+        context: context,
+        orientation: _scannerController.value.deviceOrientation,
+      );
     } else if (_isLockOrient) {
       await Utils.unlockOrientation();
     }
@@ -105,10 +112,12 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   @override
-  void didChangeAppLifecycleState(state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (!_scannerController.value.isInitialized) return;
-    if (state == .resumed && _enableDetect && context.read<MenuNavBarProvider>().onScanner) {
+    if (state == AppLifecycleState.resumed &&
+        _enableDetect &&
+        context.read<MenuNavBarProvider>().onScanner) {
       _scannerController.setZoomScale(_zoomLevel);
     }
   }
@@ -131,8 +140,10 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     }
     if (isVibrateOnScan) Utils.deviceVibrate();
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
-    if (isBarcodeCopied) Clipboard.setData(.new(text: contents));
-    final HistoryFormat? format = .fromScannerFormat(scannerFormat);
+    if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: contents));
+    final HistoryFormat? format = HistoryFormat.fromScannerFormat(
+      scannerFormat,
+    );
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
       contents: contents,
@@ -146,10 +157,10 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
     if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
-      await Future.delayed(const .new(milliseconds: 1600));
-    } else if (isAutoOpenWebsite && item.getType == .website) {
+      await Future.delayed(const Duration(milliseconds: 1600));
+    } else if (isAutoOpenWebsite && item.getType == HistoryType.website) {
       await Utils.openUrlInBrowser(item.contents);
-      await Future.delayed(const .new(milliseconds: 1600));
+      await Future.delayed(const Duration(milliseconds: 1600));
     } else {
       _viewEntryExitEvent(false);
       await context.routeOf<PageItemView>().toPass(item);
@@ -159,24 +170,26 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   void _updateScanWindow(double width, double height) {
-    setState(() => _scanWindow = .fromCenter(
-      center: _scanWindow.center,
-      width: width,
-      height: height,
-    ));
+    setState(
+      () => _scanWindow = Rect.fromCenter(
+        center: _scanWindow.center,
+        width: width,
+        height: height,
+      ),
+    );
   }
 
   Future<void> _saveScanWindow() async {
     final bool isPortrait = Utils.isPortrait(context);
-    context.readPrefs.update(isPortrait
-        ? .scannerWindowWidthPortrait
-        : .scannerWindowWidthLandscape,
-      _scanWindow.width, false,
+    context.readPrefs.update(
+      isPortrait ? .scannerWindowWidthPortrait : .scannerWindowWidthLandscape,
+      _scanWindow.width,
+      false,
     );
-    await context.readPrefs.update(isPortrait
-        ? .scannerWindowHeightPortrait
-        : .scannerWindowHeightLandscape,
-      _scanWindow.height, false,
+    await context.readPrefs.update(
+      isPortrait ? .scannerWindowHeightPortrait : .scannerWindowHeightLandscape,
+      _scanWindow.height,
+      false,
     );
   }
 
@@ -187,7 +200,9 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
 
   Future<void> _goPageImageScan() async {
     _viewEntryExitEvent(_enableDetect = false);
-    await context.routeOf<PageImageScan>().toPass((.new(controller: _scannerController)));
+    await context.routeOf<PageImageScan>().toPass(
+      (PageImageScanArgs(controller: _scannerController)),
+    );
     _viewEntryExitEvent(_enableDetect = true);
   }
 
@@ -201,15 +216,18 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Stack(
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            _scanWindow = .fromCenter(
-              center: Size(constraints.maxWidth, constraints.maxHeight).center(.zero),
+            _scanWindow = Rect.fromCenter(
+              center: Size(
+                constraints.maxWidth,
+                constraints.maxHeight,
+              ).center(Offset.zero),
               width: _scanWindow.width,
               height: _scanWindow.height,
             );
@@ -224,12 +242,14 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                     onDetect: _scannerOnDetect,
                   ),
                 ),
-                Transform.scale( // todo debug: 自拍字體水平相反
+                Transform.scale(
+                  // todo debug: 自拍字體水平相反
                   scaleX: _isUseFrontCamera ? -1 : 1,
                   child: BarcodeOverlay(
                     controller: _scannerController,
-                    boxFit: .cover,
-                    color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),
+                    boxFit: BoxFit.cover,
+                    color: Theme.of(context).colorScheme.tertiary
+                        .withValues(alpha: 0.5),
                   ),
                 ),
                 MyScanWindowOverlay(
@@ -243,9 +263,11 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
           },
         ),
         Align(
-          alignment: isPortrait ? .bottomCenter : .centerLeft,
+          alignment: isPortrait
+              ? AlignmentGeometry.bottomCenter
+              : AlignmentGeometry.centerLeft,
           child: Container(
-            padding: const .all(32.0),
+            padding: const EdgeInsets.all(32.0),
             width: isPortrait ? null : 100,
             height: isPortrait ? 100 : null,
             child: RotatedBox(
@@ -264,9 +286,11 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
           child: Stack(
             children: [
               Align(
-                alignment: isPortrait ? .topLeft : .topRight,
+                alignment: isPortrait
+                    ? AlignmentGeometry.topLeft
+                    : AlignmentGeometry.topRight,
                 child: Card(
-                  margin: const .all(16.0),
+                  margin: const EdgeInsets.all(16.0),
                   child: IconButton(
                     icon: const Icon(MaterialCommunityIcons.arrow_expand),
                     onPressed: _resetScanWindow,
@@ -274,12 +298,14 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
                 ),
               ),
               Align(
-                alignment: isPortrait ? .topRight : .bottomRight,
+                alignment: isPortrait
+                    ? AlignmentGeometry.topRight
+                    : AlignmentGeometry.bottomRight,
                 child: Card(
-                  margin: const .all(16.0),
+                  margin: const EdgeInsets.all(16.0),
                   child: Flex(
-                    direction: isPortrait ? .horizontal : .vertical,
-                    mainAxisSize: .min,
+                    direction: isPortrait ? Axis.horizontal : Axis.vertical,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       FlashlightButton(_scannerController),
                       IconButton(

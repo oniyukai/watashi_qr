@@ -71,13 +71,13 @@ class _ExpandableCardState extends State<ExpandableCard>
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return Card(
       clipBehavior: widget.clipBehavior,
       child: Column(
         children: [
           ListTile(
-            contentPadding: const .symmetric(horizontal: 16.0),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             leading: MyIcon(widget.myIconData),
             title: Text(widget.title),
             trailing: RotationTransition(
@@ -88,7 +88,7 @@ class _ExpandableCardState extends State<ExpandableCard>
           ),
           if (widget.collapsedChild != null && !_isExpanded)
             Padding(
-              padding: const .fromLTRB(16.0, 4.0, 16.0, 16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 16.0),
               child: widget.collapsedChild,
             ),
           Visibility(

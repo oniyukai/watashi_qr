@@ -1,13 +1,15 @@
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
 Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
   final String errorMessage = switch (error.errorCode) {
-    .permissionDenied => DictKey.commonLabelCameraDenied.s,
+    MobileScannerErrorCode.permissionDenied =>
+      DictKey.commonLabelCameraDenied.s,
     _ => error.errorCode.message,
   };
   return Center(
@@ -21,23 +23,22 @@ class FlashlightButton extends StatelessWidget {
   const FlashlightButton(this.controller, {super.key});
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, state, child) {
         final IconData iconData = switch (state.torchState) {
-          .auto => Icons.flash_auto,
-          .on => Icons.flash_on,
-          .off || .unavailable => Icons.flash_off,
+          TorchState.auto => Icons.flash_auto,
+          TorchState.on => Icons.flash_on,
+          TorchState.off || .unavailable => Icons.flash_off,
         };
-        final AsyncCallback? onPressed = state.isInitialized &&
-            state.isRunning &&
-            state.torchState != .unavailable
-            ? controller.toggleTorch : null;
-        return IconButton(
-          icon: Icon(iconData),
-          onPressed: onPressed,
-        );
+        final AsyncCallback? onPressed =
+            state.isInitialized &&
+                state.isRunning &&
+                state.torchState != TorchState.unavailable
+            ? controller.toggleTorch
+            : null;
+        return IconButton(icon: Icon(iconData), onPressed: onPressed);
       },
     );
   }
@@ -46,7 +47,8 @@ class FlashlightButton extends StatelessWidget {
 class MyScanWindowOverlay extends StatefulWidget {
   final MobileScannerController controller;
   final Rect scanWindow;
-  final void Function(double width, double height) onPanUpdate; // Function請使用setState()來更新scanWindow
+  final void Function(double width, double height)
+  onPanUpdate; // Function請使用setState()來更新scanWindow
   final VoidCallback onPanEnd;
 
   const MyScanWindowOverlay({
@@ -67,7 +69,7 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
   late Offset _startPosition;
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: widget.controller,
       builder: (context, value, child) {
@@ -85,10 +87,14 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
             final double screenHeight = constraints.maxHeight;
             final double scanWindowWidth = widget.scanWindow.width;
             final double scanWindowHeight = widget.scanWindow.height;
-            final double minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.175;
-            final double maxScanWindowSize = min(screenWidth, screenHeight) * 0.85;
+            final double minScanWindowSize =
+                MediaQuery.of(context).size.shortestSide * 0.175;
+            final double maxScanWindowSize =
+                min(screenWidth, screenHeight) * 0.85;
             const Color overlayColor = Colors.black54; // 遮罩顏色
-            final Color cornerColor = Theme.of(context).colorScheme.primary; // 角落顏色
+            final Color cornerColor = Theme.of(context)
+                .colorScheme
+                .primary; // 角落顏色
             const double cornerSize = 32.0; // 角落大小
             const double cornerWidth = 2.0; // 角落粗細
 
@@ -189,15 +195,23 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
                       _startPosition = details.globalPosition;
                     },
                     onPanUpdate: (details) {
-                      final double widthDelta = (details.globalPosition.dx - _startPosition.dx) * 2;
-                      final double heightDelta = (details.globalPosition.dy - _startPosition.dy) * 2;
-                      final double width = (_startWidth + widthDelta).clamp(minScanWindowSize, maxScanWindowSize);
-                      final double height = (_startHeight + heightDelta).clamp(minScanWindowSize, maxScanWindowSize);
+                      final double widthDelta =
+                          (details.globalPosition.dx - _startPosition.dx) * 2;
+                      final double heightDelta =
+                          (details.globalPosition.dy - _startPosition.dy) * 2;
+                      final double width = (_startWidth + widthDelta).clamp(
+                        minScanWindowSize,
+                        maxScanWindowSize,
+                      );
+                      final double height = (_startHeight + heightDelta).clamp(
+                        minScanWindowSize,
+                        maxScanWindowSize,
+                      );
                       widget.onPanUpdate(width, height);
                     },
                     onPanEnd: (details) => widget.onPanEnd(),
                     child: Padding(
-                      padding: const .all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: RotatedBox(
                         quarterTurns: 1,
                         child: Icon(

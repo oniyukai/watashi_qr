@@ -23,11 +23,13 @@ class ListTileText extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
-      contentPadding: isSection ? const .only(top: 16, left: 16) : null,
+      contentPadding: isSection
+          ? const EdgeInsets.only(top: 16, left: 16)
+          : null,
       leading: SizedBox(width: 48, child: Icon(iconData)),
       shape: shape,
       minTileHeight: isSection ? 0 : null,
@@ -64,7 +66,7 @@ class ListTileSwitch extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(text),
@@ -109,7 +111,7 @@ class ListTilePicker<T> extends StatelessWidget {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(text),
@@ -134,13 +136,14 @@ class ListTilePicker<T> extends StatelessWidget {
                         leading: (leadingBuilder ?? (radio, selected) => radio)(
                           Radio(
                             value: value,
-                            materialTapTargetSize: .shrinkWrap,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                           ),
                           value == selectedOption,
                         ),
                         title: Text(optionMap[value]!),
                         shape: RoundedRectangleBorder(
-                          borderRadius: .circular(12.0),
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
                         onTap: () => _onChanged(context, value),
                       ),
@@ -162,16 +165,16 @@ class ColorfulRadio extends StatelessWidget {
   const ColorfulRadio(this.radio, this.selected, {super.key});
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ColorScheme? colorScheme = radio.value.color == null
         ? MyAppTheme.dynamicColorScheme
-        : .fromSeed(seedColor: radio.value.color!);
+        : ColorScheme.fromSeed(seedColor: radio.value.color!);
     if (colorScheme == null) return radio;
     final Color topColor = colorScheme.primaryContainer;
     final Color bottomLeftColor = colorScheme.tertiaryContainer;
     final Color bottomRightColor = colorScheme.primary;
     return Padding(
-      padding: const .symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: AspectRatio(
         aspectRatio: 1.0,
         child: Stack(

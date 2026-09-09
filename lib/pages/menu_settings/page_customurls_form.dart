@@ -1,10 +1,10 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:watashi_qr/common/router.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:watashi_qr/common/prefs.dart';
+import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/common/prefs.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 
 class PageCustomurlsForm extends StatefulWidget
@@ -45,7 +45,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final CustomSearchUrl? argItem = _args.index == null
         ? null
         : _args.items[_args.index!];
@@ -66,12 +66,13 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
           key: _formKey,
           child: Scrollbar(
             child: ListView(
-              padding: const .all(16.0),
+              padding: const EdgeInsets.all(16.0),
               children: [
                 FormBuilderTextField(
                   name: 'formTitle',
-                  keyboardType: .text,
-                  autovalidateMode: .onUserInteraction,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.text,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   initialValue: argItem?.title,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.format_size),
@@ -84,8 +85,9 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 const SizedBox(height: 16),
                 FormBuilderTextField(
                   name: 'formUrl',
-                  keyboardType: .url,
-                  autovalidateMode: .onUserInteraction,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.url,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   initialValue: argItem?.url,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.web),

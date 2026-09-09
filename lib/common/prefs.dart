@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
@@ -25,17 +26,24 @@ class PrefDef<RUN extends Object, STO extends Object> {
   PrefDef._(
     ValueGetter<RUN> defaultValue, [
     STO Function(RUN fromRUN)? toSTO,
-    RUN? Function(STO fromSTO)? toRUN,])
-      : _defaultValue = defaultValue {
-    assert(const [bool, int, double, String, List<String>].contains(STO), 'STO<${STO.runtimeType}> unsupported.');
-    assert(RUN == STO || toSTO != null && toRUN != null, 'When <$RUN>!=<$STO>: toSTO & toRUN are required.');
+    RUN? Function(STO fromSTO)? toRUN,
+  ]) : _defaultValue = defaultValue {
+    assert(
+      const [bool, int, double, String, List<String>].contains(STO),
+      'STO<${STO.runtimeType}> unsupported.',
+    );
+    assert(
+      RUN == STO || toSTO != null && toRUN != null,
+      'When <$RUN>!=<$STO>: toSTO & toRUN are required.',
+    );
     _toSTO = toSTO ?? (fromRUN) => fromRUN as STO;
     _toRUN = toRUN != null
         ? (fromSTO) => toRUN(fromSTO) ?? defaultValue()
         : (fromSTO) => fromSTO as RUN;
   }
 
-  static PrefDef<T, T> _same<T extends Object>(T defaultValue) => PrefDef<T, T>._(() => defaultValue);
+  static PrefDef<T, T> _same<T extends Object>(T defaultValue) =>
+      PrefDef<T, T>._(() => defaultValue);
 }
 
 enum PrefsEnum {
@@ -65,20 +73,20 @@ enum PrefsEnum {
 
   PrefDef get _getPrefDef => _prefDefCache.putIfAbsent(this, () {
     final prefDef = switch (this) {
-      selectedColor =>  PrefDef<ColorOption, String>._(
-          () => .sys,
-          (fromRUN) => fromRUN.name,
-          ColorOption.values.fromName,
+      selectedColor => PrefDef<ColorOption, String>._(
+        () => ColorOption.sys,
+        (fromRUN) => fromRUN.name,
+        ColorOption.values.fromName,
       ),
       selectedTheme => PrefDef<ThemeOption, String>._(
-          () => .sys,
-          (fromRUN) => fromRUN.name,
-          ThemeOption.values.fromName,
+        () => ThemeOption.sys,
+        (fromRUN) => fromRUN.name,
+        ThemeOption.values.fromName,
       ),
       selectedLanguage => PrefDef<LocaleOption, String>._(
-          () => .sys,
-          (fromRUN) => fromRUN.name,
-          LocaleOption.values.fromName,
+        () => LocaleOption.sys,
+        (fromRUN) => fromRUN.name,
+        LocaleOption.values.fromName,
       ),
       isAutoOpenWebsite => PrefDef._same(false),
       isContinuousScan => PrefDef._same(false),
@@ -88,22 +96,22 @@ enum PrefsEnum {
       isBarcodeCopied => PrefDef._same(false),
       isUseFrontCamera => PrefDef._same(false),
       selectedQRErrorLevel => PrefDef<HistoryErrorLevel, String>._(
-          () => .L,
-          (fromRUN) => fromRUN.name,
-          HistoryErrorLevel.values.fromName,
+        () => HistoryErrorLevel.L,
+        (fromRUN) => fromRUN.name,
+        HistoryErrorLevel.values.fromName,
       ),
       isScanAddHistory => PrefDef._same(true),
       isCreateAddHistory => PrefDef._same(true),
       isSaveDuplicates => PrefDef._same(true),
       selectedSearchEngine => PrefDef<SearchEngine, String>._(
-          () => .google,
-          (fromRUN) => fromRUN.name,
-          SearchEngine.values.fromName,
+        () => SearchEngine.google,
+        (fromRUN) => fromRUN.name,
+        SearchEngine.values.fromName,
       ),
       customSearchUrls => PrefDef<List<CustomSearchUrl>, List<String>>._(
-          () => <CustomSearchUrl>[],
-          (fromRUN) => fromRUN.map(jsonEncode).toList(),
-          (fromSTO) => fromSTO.map(CustomSearchUrl.fromString).toList(),
+        () => <CustomSearchUrl>[],
+        (fromRUN) => fromRUN.map(jsonEncode).toList(),
+        (fromSTO) => fromSTO.map(CustomSearchUrl.fromString).toList(),
       ),
       scannerWindowWidthPortrait => PrefDef._same(-1.0),
       scannerWindowHeightPortrait => PrefDef._same(-1.0),
@@ -120,7 +128,9 @@ enum PrefsEnum {
   T get<T>() {
     final prefDef = _getPrefDef;
     final fromSTO = PrefsProvider._instance.get(name);
-    if (prefDef.isSTO(fromSTO) && fromSTO != null) return prefDef.toRUN(fromSTO) as T;
+    if (prefDef.isSTO(fromSTO) && fromSTO != null) {
+      return prefDef.toRUN(fromSTO) as T;
+    }
     return prefDef.defaultValue as T;
   }
 }
@@ -144,7 +154,9 @@ class PrefsProvider extends ChangeNotifier {
 
   static Future<void> init() async {
     _instance = await SharedPreferencesWithCache.create(
-      cacheOptions: SharedPreferencesWithCacheOptions(allowList: PrefsEnum.values.map((e) => e.name).toSet()),
+      cacheOptions: SharedPreferencesWithCacheOptions(
+        allowList: PrefsEnum.values.map((e) => e.name).toSet(),
+      ),
     );
   }
 
@@ -160,9 +172,11 @@ class PrefsProvider extends ChangeNotifier {
     }
   }
 
-  Listenable listens(Iterable<PrefsEnum> keys) => Listenable.merge(keys.map((e) => _prefsNotifierMap[e]));
+  Listenable listens(Iterable<PrefsEnum> keys) =>
+      Listenable.merge(keys.map((e) => _prefsNotifierMap[e]));
 
-  OneNotifier<T> oneNotifier<T>(PrefsEnum key) => _prefsNotifierMap[key] as OneNotifier<T>;
+  OneNotifier<T> oneNotifier<T>(PrefsEnum key) =>
+      _prefsNotifierMap[key] as OneNotifier<T>;
 
   /// 依賴BuildContext
   T get<T>(PrefsEnum key) {
@@ -192,6 +206,8 @@ class PrefsProvider extends ChangeNotifier {
 }
 
 extension Context on BuildContext {
-  PrefsProvider get readPrefs => Provider.of<PrefsProvider>(this, listen: false);
-  PrefsProvider get watchPrefs => Provider.of<PrefsProvider>(this, listen: true);
+  PrefsProvider get readPrefs =>
+      Provider.of<PrefsProvider>(this, listen: false);
+  PrefsProvider get watchPrefs =>
+      Provider.of<PrefsProvider>(this, listen: true);
 }

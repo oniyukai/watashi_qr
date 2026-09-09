@@ -1,15 +1,16 @@
-import 'package:share_plus/share_plus.dart';
-import 'package:watashi_qr/entity/history_item.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'dart:convert';
-import 'package:path/path.dart' as p;
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/objectbox.g.dart';
 import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/common/prefs.dart';
-import 'package:intl/intl.dart';
 
 abstract final class DatabaseServices {
   static late final Store _store;
@@ -28,40 +29,49 @@ abstract final class DatabaseServices {
 
   static int addItem(HistoryItem item, [bool force = false]) {
     assert(item.id == 0);
-    if (force || PrefsEnum.isSaveDuplicates.get()) return _historyBox.put(item, mode: .insert);
-    final Query<HistoryItem> query = _applyOrder(_historyBox
-        .query(HistoryItem_.format.equals(item.format).and(HistoryItem_.contents.equals(item.contents)))
+    if (force || PrefsEnum.isSaveDuplicates.get()) {
+      return _historyBox.put(item, mode: PutMode.insert);
+    }
+    final Query<HistoryItem> query = _applyOrder(
+      _historyBox.query(
+        HistoryItem_.format
+            .equals(item.format)
+            .and(HistoryItem_.contents.equals(item.contents)),
+      ),
     ).build();
     final List<HistoryItem> result = query.find();
     query.close();
-    if (result.isEmpty) return _historyBox.put(item, mode: .insert);
+    if (result.isEmpty) return _historyBox.put(item, mode: PutMode.insert);
     final HistoryItem latestDuplicate = result.first;
     item
       ..isFavorite = latestDuplicate.isFavorite
       ..notes = latestDuplicate.notes;
     deleteItem(latestDuplicate.id);
-    return _historyBox.put(item, mode: .insert);
+    return _historyBox.put(item, mode: PutMode.insert);
   }
 
-  static int updateItem(HistoryItem item) => _historyBox.put(item, mode: .update);
+  static int updateItem(HistoryItem item) =>
+      _historyBox.put(item, mode: PutMode.update);
 
-  static List<int> updateItems(List<HistoryItem> items) => _historyBox.putMany(items, mode: .update);
+  static List<int> updateItems(List<HistoryItem> items) =>
+      _historyBox.putMany(items, mode: PutMode.update);
 
   // static HistoryItem? getItem(int id) => _historyBox.get(id);
 
   static List<HistoryItem> getItems([List<int>? ids]) {
-    final Query<HistoryItem> query = _applyOrder(_historyBox
-        .query(ids != null ? HistoryItem_.id.oneOf(ids) : null)
+    final Query<HistoryItem> query = _applyOrder(
+      _historyBox.query(ids != null ? HistoryItem_.id.oneOf(ids) : null),
     ).build();
     final List<HistoryItem> result = query.find();
     query.close();
     return result;
   }
 
-  static QueryBuilder<HistoryItem> _applyOrder(QueryBuilder<HistoryItem> queryBuilder) =>
-      queryBuilder
-          .order(HistoryItem_.isFavorite, flags: Order.descending)
-          .order(HistoryItem_.unixTime, flags: Order.descending);
+  static QueryBuilder<HistoryItem> _applyOrder(
+    QueryBuilder<HistoryItem> queryBuilder,
+  ) => queryBuilder
+      .order(HistoryItem_.isFavorite, flags: Order.descending)
+      .order(HistoryItem_.unixTime, flags: Order.descending);
 
   static bool deleteItem(int id) => _historyBox.remove(id);
 
@@ -76,7 +86,7 @@ abstract final class DatabaseServices {
     }
     final Directory tempDir = await getTemporaryDirectory();
     final File? file = await _getHistoryBoxJsonFile(tempDir.path);
-    if (file != null) await Utils.share(.new(files: [XFile(file.path)]));
+    if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
   }
 
   static Future<void> exportHistoryBoxToJson() async {
@@ -85,14 +95,20 @@ abstract final class DatabaseServices {
       return;
     }
     final Directory? directory = await getDownloadsDirectory();
-    final String? directoryPath = await FilePicker.getDirectoryPath(initialDirectory:directory?.path);
+    final String? directoryPath = await FilePicker.getDirectoryPath(
+      initialDirectory: directory?.path,
+    );
     if (directoryPath == null) {
-      await Utils.showToast('${DictKey.commonUiCancel.s}  Unable to get storage directory.');
+      await Utils.showToast(
+        '${DictKey.commonUiCancel.s}  Unable to get storage directory.',
+      );
       return;
     }
     final File? file = await _getHistoryBoxJsonFile(directoryPath);
     if (file != null) {
-      await Utils.showToast('${DictKey.historyDataExportSuccess.s}  ${file.path}');
+      await Utils.showToast(
+        '${DictKey.historyDataExportSuccess.s}  ${file.path}',
+      );
     } else {
       await Utils.showToast(DictKey.historyDataExportError.s);
     }
@@ -102,7 +118,7 @@ abstract final class DatabaseServices {
     try {
       if (_historyBox.isEmpty()) return null;
       final String jsonString = jsonEncode(getItems());
-      final DateTime now = .now();
+      final DateTime now = DateTime.now();
       final String formattedDateTime = DateFormat('yyyyMMdd-HH-mm').format(now);
       final String filePath = p.join(directory, 'qr_$formattedDateTime.json');
       final File file = File(filePath);
@@ -116,7 +132,7 @@ abstract final class DatabaseServices {
   static Future<void> importHistoryBoxFromJson() async {
     try {
       final PlatformFile? result = await FilePicker.pickFile(
-        type: .custom,
+        type: FileType.custom,
         allowedExtensions: const ['json'],
       );
       if (result == null) {
@@ -153,7 +169,8 @@ abstract final class DatabaseServices {
         }
       }
       _historyBox.putMany(itemsToProcess.values.toList());
-      final String endTip = '${DictKey.historyDataImportSuccess.s}  Total:${jsonData.length}, Added:$added, Replaced:$replaced';
+      final String endTip =
+          '${DictKey.historyDataImportSuccess.s}  Total:${jsonData.length}, Added:$added, Replaced:$replaced';
       await Utils.showToast(endTip, true);
     } catch (e) {
       await Utils.showToast('${DictKey.historyDataImportError.s}  $e', true);

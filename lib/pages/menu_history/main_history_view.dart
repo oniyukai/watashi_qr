@@ -1,14 +1,15 @@
 import 'dart:async';
-import 'package:material_ui/material_ui.dart';
+
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/common/database_services.dart';
-import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/common/router.dart';
+import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_card.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/widget/my_menu_button.dart';
 import 'package:watashi_qr/pages/widget/overlay_show.dart';
 import 'package:watashi_qr/pages/widget/selection_mixin.dart';
 
@@ -19,7 +20,8 @@ class MainHistoryView extends StatefulWidget {
   State<MainHistoryView> createState() => _MainHistoryViewState();
 }
 
-class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<int> {
+class _MainHistoryViewState extends State<MainHistoryView>
+    with SelectionMixin<int> {
   final ScrollController _scrollController = ScrollController();
   late final StreamSubscription<List<HistoryItem>> _historySubscription;
   var _historyItems = const <HistoryItem>[];
@@ -57,15 +59,19 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
   }
 
   Future<void> _pressSelectedCopy() async {
-    final List<HistoryItem> items = DatabaseServices.getItems(selectedObjects.toList());
+    final List<HistoryItem> items = DatabaseServices.getItems(
+      selectedObjects.toList(),
+    );
     final String combinedText = items.map((item) => item.contents).join('\n');
-    await Clipboard.setData(.new(text: combinedText));
+    await Clipboard.setData(ClipboardData(text: combinedText));
     Utils.showToast(DictKey.commonUiCopied.s);
     exitSelectionMode();
   }
 
   void _pressSelectedFavorite(int option) {
-    final List<HistoryItem> selectedItems = DatabaseServices.getItems(selectedObjects.toList());
+    final List<HistoryItem> selectedItems = DatabaseServices.getItems(
+      selectedObjects.toList(),
+    );
     for (final HistoryItem item in selectedItems) {
       item.isFavorite = option == 0;
     }
@@ -80,83 +86,83 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     DictKey.load(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isSelectionMode
-          ? Theme.of(context).colorScheme.inversePrimary
-          : null,
+            ? Theme.of(context).colorScheme.inversePrimary
+            : null,
         leading: isSelectionMode
-          ? IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: exitSelectionMode,
-          )
-          : null,
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: exitSelectionMode,
+              )
+            : null,
         title: isSelectionMode
             ? Text('${selectedObjects.length}/${_historyItems.length}')
             : Text('${_historyItems.length}'),
         actions: isSelectionMode
             ? [
-          IconButton(
-            icon: const Icon(Icons.delete_forever),
-            onPressed: () => OverlayShow.dialog(
-              context: context,
-              title: DictKey.commonLabelDelete.s,
-              content: Text(DictKey.historyDialogDeleteSelected.s),
-              actions: [
-                TextButton(
-                  onPressed: _pressSelectedDelete,
-                  child: Text(DictKey.commonLabelDelete.s),
+                IconButton(
+                  icon: const Icon(Icons.delete_forever),
+                  onPressed: () => OverlayShow.dialog(
+                    context: context,
+                    title: DictKey.commonLabelDelete.s,
+                    content: Text(DictKey.historyDialogDeleteSelected.s),
+                    actions: [
+                      TextButton(
+                        onPressed: _pressSelectedDelete,
+                        child: Text(DictKey.commonLabelDelete.s),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.content_copy),
-            onPressed: _pressSelectedCopy,
-          ),
-          MyMenuButton(
-            items: [
-              MyMenuItem(text: DictKey.historyMenuFavAdd.s),
-              MyMenuItem(text: DictKey.historyMenuFavRemove.s),
-            ],
-            onSelectedEnd: _pressSelectedFavorite,
-          ),
-        ]
+                IconButton(
+                  icon: const Icon(Icons.content_copy),
+                  onPressed: _pressSelectedCopy,
+                ),
+                MyMenuButton(
+                  items: [
+                    MyMenuItem(text: DictKey.historyMenuFavAdd.s),
+                    MyMenuItem(text: DictKey.historyMenuFavRemove.s),
+                  ],
+                  onSelectedEnd: _pressSelectedFavorite,
+                ),
+              ]
             : [
-          MyMenuButton(
-            icon: const Icon(Icons.swap_vert),
-            items: [
-              MyMenuItem(
-                text: DictKey.historyDataShareJson.s,
-                onTap: DatabaseServices.shareHistoryBoxToJson,
-              ),
-              MyMenuItem(
-                text: DictKey.historyDataExportJson.s,
-                onTap: DatabaseServices.exportHistoryBoxToJson,
-              ),
-              MyMenuItem(
-                text: DictKey.historyDataImportJson.s,
-                onTap: DatabaseServices.importHistoryBoxFromJson,
-              ),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_forever),
-            onPressed: () => OverlayShow.dialog(
-              context: context,
-              title: DictKey.commonLabelDelete.s,
-              content: Text(DictKey.historyDialogDeleteAll.s),
-              actions: [
-                TextButton(
-                  onPressed: _pressDeleteAll,
-                  child: Text(DictKey.commonLabelDelete.s),
+                MyMenuButton(
+                  icon: const Icon(Icons.swap_vert),
+                  items: [
+                    MyMenuItem(
+                      text: DictKey.historyDataShareJson.s,
+                      onTap: DatabaseServices.shareHistoryBoxToJson,
+                    ),
+                    MyMenuItem(
+                      text: DictKey.historyDataExportJson.s,
+                      onTap: DatabaseServices.exportHistoryBoxToJson,
+                    ),
+                    MyMenuItem(
+                      text: DictKey.historyDataImportJson.s,
+                      onTap: DatabaseServices.importHistoryBoxFromJson,
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_forever),
+                  onPressed: () => OverlayShow.dialog(
+                    context: context,
+                    title: DictKey.commonLabelDelete.s,
+                    content: Text(DictKey.historyDialogDeleteAll.s),
+                    actions: [
+                      TextButton(
+                        onPressed: _pressDeleteAll,
+                        child: Text(DictKey.commonLabelDelete.s),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         bottom: false,
@@ -174,7 +180,7 @@ class _MainHistoryViewState extends State<MainHistoryView> with SelectionMixin<i
               return ListView.builder(
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: false,
-                padding: const .fromLTRB(4.0, 4.0, 4.0, 16.0),
+                padding: const EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 16.0),
                 controller: _scrollController,
                 itemCount: _historyItems.length,
                 itemBuilder: (context, index) {

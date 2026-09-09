@@ -1,13 +1,14 @@
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:vibration/vibration.dart';
+import 'dart:core';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
-import 'dart:core';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vibration/vibration.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
 extension EnumFromName<T extends Enum> on Iterable<T> {
@@ -19,14 +20,14 @@ abstract final class Utils {
 
   /// 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
   static String formatUnixTimes(int unixTime) {
-    final DateTime dateTime = .fromMillisecondsSinceEpoch(unixTime);
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime);
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
   }
 
   /// true:為直屏狀態 false:為橫屏狀態
   static bool isPortrait(BuildContext context) =>
-      MediaQuery.of(context).orientation == .portrait;
+      MediaQuery.of(context).orientation == Orientation.portrait;
 
   /// 震動一下
   static Future<void> deviceVibrate() async {
@@ -49,21 +50,28 @@ abstract final class Utils {
   }
 
   /// 一個簡易的Toast訊息提示
-  static Future<bool?> showToast(String msg, [bool longTime = false]) => Fluttertoast.showToast(
-    msg: msg,
-    toastLength: longTime ? .LENGTH_LONG : .LENGTH_SHORT,
-    timeInSecForIosWeb: longTime ? 4 : 2,
-  );
+  static Future<bool?> showToast(String msg, [bool longTime = false]) =>
+      Fluttertoast.showToast(
+        msg: msg,
+        toastLength: longTime ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT,
+        timeInSecForIosWeb: longTime ? 4 : 2,
+      );
 
   /// 在預設瀏覽器開啟網站
   static Future<void> openUrlInBrowser(String url) async {
-    final Uri uri = .parse(url);
-    if (!await launchUrl(uri, mode: .externalApplication)) {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       await showToast('Could not launch $url');
     }
   }
+
   static Future<void> searchInBrowser(String searchUrl, String keyWord) =>
-    openUrlInBrowser(searchUrl.replaceAll(StaticString.searchReplaceWord, Uri.encodeComponent(keyWord)));
+      openUrlInBrowser(
+        searchUrl.replaceAll(
+          StaticString.searchReplaceWord,
+          Uri.encodeComponent(keyWord),
+        ),
+      );
 
   /// 鎖定螢幕轉向
   static Future<void> lockOrientation({
@@ -97,5 +105,6 @@ abstract final class Utils {
       ]);
 
   /// 統一使用這個來對外分享內容
-  static Future<ShareResult> share(ShareParams shareParams) => SharePlus.instance.share(shareParams);
+  static Future<ShareResult> share(ShareParams shareParams) =>
+      SharePlus.instance.share(shareParams);
 }

@@ -1,6 +1,6 @@
 import 'package:barcode/barcode.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' show BarcodeFormat;
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -10,17 +10,17 @@ import 'package:watashi_qr/pages/widget/my_icon.dart';
 enum HistoryFormat {
   qrCode(MyIconData(Icons.qr_code)),
   dataMatrix(MyIconData(MaterialCommunityIcons.data_matrix)),
-  aztec(.aztec),
-  pdf417(.pdf417),
-  ean13(.barcode),
-  ean8(.barcode),
-  upcA(.barcode),
-  upcE(.barcode),
-  code128(.barcode),
-  code93(.barcode),
-  code39(.barcode),
-  codabar(.barcode),
-  itf(.barcode);
+  aztec(MyIconData.aztec),
+  pdf417(MyIconData.pdf417),
+  ean13(MyIconData.barcode),
+  ean8(MyIconData.barcode),
+  upcA(MyIconData.barcode),
+  upcE(MyIconData.barcode),
+  code128(MyIconData.barcode),
+  code93(MyIconData.barcode),
+  code39(MyIconData.barcode),
+  codabar(MyIconData.barcode),
+  itf(MyIconData.barcode);
 
   const HistoryFormat(this.myIconData);
 
@@ -44,26 +44,29 @@ enum HistoryFormat {
 
   static HistoryFormat? fromScannerFormat(BarcodeFormat barcodeFormat) =>
       switch (barcodeFormat) {
-        .qrCode => qrCode,
-        .dataMatrix => dataMatrix,
-        .aztec => aztec,
-        .pdf417 => pdf417,
-        .ean13 => ean13,
-        .ean8 => ean8,
-        .upcA => upcA,
-        .upcE => upcE,
-        .code128 => code128,
-        .code93 => code93,
-        .code39 => code39,
-        .codabar => codabar,
-        .itf || .itf2of5 || .itf2of5WithChecksum || .itf14 => itf,
-        .maxiCode ||
-        .microQrCode ||
-        .dataBar ||
-        .dataBarExpanded ||
-        .dataBarLimited ||
-        .unknown ||
-        .all => null,
+        BarcodeFormat.qrCode => qrCode,
+        BarcodeFormat.dataMatrix => dataMatrix,
+        BarcodeFormat.aztec => aztec,
+        BarcodeFormat.pdf417 => pdf417,
+        BarcodeFormat.ean13 => ean13,
+        BarcodeFormat.ean8 => ean8,
+        BarcodeFormat.upcA => upcA,
+        BarcodeFormat.upcE => upcE,
+        BarcodeFormat.code128 => code128,
+        BarcodeFormat.code93 => code93,
+        BarcodeFormat.code39 => code39,
+        BarcodeFormat.codabar => codabar,
+        BarcodeFormat.itf ||
+        BarcodeFormat.itf2of5 ||
+        BarcodeFormat.itf2of5WithChecksum ||
+        BarcodeFormat.itf14 => itf,
+        BarcodeFormat.maxiCode ||
+        BarcodeFormat.microQrCode ||
+        BarcodeFormat.dataBar ||
+        BarcodeFormat.dataBarExpanded ||
+        BarcodeFormat.dataBarLimited ||
+        BarcodeFormat.unknown ||
+        BarcodeFormat.all => null,
       };
 
   static String localeStrFromName(String n) =>

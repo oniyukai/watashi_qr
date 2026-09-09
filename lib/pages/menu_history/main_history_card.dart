@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_format.dart';
+import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class MainHistoryCard extends StatelessWidget {
@@ -20,13 +20,13 @@ class MainHistoryCard extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     return Card(
       elevation: 0,
       child: ListTile(
-        contentPadding: const .symmetric(horizontal: 12.0),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
         selected: selected,
         tileColor: colorScheme.primaryContainer.withValues(alpha: 0.25),
         selectedTileColor: colorScheme.primaryContainer,
@@ -35,12 +35,12 @@ class MainHistoryCard extends StatelessWidget {
         minTileHeight: 40,
         horizontalTitleGap: 8,
         leading: Container(
-          padding: const .symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            shape: .circle,
+            shape: BoxShape.circle,
             color: historyItem.isFavorite
                 ? colorScheme.tertiary
-                : colorScheme.primary
+                : colorScheme.primary,
           ),
           child: AspectRatio(
             aspectRatio: 1.0,
@@ -56,15 +56,12 @@ class MainHistoryCard extends StatelessWidget {
               child: Text(
                 historyItem.contents.replaceAll('\n', ' '),
                 style: theme.textTheme.titleMedium,
-                overflow: .ellipsis,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(width: 4.0),
-            if (historyItem.isFavorite) Icon(
-                Icons.favorite,
-                size: 16.0,
-                color: theme.hintColor
-            ),
+            if (historyItem.isFavorite)
+              Icon(Icons.favorite, size: 16.0, color: theme.hintColor),
             const SizedBox(width: 2.0),
             Text(
               HistoryFormat.localeStrFromName(historyItem.format),
@@ -83,7 +80,7 @@ class MainHistoryCard extends StatelessWidget {
             Text(
               HistoryType.localeStrFromName(historyItem.type),
               style: theme.textTheme.bodySmall,
-              overflow: .ellipsis,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(width: 4.0),
             Expanded(
@@ -91,16 +88,16 @@ class MainHistoryCard extends StatelessWidget {
                 historyItem.notes.replaceAll('\n', ' '),
                 style: TextStyle(
                   color: colorScheme.tertiary,
-                  fontWeight: .bold,
+                  fontWeight: FontWeight.bold,
                 ),
-                overflow: .ellipsis,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(width: 4.0),
             Icon(
               historyItem.getOrigin?.iconData ?? Icons.help_center_outlined,
               size: 16.0,
-              color: theme.hintColor
+              color: theme.hintColor,
             ),
             const SizedBox(width: 2.0),
             Text(

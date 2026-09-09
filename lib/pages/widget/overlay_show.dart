@@ -15,7 +15,7 @@ abstract final class OverlayShow {
         title: Text(
           title,
           style: Theme.of(context).textTheme.titleMedium,
-          textAlign: .center,
+          textAlign: TextAlign.center,
         ),
         content: content,
         actions: [
@@ -41,7 +41,7 @@ abstract final class OverlayShow {
       context: context,
       isScrollControlled: true,
       builder: (context) => SingleChildScrollView(
-        padding: .fromLTRB(
+        padding: EdgeInsets.fromLTRB(
           16.0,
           16.0,
           16.0,
@@ -54,7 +54,7 @@ abstract final class OverlayShow {
             ?content,
             if (content != null) const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: .spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 if (!noCancelButton)
                   ElevatedButton(

@@ -22,42 +22,43 @@ class ItemTile extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
-      shape: RoundedRectangleBorder(borderRadius: .circular(12.0)),
-      contentPadding: const .all(8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      contentPadding: const EdgeInsets.all(8),
       minTileHeight: 40,
       minVerticalPadding: 0,
       selected: selected == true,
       selectedTileColor: colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: onLongPress,
-      leading: (myIconData != null) ? Container(
-        padding: const .symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          shape: .circle,
-          color: colorScheme.primary
-        ),
-        child: AspectRatio(
-          aspectRatio: 1.0,
-          child: MyIcon(
-            myIconData,
-            color: colorScheme.onPrimary,
-          ),
-        ),
-      ) : null,
+      leading: (myIconData != null)
+          ? Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.primary,
+              ),
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: MyIcon(myIconData, color: colorScheme.onPrimary),
+              ),
+            )
+          : null,
       title: Text(
         title,
         style: theme.textTheme.titleMedium,
-        overflow: .ellipsis,
+        overflow: TextOverflow.ellipsis,
       ),
-      subtitle: (description != null) ? Text(
-        description!,
-        style: theme.textTheme.bodySmall,
-        overflow: .ellipsis,
-      ) : null,
+      subtitle: (description != null)
+          ? Text(
+              description!,
+              style: theme.textTheme.bodySmall,
+              overflow: TextOverflow.ellipsis,
+            )
+          : null,
       trailing: trailing,
     );
   }

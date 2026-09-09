@@ -78,10 +78,10 @@ class HistoryItem {
 
 /// !! 改變name會影響之後HistoryItem儲存的值
 enum HistoryErrorLevel {
-  L(.low),
-  M(.medium),
-  Q(.quartile),
-  H(.high),
+  L(BarcodeQRCorrectionLevel.low),
+  M(BarcodeQRCorrectionLevel.medium),
+  Q(BarcodeQRCorrectionLevel.quartile),
+  H(BarcodeQRCorrectionLevel.high),
   none;
 
   final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;

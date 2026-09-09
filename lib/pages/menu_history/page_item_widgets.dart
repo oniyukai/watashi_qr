@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
-import 'package:flutter/services.dart';
 
 class PressButtonGrid extends StatelessWidget {
   final IconData iconData;
@@ -20,10 +20,10 @@ class PressButtonGrid extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        contentPadding: const .all(12),
+        contentPadding: const EdgeInsets.all(12),
         onTap: () async {
           try {
             await onTap();
@@ -33,12 +33,8 @@ class PressButtonGrid extends StatelessWidget {
         },
         title: Icon(iconData),
         subtitle: Padding(
-          padding: const .symmetric(vertical: 4),
-          child: Text(
-            description,
-            textAlign: .center,
-            softWrap: true,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(description, textAlign: TextAlign.center, softWrap: true),
         ),
       ),
     );
@@ -56,46 +52,52 @@ class AnalyzedContentItem extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     Iterable<MapEntry<String, String?>> entryList = const [];
     String? error;
     try {
       entryList = switch (type) {
-        .text || .product || .industrial || null => _TextAnalyzer(contents),
-        .website => WebsiteAnalyzer(contents),
-        .contact => ContactAnalyzer(contents),
-        .mail => MailAnalyzer(contents),
-        .sms => SmsAnalyzer(contents),
-        .phone => PhoneAnalyzer(contents),
-        .location => LocationAnalyzer(contents),
-        .event => EventAnalyzer(contents),
-        .wifi => WifiAnalyzer(contents),
+        HistoryType.text ||
+        HistoryType.product ||
+        HistoryType.industrial ||
+        null => _TextAnalyzer(contents),
+        HistoryType.website => WebsiteAnalyzer(contents),
+        HistoryType.contact => ContactAnalyzer(contents),
+        HistoryType.mail => MailAnalyzer(contents),
+        HistoryType.sms => SmsAnalyzer(contents),
+        HistoryType.phone => PhoneAnalyzer(contents),
+        HistoryType.location => LocationAnalyzer(contents),
+        HistoryType.event => EventAnalyzer(contents),
+        HistoryType.wifi => WifiAnalyzer(contents),
       }._getEntryList().where((e) => e.value?.isNotEmpty == true);
     } catch (e) {
       error = e.toString();
     }
     return Column(
-      crossAxisAlignment: .start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (entryList.isEmpty) SelectableText(contents)
-        else for (final MapEntry<String, String?> entry in entryList)
-          ItemTile(
-            title: entry.value!,
-            description: entry.key,
-            trailing: IconButton(
-              padding: const .all(0),
-              visualDensity: .compact,
-              onPressed: () async {
-                await Clipboard.setData(.new(text: entry.value!));
-                Utils.showToast(DictKey.commonUiCopied.s);
-              },
-              icon: const Icon(Icons.copy),
+        if (entryList.isEmpty)
+          SelectableText(contents)
+        else
+          for (final MapEntry<String, String?> entry in entryList)
+            ItemTile(
+              title: entry.value!,
+              description: entry.key,
+              trailing: IconButton(
+                padding: const EdgeInsets.all(0),
+                visualDensity: VisualDensity.compact,
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: entry.value!));
+                  Utils.showToast(DictKey.commonUiCopied.s);
+                },
+                icon: const Icon(Icons.copy),
+              ),
             ),
+        if (error != null && error.isNotEmpty)
+          SelectableText(
+            'Analysis Error: $error',
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
-        if (error != null && error.isNotEmpty) SelectableText(
-          'Analysis Error: $error',
-          style: TextStyle(color: Theme.of(context).colorScheme.error),
-        ),
       ],
     );
   }
@@ -131,9 +133,9 @@ class WebsiteAnalyzer extends _TextAnalyzer {
 
   @override
   bool get _checkType => UrlValidator().isURL(
-      _text,
-      protocols: const ['http', 'https'],
-      requireProtocol: true
+    _text,
+    protocols: const ['http', 'https'],
+    requireProtocol: true,
   );
 }
 
@@ -158,8 +160,17 @@ class ContactAnalyzer extends _TextAnalyzer {
   ];
 
   @override
-  ({String name, String organisation, String jobTitle, String website,
-  String mail, String phone, String address, String notes}) _parse() {
+  ({
+    String name,
+    String organisation,
+    String jobTitle,
+    String website,
+    String mail,
+    String phone,
+    String address,
+    String notes,
+  })
+  _parse() {
     final name = <String>[];
     final organisation = <String>[];
     final jobTitle = <String>[];
@@ -179,18 +190,20 @@ class ContactAnalyzer extends _TextAnalyzer {
       if (upperFirst == 'URL') website.add(subValue);
       if (upperFirst.startsWith('EMAIL')) mail.add(subValue);
       if (upperFirst.startsWith('TEL')) phone.add(subValue);
-      if (upperFirst.startsWith('ADR')) address.add(subValue.split(';').where((sp) => sp.isNotEmpty).join(' '));
+      if (upperFirst.startsWith('ADR')) {
+        address.add(subValue.split(';').where((sp) => sp.isNotEmpty).join(' '));
+      }
       if (upperFirst == 'NOTE') notes.add(subValue);
     }
     return (
-    name: name.join('\n'),
-    organisation: organisation.join('\n'),
-    jobTitle: jobTitle.join('\n'),
-    website: website.join('\n'),
-    mail: mail.join('\n'),
-    phone: phone.join('\n'),
-    address: address.join('\n'),
-    notes: notes.join('\n'),
+      name: name.join('\n'),
+      organisation: organisation.join('\n'),
+      jobTitle: jobTitle.join('\n'),
+      website: website.join('\n'),
+      mail: mail.join('\n'),
+      phone: phone.join('\n'),
+      address: address.join('\n'),
+      notes: notes.join('\n'),
     );
   }
 }
@@ -201,7 +214,8 @@ class MailAnalyzer extends _TextAnalyzer {
   late final parseValue = _parse();
 
   @override
-  bool get _checkType => _upper.startsWith('MAILTO:') || _upper.startsWith('MATMSG:');
+  bool get _checkType =>
+      _upper.startsWith('MAILTO:') || _upper.startsWith('MATMSG:');
 
   @override
   List<MapEntry<String, String?>> _getEntryList() => [
@@ -226,16 +240,12 @@ class MailAnalyzer extends _TextAnalyzer {
         if (upperFirst.startsWith('BODY')) message = subValue;
       }
     } else if (_upper.startsWith('MAILTO:')) {
-      final Uri uri = .parse(_text);
+      final Uri uri = Uri.parse(_text);
       email = uri.path;
       subject = uri.queryParameters['subject'];
       message = uri.queryParameters['body'];
     }
-    return (
-    email: email,
-    subject: subject,
-    message: message,
-    );
+    return (email: email, subject: subject, message: message);
   }
 }
 
@@ -255,16 +265,22 @@ class SmsAnalyzer extends _TextAnalyzer {
 
   @override
   ({String phone, String? message}) _parse() {
-    final Uri uri = .parse(_text);
+    final Uri uri = Uri.parse(_text);
     String? phone;
     String? message;
     for (final String subText in uri.path.split(':')) {
-      if (phone == null) {phone = subText; continue;}
-      if (message == null) {message = subText; continue;}
+      if (phone == null) {
+        phone = subText;
+        continue;
+      }
+      if (message == null) {
+        message = subText;
+        continue;
+      }
     }
     return (
-    phone: phone ?? uri.path,
-    message: message ?? uri.queryParameters['body'],
+      phone: phone ?? uri.path,
+      message: message ?? uri.queryParameters['body'],
     );
   }
 }
@@ -283,9 +299,7 @@ class PhoneAnalyzer extends _TextAnalyzer {
   ];
 
   @override
-  ({String phone}) _parse() => (
-  phone: _text.substring(4),
-  );
+  ({String phone}) _parse() => (phone: _text.substring(4));
 }
 
 class LocationAnalyzer extends _TextAnalyzer {
@@ -305,22 +319,32 @@ class LocationAnalyzer extends _TextAnalyzer {
   ];
 
   @override
-  ({String? latitude, String? longitude, String? height, String? request}) _parse() {
-    final Uri uri = .parse(_text);
+  ({String? latitude, String? longitude, String? height, String? request})
+  _parse() {
+    final Uri uri = Uri.parse(_text);
     final String? request = uri.queryParameters['q'];
     String? latitude;
     String? longitude;
     String? height;
     for (final String subText in uri.path.split(',')) {
-      if (latitude == null) {latitude = subText; continue;}
-      if (longitude == null) {longitude = subText; continue;}
-      if (height == null) {height = subText; continue;}
+      if (latitude == null) {
+        latitude = subText;
+        continue;
+      }
+      if (longitude == null) {
+        longitude = subText;
+        continue;
+      }
+      if (height == null) {
+        height = subText;
+        continue;
+      }
     }
     return (
-    latitude: latitude,
-    longitude: longitude,
-    height: height,
-    request: request,
+      latitude: latitude,
+      longitude: longitude,
+      height: height,
+      request: request,
     );
   }
 }
@@ -343,7 +367,14 @@ class EventAnalyzer extends _TextAnalyzer {
   ];
 
   @override
-  ({String? summary, String? startDate, String? endDate, String? location, String? description}) _parse() {
+  ({
+    String? summary,
+    String? startDate,
+    String? endDate,
+    String? location,
+    String? description,
+  })
+  _parse() {
     String? summary;
     String? startDate;
     String? endDate;
@@ -355,17 +386,25 @@ class EventAnalyzer extends _TextAnalyzer {
       final String upperFirst = subParts.removeAt(0).toUpperCase();
       final String subValue = subParts.join(':');
       if (upperFirst.startsWith('SUMMARY')) summary = subValue;
-      if (upperFirst.startsWith('DTSTART')) startDate = Utils.formatUnixTimes(DateTime.parse(subValue).millisecondsSinceEpoch);
-      if (upperFirst.startsWith('DTEND')) endDate = Utils.formatUnixTimes(DateTime.parse(subValue).millisecondsSinceEpoch);
+      if (upperFirst.startsWith('DTSTART')) {
+        startDate = Utils.formatUnixTimes(
+          DateTime.parse(subValue).millisecondsSinceEpoch,
+        );
+      }
+      if (upperFirst.startsWith('DTEND')) {
+        endDate = Utils.formatUnixTimes(
+          DateTime.parse(subValue).millisecondsSinceEpoch,
+        );
+      }
       if (upperFirst.startsWith('LOCATION')) location = subValue;
       if (upperFirst.startsWith('DESCRIPTION')) description = subValue;
     }
     return (
-    summary: summary,
-    startDate: startDate,
-    endDate: endDate,
-    location: location,
-    description: description,
+      summary: summary,
+      startDate: startDate,
+      endDate: endDate,
+      location: location,
+      description: description,
     );
   }
 }
@@ -402,11 +441,6 @@ class WifiAnalyzer extends _TextAnalyzer {
       if (upperFirst.startsWith('T')) security = subValue;
       if (upperFirst.startsWith('H')) hide = subValue;
     }
-    return (
-    ssid: ssid,
-    password: password,
-    security: security,
-    hide: hide,
-    );
+    return (ssid: ssid, password: password, security: security, hide: hide);
   }
 }

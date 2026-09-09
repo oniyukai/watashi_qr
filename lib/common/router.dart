@@ -4,11 +4,11 @@ import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
 import 'package:watashi_qr/pages/menu_creator/page_qrcode_form.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_nav_bar.dart';
 import 'package:watashi_qr/pages/menu_scanner/page_image_scan.dart';
 import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_form.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
-import 'package:watashi_qr/pages/menu_nav_bar.dart';
 
 typedef _InitialPage = MenuNavBar;
 
@@ -21,28 +21,38 @@ class _RouteEntry {
   const _RouteEntry(this.route, this.builder);
 }
 
-final Map<Type, _RouteEntry> _routingTable = Map.fromEntries(<Type, WidgetBuilder>{
-  _InitialPage: (_) => const _InitialPage(),
-  // menu_scanner/
-  PageImageScan: (_) => const PageImageScan(),
-  // menu_creator/
-  PageQrcodeForm: (_) => const PageQrcodeForm(),
-  PageBarcodeForm: (_) => const PageBarcodeForm(),
-  // menu_history/
-  PageItemView: (_) => const PageItemView(),
-  PageCodeView: (_) => const PageCodeView(),
-  // menu_settings/
-  PageCustomurlsView: (_) => const PageCustomurlsView(),
-  PageAboutView: (_) => const PageAboutView(),
-  PageCustomurlsForm: (_) => const PageCustomurlsForm(),
-}.entries.mapIndexed((index, entry) => MapEntry(
-  entry.key, _RouteEntry(
-    '/${_useIndexPrefix ? '$index-' : ''}${entry.key}',
-    entry.value))));
+final Map<Type, _RouteEntry> _routingTable = Map.fromEntries(
+  <Type, WidgetBuilder>{
+    _InitialPage: (_) => const _InitialPage(),
+    // menu_scanner/
+    PageImageScan: (_) => const PageImageScan(),
+    // menu_creator/
+    PageQrcodeForm: (_) => const PageQrcodeForm(),
+    PageBarcodeForm: (_) => const PageBarcodeForm(),
+    // menu_history/
+    PageItemView: (_) => const PageItemView(),
+    PageCodeView: (_) => const PageCodeView(),
+    // menu_settings/
+    PageCustomurlsView: (_) => const PageCustomurlsView(),
+    PageAboutView: (_) => const PageAboutView(),
+    PageCustomurlsForm: (_) => const PageCustomurlsForm(),
+  }.entries.mapIndexed(
+    (index, entry) => MapEntry(
+      entry.key,
+      _RouteEntry(
+        '/${_useIndexPrefix ? '$index-' : ''}${entry.key}',
+        entry.value,
+      ),
+    ),
+  ),
+);
 
 String _pageTypeName(Type pageType) {
   final _RouteEntry? routeEntry = _routingTable[pageType];
-  assert(routeEntry != null, '_routingTable not included Type<$pageType>, Please register $pageType Route.');
+  assert(
+    routeEntry != null,
+    '_routingTable not included Type<$pageType>, Please register $pageType Route.',
+  );
   return routeEntry!.route;
 }
 
@@ -51,24 +61,31 @@ String _pageTypeName(Type pageType) {
 ///
 /// - [PA] 只有在帶參數路由且鏈式調用時指定所前往的頁面型別時, [_instance] 才會儲存 [PA]
 final class MyRouter<PA extends RouterBridge> {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   static final String initialRoute = _pageTypeName(_InitialPage);
-  static final Map<String, WidgetBuilder> routes = _routingTable.map((k, v) => MapEntry(v.route, v.builder));
+  static final Map<String, WidgetBuilder> routes = _routingTable.map(
+    (k, v) => MapEntry(v.route, v.builder),
+  );
 
   static Route<T> onGenerateRoute<T>(RouteSettings settings) {
-    final WidgetBuilder builder = routes[settings.name] ?? routes[initialRoute]!;
+    final WidgetBuilder builder =
+        routes[settings.name] ?? routes[initialRoute]!;
     return MaterialPageRoute<T>(builder: builder, settings: settings);
   }
 
-  static Route<T> onUnknownRoute<T>(RouteSettings settings) => MyRouter.onGenerateRoute(settings);
+  static Route<T> onUnknownRoute<T>(RouteSettings settings) =>
+      MyRouter.onGenerateRoute(settings);
 
   /// 不帶路由參數地 push 新頁面, 如有參數請透過 [routeToPass]
   ///
   /// * @param [context]
   /// * @param [pageType] 頁面型別, 頁面不管是否可以或需要路由參數
   /// * @return [Future] 用於接收頁面跳回時的回傳
-  static Future<R?> routeTo<R extends Object?>(BuildContext context, Type pageType) =>
-      Navigator.pushNamed<R>(context, _pageTypeName(pageType));
+  static Future<R?> routeTo<R extends Object?>(
+    BuildContext context,
+    Type pageType,
+  ) => Navigator.pushNamed<R>(context, _pageTypeName(pageType));
 
   /// 帶路由參數地 push 新頁面, 如無參數轉請透過 [routeTo]
   ///
@@ -77,8 +94,15 @@ final class MyRouter<PA extends RouterBridge> {
   /// * @param [context]
   /// * @param [args] 攜帶過去的路由參數
   /// * @return [Future] 用於接收頁面跳回時的回傳
-  static Future<R?> routeToPass<R extends Object?, P extends RouterBridge<A>, A>(BuildContext context, A args) {
-    assert(P != RouterBridge<dynamic>, 'Routing parameters cannot be specified as dynamic.');
+  static Future<R?> routeToPass<
+    R extends Object?,
+    P extends RouterBridge<A>,
+    A
+  >(BuildContext context, A args) {
+    assert(
+      P != RouterBridge<dynamic>,
+      'Routing parameters cannot be specified as dynamic.',
+    );
     return Navigator.pushNamed<R>(context, _pageTypeName(P), arguments: args);
   }
 
@@ -94,7 +118,10 @@ final class MyRouter<PA extends RouterBridge> {
   /// * @param [context]
   /// * @return [P] 頁面實例
   static P of<P extends RouterBridge>(BuildContext context) {
-    assert(P != RouterBridge<dynamic>, 'You must specify the route type, for example: of<Page>(context)');
+    assert(
+      P != RouterBridge<dynamic>,
+      'You must specify the route type, for example: of<Page>(context)',
+    );
     final String route = _pageTypeName(P);
     final WidgetBuilder builder = routes[route]!;
     _instance = MyRouter<P>._(context);
@@ -113,11 +140,15 @@ final class MyRouter<PA extends RouterBridge> {
 }
 
 extension RoutableContext on BuildContext {
-  Future<R?> routeTo<R extends Object?>(Type pageType) => MyRouter.routeTo<R>(this, pageType);
+  Future<R?> routeTo<R extends Object?>(Type pageType) =>
+      MyRouter.routeTo<R>(this, pageType);
 
   /// 用法:  [RoutableContext].[routeOf]\<[P]\>().toPass(args);
   P routeOf<P extends RouterBridge>() {
-    assert(P != RouterBridge<dynamic>, 'You must specify the route type, for example: context.routeOf<Page>()');
+    assert(
+      P != RouterBridge<dynamic>,
+      'You must specify the route type, for example: context.routeOf<Page>()',
+    );
     return MyRouter.of<P>(this);
   }
 }

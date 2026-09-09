@@ -1,15 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
+import 'package:watashi_qr/common/app_theme.dart';
+import 'package:watashi_qr/common/prefs.dart';
+import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
-import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_settings/main_settings_widgets.dart';
 import 'package:watashi_qr/pages/menu_settings/page_about_view.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
-import 'package:watashi_qr/common/prefs.dart';
-import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/pages/menu_settings/main_settings_widgets.dart';
 
 class MainSettingsView extends StatefulWidget {
   const MainSettingsView({super.key});
@@ -28,7 +28,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     DictKey.load(context);
     return SafeArea(
       top: false,
@@ -38,12 +38,16 @@ class _MainSettingsPage extends State<MainSettingsView> {
         child: Consumer<PrefsProvider>(
           builder: (context, prefs, child) => ListView(
             children: [
-              ListTileText(text: DictKey.settingGroupAppearance.s, isSection: true),
+              ListTileText(
+                text: DictKey.settingGroupAppearance.s,
+                isSection: true,
+              ),
               ListTilePicker<ColorOption>(
                 text: DictKey.settingOptionColor.s,
                 selectedOption: prefs.get(.selectedColor),
                 optionMap: ColorOption.optionMap,
-                leadingBuilder: (radio, selected) => ColorfulRadio(radio, selected),
+                leadingBuilder: (radio, selected) =>
+                    ColorfulRadio(radio, selected),
                 onChanged: (value) => prefs.update(.selectedColor, value),
               ),
               ListTilePicker<ThemeOption>(
@@ -111,7 +115,8 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 dialogText: DictKey.settingDialogQrErrorCorrectionLevelTitle.s,
                 selectedOption: prefs.get(.selectedQRErrorLevel),
                 optionMap: HistoryErrorLevel.optionMap,
-                onChanged: (value) => prefs.update(.selectedQRErrorLevel, value),
+                onChanged: (value) =>
+                    prefs.update(.selectedQRErrorLevel, value),
               ),
 
               ListTileText(text: DictKey.navTitleHistory.s, isSection: true),
@@ -139,7 +144,8 @@ class _MainSettingsPage extends State<MainSettingsView> {
                 text: DictKey.settingOptionSearchEngine.s,
                 selectedOption: prefs.get(.selectedSearchEngine),
                 optionMap: SearchEngine.optionMap,
-                onChanged: (value) => prefs.update(.selectedSearchEngine, value),
+                onChanged: (value) =>
+                    prefs.update(.selectedSearchEngine, value),
               ),
               ListTileText(
                 text: DictKey.settingOptionCustomSearch.s,
