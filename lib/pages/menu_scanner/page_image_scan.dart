@@ -26,13 +26,16 @@ class PageImageScan extends StatefulWidget
 }
 
 class PageImageScanArgs {
-  final MobileScannerController controller;
   XFile? xFile;
-  PageImageScanArgs({required this.controller, this.xFile});
+
+  PageImageScanArgs({this.xFile});
 }
 
-class _PageImageScanState extends State<PageImageScan>
-    with WidgetsBindingObserver {
+class _PageImageScanState extends State<PageImageScan> {
+  late final AppLifecycleListener _lifecycleListener;
+  final MobileScannerController _scannerController = MobileScannerController(
+    autoStart: false,
+  );
   final CropController _cropController = CropController();
   late final PageImageScanArgs _args = widget.getArgs(context)!;
   bool _isInCycleCrop = true;
@@ -43,24 +46,23 @@ class _PageImageScanState extends State<PageImageScan>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(_postFrameCallback);
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: (state) {
+        if (state == AppLifecycleState.resumed && !_isInCycleCrop) {
+          _isInCycleCrop = true;
+        } else if (_isInCycleCrop) {
+          _isInCycleCrop = false;
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
     _isInCycleCrop = false;
-    WidgetsBinding.instance.removeObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed && !_isInCycleCrop) {
-      _isInCycleCrop = true;
-    } else if (_isInCycleCrop) {
-      _isInCycleCrop = false;
-    }
+    _scannerController.dispose();
+    _lifecycleListener.dispose();
   }
 
   Future<void> _postFrameCallback(Duration timeStamp) async {
@@ -82,7 +84,7 @@ class _PageImageScanState extends State<PageImageScan>
         p.join(tempDir.path, 'temp_cropped_image.png'),
       );
       await tempFile.writeAsBytes(croppedData.croppedImage);
-      final BarcodeCapture? barcodeCapture = await _args.controller
+      final BarcodeCapture? barcodeCapture = await _scannerController
           .analyzeImage(tempFile.path);
       if (!mounted) return;
       if ((_barcodeCapture?.barcodes.isNotEmpty == true) !=

@@ -6,15 +6,92 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
-Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
-  final String errorMessage = switch (error.errorCode) {
-    MobileScannerErrorCode.permissionDenied =>
-      DictKey.commonLabelCameraDenied.s,
-    _ => error.errorCode.message,
-  };
-  return Center(
-    child: Text('$errorMessage\n\n${error.errorDetails?.message ?? ''}'),
-  );
+class CameraView extends StatefulWidget {
+  final Rect scanWindow;
+  final CameraFacing facing;
+  final double initialZoom;
+  final void Function(MobileScannerController? controller) onOpen;
+  final void Function(BarcodeCapture barcodes) onDetect;
+
+  const CameraView({
+    super.key,
+    required this.scanWindow,
+    required this.facing,
+    required this.initialZoom,
+    required this.onDetect,
+    required this.onOpen,
+  });
+
+  @override
+  State<CameraView> createState() => _CameraViewState();
+}
+
+class _CameraViewState extends State<CameraView> {
+  late final AppLifecycleListener _lifecycleListener;
+  late final MobileScannerController _scannerController =
+      MobileScannerController(
+        detectionSpeed: DetectionSpeed.unrestricted,
+        facing: widget.facing,
+        initialZoom: widget.initialZoom,
+      );
+
+  @override
+  void initState() {
+    super.initState();
+    widget.onOpen(_scannerController);
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: (state) {
+        if (state == AppLifecycleState.resumed &&
+            _scannerController.value.isInitialized) {
+          _scannerController.setZoomScale(widget.initialZoom);
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.onOpen(null);
+    _lifecycleListener.dispose();
+    _scannerController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isUseFrontCamera = widget.facing == CameraFacing.front;
+    return Transform.scale(
+      scaleX: isUseFrontCamera ? -1 : 1,
+      child: Stack(
+        children: [
+          MobileScanner(
+            scanWindow: widget.scanWindow,
+            controller: _scannerController,
+            errorBuilder: (context, error) {
+              final String errorMessage = switch (error.errorCode) {
+                MobileScannerErrorCode.permissionDenied =>
+                  DictKey.commonLabelCameraDenied.s,
+                _ => error.errorCode.message,
+              };
+              return Center(
+                child: Text(
+                  '$errorMessage\n\n${error.errorDetails?.message ?? ''}',
+                ),
+              );
+            },
+            onDetect: widget.onDetect,
+          ),
+          BarcodeOverlay(
+            // todo debug: 自拍字體水平相反
+            controller: _scannerController,
+            boxFit: BoxFit.cover,
+            color: Theme.of(context).colorScheme.tertiary
+                .withValues(alpha: 0.5),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class FlashlightButton extends StatelessWidget {
@@ -47,8 +124,9 @@ class FlashlightButton extends StatelessWidget {
 class MyScanWindowOverlay extends StatefulWidget {
   final MobileScannerController controller;
   final Rect scanWindow;
-  final void Function(double width, double height)
-  onPanUpdate; // Function請使用setState()來更新scanWindow
+
+  /// 請使用setState()來更新scanWindow
+  final void Function(double width, double height) onPanUpdate;
   final VoidCallback onPanEnd;
 
   const MyScanWindowOverlay({
