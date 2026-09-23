@@ -32,11 +32,18 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageItemViewState extends State<PageItemView> {
+  final ScrollController _scrollController = ScrollController();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryItem _historyItem = widget.getArgs(context)!;
   late HistoryType? _historyType = _historyItem.getType;
   late bool _isExistBefore = _historyItem.id > 0;
   late bool _isWillExist = _isExistBefore;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
 
   void _syncToDatabase() {
     if (_historyItem.id > 0 && _isWillExist) {
@@ -56,7 +63,7 @@ class _PageItemViewState extends State<PageItemView> {
   }
 
   Future<void> _pressShareContents() =>
-      Utils.share(ShareParams(text: _historyItem.contents));
+      SharePlus.instance.share(ShareParams(text: _historyItem.contents));
 
   Future<void> _pressModifyContents() => OverlayShow.bottomSheet(
     context: context,
@@ -109,7 +116,9 @@ class _PageItemViewState extends State<PageItemView> {
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
+            controller: _scrollController,
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ExpandableCard(
@@ -297,35 +306,40 @@ class _PageItemViewState extends State<PageItemView> {
       PressButtonGrid(
         iconData: Icons.search,
         description: DictKey.settingOptionCustomSearch.s,
-        onTap: () => OverlayShow.dialog(
-          context: context,
-          title: DictKey.settingOptionCustomSearch.s,
-          noCancelButton: true,
-          content: Scrollbar(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final searchUrl
-                      in context.readPrefs.get<List<CustomSearchUrl>>(
-                        .customSearchUrls,
-                      ))
-                    ItemTile(
-                      title: searchUrl.title,
-                      description: searchUrl.url,
-                      onTap: () {
-                        Utils.searchInBrowser(
-                          searchUrl.url,
-                          _historyItem.contents,
-                        );
-                        Navigator.pop(context);
-                      },
-                    ),
-                ],
+        onTap: () {
+          final ScrollController scrollController = ScrollController();
+          return OverlayShow.dialog(
+            context: context,
+            title: DictKey.settingOptionCustomSearch.s,
+            noCancelButton: true,
+            content: Scrollbar(
+              controller: scrollController,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final searchUrl
+                        in context.readPrefs.get<List<CustomSearchUrl>>(
+                          .customSearchUrls,
+                        ))
+                      ItemTile(
+                        title: searchUrl.title,
+                        description: searchUrl.url,
+                        onTap: () {
+                          Utils.searchInBrowser(
+                            searchUrl.url,
+                            _historyItem.contents,
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          ).whenComplete(scrollController.dispose);
+        },
       ),
 
     PressButtonGrid(
@@ -375,7 +389,9 @@ class _PageItemViewState extends State<PageItemView> {
           final Directory tempDir = await getTemporaryDirectory();
           final File file = File(p.join(tempDir.path, 'contact.vcf'));
           await file.writeAsString(_historyItem.contents);
-          await Utils.share(ShareParams(files: [XFile(file.path)]));
+          await SharePlus.instance.share(
+            ShareParams(files: [XFile(file.path)]),
+          );
         },
       ),
 
@@ -476,7 +492,7 @@ enum SearchEngine {
   const SearchEngine(this.url);
   final String url;
 
-  static Map<SearchEngine, String> get optionMap => <SearchEngine, String>{
+  static Map<SearchEngine, String> get optionMap => {
     google: StaticString.googleLabel,
     bing: StaticString.bingLabel,
     wikipedia: StaticString.wikipediaLabel,

@@ -30,7 +30,7 @@ class ItemTile extends StatelessWidget {
       contentPadding: const EdgeInsets.all(8),
       minTileHeight: 40,
       minVerticalPadding: 0,
-      selected: selected == true,
+      selected: selected ?? false,
       selectedTileColor: colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: onLongPress,

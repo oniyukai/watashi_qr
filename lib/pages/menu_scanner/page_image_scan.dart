@@ -16,6 +16,7 @@ import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
+import 'package:watashi_qr/pages/menu_scanner/main_scanner_view.dart';
 
 class PageImageScan extends StatefulWidget
     with RouterBridge<PageImageScanArgs> {
@@ -87,8 +88,8 @@ class _PageImageScanState extends State<PageImageScan> {
       final BarcodeCapture? barcodeCapture = await _scannerController
           .analyzeImage(tempFile.path);
       if (!mounted) return;
-      if ((_barcodeCapture?.barcodes.isNotEmpty == true) !=
-          (barcodeCapture?.barcodes.isNotEmpty == true)) {
+      if ((_barcodeCapture?.barcodes.isNotEmpty ?? false) !=
+          (barcodeCapture?.barcodes.isNotEmpty ?? false)) {
         setState(() => _barcodeCapture = barcodeCapture);
       }
       _barcodeCapture = barcodeCapture;
@@ -96,18 +97,17 @@ class _PageImageScanState extends State<PageImageScan> {
   }
 
   Future<void> _pressCheck() async {
-    final BarcodeFormat scannerFormat = _barcodeCapture!.barcodes.first.format;
-    final String? contents = _barcodeCapture!.barcodes.first.rawValue;
-    if (contents == null || contents.isEmpty) return;
-    final HistoryFormat? format = HistoryFormat.fromScannerFormat(
-      scannerFormat,
+    final (rawValue, format) = MainScannerView.decodeCapture(_barcodeCapture!);
+    if (rawValue == null || rawValue.trim().isEmpty) return;
+    final HistoryFormat? historyFormat = HistoryFormat.fromScannerFormat(
+      format,
     );
     final bool isScanAddHistory = context.readPrefs.get(.isScanAddHistory);
     final HistoryItem item = HistoryItem(
       unixTime: Utils.nowUnixTime,
-      contents: contents,
-      format: format?.name ?? scannerFormat.name,
-      type: HistoryType.fromDistinguish(format, contents).name,
+      contents: rawValue,
+      format: historyFormat?.name ?? format.name,
+      type: HistoryType.fromDistinguish(historyFormat, rawValue).name,
       errorLevel: HistoryErrorLevel.none.name,
       origin: HistoryOrigin.S.name,
       isFavorite: false,
@@ -125,7 +125,7 @@ class _PageImageScanState extends State<PageImageScan> {
       appBar: AppBar(
         title: Text(DictKey.navTitleScanner.s),
         actions: [
-          if (_barcodeCapture?.barcodes.isNotEmpty == true)
+          if (_barcodeCapture?.barcodes.isNotEmpty ?? false)
             IconButton(icon: const Icon(Icons.check), onPressed: _pressCheck),
         ],
       ),

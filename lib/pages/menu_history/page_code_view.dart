@@ -80,7 +80,7 @@ class _PageCodeViewState extends State<PageCodeView> {
       final Directory tempDir = await getTemporaryDirectory();
       final File file = File(p.join(tempDir.path, 'barcode.png'));
       await file.writeAsBytes(img.encodePng(_getBarcodeImage(1024.0)));
-      await Utils.share(ShareParams(files: [XFile(file.path)]));
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
     } catch (e) {
       Utils.showToast(e.toString());
     }

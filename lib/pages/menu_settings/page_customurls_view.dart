@@ -45,7 +45,14 @@ class CustomSearchUrl {
 
 class _PageCustomurlsViewState extends State<PageCustomurlsView>
     with SelectionMixin<int> {
+  final ScrollController _scrollController = ScrollController();
   var _customSearchUrls = <CustomSearchUrl>[];
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
 
   Future<void> _pressDelete() => OverlayShow.dialog(
     context: context,
@@ -107,9 +114,11 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView>
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: _customSearchUrls.isEmpty
               ? Center(child: Text(DictKey.settingOptionCustomSearchEmpty.s))
               : ListView.builder(
+                  controller: _scrollController,
                   addAutomaticKeepAlives: false,
                   addRepaintBoundaries: false,
                   padding: const EdgeInsets.all(16.0),

@@ -9,7 +9,7 @@ mixin SelectionMixin<T> {
   void setState(VoidCallback fn);
 
   void enterSelectionMode(T item) {
-    if (_isSelectionMode == true) {
+    if (_isSelectionMode) {
       toggleSelection(item);
     } else {
       setState(() {

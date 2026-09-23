@@ -24,6 +24,19 @@ import 'package:watashi_qr/pages/menu_scanner/page_image_scan.dart';
 class MainScannerView extends StatefulWidget {
   const MainScannerView({super.key});
 
+  static (String?, BarcodeFormat) decodeCapture(BarcodeCapture capture) {
+    final BarcodeBytes? rawBytes = capture.barcodes.first.rawDecodedBytes;
+    String? rawValue = capture.barcodes.first.rawValue;
+    if (rawValue?.trim().isNotEmpty ?? false) {
+    } else if (rawBytes is DecodedBarcodeBytes) {
+      rawValue = utf8.decode(rawBytes.bytes, allowMalformed: true);
+    } else if (rawBytes is DecodedVisionBarcodeBytes &&
+        rawBytes.bytes != null) {
+      rawValue = utf8.decode(rawBytes.bytes!, allowMalformed: true);
+    }
+    return (rawValue, capture.barcodes.first.format);
+  }
+
   @override
   State<MainScannerView> createState() => _MainScannerViewState();
 }
@@ -109,25 +122,17 @@ class _MainScannerViewState extends State<MainScannerView> {
     if (_isDetectBusy) return;
     _isDetectBusy = true;
     try {
-      final BarcodeFormat format = capture.barcodes.first.format;
-      final BarcodeBytes? rawBytes = capture.barcodes.first.rawDecodedBytes;
-      String? rawValue = capture.barcodes.first.rawValue;
-      if (rawBytes is DecodedBarcodeBytes) {
-        rawValue ??= utf8.decode(rawBytes.bytes, allowMalformed: true);
-      } else if (rawBytes is DecodedVisionBarcodeBytes) {
-        if (rawBytes.bytes != null) {
-          rawValue ??= utf8.decode(rawBytes.bytes!, allowMalformed: true);
-        }
-      }
-      await _sendBarcode(rawValue, format);
+      await _sendBarcode(MainScannerView.decodeCapture(capture));
     } catch (e) {
-      await Utils.showToast('${DictKey.analysisScanError.s} $e');
+      Utils.showToast('${DictKey.analysisScanError.s} $e');
+      await Future.delayed(const Duration(milliseconds: 1600));
     } finally {
       _isDetectBusy = false;
     }
   }
 
-  Future<void> _sendBarcode(String? rawValue, BarcodeFormat format) async {
+  Future<void> _sendBarcode((String?, BarcodeFormat) barcodeValue) async {
+    final (rawValue, format) = barcodeValue;
     final bool isVibrateOnScan = context.readPrefs.get(.isVibrateOnScan);
     final bool isBipOnScan = context.readPrefs.get(.isBipOnScan);
     final bool isBarcodeCopied = context.readPrefs.get(.isBarcodeCopied);
@@ -135,6 +140,7 @@ class _MainScannerViewState extends State<MainScannerView> {
     final bool isContinuousScan = context.readPrefs.get(.isContinuousScan);
     final bool isAutoOpenWebsite = context.readPrefs.get(.isAutoOpenWebsite);
     if (rawValue == null) throw Exception('rawValue == null.');
+    if (rawValue.trim().isEmpty) throw Exception('rawValue is empty.');
     if (isVibrateOnScan) Utils.deviceVibrate();
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
     if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: rawValue));
@@ -231,7 +237,7 @@ class _MainScannerViewState extends State<MainScannerView> {
         return Stack(
           children: [
             if (_isOpenScanner)
-              CameraView(
+              CameraWindow(
                 scanWindow: _scanWindow,
                 facing: context.readPrefs.get(.isUseFrontCamera)
                     ? CameraFacing.front

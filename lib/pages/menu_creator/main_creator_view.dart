@@ -98,8 +98,8 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                   ),
                   for (final HistoryType type in HistoryType.values)
                     if (!const <HistoryType>[
-                      .product,
-                      .industrial,
+                      HistoryType.product,
+                      HistoryType.industrial,
                     ].contains(type))
                       ItemTile(
                         title: HistoryType.localeStrFromName(type.name),
@@ -117,7 +117,8 @@ class _MainCreatorViewState extends State<MainCreatorView> {
               expandedChild: Column(
                 children: [
                   for (final HistoryFormat format in HistoryFormat.values)
-                    if (!const <HistoryFormat>[.qrCode].contains(format))
+                    if (!const <HistoryFormat>[HistoryFormat.qrCode]
+                        .contains(format))
                       ItemTile(
                         title: HistoryFormat.localeStrFromName(format.name),
                         myIconData: format.myIconData,

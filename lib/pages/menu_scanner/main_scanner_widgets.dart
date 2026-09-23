@@ -6,14 +6,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
-class CameraView extends StatefulWidget {
+class CameraWindow extends StatefulWidget {
   final Rect scanWindow;
   final CameraFacing facing;
   final double initialZoom;
   final void Function(MobileScannerController? controller) onOpen;
   final void Function(BarcodeCapture barcodes) onDetect;
 
-  const CameraView({
+  const CameraWindow({
     super.key,
     required this.scanWindow,
     required this.facing,
@@ -23,10 +23,10 @@ class CameraView extends StatefulWidget {
   });
 
   @override
-  State<CameraView> createState() => _CameraViewState();
+  State<CameraWindow> createState() => _CameraWindowState();
 }
 
-class _CameraViewState extends State<CameraView> {
+class _CameraWindowState extends State<CameraWindow> {
   late final AppLifecycleListener _lifecycleListener;
   late final MobileScannerController _scannerController =
       MobileScannerController(

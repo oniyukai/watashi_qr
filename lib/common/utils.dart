@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -45,7 +44,7 @@ abstract final class Utils {
     try {
       await audioPlayer.play(AssetSource('short_beep_tone.mp3'));
     } catch (e) {
-      await showToast(e.toString());
+      showToast(e.toString());
     }
   }
 
@@ -61,7 +60,7 @@ abstract final class Utils {
   static Future<void> openUrlInBrowser(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      await showToast('Could not launch $url');
+      showToast('Could not launch $url');
     }
   }
 
@@ -98,13 +97,9 @@ abstract final class Utils {
   /// 恢復允許螢幕所有旋轉方向
   static Future<void> unlockOrientation() =>
       SystemChrome.setPreferredOrientations(const [
-        .portraitUp,
-        .portraitDown,
-        .landscapeLeft,
-        .landscapeRight,
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
       ]);
-
-  /// 統一使用這個來對外分享內容
-  static Future<ShareResult> share(ShareParams shareParams) =>
-      SharePlus.instance.share(shareParams);
 }

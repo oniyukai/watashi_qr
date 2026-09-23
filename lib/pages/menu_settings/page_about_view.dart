@@ -11,6 +11,14 @@ class PageAboutView extends StatefulWidget {
 }
 
 class _PageAboutViewState extends State<PageAboutView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -19,7 +27,9 @@ class _PageAboutViewState extends State<PageAboutView> {
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
+            controller: _scrollController,
             children: [
               SizedBox.square(
                 dimension: 64,

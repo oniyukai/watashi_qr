@@ -86,7 +86,9 @@ abstract final class DatabaseServices {
     }
     final Directory tempDir = await getTemporaryDirectory();
     final File? file = await _getHistoryBoxJsonFile(tempDir.path);
-    if (file != null) await Utils.share(ShareParams(files: [XFile(file.path)]));
+    if (file != null) {
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+    }
   }
 
   static Future<void> exportHistoryBoxToJson() async {

@@ -69,7 +69,7 @@ class AnalyzedContentItem extends StatelessWidget {
         HistoryType.location => LocationAnalyzer(contents),
         HistoryType.event => EventAnalyzer(contents),
         HistoryType.wifi => WifiAnalyzer(contents),
-      }._getEntryList().where((e) => e.value?.isNotEmpty == true);
+      }._getEntryList().where((e) => e.value?.isNotEmpty ?? false);
     } catch (e) {
       error = e.toString();
     }

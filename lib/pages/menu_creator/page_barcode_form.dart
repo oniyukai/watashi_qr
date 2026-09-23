@@ -15,8 +15,15 @@ class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
 }
 
 class _PageBarcodeFormState extends State<PageBarcodeForm> {
+  final ScrollController _scrollController = ScrollController();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryFormat _historyFormat = widget.getArgs(context)!;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -36,7 +43,9 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
+            controller: _scrollController,
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(

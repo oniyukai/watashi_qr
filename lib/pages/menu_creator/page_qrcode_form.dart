@@ -24,6 +24,7 @@ class PageQrcodeForm extends StatefulWidget with RouterBridge<HistoryType> {
 }
 
 class _PageQrcodeFormState extends State<PageQrcodeForm> {
+  final ScrollController _scrollController = ScrollController();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryType _historyType = widget.getArgs(context)!;
   late final _FormState _formState = switch (_historyType) {
@@ -39,13 +40,19 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
     HistoryType.product || HistoryType.industrial => _StateUnsupported(),
   }..context = context;
 
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
     final Map<String, dynamic> valueMap = _formKey.currentState!.value;
     await MainCreatorView.createRouteTo(
       context,
       _formState.valueDecode(valueMap),
-      .qrCode,
+      HistoryFormat.qrCode,
     );
   }
 
@@ -61,7 +68,9 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
+            controller: _scrollController,
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(

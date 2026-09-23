@@ -4,28 +4,28 @@ typedef DictInstance = Map<DictKey, String?>;
 
 extension StaticString on DictKey {
   static const String
-      appName = 'Watashi QR',
-      appVersion = '1.2.1',
-      appVersionTag = 'v1.1_26.07.18+7',
-      pngSuffix = 'png',
-      jpgSuffix = 'jpg',
-      svgSuffix = 'svg',
-      nullString = 'NULL<String>',
-      // External Services Label
-      searchReplaceWord = '{code}',
-      googleLabel = 'Google',
-      bingLabel = 'Bing',
-      wikipediaLabel = 'Wikipedia',
-      googleUrl = 'https://www.google.com/search?q=$searchReplaceWord',
-      bingUrl = 'https://www.bing.com/search?q=$searchReplaceWord',
-      wikipediaUrl = 'https://wikipedia.org/w/index.php?search=$searchReplaceWord',
-      // Link
-      sourceCodeLink = 'https://github.com/oniyukai/watashi_qr',
-      // Local Language text
-      localeLanguageEn = 'English',
-      localeLanguageJa = '日本語',
-      localeLanguageZhHans = '简体中文',
-      localeLanguageZhHant = '繁體中文';
+    appName = 'Watashi QR',
+    appVersion = '1.2.1',
+    appVersionTag = 'v1.1_26.07.18+7',
+    pngSuffix = 'png',
+    jpgSuffix = 'jpg',
+    svgSuffix = 'svg',
+    nullString = 'NULL<String>',
+    // External Services Label
+    searchReplaceWord = '{code}',
+    googleLabel = 'Google',
+    bingLabel = 'Bing',
+    wikipediaLabel = 'Wikipedia',
+    googleUrl = 'https://www.google.com/search?q=$searchReplaceWord',
+    bingUrl = 'https://www.bing.com/search?q=$searchReplaceWord',
+    wikipediaUrl = 'https://wikipedia.org/w/index.php?search=$searchReplaceWord',
+    // Link
+    sourceCodeLink = 'https://github.com/oniyukai/watashi_qr',
+    // Local Language text
+    localeLanguageEn = 'English',
+    localeLanguageJa = '日本語',
+    localeLanguageZhHans = '简体中文',
+    localeLanguageZhHant = '繁體中文';
 }
 
 enum DictKey {

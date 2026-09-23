@@ -64,7 +64,7 @@ class HistoryItem {
   );
 
   @Transient()
-  Map<String, dynamic> toJson() => <String, dynamic>{
+  Map<String, dynamic> toJson() => {
     'unixTime': unixTime,
     'contents': contents,
     'format': format,
@@ -91,13 +91,12 @@ enum HistoryErrorLevel {
   static String localeStrFromName(String n) =>
       optionMap[values.fromName(n)] ?? '?$n';
 
-  static Map<HistoryErrorLevel, String> get optionMap =>
-      <HistoryErrorLevel, String>{
-        L: DictKey.settingOptionQrErrorCorrectionLevelLow.s,
-        M: DictKey.settingOptionQrErrorCorrectionLevelMedium.s,
-        Q: DictKey.settingOptionQrErrorCorrectionLevelQuartile.s,
-        H: DictKey.settingOptionQrErrorCorrectionLevelHigh.s,
-      };
+  static Map<HistoryErrorLevel, String> get optionMap => {
+    L: DictKey.settingOptionQrErrorCorrectionLevelLow.s,
+    M: DictKey.settingOptionQrErrorCorrectionLevelMedium.s,
+    Q: DictKey.settingOptionQrErrorCorrectionLevelQuartile.s,
+    H: DictKey.settingOptionQrErrorCorrectionLevelHigh.s,
+  };
 }
 
 /// !! 改變name會影響之後HistoryItem儲存的值
