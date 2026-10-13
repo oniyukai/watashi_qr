@@ -66,7 +66,6 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView>
       TextButton(
         child: Text(DictKey.commonLabelDelete.s),
         onPressed: () async {
-          Navigator.pop(context);
           if (isSelectionMode) {
             _customSearchUrls = _customSearchUrls
                 .whereIndexed((i, e) => !selectedObjects.contains(i))
@@ -82,6 +81,7 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView>
               _customSearchUrls..clear(),
             );
           }
+          Navigator.pop(context);
           Utils.showToast(DictKey.settingOptionCustomSearchDeleted.s);
         },
       ),
@@ -119,8 +119,6 @@ class _PageCustomurlsViewState extends State<PageCustomurlsView>
               ? Center(child: Text(DictKey.settingOptionCustomSearchEmpty.s))
               : ListView.builder(
                   controller: _scrollController,
-                  addAutomaticKeepAlives: false,
-                  addRepaintBoundaries: false,
                   padding: const EdgeInsets.all(16.0),
                   itemCount: _customSearchUrls.length,
                   itemBuilder: (context, index) {

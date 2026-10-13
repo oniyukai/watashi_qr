@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:watashi_locale/watashi_locale.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
@@ -16,16 +16,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(MyAppTheme.systemOverlayStyle);
-  await Future.wait([
-    PrefsProvider.init(),
-    DatabaseServices.init(),
-    Utils.unlockOrientation(),
-  ]);
+  await Future.wait([PrefsProvider.init(), Utils.unlockOrientation()]);
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => MenuNavBarProvider()),
         ChangeNotifierProvider(create: (ctx) => PrefsProvider()),
+        Provider(
+          create: (ctx) => MyDriftDatabase(),
+          lazy: false,
+          dispose: (ctx, db) => db.close(),
+        ),
       ],
       child: const MyApp(),
     ),

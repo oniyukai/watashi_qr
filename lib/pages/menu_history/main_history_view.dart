@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/main_history_card.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
@@ -21,19 +24,19 @@ class MainHistoryView extends StatefulWidget {
 }
 
 class _MainHistoryViewState extends State<MainHistoryView>
-    with SelectionMixin<int> {
+    with SelectionMixin<String> {
   final ScrollController _scrollController = ScrollController();
   late final StreamSubscription<List<HistoryItem>> _historySubscription;
-  var _historyItems = const <HistoryItem>[];
+  var _histories = const <HistoryItem>[];
   bool _isLoading = true;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _historySubscription = DatabaseServices.historyItemsStream.listen(
+    _historySubscription = DriftService.appDb.dao.queryStream().listen(
       (data) => setState(() {
-        _historyItems = data;
+        _histories = data;
         _isLoading = false;
         _errorMessage = null;
       }),
@@ -51,38 +54,87 @@ class _MainHistoryViewState extends State<MainHistoryView>
     _scrollController.dispose();
   }
 
-  void _pressSelectedDelete() {
-    Navigator.pop(context);
-    DatabaseServices.deleteItems(selectedObjects.toList());
-    Utils.showToast(DictKey.historyStatusRemoved.s);
+  Future<void> _pressSelectedDelete() async {
+    await DriftService.appDb.dao.removeMany(selectedObjects);
     exitSelectionMode();
+    Navigator.pop(context);
+    Utils.showToast(DictKey.historyStatusRemoved.s);
   }
 
   Future<void> _pressSelectedCopy() async {
-    final List<HistoryItem> items = DatabaseServices.getItems(
-      selectedObjects.toList(),
-    );
-    final String combinedText = items.map((item) => item.contents).join('\n');
+    final String combinedText = _histories
+        .where((item) => selectedObjects.contains(item.uuid))
+        .map((item) => item.contents)
+        .join('\n');
     await Clipboard.setData(ClipboardData(text: combinedText));
+    exitSelectionMode();
     Utils.showToast(DictKey.commonUiCopied.s);
+  }
+
+  Future<void> _pressSelectedFavorite(int option) async {
+    await DriftService.appDb.dao.upsertMany([
+      for (final item in _histories)
+        if (selectedObjects.contains(item.uuid))
+          item.copyWith(isFavorite: option == 0),
+    ]);
     exitSelectionMode();
   }
 
-  void _pressSelectedFavorite(int option) {
-    final List<HistoryItem> selectedItems = DatabaseServices.getItems(
-      selectedObjects.toList(),
-    );
-    for (final HistoryItem item in selectedItems) {
-      item.isFavorite = option == 0;
-    }
-    DatabaseServices.updateItems(selectedItems);
-    exitSelectionMode();
-  }
-
-  void _pressDeleteAll() {
+  Future<void> _pressDeleteAll() async {
+    await DriftService.appDb.dao.removeAll();
     Navigator.pop(context);
-    DatabaseServices.clearHistoryBox();
     Utils.showToast(DictKey.historyStatusRemoved.s);
+  }
+
+  Future<void> _tapShareJson() async {
+    try {
+      final Directory tempDir = await getTemporaryDirectory();
+      final File file = await DriftService.exportJson(tempDir.path);
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+    } catch (e) {
+      Utils.showToast('${DictKey.historyDataExportError.s}  $e');
+    }
+  }
+
+  Future<void> _tapExportJson() async {
+    try {
+      final Directory? downloadsDir = await getDownloadsDirectory();
+      final String? dirPath = await FilePicker.getDirectoryPath(
+        initialDirectory: downloadsDir?.path,
+      );
+      if (dirPath == null) {
+        Utils.showToast(
+          '${DictKey.commonUiCancel.s}  Unable to get storage directory.',
+        );
+        return;
+      }
+      final File file = await DriftService.exportJson(dirPath);
+      Utils.showToast('${DictKey.historyDataExportSuccess.s}  ${file.path}');
+    } catch (e) {
+      Utils.showToast('${DictKey.historyDataExportError.s}  $e');
+    }
+  }
+
+  Future<void> _tapImportJson() async {
+    try {
+      final PlatformFile? result = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: const ['json'],
+      );
+      if (result == null) {
+        await Utils.showToast(DictKey.commonUiCancel.s);
+        return;
+      }
+      final String jsonString = await result.xFile.readAsString();
+      final (totLen, repLen) = await DriftService.importJson(jsonString);
+      await Utils.showToast(
+        '${DictKey.historyDataImportSuccess.s}  '
+        'Total:$totLen, Added:${totLen - repLen}, Replaced:$repLen',
+        true,
+      );
+    } catch (e) {
+      await Utils.showToast('${DictKey.historyDataImportError.s}  $e', true);
+    }
   }
 
   @override
@@ -100,8 +152,8 @@ class _MainHistoryViewState extends State<MainHistoryView>
               )
             : null,
         title: isSelectionMode
-            ? Text('${selectedObjects.length}/${_historyItems.length}')
-            : Text('${_historyItems.length}'),
+            ? Text('${selectedObjects.length}/${_histories.length}')
+            : Text('${_histories.length}'),
         actions: isSelectionMode
             ? [
                 IconButton(
@@ -136,15 +188,15 @@ class _MainHistoryViewState extends State<MainHistoryView>
                   items: [
                     MyMenuItem(
                       text: DictKey.historyDataShareJson.s,
-                      onTap: DatabaseServices.shareHistoryBoxToJson,
+                      onTap: _tapShareJson,
                     ),
                     MyMenuItem(
                       text: DictKey.historyDataExportJson.s,
-                      onTap: DatabaseServices.exportHistoryBoxToJson,
+                      onTap: _tapExportJson,
                     ),
                     MyMenuItem(
                       text: DictKey.historyDataImportJson.s,
-                      onTap: DatabaseServices.importHistoryBoxFromJson,
+                      onTap: _tapImportJson,
                     ),
                   ],
                 ),
@@ -174,24 +226,22 @@ class _MainHistoryViewState extends State<MainHistoryView>
                 return const Center(child: CircularProgressIndicator());
               } else if (_errorMessage != null) {
                 return Center(child: Text(_errorMessage!));
-              } else if (_historyItems.isEmpty) {
+              } else if (_histories.isEmpty) {
                 return Center(child: Text(DictKey.historyStatusEmpty.s));
               }
               return ListView.builder(
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: false,
                 padding: const EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 16.0),
                 controller: _scrollController,
-                itemCount: _historyItems.length,
+                itemCount: _histories.length,
                 itemBuilder: (context, index) {
-                  final HistoryItem item = _historyItems[index];
+                  final HistoryItem item = _histories[index];
                   return MainHistoryCard(
                     historyItem: item,
-                    selected: selectedObjects.contains(item.id),
+                    selected: selectedObjects.contains(item.uuid),
                     onTap: isSelectionMode
-                        ? () => toggleSelection(item.id)
+                        ? () => toggleSelection(item.uuid)
                         : () => context.routeOf<PageItemView>().toPass(item),
-                    onLongPress: () => enterSelectionMode(item.id),
+                    onLongPress: () => enterSelectionMode(item.uuid),
                   );
                 },
               );

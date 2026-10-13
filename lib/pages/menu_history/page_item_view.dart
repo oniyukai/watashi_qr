@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -7,12 +8,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
@@ -34,10 +35,10 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 class _PageItemViewState extends State<PageItemView> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryItem _historyItem = widget.getArgs(context)!;
+  late HistoryItem _historyItem = widget.getArgs(context)!;
   late HistoryType? _historyType = _historyItem.getType;
-  late bool _isExistBefore = _historyItem.id > 0;
-  late bool _isWillExist = _isExistBefore;
+  late bool _isExistOnce = _historyItem.uuid.isNotEmpty;
+  late bool _isWillExist = _isExistOnce;
 
   @override
   void dispose() {
@@ -45,21 +46,26 @@ class _PageItemViewState extends State<PageItemView> {
     _scrollController.dispose();
   }
 
-  void _syncToDatabase() {
-    if (_historyItem.id > 0 && _isWillExist) {
-      DatabaseServices.updateItem(_historyItem);
-    } else if (_historyItem.id > 0) {
-      if (DatabaseServices.deleteItem(_historyItem.id)) _historyItem.id = 0;
+  Future<void> _syncToDatabase() async {
+    if (_historyItem.uuid.isNotEmpty && _isWillExist) {
+      await DriftService.appDb.dao.upsertMany([_historyItem]);
+    } else if (_historyItem.uuid.isNotEmpty) {
+      await DriftService.appDb.dao.removeMany([_historyItem.uuid]);
+      _historyItem = _historyItem.copyWith(uuid: '');
+    } else if (_isWillExist && _isExistOnce) {
+      final item = _historyItem.copyWith(uuid: UuidMixin.v7.generate());
+      await DriftService.appDb.dao.upsertMany([item]);
+      _historyItem = item;
     } else if (_isWillExist) {
-      _historyItem.id = DatabaseServices.addItem(_historyItem, _isExistBefore);
-      if (_historyItem.id > 0) _isExistBefore = true;
+      _historyItem = await DriftService.appDb.dao.insert(_historyItem);
+      _isExistOnce = true;
     }
     setState(() {});
   }
 
-  void _pressItemFavorite() {
-    _historyItem.isFavorite = !_historyItem.isFavorite;
-    _syncToDatabase();
+  Future<void> _pressItemFavorite() {
+    _historyItem = _historyItem.copyWith(isFavorite: !_historyItem.isFavorite);
+    return _syncToDatabase();
   }
 
   Future<void> _pressShareContents() =>
@@ -71,7 +77,7 @@ class _PageItemViewState extends State<PageItemView> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(DictKey.actionModifyBarcode.s),
-        Text(HistoryFormat.localeStrFromName(_historyItem.format)),
+        Text(HistoryFormat.localeFromName(_historyItem.format)),
       ],
     ),
     content: FormBuilder(
@@ -85,17 +91,20 @@ class _PageItemViewState extends State<PageItemView> {
     actions: [
       ElevatedButton(
         child: Text(DictKey.actionModifyBarcode.s),
-        onPressed: () {
+        onPressed: () async {
           if (_formKey.currentState?.saveAndValidate() != true) return;
-          _historyItem.contents =
+          final String contents =
               _formKey.currentState!.value['modifyContents'];
-          _historyItem.type = HistoryType.fromDistinguish(
-            _historyItem.getFormat,
-            _historyItem.contents,
-          ).name;
+          _historyItem = _historyItem.copyWith(
+            contents: contents,
+            type: HistoryType.fromDistinguish(
+              _historyItem.getFormat,
+              contents,
+            ).name,
+          );
           _historyType = _historyItem.getType;
+          await _syncToDatabase();
           Navigator.pop(context);
-          _syncToDatabase();
         },
       ),
     ],
@@ -111,7 +120,7 @@ class _PageItemViewState extends State<PageItemView> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(HistoryType.localeStrFromName(_historyItem.type)),
+        title: Text(HistoryType.localeFromName(_historyItem.type)),
       ),
       body: SafeArea(
         bottom: false,
@@ -154,18 +163,18 @@ class _PageItemViewState extends State<PageItemView> {
                             children: [
                               SelectableText(
                                 DictKey.analysisLabelFormat.s +
-                                    HistoryFormat.localeStrFromName(
+                                    HistoryFormat.localeFromName(
                                       _historyItem.format,
                                     ),
                               ),
                               SelectableText(
-                                Utils.formatUnixTimes(_historyItem.unixTime),
+                                Utils.formatDateTime(_historyItem.createdAt),
                               ),
                             ],
                           ),
                           SelectableText(
                             DictKey.analysisLabelOrigin.s +
-                                HistoryOrigin.localeStrFromName(
+                                HistoryOrigin.localeFromName(
                                   _historyItem.origin,
                                 ),
                           ),
@@ -173,7 +182,7 @@ class _PageItemViewState extends State<PageItemView> {
                               HistoryErrorLevel.none)
                             SelectableText(
                               DictKey.analysisLabelErrorLevel.s +
-                                  HistoryErrorLevel.localeStrFromName(
+                                  HistoryErrorLevel.localeFromName(
                                     _historyItem.errorLevel,
                                   ),
                             ),
@@ -326,8 +335,8 @@ class _PageItemViewState extends State<PageItemView> {
                       ItemTile(
                         title: searchUrl.title,
                         description: searchUrl.url,
-                        onTap: () {
-                          Utils.searchInBrowser(
+                        onTap: () async {
+                          await Utils.searchInBrowser(
                             searchUrl.url,
                             _historyItem.contents,
                           );
@@ -366,10 +375,11 @@ class _PageItemViewState extends State<PageItemView> {
             child: Text(DictKey.actionModifyNotes.s),
             onPressed: () async {
               if (_formKey.currentState?.saveAndValidate() != true) return;
-              _historyItem.notes =
-                  _formKey.currentState!.value['modifyNotes'] ?? '';
+              _historyItem = _historyItem.copyWith(
+                notes: _formKey.currentState!.value['modifyNotes'] ?? '',
+              );
+              await _syncToDatabase();
               Navigator.pop(context);
-              _syncToDatabase();
             },
           ),
         ],
@@ -471,10 +481,10 @@ class _PageItemViewState extends State<PageItemView> {
       description: _isWillExist
           ? DictKey.historyMenuDelete.s
           : DictKey.historyMenuAdd.s,
-      onTap: () {
+      onTap: () async {
         _isWillExist = !_isWillExist;
-        _syncToDatabase();
-        return Utils.showToast(
+        await _syncToDatabase();
+        Utils.showToast(
           _isWillExist
               ? DictKey.historyStatusAdded.s
               : DictKey.historyStatusRemoved.s,

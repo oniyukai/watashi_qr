@@ -1,11 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_creator/page_barcode_form.dart';
@@ -19,20 +19,24 @@ import 'package:watashi_qr/pages/widget/my_icon.dart';
 class MainCreatorView extends StatefulWidget {
   const MainCreatorView({super.key});
 
-  static Future createRouteTo(
+  static Future<void> createRouteTo(
     BuildContext context,
     String contents,
     HistoryFormat format,
-  ) {
+  ) async {
     final String? validatorMsg = barcodeValidator(contents, format);
-    if (validatorMsg != null) return Utils.showToast(validatorMsg);
+    if (validatorMsg != null) {
+      Utils.showToast(validatorMsg);
+      return;
+    }
     final bool isCreateAddHistory = context.readPrefs.get(.isCreateAddHistory);
     final HistoryErrorLevel selectedQRErrorLevel =
         format == HistoryFormat.qrCode
         ? context.readPrefs.get(.selectedQRErrorLevel)
         : HistoryErrorLevel.none;
-    final HistoryItem item = HistoryItem(
-      unixTime: Utils.nowUnixTime,
+    HistoryItem item = HistoryItem(
+      uuid: '',
+      createdAt: DateTime.now(),
       contents: contents,
       format: format.name,
       type: HistoryType.fromDistinguish(format, contents).name,
@@ -41,8 +45,8 @@ class MainCreatorView extends StatefulWidget {
       isFavorite: false,
       notes: '',
     );
-    if (isCreateAddHistory) item.id = DatabaseServices.addItem(item);
-    return context.routeOf<PageCodeView>().toPass(item);
+    if (isCreateAddHistory) item = await DriftService.appDb.dao.insert(item);
+    await context.routeOf<PageCodeView>().toPass(item);
   }
 
   @override
@@ -102,7 +106,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                       HistoryType.industrial,
                     ].contains(type))
                       ItemTile(
-                        title: HistoryType.localeStrFromName(type.name),
+                        title: HistoryType.localeFromName(type.name),
                         myIconData: MyIconData(type.iconData),
                         onTap: () =>
                             context.routeOf<PageQrcodeForm>().toPass(type),
@@ -120,7 +124,7 @@ class _MainCreatorViewState extends State<MainCreatorView> {
                     if (!const <HistoryFormat>[HistoryFormat.qrCode]
                         .contains(format))
                       ItemTile(
-                        title: HistoryFormat.localeStrFromName(format.name),
+                        title: HistoryFormat.localeFromName(format.name),
                         myIconData: format.myIconData,
                         description: format.composition,
                         onTap: () =>

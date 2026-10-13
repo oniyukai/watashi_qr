@@ -22,7 +22,7 @@ enum HistoryType {
 
   const HistoryType(this.iconData);
 
-  static String localeStrFromName(String n) =>
+  static String localeFromName(String n) =>
       switch (values.fromName(n)) {
         text => DictKey.barcodeTypeText,
         website => DictKey.barcodeTypeWebsite,

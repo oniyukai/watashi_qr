@@ -69,7 +69,7 @@ enum HistoryFormat {
         BarcodeFormat.all => null,
       };
 
-  static String localeStrFromName(String n) =>
+  static String localeFromName(String n) =>
       switch (values.fromName(n)) {
         qrCode => DictKey.barcodeFormatQrCode,
         dataMatrix => DictKey.barcodeFormatDataMatrix,

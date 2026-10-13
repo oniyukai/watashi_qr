@@ -15,11 +15,8 @@ extension EnumFromName<T extends Enum> on Iterable<T> {
 }
 
 abstract final class Utils {
-  static int get nowUnixTime => DateTime.now().millisecondsSinceEpoch;
-
-  /// 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
-  static String formatUnixTimes(int unixTime) {
-    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTime);
+  /// [DateTime] 轉成系統時區的YYYY.MM.DD HH:MM字串
+  static String formatDateTime(DateTime dateTime) {
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
   }

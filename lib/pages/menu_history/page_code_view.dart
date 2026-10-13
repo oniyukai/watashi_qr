@@ -9,11 +9,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
@@ -92,7 +93,7 @@ class _PageCodeViewState extends State<PageCodeView> {
     final double longestSide = MediaQuery.of(context).size.longestSide;
     return Scaffold(
       appBar: AppBar(
-        title: Text(HistoryFormat.localeStrFromName(_historyItem.format)),
+        title: Text(HistoryFormat.localeFromName(_historyItem.format)),
         actions: _historyFormat != null && _validatorMsg == null
             ? [
                 MyMenuButton(
@@ -166,7 +167,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                 child: ListView(
                   children: [
                     ExpandableCard(
-                      title: HistoryType.localeStrFromName(_historyItem.type),
+                      title: HistoryType.localeFromName(_historyItem.type),
                       myIconData: MyIconData(_historyItem.getTypeIconData),
                       expandedChild: SelectableText(_historyItem.contents),
                     ),
@@ -174,7 +175,7 @@ class _PageCodeViewState extends State<PageCodeView> {
                     if (_historyFormat == HistoryFormat.qrCode)
                       Text(
                         '${DictKey.analysisLabelErrorLevel.s}'
-                        '${HistoryErrorLevel.localeStrFromName(_historyErrorLevel.name)}\n',
+                        '${HistoryErrorLevel.localeFromName(_historyErrorLevel.name)}\n',
                         textAlign: TextAlign.center,
                       ),
                     Text(_historyFormat?.description ?? ''),

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';

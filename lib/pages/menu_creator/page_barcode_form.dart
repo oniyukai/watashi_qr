@@ -49,7 +49,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(
-                title: HistoryFormat.localeStrFromName(_historyFormat.name),
+                title: HistoryFormat.localeFromName(_historyFormat.name),
                 myIconData: _historyFormat.myIconData,
               ),
               const SizedBox(height: 16),

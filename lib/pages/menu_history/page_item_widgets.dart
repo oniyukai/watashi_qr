@@ -387,14 +387,10 @@ class EventAnalyzer extends _TextAnalyzer {
       final String subValue = subParts.join(':');
       if (upperFirst.startsWith('SUMMARY')) summary = subValue;
       if (upperFirst.startsWith('DTSTART')) {
-        startDate = Utils.formatUnixTimes(
-          DateTime.parse(subValue).millisecondsSinceEpoch,
-        );
+        startDate = Utils.formatDateTime(DateTime.parse(subValue));
       }
       if (upperFirst.startsWith('DTEND')) {
-        endDate = Utils.formatUnixTimes(
-          DateTime.parse(subValue).millisecondsSinceEpoch,
-        );
+        endDate = Utils.formatDateTime(DateTime.parse(subValue));
       }
       if (upperFirst.startsWith('LOCATION')) location = subValue;
       if (upperFirst.startsWith('DESCRIPTION')) description = subValue;

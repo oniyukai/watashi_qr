@@ -7,12 +7,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
@@ -103,8 +103,9 @@ class _PageImageScanState extends State<PageImageScan> {
       format,
     );
     final bool isScanAddHistory = context.readPrefs.get(.isScanAddHistory);
-    final HistoryItem item = HistoryItem(
-      unixTime: Utils.nowUnixTime,
+    HistoryItem item = HistoryItem(
+      uuid: '',
+      createdAt: DateTime.now(),
       contents: rawValue,
       format: historyFormat?.name ?? format.name,
       type: HistoryType.fromDistinguish(historyFormat, rawValue).name,
@@ -113,7 +114,7 @@ class _PageImageScanState extends State<PageImageScan> {
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
+    if (isScanAddHistory) item = await DriftService.appDb.dao.insert(item);
     _isInCycleCrop = false;
     await context.routeOf<PageItemView>().toPass(item);
     Navigator.pop(context);

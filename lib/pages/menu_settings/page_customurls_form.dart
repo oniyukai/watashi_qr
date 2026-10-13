@@ -35,7 +35,6 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
-    Navigator.pop(context);
     final String formTitle = _formKey.currentState!.value['formTitle'];
     final String formUrl = _formKey.currentState!.value['formUrl'];
     if (_args.index == null) {
@@ -49,6 +48,7 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
       Utils.showToast(DictKey.settingOptionCustomSearchUpdated.s);
     }
     await context.readPrefs.update(.customSearchUrls, _args.items);
+    Navigator.pop(context);
   }
 
   @override

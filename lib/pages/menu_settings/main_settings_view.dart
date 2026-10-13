@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
-import 'package:watashi_qr/entity/history_item.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';

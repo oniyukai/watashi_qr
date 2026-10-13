@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -74,7 +72,7 @@ class _PageQrcodeFormState extends State<PageQrcodeForm> {
             padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(
-                title: HistoryType.localeStrFromName(_historyType.name),
+                title: HistoryType.localeFromName(_historyType.name),
                 myIconData: MyIconData(_historyType.iconData),
               ),
               const SizedBox(height: 16),
@@ -206,8 +204,7 @@ class _StateContact extends _FormState {
         Utils.showToast(DictKey.commonUiCancel.s);
         return;
       }
-      final File file = File(result.path!);
-      final String vCardString = await file.readAsString();
+      final String vCardString = await result.xFile.readAsString();
       await MainCreatorView.createRouteTo(
         context,
         vCardString,

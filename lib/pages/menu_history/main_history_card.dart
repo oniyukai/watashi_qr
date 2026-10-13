@@ -1,7 +1,8 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
@@ -64,7 +65,7 @@ class MainHistoryCard extends StatelessWidget {
               Icon(Icons.favorite, size: 16.0, color: theme.hintColor),
             const SizedBox(width: 2.0),
             Text(
-              HistoryFormat.localeStrFromName(historyItem.format),
+              HistoryFormat.localeFromName(historyItem.format),
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(width: 2.0),
@@ -78,7 +79,7 @@ class MainHistoryCard extends StatelessWidget {
         subtitle: Row(
           children: [
             Text(
-              HistoryType.localeStrFromName(historyItem.type),
+              HistoryType.localeFromName(historyItem.type),
               style: theme.textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
             ),
@@ -101,7 +102,7 @@ class MainHistoryCard extends StatelessWidget {
             ),
             const SizedBox(width: 2.0),
             Text(
-              Utils.formatUnixTimes(historyItem.unixTime),
+              Utils.formatDateTime(historyItem.createdAt),
               style: theme.textTheme.bodySmall,
             ),
           ],
