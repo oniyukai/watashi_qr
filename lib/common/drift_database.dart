@@ -77,17 +77,18 @@ abstract final class DriftService {
     return await file.writeAsString(jsonEncode(histories));
   }
 
-  static Future<(int, int)> importJson(String jsonString) async {
+  static Future<(int, int, int)> importJson(String jsonString) async {
     final List<dynamic> jsonData = jsonDecode(jsonString);
-    final newItems = jsonData
-        .map((json) => HistoryBasic.fromJson(json))
-        .toList();
+    final itemMap = <String, HistoryItem>{};
+    for (final itemJson in jsonData) {
+      final item = HistoryBasic.fromJson(itemJson);
+      itemMap[item.uuid] = item;
+    }
     final histories = await appDb.dao.queryStream().first;
     final historySet = histories.map((item) => item.uuid).toSet();
-    final repLen = newItems
-        .where((item) => historySet.contains(item.uuid))
-        .length;
-    await appDb.dao.upsertMany(newItems);
-    return (newItems.length, repLen);
+    final repLen = itemMap.keys.toSet().intersection(historySet).length;
+    final addLen = itemMap.length - repLen;
+    await appDb.dao.upsertMany(itemMap.values);
+    return (jsonData.length, repLen, addLen);
   }
 }

@@ -834,7 +834,16 @@ class $$HistoryItemsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$HistoryItemsTable, HistoryItem>(table),
+                  BaseReferences<
+                    _$MyDriftDatabase,
+                    $HistoryItemsTable,
+                    HistoryItem
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),

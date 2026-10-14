@@ -26,11 +26,11 @@ extension HistoryBasic on HistoryItem {
   HistoryOrigin? get getOrigin => HistoryOrigin.values.fromName(origin);
 
   static HistoryItem fromJson(Map<String, dynamic> json) {
-    final int unixTime = json['createdAt'] ?? json['unixTime'] ?? 1;
+    final int unixTime = json['createdAt'] ?? json['unixTime'];
     final String uuid =
         json['uuid'] ??
         UuidMixin.v7.generate(options: V7Options(unixTime, Uint8List(10)));
-    final String contents = json['contents'] ?? StaticString.nullString;
+    final String contents = json['contents'];
     final String format = json['format'] ?? HistoryFormat.qrCode.name;
     return HistoryItem(
       uuid: uuid,
