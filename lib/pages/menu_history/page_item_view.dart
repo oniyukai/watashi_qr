@@ -499,8 +499,9 @@ enum SearchEngine {
   bing(StaticString.bingUrl),
   wikipedia(StaticString.wikipediaUrl);
 
-  const SearchEngine(this.url);
   final String url;
+
+  const SearchEngine(this.url);
 
   static Map<SearchEngine, String> get optionMap => {
     google: StaticString.googleLabel,

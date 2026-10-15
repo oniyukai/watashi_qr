@@ -5,7 +5,9 @@ import 'package:material_ui/material_ui.dart';
 mixin SelectionMixin<T> {
   bool _isSelectionMode = false;
   final Set<T> _selectedObjects = <T>{};
+
   bool get isSelectionMode => _isSelectionMode;
+
   Set<T> get selectedObjects => UnmodifiableSetView(_selectedObjects);
 
   void setState(VoidCallback fn);

@@ -18,6 +18,7 @@ const bool _useIndexPrefix = true;
 class _RouteEntry {
   final String route;
   final WidgetBuilder builder;
+
   const _RouteEntry(this.route, this.builder);
 }
 

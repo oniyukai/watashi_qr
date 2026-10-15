@@ -6,7 +6,7 @@ extension StaticString on DictKey {
   static const String
     appName = 'Watashi QR',
     appVersion = '1.3.0',
-    appVersionTag = 'v1.2_26.10.15+8',
+    appVersionTag = 'v1.2_26.10.16+8',
     pngSuffix = 'png',
     jpgSuffix = 'jpg',
     svgSuffix = 'svg',

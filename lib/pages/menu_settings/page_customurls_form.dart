@@ -79,7 +79,6 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
               children: [
                 FormBuilderTextField(
                   name: 'formTitle',
-                  textAlign: TextAlign.center,
                   keyboardType: TextInputType.text,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   initialValue: argItem?.title,
@@ -94,7 +93,6 @@ class _PageCustomurlsFormState extends State<PageCustomurlsForm> {
                 const SizedBox(height: 16),
                 FormBuilderTextField(
                   name: 'formUrl',
-                  textAlign: TextAlign.center,
                   keyboardType: TextInputType.url,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   initialValue: argItem?.url,

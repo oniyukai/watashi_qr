@@ -1,12 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
@@ -33,13 +35,14 @@ class PageImageScanArgs {
 }
 
 class _PageImageScanState extends State<PageImageScan> {
-  late final AppLifecycleListener _lifecycleListener;
   final MobileScannerController _scannerController = MobileScannerController(
     autoStart: false,
   );
   final CropController _cropController = CropController();
   late final PageImageScanArgs _args = widget.getArgs(context)!;
+  AppLifecycleListener? _lifecycleListener;
   bool _isInCycleCrop = true;
+  CropStatus _cropStatus = CropStatus.nothing;
   Uint8List? _imageBytes;
   BarcodeCapture? _barcodeCapture;
 
@@ -51,6 +54,7 @@ class _PageImageScanState extends State<PageImageScan> {
       onStateChange: (state) {
         if (state == AppLifecycleState.resumed && !_isInCycleCrop) {
           _isInCycleCrop = true;
+          unawaited(_scheduleCycleCrop());
         } else if (_isInCycleCrop) {
           _isInCycleCrop = false;
         }
@@ -63,17 +67,24 @@ class _PageImageScanState extends State<PageImageScan> {
     super.dispose();
     _isInCycleCrop = false;
     _scannerController.dispose();
-    _lifecycleListener.dispose();
+    _lifecycleListener?.dispose();
   }
 
   Future<void> _postFrameCallback(Duration timeStamp) async {
-    _args.xFile ??= await ImagePicker().pickImage(source: ImageSource.gallery);
+    _args.xFile ??= (await FilePicker.pickFile(type: FileType.image))?.xFile;
     if (_args.xFile == null) {
       Navigator.pop(context);
       return;
     }
     final Uint8List bytes = await _args.xFile!.readAsBytes();
     setState(() => _imageBytes = bytes);
+  }
+
+  Future<void> _scheduleCycleCrop() async {
+    if (_cropStatus != CropStatus.ready || !_isInCycleCrop) return;
+    await Future.delayed(const Duration(milliseconds: 512));
+    if (!mounted || _cropStatus != CropStatus.ready || !_isInCycleCrop) return;
+    _cropController.crop();
   }
 
   Future<void> _onCropped(CropResult croppedData) async {
@@ -88,11 +99,7 @@ class _PageImageScanState extends State<PageImageScan> {
       final BarcodeCapture? barcodeCapture = await _scannerController
           .analyzeImage(tempFile.path);
       if (!mounted) return;
-      if ((_barcodeCapture?.barcodes.isNotEmpty ?? false) !=
-          (barcodeCapture?.barcodes.isNotEmpty ?? false)) {
-        setState(() => _barcodeCapture = barcodeCapture);
-      }
-      _barcodeCapture = barcodeCapture;
+      setState(() => _barcodeCapture = barcodeCapture);
     }
   }
 
@@ -115,6 +122,8 @@ class _PageImageScanState extends State<PageImageScan> {
       notes: '',
     );
     if (isScanAddHistory) item = await DriftService.appDb.dao.insert(item);
+    _lifecycleListener?.dispose();
+    _lifecycleListener = null;
     _isInCycleCrop = false;
     await context.routeOf<PageItemView>().toPass(item);
     Navigator.pop(context);
@@ -142,10 +151,9 @@ class _PageImageScanState extends State<PageImageScan> {
               initialRectBuilder: InitialRectBuilder.withSizeAndRatio(
                 size: 0.75,
               ),
-              onStatusChanged: (cropStatus) async {
-                if (cropStatus != CropStatus.ready || !_isInCycleCrop) return;
-                await Future.delayed(const Duration(milliseconds: 512));
-                if (_isInCycleCrop) _cropController.crop();
+              onStatusChanged: (cropStatus) {
+                _cropStatus = cropStatus;
+                unawaited(_scheduleCycleCrop());
               },
             ),
     );

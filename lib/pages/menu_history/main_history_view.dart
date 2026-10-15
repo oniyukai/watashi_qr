@@ -126,10 +126,10 @@ class _MainHistoryViewState extends State<MainHistoryView>
         return;
       }
       final String jsonString = await result.xFile.readAsString();
-      final (Lines, repLen, addLen) = await DriftService.importJson(jsonString);
+      final (lines, repLen, addLen) = await DriftService.importJson(jsonString);
       await Utils.showToast(
         '${DictKey.historyDataImportSuccess.s}  '
-        'Lines:$Lines, Replaced:$repLen, Added:$addLen',
+        'Lines:$lines, Replaced:$repLen, Added:$addLen',
         true,
       );
     } catch (e) {

@@ -22,9 +22,9 @@ enum HistoryFormat {
   codabar(MyIconData.barcode),
   itf(MyIconData.barcode);
 
-  const HistoryFormat(this.myIconData);
-
   final MyIconData myIconData;
+
+  const HistoryFormat(this.myIconData);
 
   ValueGetter<Barcode> get barcodeFunc => switch (this) {
     qrCode => Barcode.qrCode,

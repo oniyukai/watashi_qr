@@ -37,6 +37,7 @@ class _MainSettingsPage extends State<MainSettingsView> {
         controller: _scrollController,
         child: Consumer<PrefsProvider>(
           builder: (context, prefs, child) => ListView(
+            controller: _scrollController,
             children: [
               ListTileText(
                 text: DictKey.settingGroupAppearance.s,

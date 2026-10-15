@@ -84,9 +84,9 @@ abstract final class DriftService {
       final item = HistoryBasic.fromJson(itemJson);
       itemMap[item.uuid] = item;
     }
+    final itemUuids = itemMap.keys.toSet();
     final histories = await appDb.dao.queryStream().first;
-    final historySet = histories.map((item) => item.uuid).toSet();
-    final repLen = itemMap.keys.toSet().intersection(historySet).length;
+    final repLen = histories.where((e) => itemUuids.contains(e.uuid)).length;
     final addLen = itemMap.length - repLen;
     await appDb.dao.upsertMany(itemMap.values);
     return (jsonData.length, repLen, addLen);
