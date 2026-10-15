@@ -1,13 +1,13 @@
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:vibration/vibration.dart';
+import 'dart:core';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
-import 'dart:core';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vibration/vibration.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
 extension EnumFromName<T extends Enum> on Iterable<T> {
@@ -15,18 +15,15 @@ extension EnumFromName<T extends Enum> on Iterable<T> {
 }
 
 abstract final class Utils {
-  static int get nowUnixTime => DateTime.now().millisecondsSinceEpoch;
-
-  /// 把13位UnixTime ms轉成系統時區的YYYY.MM.DD HH:MM字串
-  static String formatUnixTimes(int unixTime) {
-    final DateTime dateTime = .fromMillisecondsSinceEpoch(unixTime);
+  /// [DateTime] 轉成系統時區的YYYY.MM.DD HH:MM字串
+  static String formatDateTime(DateTime dateTime) {
     final DateFormat formatter = DateFormat('yyyy.MM.dd HH:mm');
     return formatter.format(dateTime);
   }
 
   /// true:為直屏狀態 false:為橫屏狀態
   static bool isPortrait(BuildContext context) =>
-      MediaQuery.of(context).orientation == .portrait;
+      MediaQuery.of(context).orientation == Orientation.portrait;
 
   /// 震動一下
   static Future<void> deviceVibrate() async {
@@ -44,52 +41,62 @@ abstract final class Utils {
     try {
       await audioPlayer.play(AssetSource('short_beep_tone.mp3'));
     } catch (e) {
-      await showToast(e.toString());
+      showToast(e.toString());
     }
   }
 
   /// 一個簡易的Toast訊息提示
-  static Future<bool?> showToast(String msg, [bool longTime = false]) => Fluttertoast.showToast(
-    msg: msg,
-    toastLength: longTime ? .LENGTH_LONG : .LENGTH_SHORT,
-    timeInSecForIosWeb: longTime ? 4 : 2,
-  );
+  static Future<bool?> showToast(String msg, [bool longTime = false]) =>
+      Fluttertoast.showToast(
+        msg: msg,
+        toastLength: longTime ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT,
+        timeInSecForIosWeb: longTime ? 4 : 2,
+      );
 
   /// 在預設瀏覽器開啟網站
   static Future<void> openUrlInBrowser(String url) async {
-    final Uri uri = .parse(url);
-    if (!await launchUrl(uri, mode: .externalApplication)) {
-      await showToast('Could not launch $url');
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      showToast('Could not launch $url');
     }
   }
+
   static Future<void> searchInBrowser(String searchUrl, String keyWord) =>
-    openUrlInBrowser(searchUrl.replaceAll(StaticString.searchReplaceWord, Uri.encodeComponent(keyWord)));
+      openUrlInBrowser(
+        searchUrl.replaceAll(
+          StaticString.searchReplaceWord,
+          Uri.encodeComponent(keyWord),
+        ),
+      );
 
   /// 鎖定螢幕轉向
-  static Future<void> lockCurrentOrientation(BuildContext context, [DeviceOrientation? orientation]) {
-    if (orientation != null) return SystemChrome.setPreferredOrientations([orientation]);
-    if (isPortrait(context)) {
-      return SystemChrome.setPreferredOrientations(const [
-        .portraitUp,
-        .portraitDown,
-      ]);
-    } else {
-      return SystemChrome.setPreferredOrientations(const [
-        .landscapeLeft,
-        .landscapeRight,
-      ]);
+  static Future<void> lockOrientation({
+    DeviceOrientation? orientation,
+    BuildContext? context,
+  }) async {
+    if (orientation != null) {
+      await SystemChrome.setPreferredOrientations([orientation]);
+    } else if (context != null) {
+      if (isPortrait(context)) {
+        await SystemChrome.setPreferredOrientations(const [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+      } else {
+        await SystemChrome.setPreferredOrientations(const [
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      }
     }
   }
 
   /// 恢復允許螢幕所有旋轉方向
-  static Future<void> unlockCurrentOrientation() =>
+  static Future<void> unlockOrientation() =>
       SystemChrome.setPreferredOrientations(const [
-        .portraitUp,
-        .portraitDown,
-        .landscapeLeft,
-        .landscapeRight,
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
       ]);
-
-  /// 統一使用這個來對外分享內容
-  static Future<ShareResult> share(ShareParams shareParams) => SharePlus.instance.share(shareParams);
 }

@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_creator/main_creator_view.dart';
-import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
 import 'package:watashi_qr/pages/widget/item_tile.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
   const PageBarcodeForm({super.key});
@@ -15,8 +15,15 @@ class PageBarcodeForm extends StatefulWidget with RouterBridge<HistoryFormat> {
 }
 
 class _PageBarcodeFormState extends State<PageBarcodeForm> {
+  final ScrollController _scrollController = ScrollController();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   late final HistoryFormat _historyFormat = widget.getArgs(context)!;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
 
   Future<void> _pressCheck() async {
     if (_formKey.currentState?.saveAndValidate() != true) return;
@@ -25,25 +32,24 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(DictKey.navTitleCreateBarCode.s),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: _pressCheck,
-          ),
+          IconButton(icon: const Icon(Icons.check), onPressed: _pressCheck),
         ],
       ),
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
-            padding: const .fromLTRB(16.0, 0.0, 16.0, 16.0),
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ItemTile(
-                title: HistoryFormat.localeStrFromName(_historyFormat.name),
+                title: HistoryFormat.localeFromName(_historyFormat.name),
                 myIconData: _historyFormat.myIconData,
               ),
               const SizedBox(height: 16),
@@ -55,10 +61,7 @@ class _PageBarcodeFormState extends State<PageBarcodeForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                _historyFormat.description,
-                softWrap: true,
-              ),
+              Text(_historyFormat.description, softWrap: true),
             ],
           ),
         ),

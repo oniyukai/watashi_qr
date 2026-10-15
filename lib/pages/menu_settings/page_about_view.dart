@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -11,17 +11,25 @@ class PageAboutView extends StatefulWidget {
 }
 
 class _PageAboutViewState extends State<PageAboutView> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
-  Widget build(context) {
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(DictKey.settingGroupAbout.s),
-      ),
+      appBar: AppBar(title: Text(DictKey.settingGroupAbout.s)),
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
+            controller: _scrollController,
             children: [
               SizedBox.square(
                 dimension: 64,
@@ -31,12 +39,7 @@ class _PageAboutViewState extends State<PageAboutView> {
               Text(
                 StaticString.appName,
                 style: textTheme.headlineSmall,
-                textAlign: .center,
-              ),
-              Text(
-                'Copyleft 🄯 YUKAI',
-                style: textTheme.bodySmall,
-                textAlign: .center,
+                textAlign: TextAlign.center,
               ),
               ListTile(
                 title: Text(DictKey.settingOptionVersion.s),
@@ -48,7 +51,9 @@ class _PageAboutViewState extends State<PageAboutView> {
               ),
               ListTile(
                 title: Text(DictKey.settingOptionLicenses.s),
-                subtitle: Text('${StaticString.appName} is Licensed under\nGNU General Public License v3.0'),
+                subtitle: Text(
+                  '${StaticString.appName} is Licensed under GNU General Public License v3.0',
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => showLicensePage(
                   context: context,
@@ -59,7 +64,8 @@ class _PageAboutViewState extends State<PageAboutView> {
                 title: Text(DictKey.settingOptionSourceCode.s),
                 subtitle: Text(StaticString.sourceCodeLink),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => Utils.openUrlInBrowser(StaticString.sourceCodeLink),
+                onTap: () =>
+                    Utils.openUrlInBrowser(StaticString.sourceCodeLink),
               ),
             ],
           ),

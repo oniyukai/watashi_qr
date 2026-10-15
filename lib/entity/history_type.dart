@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -22,7 +22,7 @@ enum HistoryType {
 
   const HistoryType(this.iconData);
 
-  static String localeStrFromName(String n) =>
+  static String localeFromName(String n) =>
       switch (values.fromName(n)) {
         text => DictKey.barcodeTypeText,
         website => DictKey.barcodeTypeWebsite,
@@ -41,10 +41,10 @@ enum HistoryType {
 
   factory HistoryType.fromDistinguish(HistoryFormat? format, String contents) {
     switch (format) {
-      case .qrCode:
-      case .dataMatrix:
-      case .aztec:
-      case .pdf417:
+      case HistoryFormat.qrCode:
+      case HistoryFormat.dataMatrix:
+      case HistoryFormat.aztec:
+      case HistoryFormat.pdf417:
       case null:
         if (WebsiteAnalyzer(contents).checkType) return website;
         if (ContactAnalyzer(contents).checkType) return contact;
@@ -55,16 +55,16 @@ enum HistoryType {
         if (EventAnalyzer(contents).checkType) return event;
         if (WifiAnalyzer(contents).checkType) return wifi;
         return text;
-      case .ean13:
-      case .ean8:
-      case .upcE:
-      case .upcA:
+      case HistoryFormat.ean13:
+      case HistoryFormat.ean8:
+      case HistoryFormat.upcE:
+      case HistoryFormat.upcA:
         return product;
-      case .code128:
-      case .code93:
-      case .code39:
-      case .codabar:
-      case .itf:
+      case HistoryFormat.code128:
+      case HistoryFormat.code93:
+      case HistoryFormat.code39:
+      case HistoryFormat.codabar:
+      case HistoryFormat.itf:
         return industrial;
     }
   }

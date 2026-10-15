@@ -1,18 +1,97 @@
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 
-Widget scannerErrorBuilder(BuildContext context, MobileScannerException error) {
-  final String errorMessage = switch (error.errorCode) {
-    .permissionDenied => DictKey.commonLabelCameraDenied.s,
-    _ => error.errorCode.message,
-  };
-  return Center(
-    child: Text('$errorMessage\n\n${error.errorDetails?.message ?? ''}'),
-  );
+class CameraWindow extends StatefulWidget {
+  final Rect scanWindow;
+  final CameraFacing facing;
+  final double initialZoom;
+  final void Function(MobileScannerController? controller) onOpen;
+  final void Function(BarcodeCapture barcodes) onDetect;
+
+  const CameraWindow({
+    super.key,
+    required this.scanWindow,
+    required this.facing,
+    required this.initialZoom,
+    required this.onDetect,
+    required this.onOpen,
+  });
+
+  @override
+  State<CameraWindow> createState() => _CameraWindowState();
+}
+
+class _CameraWindowState extends State<CameraWindow> {
+  late final AppLifecycleListener _lifecycleListener;
+  late final MobileScannerController _scannerController =
+      MobileScannerController(
+        detectionSpeed: DetectionSpeed.unrestricted,
+        facing: widget.facing,
+        initialZoom: widget.initialZoom,
+      );
+
+  @override
+  void initState() {
+    super.initState();
+    widget.onOpen(_scannerController);
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: (state) {
+        if (state == AppLifecycleState.resumed &&
+            _scannerController.value.isInitialized) {
+          _scannerController.setZoomScale(widget.initialZoom);
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.onOpen(null);
+    _lifecycleListener.dispose();
+    _scannerController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isUseFrontCamera = widget.facing == CameraFacing.front;
+    return Transform.scale(
+      scaleX: isUseFrontCamera ? -1 : 1,
+      child: Stack(
+        children: [
+          MobileScanner(
+            scanWindow: widget.scanWindow,
+            controller: _scannerController,
+            errorBuilder: (context, error) {
+              final String errorMessage = switch (error.errorCode) {
+                MobileScannerErrorCode.permissionDenied =>
+                  DictKey.commonLabelCameraDenied.s,
+                _ => error.errorCode.message,
+              };
+              return Center(
+                child: Text(
+                  '$errorMessage\n\n${error.errorDetails?.message ?? ''}',
+                ),
+              );
+            },
+            onDetect: widget.onDetect,
+          ),
+          BarcodeOverlay(
+            // todo debug: 自拍字體水平相反
+            controller: _scannerController,
+            boxFit: BoxFit.cover,
+            color: Theme.of(context).colorScheme.tertiary
+                .withValues(alpha: 0.5),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class FlashlightButton extends StatelessWidget {
@@ -21,23 +100,22 @@ class FlashlightButton extends StatelessWidget {
   const FlashlightButton(this.controller, {super.key});
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, state, child) {
         final IconData iconData = switch (state.torchState) {
-          .auto => Icons.flash_auto,
-          .on => Icons.flash_on,
-          .off || .unavailable => Icons.flash_off,
+          TorchState.auto => Icons.flash_auto,
+          TorchState.on => Icons.flash_on,
+          TorchState.off || .unavailable => Icons.flash_off,
         };
-        final AsyncCallback? onPressed = state.isInitialized &&
-            state.isRunning &&
-            state.torchState != .unavailable
-            ? controller.toggleTorch : null;
-        return IconButton(
-          icon: Icon(iconData),
-          onPressed: onPressed,
-        );
+        final AsyncCallback? onPressed =
+            state.isInitialized &&
+                state.isRunning &&
+                state.torchState != TorchState.unavailable
+            ? controller.toggleTorch
+            : null;
+        return IconButton(icon: Icon(iconData), onPressed: onPressed);
       },
     );
   }
@@ -46,7 +124,9 @@ class FlashlightButton extends StatelessWidget {
 class MyScanWindowOverlay extends StatefulWidget {
   final MobileScannerController controller;
   final Rect scanWindow;
-  final void Function(double width, double height) onPanUpdate; // Function請使用setState()來更新scanWindow
+
+  /// 請使用setState()來更新scanWindow
+  final void Function(double width, double height) onPanUpdate;
   final VoidCallback onPanEnd;
 
   const MyScanWindowOverlay({
@@ -67,7 +147,7 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
   late Offset _startPosition;
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: widget.controller,
       builder: (context, value, child) {
@@ -85,10 +165,14 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
             final double screenHeight = constraints.maxHeight;
             final double scanWindowWidth = widget.scanWindow.width;
             final double scanWindowHeight = widget.scanWindow.height;
-            final double minScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.175;
-            final double maxScanWindowSize = min(screenWidth, screenHeight) * 0.85;
+            final double minScanWindowSize =
+                MediaQuery.of(context).size.shortestSide * 0.175;
+            final double maxScanWindowSize =
+                min(screenWidth, screenHeight) * 0.85;
             const Color overlayColor = Colors.black54; // 遮罩顏色
-            final Color cornerColor = Theme.of(context).colorScheme.primary; // 角落顏色
+            final Color cornerColor = Theme.of(context)
+                .colorScheme
+                .primary; // 角落顏色
             const double cornerSize = 32.0; // 角落大小
             const double cornerWidth = 2.0; // 角落粗細
 
@@ -189,15 +273,23 @@ class _MyScanWindowOverlayState extends State<MyScanWindowOverlay> {
                       _startPosition = details.globalPosition;
                     },
                     onPanUpdate: (details) {
-                      final double widthDelta = (details.globalPosition.dx - _startPosition.dx) * 2;
-                      final double heightDelta = (details.globalPosition.dy - _startPosition.dy) * 2;
-                      final double width = (_startWidth + widthDelta).clamp(minScanWindowSize, maxScanWindowSize);
-                      final double height = (_startHeight + heightDelta).clamp(minScanWindowSize, maxScanWindowSize);
+                      final double widthDelta =
+                          (details.globalPosition.dx - _startPosition.dx) * 2;
+                      final double heightDelta =
+                          (details.globalPosition.dy - _startPosition.dy) * 2;
+                      final double width = (_startWidth + widthDelta).clamp(
+                        minScanWindowSize,
+                        maxScanWindowSize,
+                      );
+                      final double height = (_startHeight + heightDelta).clamp(
+                        minScanWindowSize,
+                        maxScanWindowSize,
+                      );
                       widget.onPanUpdate(width, height);
                     },
                     onPanEnd: (details) => widget.onPanEnd(),
                     child: Padding(
-                      padding: const .all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: RotatedBox(
                         quarterTurns: 1,
                         child: Icon(

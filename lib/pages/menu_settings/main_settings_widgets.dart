@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/common/app_theme.dart';
 import 'package:watashi_qr/pages/widget/overlay_show.dart';
 
@@ -23,11 +23,13 @@ class ListTileText extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     return ListTile(
-      contentPadding: isSection ? const .only(top: 16, left: 16) : null,
+      contentPadding: isSection
+          ? const EdgeInsets.only(top: 16, left: 16)
+          : null,
       leading: SizedBox(width: 48, child: Icon(iconData)),
       shape: shape,
       minTileHeight: isSection ? 0 : null,
@@ -64,7 +66,7 @@ class ListTileSwitch extends StatelessWidget {
   });
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(text),
@@ -109,42 +111,49 @@ class ListTilePicker<T> extends StatelessWidget {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return ListTile(
       leading: SizedBox(width: 48, child: Icon(iconData)),
       title: Text(text),
       subtitle: Text('${optionMap[selectedOption] ?? selectedOption}'),
       shape: shape,
-      onTap: () => OverlayShow.dialog(
-        context: context,
-        title: dialogText ?? text,
-        content: Scrollbar(
-          child: SingleChildScrollView(
-            child: RadioGroup<T>(
-              groupValue: selectedOption,
-              onChanged: (value) => _onChanged(context, value),
-              child: Column(
-                mainAxisSize: .min,
-                children: [
-                  for (final T value in optionMap.keys)
-                    ListTile(
-                      leading: (leadingBuilder ?? (radio, selected) => radio)(
-                        Radio(
-                          value: value,
-                          materialTapTargetSize: .shrinkWrap,
+      onTap: () {
+        final ScrollController scrollController = ScrollController();
+        OverlayShow.dialog(
+          context: context,
+          title: dialogText ?? text,
+          content: RadioGroup<T>(
+            groupValue: selectedOption,
+            onChanged: (value) => _onChanged(context, value),
+            child: Scrollbar(
+              controller: scrollController,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  children: [
+                    for (final T value in optionMap.keys)
+                      ListTile(
+                        leading: (leadingBuilder ?? (radio, selected) => radio)(
+                          Radio(
+                            value: value,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          value == selectedOption,
                         ),
-                        value == selectedOption,
+                        title: Text(optionMap[value]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        onTap: () => _onChanged(context, value),
                       ),
-                      title: Text(optionMap[value]!),
-                      shape: RoundedRectangleBorder(borderRadius: .circular(12.0)),
-                      onTap: () => _onChanged(context, value),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        ).whenComplete(scrollController.dispose);
+      },
     );
   }
 }
@@ -156,16 +165,16 @@ class ColorfulRadio extends StatelessWidget {
   const ColorfulRadio(this.radio, this.selected, {super.key});
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ColorScheme? colorScheme = radio.value.color == null
         ? MyAppTheme.dynamicColorScheme
-        : .fromSeed(seedColor: radio.value.color!);
+        : ColorScheme.fromSeed(seedColor: radio.value.color!);
     if (colorScheme == null) return radio;
     final Color topColor = colorScheme.primaryContainer;
     final Color bottomLeftColor = colorScheme.tertiaryContainer;
     final Color bottomRightColor = colorScheme.primary;
     return Padding(
-      padding: const .symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: AspectRatio(
         aspectRatio: 1.0,
         child: Stack(
@@ -173,24 +182,12 @@ class ColorfulRadio extends StatelessWidget {
             ClipOval(
               child: Column(
                 children: [
-                  Expanded(
-                    child: Container(
-                      color: topColor,
-                    ),
-                  ),
+                  Expanded(child: Container(color: topColor)),
                   Expanded(
                     child: Row(
                       children: [
-                        Expanded(
-                          child: Container(
-                            color: bottomLeftColor,
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            color: bottomRightColor,
-                          ),
-                        ),
+                        Expanded(child: Container(color: bottomLeftColor)),
+                        Expanded(child: Container(color: bottomRightColor)),
                       ],
                     ),
                   ),

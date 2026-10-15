@@ -1,26 +1,28 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:watashi_qr/common/database_services.dart';
-import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:watashi_qr/common/drift_database.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
+import 'package:watashi_qr/entity/history_format.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_code_view.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
 import 'package:watashi_qr/pages/menu_settings/page_customurls_view.dart';
 import 'package:watashi_qr/pages/widget/barcode_field.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:watashi_qr/common/prefs.dart';
-import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/pages/widget/expandable_card.dart';
-import 'package:watashi_qr/pages/menu_history/page_item_widgets.dart';
+import 'package:watashi_qr/pages/widget/item_tile.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
-import 'dart:io';
 import 'package:watashi_qr/pages/widget/overlay_show.dart';
 
 class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
@@ -31,38 +33,51 @@ class PageItemView extends StatefulWidget with RouterBridge<HistoryItem> {
 }
 
 class _PageItemViewState extends State<PageItemView> {
+  final ScrollController _scrollController = ScrollController();
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  late final HistoryItem _historyItem = widget.getArgs(context)!;
+  late HistoryItem _historyItem = widget.getArgs(context)!;
   late HistoryType? _historyType = _historyItem.getType;
-  late bool _isExistBefore = _historyItem.id > 0;
-  late bool _isWillExist = _isExistBefore;
+  late bool _isExistOnce = _historyItem.uuid.isNotEmpty;
+  late bool _isWillExist = _isExistOnce;
 
-  void _syncToDatabase() {
-    if (_historyItem.id > 0 && _isWillExist) {
-      DatabaseServices.updateItem(_historyItem);
-    } else if (_historyItem.id > 0) {
-      if (DatabaseServices.deleteItem(_historyItem.id)) _historyItem.id = 0;
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
+  Future<void> _syncToDatabase() async {
+    if (_historyItem.uuid.isNotEmpty && _isWillExist) {
+      await DriftService.appDb.dao.upsertMany([_historyItem]);
+    } else if (_historyItem.uuid.isNotEmpty) {
+      await DriftService.appDb.dao.removeMany([_historyItem.uuid]);
+      _historyItem = _historyItem.copyWith(uuid: '');
+    } else if (_isWillExist && _isExistOnce) {
+      final item = _historyItem.copyWith(uuid: UuidMixin.v7.generate());
+      await DriftService.appDb.dao.upsertMany([item]);
+      _historyItem = item;
     } else if (_isWillExist) {
-      _historyItem.id = DatabaseServices.addItem(_historyItem, _isExistBefore);
-      if (_historyItem.id > 0) _isExistBefore = true;
+      _historyItem = await DriftService.appDb.dao.insert(_historyItem);
+      _isExistOnce = true;
     }
     setState(() {});
   }
 
-  void _pressItemFavorite() {
-    _historyItem.isFavorite = !_historyItem.isFavorite;
-    _syncToDatabase();
+  Future<void> _pressItemFavorite() {
+    _historyItem = _historyItem.copyWith(isFavorite: !_historyItem.isFavorite);
+    return _syncToDatabase();
   }
 
-  Future<void> _pressShareContents() => Utils.share(.new(text: _historyItem.contents));
+  Future<void> _pressShareContents() =>
+      SharePlus.instance.share(ShareParams(text: _historyItem.contents));
 
   Future<void> _pressModifyContents() => OverlayShow.bottomSheet(
     context: context,
     title: Row(
-      mainAxisAlignment: .spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(DictKey.actionModifyBarcode.s),
-        Text(HistoryFormat.localeStrFromName(_historyItem.format)),
+        Text(HistoryFormat.localeFromName(_historyItem.format)),
       ],
     ),
     content: FormBuilder(
@@ -76,40 +91,48 @@ class _PageItemViewState extends State<PageItemView> {
     actions: [
       ElevatedButton(
         child: Text(DictKey.actionModifyBarcode.s),
-        onPressed: () {
+        onPressed: () async {
           if (_formKey.currentState?.saveAndValidate() != true) return;
-          _historyItem.contents = _formKey.currentState!.value['modifyContents'];
-          _historyItem.type = HistoryType.fromDistinguish(_historyItem.getFormat, _historyItem.contents).name;
+          final String contents =
+              _formKey.currentState!.value['modifyContents'];
+          _historyItem = _historyItem.copyWith(
+            contents: contents,
+            type: HistoryType.fromDistinguish(
+              _historyItem.getFormat,
+              contents,
+            ).name,
+          );
           _historyType = _historyItem.getType;
+          await _syncToDatabase();
           Navigator.pop(context);
-          _syncToDatabase();
         },
       ),
     ],
   );
 
   Future<void> _pressCopyContents() async {
-    await Clipboard.setData(.new(text: _historyItem.contents));
+    await Clipboard.setData(ClipboardData(text: _historyItem.contents));
     Utils.showToast(DictKey.commonUiCopied.s);
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(HistoryType.localeStrFromName(_historyItem.type)),
+        title: Text(HistoryType.localeFromName(_historyItem.type)),
       ),
       body: SafeArea(
         bottom: false,
         child: Scrollbar(
+          controller: _scrollController,
           child: ListView(
-            padding: const .fromLTRB(16.0, 0.0, 16.0, 16.0),
+            controller: _scrollController,
+            padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
             children: [
               ExpandableCard(
                 title: DictKey.analysisLabelContent.s,
                 myIconData: MyIconData(_historyItem.getTypeIconData),
-                initialExpanded: true,
                 expandedChild: AnalyzedContentItem(
                   contents: _historyItem.contents,
                   type: _historyType,
@@ -121,49 +144,64 @@ class _PageItemViewState extends State<PageItemView> {
                   children: [
                     ListTile(
                       minTileHeight: 0,
-                      contentPadding: const .only(left: 16, top: 8),
+                      contentPadding: const EdgeInsets.only(left: 16, top: 8),
                       leading: MyIcon(_historyItem.getFormatIconData),
                       title: Text(DictKey.analysisGroupInfo.s),
                     ),
                     ListTile(
                       minVerticalPadding: 0,
-                      contentPadding: const .only(right: 16, left: 16, bottom: 8),
+                      contentPadding: const EdgeInsets.only(
+                        right: 16,
+                        left: 16,
+                        bottom: 8,
+                      ),
                       subtitle: Column(
-                        crossAxisAlignment: .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: .spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SelectableText(
                                 DictKey.analysisLabelFormat.s +
-                                HistoryFormat.localeStrFromName(_historyItem.format)
+                                    HistoryFormat.localeFromName(
+                                      _historyItem.format,
+                                    ),
                               ),
-                              SelectableText(Utils.formatUnixTimes(_historyItem.unixTime)),
+                              SelectableText(
+                                Utils.formatDateTime(_historyItem.createdAt),
+                              ),
                             ],
                           ),
                           SelectableText(
                             DictKey.analysisLabelOrigin.s +
-                            HistoryOrigin.localeStrFromName(_historyItem.origin)
+                                HistoryOrigin.localeFromName(
+                                  _historyItem.origin,
+                                ),
                           ),
-                          if (_historyItem.getErrorLevel != .none) SelectableText(
-                            DictKey.analysisLabelErrorLevel.s +
-                            HistoryErrorLevel.localeStrFromName(_historyItem.errorLevel),
-                          ),
-                          if (_historyItem.notes.isNotEmpty) Row(
-                            crossAxisAlignment: .start,
-                            children: [
-                              SelectableText(DictKey.analysisLabelNotes.s),
-                              Expanded(
-                                child: SelectableText(
-                                  _historyItem.notes,
-                                  style: TextStyle(
-                                    color: colorScheme.tertiary,
-                                    fontWeight: .bold,
+                          if (_historyItem.getErrorLevel !=
+                              HistoryErrorLevel.none)
+                            SelectableText(
+                              DictKey.analysisLabelErrorLevel.s +
+                                  HistoryErrorLevel.localeFromName(
+                                    _historyItem.errorLevel,
+                                  ),
+                            ),
+                          if (_historyItem.notes.isNotEmpty)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SelectableText(DictKey.analysisLabelNotes.s),
+                                Expanded(
+                                  child: SelectableText(
+                                    _historyItem.notes,
+                                    style: TextStyle(
+                                      color: colorScheme.tertiary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -173,33 +211,38 @@ class _PageItemViewState extends State<PageItemView> {
               const SizedBox(height: 8),
               Card(
                 child: ListTile(
-                  contentPadding: const .symmetric(horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   leading: const Icon(MaterialCommunityIcons.barcode_scan),
-                  onTap: () => context.routeOf<PageCodeView>().toPass(_historyItem),
+                  onTap: () =>
+                      context.routeOf<PageCodeView>().toPass(_historyItem),
                   trailing: Row(
-                    mainAxisSize: .min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        padding: const .all(0),
-                        visualDensity: .compact,
+                        padding: const EdgeInsets.all(0),
+                        visualDensity: VisualDensity.compact,
                         onPressed: _pressItemFavorite,
-                        icon: Icon(_historyItem.isFavorite ? Icons.favorite : Icons.favorite_outline),
+                        icon: Icon(
+                          _historyItem.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_outline,
+                        ),
                       ),
                       IconButton(
-                        padding: const .all(0),
-                        visualDensity: .compact,
+                        padding: const EdgeInsets.all(0),
+                        visualDensity: VisualDensity.compact,
                         onPressed: _pressShareContents,
                         icon: const Icon(Icons.share),
                       ),
                       IconButton(
-                        padding: const .all(0),
-                        visualDensity: .compact,
+                        padding: const EdgeInsets.all(0),
+                        visualDensity: VisualDensity.compact,
                         onPressed: _pressModifyContents,
                         icon: const Icon(Icons.edit),
                       ),
                       IconButton(
-                        padding: const .all(0),
-                        visualDensity: .compact,
+                        padding: const EdgeInsets.all(0),
+                        visualDensity: VisualDensity.compact,
                         onPressed: _pressCopyContents,
                         icon: const Icon(Icons.copy),
                       ),
@@ -215,15 +258,20 @@ class _PageItemViewState extends State<PageItemView> {
               Builder(
                 builder: (context) {
                   const int crossAxisCount = 3;
-                  final List<PressButtonGrid> actionGrids = _getActionGridList();
-                  final int rowCount = (actionGrids.length / crossAxisCount).ceil();
+                  final List<PressButtonGrid> actionGrids =
+                      _getActionGridList();
+                  final int rowCount = (actionGrids.length / crossAxisCount)
+                      .ceil();
                   return Column(
                     children: List.generate(rowCount, (rowIndex) {
                       return IntrinsicHeight(
                         child: Row(
-                          crossAxisAlignment: .stretch,
-                          children: List.generate(crossAxisCount, (columnIndex) {
-                            final int index = rowIndex * crossAxisCount + columnIndex;
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: List.generate(crossAxisCount, (
+                            columnIndex,
+                          ) {
+                            final int index =
+                                rowIndex * crossAxisCount + columnIndex;
                             return index < actionGrids.length
                                 ? Expanded(child: actionGrids[index])
                                 : const Expanded(child: SizedBox.shrink());
@@ -242,48 +290,66 @@ class _PageItemViewState extends State<PageItemView> {
   }
 
   List<PressButtonGrid> _getActionGridList() => [
-    if (_historyType != .website) PressButtonGrid(
-      iconData: Icons.search,
-      description: DictKey.actionWebSearch.s,
-      onTap: () {
-        final SearchEngine searchEngine = context.readPrefs.get(.selectedSearchEngine);
-        return Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
-      },
-    ),
-
-    if (_historyType == .website) PressButtonGrid(
-      iconData: Icons.open_in_browser,
-      description: DictKey.actionOpenLink.s,
-      onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
-    ),
-
-    if (context.readPrefs.get<List<CustomSearchUrl>>(.customSearchUrls).isNotEmpty) PressButtonGrid(
-      iconData: Icons.search,
-      description: DictKey.settingOptionCustomSearch.s,
-      onTap: () => OverlayShow.dialog(
-        context: context,
-        title: DictKey.settingOptionCustomSearch.s,
-        noCancelButton: true,
-        content: Scrollbar(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: .min,
-              children: [
-                for (final searchUrl in context.readPrefs.get<List<CustomSearchUrl>>(.customSearchUrls))
-                  ItemTile(
-                    title: searchUrl.title,
-                    description: searchUrl.url,
-                    onTap: () {
-                      Utils.searchInBrowser(searchUrl.url, _historyItem.contents);
-                      Navigator.pop(context);
-                    },
-                  ),
-              ],
-            ),
-          ),
-        ),
+    if (_historyType != HistoryType.website)
+      PressButtonGrid(
+        iconData: Icons.search,
+        description: DictKey.actionWebSearch.s,
+        onTap: () {
+          final SearchEngine searchEngine = context.readPrefs.get(
+            .selectedSearchEngine,
+          );
+          return Utils.searchInBrowser(searchEngine.url, _historyItem.contents);
+        },
       ),
-    ),
+
+    if (_historyType == HistoryType.website)
+      PressButtonGrid(
+        iconData: Icons.open_in_browser,
+        description: DictKey.actionOpenLink.s,
+        onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
+      ),
+
+    if (context.readPrefs
+        .get<List<CustomSearchUrl>>(.customSearchUrls)
+        .isNotEmpty)
+      PressButtonGrid(
+        iconData: Icons.search,
+        description: DictKey.settingOptionCustomSearch.s,
+        onTap: () {
+          final ScrollController scrollController = ScrollController();
+          return OverlayShow.dialog(
+            context: context,
+            title: DictKey.settingOptionCustomSearch.s,
+            noCancelButton: true,
+            content: Scrollbar(
+              controller: scrollController,
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final searchUrl
+                        in context.readPrefs.get<List<CustomSearchUrl>>(
+                          .customSearchUrls,
+                        ))
+                      ItemTile(
+                        title: searchUrl.title,
+                        description: searchUrl.url,
+                        onTap: () async {
+                          await Utils.searchInBrowser(
+                            searchUrl.url,
+                            _historyItem.contents,
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ).whenComplete(scrollController.dispose);
+        },
+      ),
 
     PressButtonGrid(
       iconData: Icons.edit_note,
@@ -295,7 +361,7 @@ class _PageItemViewState extends State<PageItemView> {
           key: _formKey,
           child: FormBuilderTextField(
             name: 'modifyNotes',
-            keyboardType: .text,
+            keyboardType: TextInputType.text,
             maxLines: null,
             initialValue: _historyItem.notes,
             decoration: InputDecoration(
@@ -309,9 +375,11 @@ class _PageItemViewState extends State<PageItemView> {
             child: Text(DictKey.actionModifyNotes.s),
             onPressed: () async {
               if (_formKey.currentState?.saveAndValidate() != true) return;
-              _historyItem.notes = _formKey.currentState!.value['modifyNotes'] ?? '';
+              _historyItem = _historyItem.copyWith(
+                notes: _formKey.currentState!.value['modifyNotes'] ?? '',
+              );
+              await _syncToDatabase();
               Navigator.pop(context);
-              _syncToDatabase();
             },
           ),
         ],
@@ -323,99 +391,104 @@ class _PageItemViewState extends State<PageItemView> {
     //   description: AppLocale.actionAddToContacts.s,
     //   onTap: // todo: _actionAddToContacts,
     // ),
+    if (_historyType == HistoryType.contact)
+      PressButtonGrid(
+        iconData: Icons.share,
+        description: DictKey.actionShareVcfFile.s,
+        onTap: () async {
+          final Directory tempDir = await getTemporaryDirectory();
+          final File file = File(p.join(tempDir.path, 'contact.vcf'));
+          await file.writeAsString(_historyItem.contents);
+          await SharePlus.instance.share(
+            ShareParams(files: [XFile(file.path)]),
+          );
+        },
+      ),
 
-    if (_historyType == .contact) PressButtonGrid(
-      iconData: Icons.share,
-      description: DictKey.actionShareVcfFile.s,
-      onTap: () async {
-        final Directory tempDir = await getTemporaryDirectory();
-        final File file = File(p.join(tempDir.path, 'contact.vcf'));
-        await file.writeAsString(_historyItem.contents);
-        await Utils.share(.new(files: [XFile(file.path)]));
-      },
-    ),
+    if (_historyType == HistoryType.mail)
+      PressButtonGrid(
+        iconData: Icons.mail_outline,
+        description: DictKey.actionSendMail.s,
+        onTap: () {
+          final parseValue = MailAnalyzer(_historyItem.contents).parseValue;
+          final Uri uri = Uri(
+            scheme: 'mailto',
+            path: parseValue.email,
+            queryParameters: {
+              'subject': parseValue.subject,
+              'body': parseValue.message,
+            },
+          );
+          return Utils.openUrlInBrowser(uri.toString());
+        },
+      ),
 
-    if (_historyType == .mail) PressButtonGrid(
-      iconData: Icons.mail_outline,
-      description: DictKey.actionSendMail.s,
-      onTap: () {
-        final parseValue = MailAnalyzer(_historyItem.contents).parseValue;
-        final Uri uri = Uri(
-          scheme: 'mailto',
-          path: parseValue.email,
-          queryParameters: {
-            'subject': parseValue.subject,
-            'body': parseValue.message,
-          },
-        );
-        return Utils.openUrlInBrowser(uri.toString());
-      },
-    ),
+    if (_historyType == HistoryType.phone || _historyType == HistoryType.sms)
+      PressButtonGrid(
+        iconData: Icons.sms_outlined,
+        description: DictKey.actionSendSms.s,
+        onTap: () {
+          String? phone;
+          String? message;
+          if (_historyType == HistoryType.sms) {
+            final parseValue = SmsAnalyzer(_historyItem.contents).parseValue;
+            phone = parseValue.phone;
+            message = parseValue.message;
+          } else if (_historyType == HistoryType.phone) {
+            final parseValue = PhoneAnalyzer(_historyItem.contents).parseValue;
+            phone = parseValue.phone;
+          }
+          final Uri uri = Uri(
+            scheme: 'smsto',
+            path: phone,
+            queryParameters: {'body': ?message},
+          );
+          return Utils.openUrlInBrowser(uri.toString());
+        },
+      ),
 
-    if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
-      iconData: Icons.sms_outlined,
-      description: DictKey.actionSendSms.s,
-      onTap: () {
-        String? phone;
-        String? message;
-        if (_historyType == .sms) {
-          final parseValue = SmsAnalyzer(_historyItem.contents).parseValue;
-          phone = parseValue.phone;
-          message = parseValue.message;
-        } else if (_historyType == .phone) {
-          final parseValue = PhoneAnalyzer(_historyItem.contents).parseValue;
-          phone = parseValue.phone;
-        }
-        final Uri uri = Uri(
-          scheme: 'smsto',
-          path: phone,
-          queryParameters: {
-            'body': ?message,
-          },
-        );
-        return Utils.openUrlInBrowser(uri.toString());
-      },
-    ),
+    if (_historyType == HistoryType.phone || _historyType == HistoryType.sms)
+      PressButtonGrid(
+        iconData: Icons.call,
+        description: DictKey.actionCallPhone.s,
+        onTap: () {
+          String? phone;
+          if (_historyType == HistoryType.sms) {
+            final parseValue = SmsAnalyzer(_historyItem.contents).parseValue;
+            phone = parseValue.phone;
+          } else if (_historyType == HistoryType.phone) {
+            final parseValue = PhoneAnalyzer(_historyItem.contents).parseValue;
+            phone = parseValue.phone;
+          }
+          return Utils.openUrlInBrowser('tel:$phone');
+        },
+      ),
 
-    if (_historyType == .phone || _historyType == .sms) PressButtonGrid(
-      iconData: Icons.call,
-      description: DictKey.actionCallPhone.s,
-      onTap: () {
-        String? phone;
-        if (_historyType == .sms) {
-          final parseValue = SmsAnalyzer(_historyItem.contents).parseValue;
-          phone = parseValue.phone;
-        } else if (_historyType == .phone) {
-          final parseValue = PhoneAnalyzer(_historyItem.contents).parseValue;
-          phone = parseValue.phone;
-        }
-        return Utils.openUrlInBrowser('tel:$phone');
-      },
-    ),
+    if (_historyType == HistoryType.location)
+      PressButtonGrid(
+        iconData: Icons.location_on,
+        description: DictKey.actionShowLocation.s,
+        onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
+      ),
 
-    if (_historyType == .location) PressButtonGrid(
-      iconData: Icons.location_on,
-      description: DictKey.actionShowLocation.s,
-      onTap: () => Utils.openUrlInBrowser(_historyItem.contents),
-    ),
-
-    // if (_historyType == .event) PressButtonGrid(
+    // if (_historyType == HistoryType.event) PressButtonGrid(
     //   iconData: Icons.event,
     //   description: AppLocale.actionAddToCalendar.s,
     //   onTap: // todo: _actionShareAgend,
     // ),
-
     PressButtonGrid(
       iconData: _isWillExist ? Icons.delete_forever : Icons.add,
       description: _isWillExist
           ? DictKey.historyMenuDelete.s
           : DictKey.historyMenuAdd.s,
-      onTap: () {
+      onTap: () async {
         _isWillExist = !_isWillExist;
-        _syncToDatabase();
-        return Utils.showToast(_isWillExist
-            ? DictKey.historyStatusAdded.s
-            : DictKey.historyStatusRemoved.s);
+        await _syncToDatabase();
+        Utils.showToast(
+          _isWillExist
+              ? DictKey.historyStatusAdded.s
+              : DictKey.historyStatusRemoved.s,
+        );
       },
     ),
   ];
@@ -426,10 +499,11 @@ enum SearchEngine {
   bing(StaticString.bingUrl),
   wikipedia(StaticString.wikipediaUrl);
 
-  const SearchEngine(this.url);
   final String url;
 
-  static Map<SearchEngine, String> get optionMap => <SearchEngine, String>{
+  const SearchEngine(this.url);
+
+  static Map<SearchEngine, String> get optionMap => {
     google: StaticString.googleLabel,
     bing: StaticString.bingLabel,
     wikipedia: StaticString.wikipediaLabel,

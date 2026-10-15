@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:watashi_qr/common/utils.dart';
 import 'package:watashi_qr/locale/app_language.dart';
@@ -29,7 +29,7 @@ class MenuNavBarProvider extends ChangeNotifier {
 }
 
 class _MenuNavBarState extends State<MenuNavBar> {
-  final List<Widget> _pages = const [
+  final _pages = const <Widget>[
     MainScannerView(),
     MainCreatorView(),
     MainHistoryView(),
@@ -38,7 +38,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
   bool _canPop = false;
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
     return Consumer<MenuNavBarProvider>(
@@ -48,7 +48,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
           if (didPop) return;
           setState(() => _canPop = true);
           Utils.showToast(DictKey.navUiPopExitApp.s);
-          await Future.delayed(const .new(seconds: 2));
+          await Future.delayed(const Duration(seconds: 2));
           if (mounted) setState(() => _canPop = false);
         },
         child: Scaffold(
@@ -104,7 +104,7 @@ class _MenuNavBarState extends State<MenuNavBar> {
     return NavigationRail(
       selectedIndex: state.currentIndex,
       onDestinationSelected: state.updateIndex,
-      labelType: .all,
+      labelType: NavigationRailLabelType.all,
       groupAlignment: 1.0,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       destinations: [

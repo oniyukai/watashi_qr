@@ -1,119 +1,85 @@
-import 'package:barcode/barcode.dart';
-import 'package:flutter/material.dart';
-import 'package:objectbox/objectbox.dart';
-import 'package:watashi_qr/common/utils.dart';
-import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_type.dart';
-import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/pages/widget/my_icon.dart';
+import 'package:collection/collection.dart';
+import 'package:drift/drift.dart';
+import 'package:watashi_qr/common/drift_database.dart';
+import 'package:watashi_qr/common/prefs.dart';
 
-@Entity()
-class HistoryItem {
-  @Id()
-  int id = 0;
-  int unixTime;
-  String contents;
-  String format;
-  String type;
-  String errorLevel;
-  String origin;
-  bool isFavorite;
-  String notes;
+class HistoryItems extends Table with UuidMixin {
+  late final createdAt = integer()
+      .clientDefault(() => DateTime.now().millisecondsSinceEpoch)
+      .map(dateTimeConverter)();
+  late final contents = text()();
+  late final format = text()();
+  late final type = text()();
+  late final errorLevel = text()();
+  late final origin = text()();
+  late final isFavorite = boolean()();
+  late final notes = text()();
 
-  HistoryItem({
-    required this.unixTime,
-    required this.contents,
-    required this.format,
-    required this.type,
-    required this.errorLevel,
-    required this.origin,
-    required this.isFavorite,
-    required this.notes,
-  });
-
-  @Transient()
-  HistoryFormat? get getFormat => HistoryFormat.values.fromName(format);
-
-  @Transient()
-  MyIconData get getFormatIconData =>
-      getFormat?.myIconData ?? const MyIconData(Icons.help_center_outlined);
-
-  @Transient()
-  HistoryType? get getType => HistoryType.values.fromName(type);
-
-  @Transient()
-  IconData get getTypeIconData => getType?.iconData ?? Icons.help_center;
-
-  @Transient()
-  HistoryErrorLevel? get getErrorLevel =>
-      HistoryErrorLevel.values.fromName(errorLevel);
-
-  @Transient()
-  HistoryOrigin? get getOrigin => HistoryOrigin.values.fromName(origin);
-
-  @Transient()
-  factory HistoryItem.fromJson(Map<String, dynamic> json) => HistoryItem(
-    unixTime: json['unixTime'] ?? 1,
-    contents: json['contents'] ?? StaticString.nullString,
-    format: json['format'] ?? HistoryFormat.qrCode.name,
-    type: json['type'] ?? HistoryType.text.name,
-    errorLevel: json['errorLevel'] ?? HistoryErrorLevel.none.name,
-    origin: json['origin'] ?? HistoryOrigin.C.name,
-    isFavorite: json['isFavorite'] ?? false,
-    notes: json['notes'] ?? '',
-  );
-
-  @Transient()
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    'unixTime': unixTime,
-    'contents': contents,
-    'format': format,
-    'type': type,
-    'errorLevel': errorLevel,
-    'origin': origin,
-    'isFavorite': isFavorite,
-    'notes': notes,
-  };
+  @override
+  Set<Column> get primaryKey => {uuid};
 }
 
-/// !! 改變name會影響之後HistoryItem儲存的值
-enum HistoryErrorLevel {
-  L(.low),
-  M(.medium),
-  Q(.quartile),
-  H(.high),
-  none;
+class HistoryDao extends DatabaseAccessor<MyDriftDatabase> {
+  HistoryDao(super.attachedDatabase);
 
-  final BarcodeQRCorrectionLevel? barcodeQRCorrectionLevel;
+  $HistoryItemsTable get _history => attachedDatabase.historyItems;
 
-  const HistoryErrorLevel([this.barcodeQRCorrectionLevel]);
+  Stream<List<HistoryItem>> queryStream({String? format, String? contents}) {
+    final statement = _history.select();
+    if (format != null) {
+      statement.where((tbl) => tbl.format.isValue(format));
+    }
+    if (contents != null) {
+      statement.where((tbl) => tbl.contents.isValue(contents));
+    }
+    statement.orderBy([
+      (tbl) =>
+          OrderingTerm(expression: tbl.isFavorite, mode: OrderingMode.desc),
+      (tbl) => OrderingTerm(expression: tbl.createdAt, mode: OrderingMode.desc),
+      (tbl) => OrderingTerm(expression: tbl.uuid, mode: OrderingMode.desc),
+    ]);
+    return statement.watch().distinct(const ListEquality().equals);
+  }
 
-  static String localeStrFromName(String n) =>
-      optionMap[values.fromName(n)] ?? '?$n';
+  Future<void> upsertMany(Iterable<HistoryItem> list) {
+    assert(list.every((item) => item.uuid.length == 36));
+    return batch((batch) {
+      batch.insertAllOnConflictUpdate(_history, list);
+    });
+  }
 
-  static Map<HistoryErrorLevel, String> get optionMap =>
-      <HistoryErrorLevel, String>{
-        L: DictKey.settingOptionQrErrorCorrectionLevelLow.s,
-        M: DictKey.settingOptionQrErrorCorrectionLevelMedium.s,
-        Q: DictKey.settingOptionQrErrorCorrectionLevelQuartile.s,
-        H: DictKey.settingOptionQrErrorCorrectionLevelHigh.s,
-      };
-}
+  Future<void> removeMany(Iterable<String> uuids) {
+    return batch((batch) {
+      uuids
+          .toSet()
+          .slices(chunkSize)
+          .forEach(
+            (chunk) =>
+                batch.deleteWhere(_history, (tbl) => tbl.uuid.isIn(chunk)),
+          );
+    });
+  }
 
-/// !! 改變name會影響之後HistoryItem儲存的值
-enum HistoryOrigin {
-  S(Icons.fullscreen), // scanner
-  C(Icons.edit_outlined); // creator
+  Future<int> removeAll() => _history.deleteAll();
 
-  final IconData iconData;
-
-  const HistoryOrigin(this.iconData);
-
-  static String localeStrFromName(String n) =>
-      switch (values.fromName(n)) {
-        S => DictKey.navTitleScanner,
-        C => DictKey.navTitleCreator,
-        null => null,
-      }?.s ??
-      '?$n';
+  Future<HistoryItem> insert(HistoryItem item) async {
+    assert(item.uuid.isEmpty);
+    item = item.copyWith(uuid: UuidMixin.v7.generate());
+    if (!PrefsEnum.isSaveDuplicates.get()) {
+      final last = await queryStream(
+        format: item.format,
+        contents: item.contents,
+      ).first.then((ls) => ls.firstOrNull);
+      if (last != null) {
+        item = item.copyWith(isFavorite: last.isFavorite, notes: last.notes);
+        await batch((batch) {
+          batch.delete(_history, last);
+          batch.insert(_history, item);
+        });
+        return item;
+      }
+    }
+    await _history.insertOne(item);
+    return item;
+  }
 }

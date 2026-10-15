@@ -127,17 +127,22 @@ const DictInstance mapJa = {
   .creatorEventLabelBegin: '開始',
   .creatorEventLabelEnd: '終了',
   .barcodeDescriptionQrCode: 'QRコード (Quick Response Code) - 世界で最も普及している2次元コード。キャッシュレス決済、ウェブサイトへの誘導、広告、デジタル情報の交換に幅広く利用されています。',
-  .barcodeDescriptionDataMatrix: 'Data Matrix - 高密度な産業用コード。電子部品のマーキング、医療機器の追跡、工場の自動生産ラインなどでよく使われます。',
+  .barcodeDescriptionDataMatrix:
+      'Data Matrix - 高密度な産業用コード。電子部品のマーキング、医療機器の追跡、工場の自動生産ラインなどでよく使われます。',
   .barcodeDescriptionAztec: 'Aztec Code - 中央の正方形のファインダーパターンが特徴。読み取り効率が高く、余白が不要なため、航空券、鉄道のチケット、公的身分証明書などに適しています。',
   .barcodeDescriptionPdf417: 'PDF417 (Portable Data File) - 高密度で誤り訂正能力に優れたコード。運転免許証、身分証明書、物流の通関書類、大型貨物の追跡などに主に使用されます。',
   .barcodeDescriptionEan13: 'EAN-13 (European Article Number) - 世界の小売市場で最も一般的な商品識別コード。欧州および世界各地の消費財の流通に使用されています。',
   .barcodeDescriptionEan8: 'EAN-8 (European Article Number) - EAN-13の短縮版。標準のEAN-13を印刷するスペースがない小型パッケージ向けに設計されています。',
   .barcodeDescriptionUpcA: 'UPC-A (Universal Product Code) - 北米の小売商品の標準識別コード。米国やカナダのスーパーマーケットや各店舗で主に使用されています。',
   .barcodeDescriptionUpcE: 'UPC-E (Universal Product Code) - UPC-Aの圧縮版。北米の印刷スペースが限られた小型パッケージ向けの商品識別コードです。',
-  .barcodeDescriptionCode128: 'Code 128 - 高密度の現代的な汎用コード。物流、サプライチェーン管理、産業オートメーション、医療用ラベルなどで幅広く利用されています。',
-  .barcodeDescriptionCode93: 'Code 93 - 高いセキュリティとコンパクトさを備えたコード。電子部品、軍事物流、カナダ郵便などで使用されています。',
-  .barcodeDescriptionCode39: 'Code 39 - 歴史のある産業用コード。自動車製造、軍事・国防、医療記録管理、資産追跡などでよく見られます。',
-  .barcodeDescriptionCodabar: 'Codabar - 初期の読み取り環境向けに設計されたコード。現在も図書館の蔵書管理、血液銀行、一部の宅配伝票などで使用されています。',
+  .barcodeDescriptionCode128:
+      'Code 128 - 高密度の現代的な汎用コード。物流、サプライチェーン管理、産業オートメーション、医療用ラベルなどで幅広く利用されています。',
+  .barcodeDescriptionCode93:
+      'Code 93 - 高いセキュリティとコンパクトさを備えたコード。電子部品、軍事物流、カナダ郵便などで使用されています。',
+  .barcodeDescriptionCode39:
+      'Code 39 - 歴史のある産業用コード。自動車製造、軍事・国防、医療記録管理、資産追跡などでよく見られます。',
+  .barcodeDescriptionCodabar:
+      'Codabar - 初期の読み取り環境向けに設計されたコード。現在も図書館の蔵書管理、血液銀行、一部の宅配伝票などで使用されています。',
   .barcodeDescriptionItf: 'Interleaved 2 of 5 - 物流・輸送向けに設計されたコード。段ボールなどの包装材への印刷に適しており、外箱の商品識別に使用されます。',
   .barcodeCompositionText: 'テキスト',
   .barcodeCompositionTextSimple: '特殊文字なしのテキスト',
@@ -169,7 +174,8 @@ const DictInstance mapJa = {
   .errorUnsupportedCharsAscii: 'このバーコードタイプは、ASCII 範囲外の特殊文字をサポートしていません。',
   .errorRegexCode93: 'Code 93 は、英大文字 26 文字、数字(0–9)、および 7 つの特殊文字 « -, ., space, \$, /, +, % » をエンコードできます。',
   .errorRegexCode39: 'Code 39 は、英大文字 26 文字、数字(0–9)、および 7 つの特殊文字 « -, ., space, \$, /, +, % » をエンコードできます。',
-  .errorRegexCodabar: 'Codabar は、数字(0–9) および 6 つの特殊文字 « -, \$, :, /, ., + » をエンコードできます。',
+  .errorRegexCodabar:
+      'Codabar は、数字(0–9) および 6 つの特殊文字 « -, \$, :, /, ., + » をエンコードできます。',
   .errorItfEvenLength: 'ITF は偶数桁である必要があります。',
   .errorUpcEStartZero: 'UPC-E は 0 で始まる必要があります。',
   .errorUrlFormat: 'URLは "http://" または "https://" で始まる必要があります。',
@@ -222,9 +228,11 @@ const DictInstance mapJa = {
   .settingOptionCustomSearchDeleted: 'カスタムURLを削除しました！',
   .settingOptionCustomSearchAdded: 'カスタムURLを追加しました！',
   .settingOptionCustomSearchUpdated: 'カスタムURLを更新しました！',
-  .settingOptionCustomSearchInfo: 'URL内で "${StaticString.searchReplaceWord}" を使用してください。検索時にバーコードの内容に置き換えられます。',
+  .settingOptionCustomSearchInfo:
+      'URL内で "${StaticString.searchReplaceWord}" を使用してください。検索時にバーコードの内容に置き換えられます。',
   .settingOptionCustomSearchExample: '例: ',
-  .settingErrorCustomUrl: 'URLには "${StaticString.searchReplaceWord}" が含まれている必要があります。',
+  .settingErrorCustomUrl:
+      'URLには "${StaticString.searchReplaceWord}" が含まれている必要があります。',
   .settingGroupAbout: 'このアプリについて',
   .settingOptionLicenses: 'オープンソースライセンス',
   .settingOptionVersion: 'バージョン',

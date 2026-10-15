@@ -1,26 +1,32 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
 import 'package:watashi_locale/watashi_locale.dart';
-import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/app_theme.dart';
-import 'package:watashi_qr/locale/app_language.dart';
-import 'package:watashi_qr/pages/menu_nav_bar.dart';
+import 'package:watashi_qr/common/drift_database.dart';
 import 'package:watashi_qr/common/prefs.dart';
+import 'package:watashi_qr/common/router.dart';
+import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/locale/app_localizations.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/pages/menu_nav_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(MyAppTheme.systemOverlayStyle);
-  await Future.wait([PrefsProvider.init(), DatabaseServices.init()]);
+  await Future.wait([PrefsProvider.init(), Utils.unlockOrientation()]);
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => MenuNavBarProvider()),
-        ChangeNotifierProvider(create: (context) => PrefsProvider()),
+        ChangeNotifierProvider(create: (ctx) => MenuNavBarProvider()),
+        ChangeNotifierProvider(create: (ctx) => PrefsProvider()),
+        Provider(
+          create: (ctx) => MyDriftDatabase(),
+          lazy: false,
+          dispose: (ctx, db) => db.close(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -42,18 +48,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         return ListenableBuilder(
-          listenable: context.readPrefs.listens(const [.selectedColor, .selectedTheme, .selectedLanguage]),
+          listenable: context.readPrefs.listens(const [
+            .selectedColor,
+            .selectedTheme,
+            .selectedLanguage,
+          ]),
           builder: (context, child) {
             return MaterialApp(
               title: StaticString.appName,
               theme: MyAppTheme.themeData(context, lightDynamic, darkDynamic),
               debugShowCheckedModeBanner: false,
 
-              locale: context.readPrefs.get<LocaleOption>(.selectedLanguage).locale,
+              locale: context.readPrefs
+                  .get<LocaleOption>(.selectedLanguage)
+                  .locale,
               localizationsDelegates: WatashiLocale.getDelegates(),
               supportedLocales: WatashiLocale.supportedLocales,
 

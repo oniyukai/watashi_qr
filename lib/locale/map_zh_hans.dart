@@ -126,19 +126,30 @@ const DictInstance mapZhHans = {
   .creatorEventOptionAllDay: '全天',
   .creatorEventLabelBegin: '开始',
   .creatorEventLabelEnd: '结束',
-  .barcodeDescriptionQrCode: 'QR Code (快速响应矩阵码) - 全球最普及的二维条码，广泛应用于移动支付、网址跳转、广告营销及各式数字信息交换。',
-  .barcodeDescriptionDataMatrix: 'Data Matrix - 具有极高密度的工业级条码，常用于电子零部件标记、医疗器材追踪及极小面积零件的自动化生产线。',
-  .barcodeDescriptionAztec: 'Aztec Code - 特色是中心有方形定位标记，因其读取效率高且无需空白边界，常用于航空登机证、铁路票券及政府身份文件。',
-  .barcodeDescriptionPdf417: 'PDF417 (便携式数据文件码) - 一种高密度且具备高度容错能力的条码，主要应用于各国驾照、身份证件、物流报关单据及大型货运追踪。',
-  .barcodeDescriptionEan13: 'EAN-13 (欧洲商品条码) - 全球零售市场最常用的商品识别标准，广泛应用于欧洲及世界各地的消费性产品流通。',
-  .barcodeDescriptionEan8: 'EAN-8 (欧洲商品条码) - 专为小型包装设计的商品识别码，适用于印刷空间不足以容纳标准 EAN-13 条码的零售商品。',
-  .barcodeDescriptionUpcA: 'UPC-A (通用产品代码) - 北美地区零售商品的标准识别码，主要应用于美国及加拿大的超市与各类商店。',
-  .barcodeDescriptionUpcE: 'UPC-E (通用产品代码) - 专为小型包装设计的北美商品识别码，是 UPC-A 的压缩版本，适用于印刷空间有限的商品。',
-  .barcodeDescriptionCode128: 'Code 128 - 高密度的现代通用条码，广泛应用于物流运输、供应链管理、工业自动化与医疗药品标识。',
+  .barcodeDescriptionQrCode:
+      'QR Code (快速响应矩阵码) - 全球最普及的二维条码，广泛应用于移动支付、网址跳转、广告营销及各式数字信息交换。',
+  .barcodeDescriptionDataMatrix:
+      'Data Matrix - 具有极高密度的工业级条码，常用于电子零部件标记、医疗器材追踪及极小面积零件的自动化生产线。',
+  .barcodeDescriptionAztec:
+      'Aztec Code - 特色是中心有方形定位标记，因其读取效率高且无需空白边界，常用于航空登机证、铁路票券及政府身份文件。',
+  .barcodeDescriptionPdf417:
+      'PDF417 (便携式数据文件码) - 一种高密度且具备高度容错能力的条码，主要应用于各国驾照、身份证件、物流报关单据及大型货运追踪。',
+  .barcodeDescriptionEan13:
+      'EAN-13 (欧洲商品条码) - 全球零售市场最常用的商品识别标准，广泛应用于欧洲及世界各地的消费性产品流通。',
+  .barcodeDescriptionEan8:
+      'EAN-8 (欧洲商品条码) - 专为小型包装设计的商品识别码，适用于印刷空间不足以容纳标准 EAN-13 条码的零售商品。',
+  .barcodeDescriptionUpcA:
+      'UPC-A (通用产品代码) - 北美地区零售商品的标准识别码，主要应用于美国及加拿大的超市与各类商店。',
+  .barcodeDescriptionUpcE:
+      'UPC-E (通用产品代码) - 专为小型包装设计的北美商品识别码，是 UPC-A 的压缩版本，适用于印刷空间有限的商品。',
+  .barcodeDescriptionCode128:
+      'Code 128 - 高密度的现代通用条码，广泛应用于物流运输、供应链管理、工业自动化与医疗药品标识。',
   .barcodeDescriptionCode93: 'Code 93 - 具有高度安全性和紧凑性的条码，常用于电子零部件、军事物流以及加拿大邮政系统。',
   .barcodeDescriptionCode39: 'Code 39 - 发展历史悠久的工业级条码，常见于汽车制造、军事国防、医疗记录管理与资产追踪。',
-  .barcodeDescriptionCodabar: 'Codabar - 专为早期读取环境设计的条码，目前仍在使用于图书馆藏管理、血库系统及部分物流快递单据。',
-  .barcodeDescriptionItf: 'Interleaved 2 of 5 - 专为运输物流设计的条码，特别适合印刷在瓦楞纸箱等包装材料上，用于外箱货物识别。',
+  .barcodeDescriptionCodabar:
+      'Codabar - 专为早期读取环境设计的条码，目前仍在使用于图书馆藏管理、血库系统及部分物流快递单据。',
+  .barcodeDescriptionItf:
+      'Interleaved 2 of 5 - 专为运输物流设计的条码，特别适合印刷在瓦楞纸箱等包装材料上，用于外箱货物识别。',
   .barcodeCompositionText: '文本',
   .barcodeCompositionTextSimple: '没有特殊字符的文本',
   .barcodeCompositionTextUpperSimple: '没有特殊字符的大写文本',
@@ -167,8 +178,10 @@ const DictInstance mapZhHans = {
   .errorWrongCheckDigit: '最后一位数 (校验码) 应该是: ',
   .errorUnsupportedCharsIso88591: '此条码类型不支持特殊字符，应在 ISO 8859-1 范围内。',
   .errorUnsupportedCharsAscii: '此条码类型不支持特殊字符，应在 ASCII 范围内。',
-  .errorRegexCode93: 'Code 93 可编码 26 个大写字母、数字(0–9) 以及 7 个特殊字符 « -, ., space, \$, /, +, % »。',
-  .errorRegexCode39: 'Code 39 可编码 26 个大写字母、数字(0–9) 以及 7 个特殊字符 « -, ., space, \$, /, +, % »。',
+  .errorRegexCode93:
+      'Code 93 可编码 26 个大写字母、数字(0–9) 以及 7 个特殊字符 « -, ., space, \$, /, +, % »。',
+  .errorRegexCode39:
+      'Code 39 可编码 26 个大写字母、数字(0–9) 以及 7 个特殊字符 « -, ., space, \$, /, +, % »。',
   .errorRegexCodabar: 'Codabar 可编码数字(0–9) 以及 6 个特殊字符 « -, \$, :, /, ., + »。',
   .errorItfEvenLength: 'ITF 必须包含偶数个字符。',
   .errorUpcEStartZero: 'UPC-E 开头必须是 0 。',
@@ -222,7 +235,8 @@ const DictInstance mapZhHans = {
   .settingOptionCustomSearchDeleted: '已删除自定义网址！',
   .settingOptionCustomSearchAdded: '已添加自定义网址！',
   .settingOptionCustomSearchUpdated: '已更新自定义网址！',
-  .settingOptionCustomSearchInfo: '在网址中使用术语 "${StaticString.searchReplaceWord}"。该术语将会在搜索过程中被条码的内容取代。',
+  .settingOptionCustomSearchInfo:
+      '在网址中使用术语 "${StaticString.searchReplaceWord}"。该术语将会在搜索过程中被条码的内容取代。',
   .settingOptionCustomSearchExample: '例子: ',
   .settingErrorCustomUrl: '网址中必须包含术语 "${StaticString.searchReplaceWord}"。',
   .settingGroupAbout: '关于',

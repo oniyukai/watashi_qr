@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:watashi_qr/pages/widget/my_icon.dart';
 
 class ExpandableCard extends StatefulWidget {
   final String title;
   final MyIconData? myIconData;
   final bool? initialExpanded;
+  final Clip? clipBehavior;
   final Widget? collapsedChild;
   final Widget? expandedChild;
 
@@ -12,7 +13,8 @@ class ExpandableCard extends StatefulWidget {
     super.key,
     required this.title,
     this.myIconData,
-    this.initialExpanded = false,
+    this.initialExpanded = true,
+    this.clipBehavior,
     this.collapsedChild,
     this.expandedChild,
   });
@@ -24,6 +26,7 @@ class ExpandableCard extends StatefulWidget {
 class _ExpandableCardState extends State<ExpandableCard>
     with SingleTickerProviderStateMixin {
   late bool _isExpanded;
+  late bool _isExpandedChildVisible;
   late final AnimationController _controller;
   late final Animation<double> _arrowAnimation;
   late final Animation<double> _expandAnimation;
@@ -31,20 +34,25 @@ class _ExpandableCardState extends State<ExpandableCard>
   @override
   void initState() {
     super.initState();
-    _isExpanded = widget.initialExpanded ?? false;
+    _isExpandedChildVisible = _isExpanded = widget.initialExpanded ?? false;
     _controller = AnimationController(
       vsync: this,
-      duration: const .new(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     );
+    if (_isExpanded) _controller.value = 1.0;
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.dismissed) {
+        setState(() => _isExpandedChildVisible = false);
+      } else if (status == AnimationStatus.forward) {
+        setState(() => _isExpandedChildVisible = true);
+      }
+    });
+
     _arrowAnimation = Tween<double>(begin: 0.0, end: 0.5).animate(_controller);
     _expandAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     );
-
-    if (_isExpanded) {
-      _controller.value = 1.0;
-    }
   }
 
   @override
@@ -54,23 +62,22 @@ class _ExpandableCardState extends State<ExpandableCard>
   }
 
   void _toggleExpand() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-      if (_isExpanded) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
-    });
+    setState(() => _isExpanded = !_isExpanded);
+    if (_isExpanded) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     return Card(
+      clipBehavior: widget.clipBehavior,
       child: Column(
         children: [
           ListTile(
-            contentPadding: const .symmetric(horizontal: 16.0),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
             leading: MyIcon(widget.myIconData),
             title: Text(widget.title),
             trailing: RotationTransition(
@@ -81,14 +88,17 @@ class _ExpandableCardState extends State<ExpandableCard>
           ),
           if (widget.collapsedChild != null && !_isExpanded)
             Padding(
-              padding: const .fromLTRB(16.0, 4.0, 16.0, 16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 16.0),
               child: widget.collapsedChild,
             ),
-          SizeTransition(
-            sizeFactor: _expandAnimation,
-            child: (widget.expandedChild == null) ? null : Padding(
-              padding: const .fromLTRB(16.0, 4.0, 16.0, 16.0),
-              child: widget.expandedChild,
+          Visibility(
+            visible: _isExpandedChildVisible && widget.expandedChild != null,
+            child: SizeTransition(
+              sizeFactor: _expandAnimation,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 16.0),
+                child: widget.expandedChild,
+              ),
             ),
           ),
         ],

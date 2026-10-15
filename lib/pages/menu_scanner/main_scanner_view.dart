@@ -1,182 +1,204 @@
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:provider/provider.dart';
-import 'package:watashi_qr/common/database_services.dart';
+import 'package:watashi_qr/common/drift_database.dart';
+import 'package:watashi_qr/common/prefs.dart';
 import 'package:watashi_qr/common/router.dart';
 import 'package:watashi_qr/common/utils.dart';
+import 'package:watashi_qr/entity/history_basic.dart';
 import 'package:watashi_qr/entity/history_format.dart';
-import 'package:watashi_qr/entity/history_item.dart';
 import 'package:watashi_qr/entity/history_type.dart';
 import 'package:watashi_qr/locale/app_language.dart';
 import 'package:watashi_qr/pages/menu_history/page_item_view.dart';
 import 'package:watashi_qr/pages/menu_nav_bar.dart';
 import 'package:watashi_qr/pages/menu_scanner/main_scanner_widgets.dart';
 import 'package:watashi_qr/pages/menu_scanner/page_image_scan.dart';
-import 'package:watashi_qr/common/prefs.dart';
 
 class MainScannerView extends StatefulWidget {
   const MainScannerView({super.key});
+
+  static (String?, BarcodeFormat) decodeCapture(BarcodeCapture capture) {
+    final BarcodeBytes? rawBytes = capture.barcodes.first.rawDecodedBytes;
+    String? rawValue = capture.barcodes.first.rawValue;
+    if (rawValue?.trim().isNotEmpty ?? false) {
+    } else if (rawBytes is DecodedBarcodeBytes) {
+      rawValue = utf8.decode(rawBytes.bytes, allowMalformed: true);
+    } else if (rawBytes is DecodedVisionBarcodeBytes &&
+        rawBytes.bytes != null) {
+      rawValue = utf8.decode(rawBytes.bytes!, allowMalformed: true);
+    }
+    return (rawValue, capture.barcodes.first.format);
+  }
 
   @override
   State<MainScannerView> createState() => _MainScannerViewState();
 }
 
-class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingObserver {
-  final MobileScannerController _scannerController = MobileScannerController(
-    detectionSpeed: .unrestricted,
-    autoStart: false,
-  );
+class _MainScannerViewState extends State<MainScannerView> {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  bool _enableDetect = true;
-  bool _isLockScreenRotation = true;
+  bool _isOnViewPage = true;
+  bool _isDetectBusy = false;
+  bool _isOpenScanner = false;
+  bool _isLockOrient = false;
   bool _isLastTimeOnView = false;
-  Rect _scanWindow = .zero;
+  Rect _scanWindow = Rect.zero;
   late double _zoomLevel = context.readPrefs.get(.scannerZoomLevel);
-  late bool _isUseFrontCamera;
   late double _defaultScanWindowSize;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
+  MobileScannerController? _scannerController;
 
   @override
   void dispose() {
     super.dispose();
-    _scannerController.dispose();
     _audioPlayer.dispose();
     _setOrientationLock(false);
-    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _viewEntryExitEvent(context.watch<MenuNavBarProvider>().onScanner);
+    _viewEntryExitEvent(
+      context.watch<MenuNavBarProvider>().onScanner && _isOnViewPage,
+    );
   }
 
-  Future<void> _viewEntryExitEvent(bool onScanner) async {
-    if (_enableDetect && onScanner) {
+  Future<void> _viewEntryExitEvent(bool onView) async {
+    _setScanWindow();
+    if (onView && !_isLastTimeOnView) {
       _isLastTimeOnView = true;
-      final bool isLockScreenRotation = context.readPrefs.get(.isLockScreenRotation);
-      await _loadOrientationLengthStartScan();
-      await _setOrientationLock(isLockScreenRotation);
-    } else if (!onScanner && _isLastTimeOnView) {
+      final bool isLockOrient = context.readPrefs.get(.isLockOrient);
+      _setScannerOpen(true);
+      await _setOrientationLock(isLockOrient);
+    } else if (!onView && _isLastTimeOnView) {
       _isLastTimeOnView = false;
-      await _scannerController.stop();
+      _setScannerOpen(false);
       await _setOrientationLock(false);
     }
   }
 
-  Future<void> _loadOrientationLengthStartScan() async {
+  void _setScanWindow() {
     final bool isPortrait = Utils.isPortrait(context);
-    final double width = context.readPrefs.get(isPortrait
-        ? .scannerWindowWidthPortrait
-        : .scannerWindowWidthLandscape
+    final double width = context.readPrefs.get(
+      isPortrait ? .scannerWindowWidthPortrait : .scannerWindowWidthLandscape,
     );
-    final double height = context.readPrefs.get(isPortrait
-        ? .scannerWindowHeightPortrait
-        : .scannerWindowHeightLandscape
+    final double height = context.readPrefs.get(
+      isPortrait ? .scannerWindowHeightPortrait : .scannerWindowHeightLandscape,
     );
     _defaultScanWindowSize = MediaQuery.of(context).size.shortestSide * 0.4;
-    _scanWindow = .fromCenter(
+    _scanWindow = Rect.fromCenter(
       center: _scanWindow.center,
       width: width >= 0 ? width : _defaultScanWindowSize,
       height: height >= 0 ? height : _defaultScanWindowSize,
     );
-    _isUseFrontCamera = context.readPrefs.get(.isUseFrontCamera);
-    await _scannerController.start(cameraDirection: _isUseFrontCamera ? .front : .back);
-    await _scannerController.setZoomScale(_zoomLevel);
+  }
+
+  void _setScannerOpen(bool toOpen) {
+    if (_isOpenScanner == toOpen) return;
+    _isOpenScanner = toOpen;
+    if (mounted) setState(() {});
   }
 
   Future<void> _setOrientationLock(bool toLock) async {
+    if (_isLockOrient == toLock) return;
     if (toLock) {
-      await Utils.lockCurrentOrientation(context, _scannerController.value.deviceOrientation);
-    } else if (_isLockScreenRotation) {
-      await Utils.unlockCurrentOrientation();
+      await Utils.lockOrientation(
+        context: context,
+        orientation: (await NativeDeviceOrientationCommunicator().orientation())
+            .deviceOrientation,
+      );
+    } else if (_isLockOrient) {
+      await Utils.unlockOrientation();
     }
-    _isLockScreenRotation = toLock;
+    _isLockOrient = toLock;
   }
 
-  @override
-  void didChangeAppLifecycleState(state) {
-    super.didChangeAppLifecycleState(state);
-    if (!_scannerController.value.isInitialized) return;
-    if (state == .resumed && _enableDetect && context.read<MenuNavBarProvider>().onScanner) {
-      _scannerController.setZoomScale(_zoomLevel);
+  Future<void> _onDetect(BarcodeCapture capture) async {
+    if (_isDetectBusy) return;
+    _isDetectBusy = true;
+    try {
+      await _sendBarcode(MainScannerView.decodeCapture(capture));
+    } catch (e) {
+      Utils.showToast('${DictKey.analysisScanError.s} $e');
+      await Future.delayed(const Duration(milliseconds: 1600));
+    } finally {
+      _isDetectBusy = false;
     }
   }
 
-  Future<void> _scannerOnDetect(BarcodeCapture capture) async {
-    if (!_enableDetect) return;
-    _enableDetect = false;
+  Future<void> _sendBarcode((String?, BarcodeFormat) barcodeValue) async {
+    final (rawValue, format) = barcodeValue;
     final bool isVibrateOnScan = context.readPrefs.get(.isVibrateOnScan);
     final bool isBipOnScan = context.readPrefs.get(.isBipOnScan);
     final bool isBarcodeCopied = context.readPrefs.get(.isBarcodeCopied);
     final bool isScanAddHistory = context.readPrefs.get(.isScanAddHistory);
     final bool isContinuousScan = context.readPrefs.get(.isContinuousScan);
     final bool isAutoOpenWebsite = context.readPrefs.get(.isAutoOpenWebsite);
-    final BarcodeFormat scannerFormat = capture.barcodes.first.format;
-    final String? contents = capture.barcodes.first.rawValue;
-    if (contents == null || contents.isEmpty) {
-      Utils.showToast(DictKey.analysisScanError.s);
-      _enableDetect = true;
-      return;
-    }
+    if (rawValue == null) throw Exception('rawValue == null.');
+    if (rawValue.trim().isEmpty) throw Exception('rawValue is empty.');
     if (isVibrateOnScan) Utils.deviceVibrate();
     if (isBipOnScan) Utils.audioPlayBeep(_audioPlayer);
-    if (isBarcodeCopied) Clipboard.setData(.new(text: contents));
-    final HistoryFormat? format = .fromScannerFormat(scannerFormat);
-    final HistoryItem item = HistoryItem(
-      unixTime: Utils.nowUnixTime,
-      contents: contents,
-      format: format?.name ?? scannerFormat.name,
-      type: HistoryType.fromDistinguish(format, contents).name,
+    if (isBarcodeCopied) Clipboard.setData(ClipboardData(text: rawValue));
+    final HistoryFormat? historyFormat = HistoryFormat.fromScannerFormat(
+      format,
+    );
+    HistoryItem item = HistoryItem(
+      uuid: '',
+      createdAt: DateTime.now(),
+      contents: rawValue,
+      format: historyFormat?.name ?? format.name,
+      type: HistoryType.fromDistinguish(historyFormat, rawValue).name,
       errorLevel: HistoryErrorLevel.none.name,
       origin: HistoryOrigin.S.name,
       isFavorite: false,
       notes: '',
     );
-    if (isScanAddHistory) item.id = DatabaseServices.addItem(item);
+    if (isScanAddHistory) item = await DriftService.appDb.dao.insert(item);
     if (isContinuousScan) {
       Utils.showToast(item.contents);
-      await Future.delayed(const .new(milliseconds: 1600));
-    } else if (isAutoOpenWebsite && item.getType == .website) {
-      await Utils.openUrlInBrowser(item.contents);
-      await Future.delayed(const .new(milliseconds: 1600));
-    } else {
-      _viewEntryExitEvent(false);
-      await context.routeOf<PageItemView>().toPass(item);
-      _viewEntryExitEvent(_enableDetect = true);
+      await Future.delayed(const Duration(milliseconds: 1600));
+      return;
     }
-    _enableDetect = true;
+    await _viewEntryExitEvent(_isOnViewPage = false);
+    if (isAutoOpenWebsite && item.getType == HistoryType.website) {
+      await Utils.openUrlInBrowser(item.contents);
+      await Future.delayed(const Duration(milliseconds: 1600));
+    } else {
+      await context.routeOf<PageItemView>().toPass(item);
+    }
+    await _viewEntryExitEvent(_isOnViewPage = true);
   }
 
   void _updateScanWindow(double width, double height) {
-    setState(() => _scanWindow = .fromCenter(
+    _scanWindow = Rect.fromCenter(
       center: _scanWindow.center,
       width: width,
       height: height,
-    ));
+    );
+    setState(() {});
   }
 
   Future<void> _saveScanWindow() async {
     final bool isPortrait = Utils.isPortrait(context);
-    context.readPrefs.update(isPortrait
-        ? .scannerWindowWidthPortrait
-        : .scannerWindowWidthLandscape,
-      _scanWindow.width, false,
-    );
-    await context.readPrefs.update(isPortrait
-        ? .scannerWindowHeightPortrait
-        : .scannerWindowHeightLandscape,
-      _scanWindow.height, false,
-    );
+    await Future.wait([
+      context.readPrefs.update(
+        isPortrait ? .scannerWindowWidthPortrait : .scannerWindowWidthLandscape,
+        _scanWindow.width,
+        false,
+      ),
+      context.readPrefs.update(
+        isPortrait
+            ? .scannerWindowHeightPortrait
+            : .scannerWindowHeightLandscape,
+        _scanWindow.height,
+        false,
+      ),
+    ]);
   }
 
   Future<void> _resetScanWindow() {
@@ -185,14 +207,14 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   Future<void> _goPageImageScan() async {
-    _viewEntryExitEvent(_enableDetect = false);
-    await context.routeOf<PageImageScan>().toPass((.new(controller: _scannerController)));
-    _viewEntryExitEvent(_enableDetect = true);
+    await _viewEntryExitEvent(_isOnViewPage = false);
+    await context.routeOf<PageImageScan>().toPass((PageImageScanArgs()));
+    await _viewEntryExitEvent(_isOnViewPage = true);
   }
 
-  Future<void> _setZoomLevel(double zoomLevel) {
+  Future<void> _setZoomLevel(double zoomLevel) async {
     setState(() => _zoomLevel = zoomLevel);
-    return _scannerController.setZoomScale(zoomLevel);
+    await _scannerController?.setZoomScale(zoomLevel);
   }
 
   Future<void> _saveZoomLevel(double zoomLevel) {
@@ -200,100 +222,104 @@ class _MainScannerViewState extends State<MainScannerView> with WidgetsBindingOb
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     DictKey.load(context);
     final bool isPortrait = Utils.isPortrait(context);
-    return Stack(
-      children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            _scanWindow = .fromCenter(
-              center: Size(constraints.maxWidth, constraints.maxHeight).center(.zero),
-              width: _scanWindow.width,
-              height: _scanWindow.height,
-            );
-            return Stack(
-              children: [
-                Transform.scale(
-                  scaleX: _isUseFrontCamera ? -1 : 1,
-                  child: MobileScanner(
-                    scanWindow: _scanWindow,
-                    controller: _scannerController,
-                    errorBuilder: scannerErrorBuilder,
-                    onDetect: _scannerOnDetect,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _scanWindow = Rect.fromCenter(
+          center: Size(
+            constraints.maxWidth,
+            constraints.maxHeight,
+          ).center(Offset.zero),
+          width: _scanWindow.width,
+          height: _scanWindow.height,
+        );
+        return Stack(
+          children: [
+            if (_isOpenScanner)
+              CameraWindow(
+                scanWindow: _scanWindow,
+                facing: context.readPrefs.get(.isUseFrontCamera)
+                    ? CameraFacing.front
+                    : CameraFacing.back,
+                initialZoom: _zoomLevel,
+                onDetect: _onDetect,
+                onOpen: (controller) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() => _scannerController = controller);
+                  });
+                },
+              ),
+            if (_scannerController != null)
+              MyScanWindowOverlay(
+                controller: _scannerController!,
+                scanWindow: _scanWindow,
+                onPanUpdate: _updateScanWindow,
+                onPanEnd: _saveScanWindow,
+              ),
+            Align(
+              alignment: isPortrait
+                  ? AlignmentGeometry.bottomCenter
+                  : AlignmentGeometry.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.all(32.0),
+                width: isPortrait ? null : 100,
+                height: isPortrait ? 100 : null,
+                child: RotatedBox(
+                  quarterTurns: isPortrait ? 0 : 3,
+                  child: Slider(
+                    value: _zoomLevel,
+                    min: 0.0,
+                    max: 1.0,
+                    onChanged: _setZoomLevel,
+                    onChangeEnd: _saveZoomLevel,
                   ),
                 ),
-                Transform.scale( // todo debug: 自拍字體水平相反
-                  scaleX: _isUseFrontCamera ? -1 : 1,
-                  child: BarcodeOverlay(
-                    controller: _scannerController,
-                    boxFit: .cover,
-                    color: Theme.of(context).colorScheme.tertiary.withValues(alpha:0.5),
+              ),
+            ),
+            SafeArea(
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: isPortrait
+                        ? AlignmentGeometry.topLeft
+                        : AlignmentGeometry.topRight,
+                    child: Card(
+                      margin: const EdgeInsets.all(16.0),
+                      child: IconButton(
+                        icon: const Icon(MaterialCommunityIcons.arrow_expand),
+                        onPressed: _resetScanWindow,
+                      ),
+                    ),
                   ),
-                ),
-                MyScanWindowOverlay(
-                  controller: _scannerController,
-                  scanWindow: _scanWindow,
-                  onPanUpdate: _updateScanWindow,
-                  onPanEnd: _saveScanWindow,
-                ),
-              ],
-            );
-          },
-        ),
-        Align(
-          alignment: isPortrait ? .bottomCenter : .centerLeft,
-          child: Container(
-            padding: const .all(32.0),
-            width: isPortrait ? null : 100,
-            height: isPortrait ? 100 : null,
-            child: RotatedBox(
-              quarterTurns: isPortrait ? 0 : 3,
-              child: Slider(
-                value: _zoomLevel,
-                min: 0.0,
-                max: 1.0,
-                onChanged: _setZoomLevel,
-                onChangeEnd: _saveZoomLevel,
+                  Align(
+                    alignment: isPortrait
+                        ? AlignmentGeometry.topRight
+                        : AlignmentGeometry.bottomRight,
+                    child: Card(
+                      margin: const EdgeInsets.all(16.0),
+                      child: Flex(
+                        direction: isPortrait ? Axis.horizontal : Axis.vertical,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_scannerController != null)
+                            FlashlightButton(_scannerController!),
+                          IconButton(
+                            splashRadius: 16,
+                            icon: const Icon(Icons.photo),
+                            onPressed: _goPageImageScan,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ),
-        SafeArea(
-          child: Stack(
-            children: [
-              Align(
-                alignment: isPortrait ? .topLeft : .topRight,
-                child: Card(
-                  margin: const .all(16.0),
-                  child: IconButton(
-                    icon: const Icon(MaterialCommunityIcons.arrow_expand),
-                    onPressed: _resetScanWindow,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: isPortrait ? .topRight : .bottomRight,
-                child: Card(
-                  margin: const .all(16.0),
-                  child: Flex(
-                    direction: isPortrait ? .horizontal : .vertical,
-                    mainAxisSize: .min,
-                    children: [
-                      FlashlightButton(_scannerController),
-                      IconButton(
-                        splashRadius: 16,
-                        icon: const Icon(Icons.photo),
-                        onPressed: _goPageImageScan,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
